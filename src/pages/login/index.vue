@@ -92,7 +92,7 @@
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { type LoginFormData } from "@/api/auth";
-import { useUserStore } from "@/store/modules/user";
+import { useUserStore } from "@/store/modules/user.store";
 import { useToast } from "wot-design-uni";
 import { ref } from "vue";
 

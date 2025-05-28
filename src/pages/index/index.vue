@@ -92,17 +92,25 @@
 <script setup lang="ts">
 import { dayjs } from "wot-design-uni";
 
-import LogAPI, { VisitStatsVO } from "@/api/system/log";
+// 定义访问统计数据类型
+interface VisitStatsVO {
+  todayUvCount: number;
+  uvGrowthRate: number;
+  totalUvCount: number;
+  todayPvCount: number;
+  pvGrowthRate: number;
+  totalPvCount: number;
+}
 
 const current = ref<number>(0);
 
 const visitStatsData = ref<VisitStatsVO>({
-  todayUvCount: 0,
-  uvGrowthRate: 0,
-  totalUvCount: 0,
-  todayPvCount: 0,
-  pvGrowthRate: 0,
-  totalPvCount: 0,
+  todayUvCount: 1234,
+  uvGrowthRate: 15.6,
+  totalUvCount: 45678,
+  todayPvCount: 5678,
+  pvGrowthRate: 23.4,
+  totalPvCount: 123456,
 });
 
 // 图表数据
@@ -163,6 +171,31 @@ const navList = reactive([
   },
 ]);
 
+// 生成静态的访问趋势数据
+const generateStaticTrendData = (days: number) => {
+  const dates = [];
+  const ipList = [];
+  const pvList = [];
+
+  const today = new Date();
+
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    dates.push(dayjs(date).format("MM-DD"));
+
+    // 生成模拟数据
+    ipList.push(Math.floor(Math.random() * 500) + 200);
+    pvList.push(Math.floor(Math.random() * 1000) + 500);
+  }
+
+  return {
+    dates,
+    ipList,
+    pvList,
+  };
+};
+
 function handleClick(e: any) {
   console.log(e);
 }
@@ -170,25 +203,27 @@ function onChange(e: any) {
   console.log(e);
 }
 
-// 加载访问统计数据
+// 加载访问统计数据（使用静态数据）
 const loadVisitStatsData = async () => {
-  LogAPI.getVisitStats().then((data) => {
-    visitStatsData.value = data;
-  });
+  // 模拟异步加载
+  setTimeout(() => {
+    visitStatsData.value = {
+      todayUvCount: 1234,
+      uvGrowthRate: 15.6,
+      totalUvCount: 45678,
+      todayPvCount: 5678,
+      pvGrowthRate: 23.4,
+      totalPvCount: 123456,
+    };
+  }, 100);
 };
 
-// 加载访问趋势数据
+// 加载访问趋势数据（使用静态数据）
 const loadVisitTrendData = () => {
-  const endDate = new Date();
-  const startDate = new Date(endDate);
-  startDate.setDate(endDate.getDate() - recentDaysRange.value + 1);
+  // 模拟异步加载
+  setTimeout(() => {
+    const data = generateStaticTrendData(recentDaysRange.value);
 
-  const visitTrendQuery = {
-    startDate: dayjs(startDate).format("YYYY-MM-DD"),
-    endDate: dayjs(endDate).format("YYYY-MM-DD"),
-  };
-
-  LogAPI.getVisitTrend(visitTrendQuery).then((data) => {
     const res = {
       categories: data.dates,
       series: [
@@ -203,7 +238,7 @@ const loadVisitTrendData = () => {
       ],
     };
     chartData.value = JSON.parse(JSON.stringify(res));
-  });
+  }, 100);
 };
 
 //  数据范围变化

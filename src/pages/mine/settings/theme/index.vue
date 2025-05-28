@@ -114,12 +114,12 @@
 
 <script lang="ts" setup>
 import { onLoad, onShow } from "@dcloudio/uni-app";
-import { useTheme } from "@/composables/theme/theme";
-import { useThemeStore } from "@/store/modules/theme";
+import { useTheme } from "@/composables/useTheme";
+import { useThemeStore } from "@/store/modules/theme.store";
 import { applyThemeOnPageShow } from "@/utils/theme";
 import { ref, computed, watch, onMounted } from "vue";
 
-const { toggleTheme, themeVars, theme, setThemeColor } = useTheme();
+const { toggleTheme, themeVars, themeState, setThemeColor } = useTheme();
 const themeStore = useThemeStore();
 
 // 暗黑模式状态
@@ -151,7 +151,7 @@ const currentThemeColor = computed(() => {
 });
 
 // 监听暗黑模式变化
-watch(theme, (newTheme) => {
+watch(themeState, (newTheme) => {
   isDark.value = newTheme === "dark";
 });
 
@@ -240,8 +240,8 @@ const resetTheme = () => {
         customColor.value = defaultColor;
 
         // 重置为浅色模式
-        if (theme.value === "dark") {
-          toggleTheme("light");
+        if (themeState.value === "dark") {
+          toggleTheme();
         }
 
         uni.showToast({
@@ -261,7 +261,7 @@ onLoad(() => {
 
 onMounted(() => {
   // 初始化暗黑模式状态
-  isDark.value = theme.value === "dark";
+  isDark.value = themeState.value === "dark";
   customColor.value = currentThemeColor.value;
 });
 

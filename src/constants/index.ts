@@ -1,4 +1,6 @@
-export const ROLE_ROOT = "ROOT";
+/**
+ * 常量统一导出
+ */
 
-// 🔗 导出所有存储键常量
-export * from "./storage-keys";
+// 存储相关常量
+export * from "./storage.constant";

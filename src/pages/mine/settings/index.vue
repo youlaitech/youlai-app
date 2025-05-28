@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useUserStore } from "@/store/modules/user";
+import { useUserStore } from "@/store/modules/user.store";
 import { checkLogin } from "@/utils/auth";
 import { computed, ref } from "vue";
 
@@ -193,8 +193,6 @@ const handleLogout = () => {
 
 // 检查登录状态
 onLoad(() => {
-  if (!checkLogin()) return;
-
   getCacheSize();
 });
 </script>

@@ -1,5 +1,5 @@
 import { getAccessToken, clearTokens } from "@/utils/auth";
-import { ResultCodeEnum } from "@/enums/ResultCodeEnum";
+import { ApiCode } from "@/enums/api-code.enum";
 
 export default function request<T>(options: UniApp.RequestOptions): Promise<T> {
   // H5 使用 VITE_APP_BASE_API 作为代理路径，其他平台使用 VITE_APP_API_URL 作为请求路径
@@ -21,11 +21,11 @@ export default function request<T>(options: UniApp.RequestOptions): Promise<T> {
         const resData = response.data as ResponseData<T>;
 
         // 业务状态码 00000 表示成功
-        if (resData.code === ResultCodeEnum.SUCCESS) {
+        if (resData.code === ApiCode.SUCCESS) {
           resolve(resData.data);
         }
         // 令牌失效或过期处理
-        else if (resData.code === ResultCodeEnum.TOKEN_INVALID) {
+        else if (resData.code === ApiCode.TOKEN_INVALID) {
           console.log("令牌失效或过期处理");
           clearTokens();
           // 跳转到登录页

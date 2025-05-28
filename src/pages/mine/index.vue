@@ -153,8 +153,8 @@
 
 <script lang="ts" setup>
 import { useToast } from "wot-design-uni";
-import { useUserStore } from "@/store/modules/user";
-import { useThemeStore } from "@/store/modules/theme";
+import { useUserStore } from "@/store/modules/user.store";
+import { useThemeStore } from "@/store/modules/theme.store";
 import { computed } from "vue";
 
 const toast = useToast();

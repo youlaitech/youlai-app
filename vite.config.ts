@@ -5,6 +5,9 @@ import UniLayouts from "@uni-helper/vite-plugin-uni-layouts";
 import UniPages from "@uni-helper/vite-plugin-uni-pages";
 import { uniuseAutoImports } from "@uni-helper/uni-use";
 
+import Components from "@uni-helper/vite-plugin-uni-components";
+import { WotResolver } from "@uni-helper/vite-plugin-uni-components/resolvers";
+
 export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => {
   const UnoCss = await import("unocss/vite").then((i) => i.default);
   const env = loadEnv(mode, process.cwd());
@@ -28,13 +31,19 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
       cssTarget: "chrome61",
     },
     optimizeDeps: {
+      include: ["wot-design-uni"],
       exclude: ["vue-demi"],
     },
     plugins: [
-      // 在 uni() 之前使用
+      // make sure put it before `Uni()`
       UnoCss(),
       UniLayouts(),
       UniPages(),
+
+      Components({
+        resolvers: [WotResolver()],
+      }),
+
       AutoImport({
         imports: ["vue", "uni-app", uniuseAutoImports()],
         dts: "src/types/auto-imports.d.ts", // 自动生成的类型声明文件

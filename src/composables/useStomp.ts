@@ -1,5 +1,5 @@
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
-import { Auth } from "@/utils/auth";
+import { getAccessToken } from "@/utils/auth";
 
 export interface UseStompOptions {
   /** WebSocket 地址，不传时使用 VITE_APP_WS_ENDPOINT 环境变量 */
@@ -70,7 +70,7 @@ export function useStomp(options: UseStompOptions = {}) {
     }
 
     // 每次连接前重新获取最新令牌，不依赖之前的token值
-    const currentToken = Auth.getAccessToken();
+    const currentToken = getAccessToken();
 
     // 检查令牌是否为空，如果为空则不进行连接
     if (!currentToken) {
@@ -123,7 +123,7 @@ export function useStomp(options: UseStompOptions = {}) {
     };
 
     // 设置 Web Socket 关闭监听器
-    client.value.onWebSocketClose = (event) => {
+    client.value.onWebSocketClose = (event: CloseEvent) => {
       isConnected.value = false;
       isConnecting = false;
       console.log(`WebSocket已关闭: ${event?.code} ${event?.reason}`);
@@ -147,7 +147,7 @@ export function useStomp(options: UseStompOptions = {}) {
     };
 
     // 设置错误监听器
-    client.value.onStompError = (frame) => {
+    client.value.onStompError = (frame: any) => {
       console.error("STOMP错误:", frame.headers, frame.body);
       isConnecting = false;
 

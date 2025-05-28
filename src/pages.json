@@ -2,64 +2,97 @@
   "pages": [
     {
       "path": "pages/index/index",
-      "type": "home"
+      "type": "home",
+      "style": {},
+      "layout": "tabbar"
     },
     {
       "path": "pages/login/complete-profile",
-      "type": "page"
+      "type": "page",
+      "style": {}
     },
     {
       "path": "pages/login/index",
-      "type": "page"
+      "type": "page",
+      "style": {}
     },
     {
       "path": "pages/mine/index",
-      "type": "page"
+      "type": "page",
+      "style": {},
+      "layout": "tabbar"
     },
     {
       "path": "pages/mine/about/index",
-      "type": "page"
+      "type": "page",
+      "style": {}
     },
     {
       "path": "pages/mine/faq/index",
-      "type": "page"
+      "type": "page",
+      "style": {}
     },
     {
       "path": "pages/mine/feedback/index",
-      "type": "page"
+      "type": "page",
+      "style": {}
     },
     {
       "path": "pages/mine/profile/index",
-      "type": "page"
+      "type": "page",
+      "style": {}
     },
     {
       "path": "pages/mine/settings/index",
-      "type": "page"
+      "type": "page",
+      "style": {}
     },
     {
       "path": "pages/mine/settings/account/index",
-      "type": "page"
+      "type": "page",
+      "style": {}
     },
     {
       "path": "pages/mine/settings/agreement/index",
-      "type": "page"
+      "type": "page",
+      "style": {}
     },
     {
       "path": "pages/mine/settings/network/index",
-      "type": "page"
+      "type": "page",
+      "style": {}
     },
     {
       "path": "pages/mine/settings/privacy/index",
-      "type": "page"
+      "type": "page",
+      "style": {}
     },
     {
       "path": "pages/mine/settings/theme/index",
-      "type": "page"
+      "type": "page",
+      "style": {}
     }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "@uni-helper"
+    "navigationBarTitleText": "vue-uniapp-template"
+  },
+  "tabBar": {
+    "custom": true,
+    "height": "0px",
+    "color": "#00000000",
+    "selectedColor": "#00000000",
+    "backgroundColor": "#00000000",
+    "list": [
+      {
+        "text": "首页",
+        "pagePath": "pages/index/index"
+      },
+      {
+        "text": "我的",
+        "pagePath": "pages/mine/index"
+      }
+    ]
   },
   "subPackages": []
 }
