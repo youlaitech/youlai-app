@@ -135,6 +135,15 @@ const UserAPI = {
       method: "DELETE",
     });
   },
+
+  /** 获取微信手机号 */
+  getPhoneNumber(data: WechatPhoneData): Promise<PhoneNumberResult> {
+    return request<PhoneNumberResult>({
+      url: `${USER_BASE_URL}/wechat-phone`,
+      method: "POST",
+      data: data,
+    });
+  },
 };
 export default UserAPI;
 
@@ -297,7 +306,7 @@ export interface UserForm {
   avatar?: string;
   /** 部门ID */
   deptId?: number;
-  /** 邮箱 */
+  /** 用户邮箱 */
   email?: string;
   /** 性别 */
   gender?: number;
@@ -313,4 +322,24 @@ export interface UserForm {
   status?: number;
   /** 用户名 */
   username?: string;
+}
+
+/** 微信手机号授权数据 */
+export interface WechatPhoneData {
+  /** 微信授权码 */
+  code: string;
+  /** 加密数据 */
+  encryptedData?: string;
+  /** 初始向量 */
+  iv?: string;
+}
+
+/** 手机号获取结果 */
+export interface PhoneNumberResult {
+  /** 手机号 */
+  phoneNumber: string;
+  /** 纯手机号（去除+86） */
+  purePhoneNumber?: string;
+  /** 国家代码 */
+  countryCode?: string;
 }

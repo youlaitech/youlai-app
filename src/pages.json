@@ -1,170 +1,65 @@
 {
-  "easycom": {
-    "autoscan": true,
-    "custom": {
-      "^wd-(.*)": "wot-design-uni/components/wd-$1/wd-$1.vue",
-      "^cu-(.*)": "@/components/cu-$1/index.vue"
-    }
-  },
-
   "pages": [
     {
       "path": "pages/index/index",
-      "style": {
-        "navigationStyle": "custom"
-      }
+      "type": "home"
     },
     {
-      "path": "pages/work/index",
-      "style": {
-        "navigationBarTitleText": "工作台"
-      }
-    },
-    {
-      "path": "pages/mine/index",
-      "style": {
-        "navigationBarTitleText": "我的"
-      }
-    },
-    {
-      "path": "pages/mine/about/index",
-      "style": {
-        "navigationBarTitleText": "关于我们"
-      }
-    },
-    {
-      "path": "pages/mine/faq/index",
-      "style": {
-        "navigationBarTitleText": "常见问题"
-      }
-    },
-    {
-      "path": "pages/mine/feedback/index",
-      "style": {
-        "navigationBarTitleText": "问题反馈"
-      }
-    },
-    {
-      "path": "pages/mine/settings/index",
-      "style": {
-        "navigationBarTitleText": "设置"
-      }
-    },
-    {
-      "path": "pages/mine/settings/account/index",
-      "style": {
-        "navigationBarTitleText": "账号和安全"
-      }
-    },
-    {
-      "path": "pages/mine/settings/agreement/index",
-      "style": {
-        "navigationBarTitleText": "用户协议"
-      }
-    },
-    {
-      "path": "pages/mine/settings/privacy/index",
-      "style": {
-        "navigationBarTitleText": "隐私政策"
-      }
-    },
-    {
-      "path": "pages/mine/settings/theme/index",
-      "style": {
-        "navigationBarTitleText": "主题设置"
-      }
-    },
-    {
-      "path": "pages/mine/settings/network/index",
-      "style": {
-        "navigationBarTitleText": "网络检测"
-      }
+      "path": "pages/login/complete-profile",
+      "type": "page"
     },
     {
       "path": "pages/login/index",
-      "style": {
-        "navigationBarTitleText": "登录"
-      }
+      "type": "page"
+    },
+    {
+      "path": "pages/mine/index",
+      "type": "page"
+    },
+    {
+      "path": "pages/mine/about/index",
+      "type": "page"
+    },
+    {
+      "path": "pages/mine/faq/index",
+      "type": "page"
+    },
+    {
+      "path": "pages/mine/feedback/index",
+      "type": "page"
     },
     {
       "path": "pages/mine/profile/index",
-      "style": {
-        "navigationBarTitleText": "个人资料"
-      }
-    },
-
-    {
-      "path": "pages/work/user/index",
-      "style": {
-        "navigationStyle": "custom"
-      }
+      "type": "page"
     },
     {
-      "path": "pages/work/log/index",
-      "style": {
-        "navigationBarTitleText": "日志管理"
-      }
+      "path": "pages/mine/settings/index",
+      "type": "page"
     },
     {
-      "path": "pages/work/config/index",
-      "style": {
-        "navigationBarTitleText": "系统配置"
-      }
+      "path": "pages/mine/settings/account/index",
+      "type": "page"
     },
     {
-      "path": "pages/work/notice/index",
-      "style": {
-        "navigationBarTitleText": "通知公告"
-      }
+      "path": "pages/mine/settings/agreement/index",
+      "type": "page"
     },
     {
-      "path": "pages/work/notice/detail",
-      "style": {
-        "navigationBarTitleText": "通知详情"
-      }
+      "path": "pages/mine/settings/network/index",
+      "type": "page"
     },
     {
-      "path": "pages/work/role/index",
-      "style": {
-        "navigationBarTitleText": "角色管理"
-      }
+      "path": "pages/mine/settings/privacy/index",
+      "type": "page"
     },
     {
-      "path": "pages/work/role/assign-perm",
-      "style": {
-        "navigationBarTitleText": "角色分配权限"
-      }
+      "path": "pages/mine/settings/theme/index",
+      "type": "page"
     }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "vue-uniapp-template",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
+    "navigationBarTitleText": "@uni-helper"
   },
-  "tabBar": {
-    "color": "#474747",
-    "selectedColor": "#3B8DFF",
-    "backgroundColor": "#F8F8F8",
-    "list": [
-      {
-        "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "static/tabbar/home.png",
-        "selectedIconPath": "static/tabbar/home-active.png"
-      },
-      {
-        "pagePath": "pages/work/index",
-        "text": "工作台",
-        "iconPath": "static/tabbar/work.png",
-        "selectedIconPath": "static/tabbar/work-active.png"
-      },
-      {
-        "pagePath": "pages/mine/index",
-        "text": "我的",
-        "iconPath": "static/tabbar/mine.png",
-        "selectedIconPath": "static/tabbar/mine-active.png"
-      }
-    ]
-  }
+  "subPackages": []
 }

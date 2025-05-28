@@ -1,6 +1,9 @@
 import { defineConfig, type UserConfig, type ConfigEnv, loadEnv } from "vite";
 import uni from "@dcloudio/vite-plugin-uni";
 import AutoImport from "unplugin-auto-import/vite";
+import UniLayouts from "@uni-helper/vite-plugin-uni-layouts";
+import UniPages from "@uni-helper/vite-plugin-uni-pages";
+import { uniuseAutoImports } from "@uni-helper/uni-use";
 
 export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => {
   const UnoCss = await import("unocss/vite").then((i) => i.default);
@@ -20,17 +23,26 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
         },
       },
     },
+    build: {
+      target: "es6",
+      cssTarget: "chrome61",
+    },
+    optimizeDeps: {
+      exclude: ["vue-demi"],
+    },
     plugins: [
-      // https://github.com/unocss/unocss
+      // 在 uni() 之前使用
       UnoCss(),
-
+      UniLayouts(),
+      UniPages(),
       AutoImport({
-        imports: ["vue", "uni-app"],
+        imports: ["vue", "uni-app", uniuseAutoImports()],
         dts: "src/types/auto-imports.d.ts", // 自动生成的类型声明文件
         eslintrc: {
           enabled: false,
         },
       }),
+
       uni(),
     ],
   };

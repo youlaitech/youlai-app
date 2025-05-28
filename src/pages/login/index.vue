@@ -166,29 +166,66 @@ const handleWechatLogin = async () => {
       provider: "weixin",
     });
 
-    // 调用后端接口进行登录认证
-    const result = await userStore.loginByWechat(code);
+    // 尝试使用增强的微信登录接口
+    try {
+      const result = await userStore.loginByWechatMini({
+        code: code,
+      });
 
-    if (result) {
-      // 获取用户信息
-      await userStore.getInfo();
-      toast.success("登录成功");
+      if (result) {
+        // 获取用户信息
+        await userStore.getInfo();
+        toast.success("登录成功");
 
-      // 检查用户信息是否完整
-      if (!userStore.isUserInfoComplete()) {
-        // 如果信息不完整，跳转到完善信息页面
-        setTimeout(() => {
-          uni.navigateTo({
-            url: `/pages/login/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
-          });
-        }, 1000);
-      } else {
-        // 否则直接跳转到重定向页面
-        setTimeout(() => {
-          uni.reLaunch({
-            url: redirect.value,
-          });
-        }, 1000);
+        // 检查是否为新用户或信息不完整
+        const wechatResult = result as any; // 类型断言
+        if (
+          wechatResult.isNewUser ||
+          !wechatResult.isProfileComplete ||
+          !userStore.isUserInfoComplete()
+        ) {
+          // 如果信息不完整，跳转到完善信息页面
+          setTimeout(() => {
+            uni.navigateTo({
+              url: `/pages/login/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
+            });
+          }, 1000);
+        } else {
+          // 否则直接跳转到重定向页面
+          setTimeout(() => {
+            uni.reLaunch({
+              url: redirect.value,
+            });
+          }, 1000);
+        }
+      }
+    } catch (enhancedError) {
+      // 如果增强接口失败，回退到原始接口
+      console.log("增强微信登录失败，回退到原始接口:", enhancedError);
+
+      const result = await userStore.loginByWechat(code);
+
+      if (result) {
+        // 获取用户信息
+        await userStore.getInfo();
+        toast.success("登录成功");
+
+        // 检查用户信息是否完整
+        if (!userStore.isUserInfoComplete()) {
+          // 如果信息不完整，跳转到完善信息页面
+          setTimeout(() => {
+            uni.navigateTo({
+              url: `/pages/login/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
+            });
+          }, 1000);
+        } else {
+          // 否则直接跳转到重定向页面
+          setTimeout(() => {
+            uni.reLaunch({
+              url: redirect.value,
+            });
+          }, 1000);
+        }
       }
     }
     // #endif

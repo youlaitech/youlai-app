@@ -90,6 +90,8 @@
     "@dcloudio/uni-mp-weixin": "3.0.0-4020420240722002",
     "@dcloudio/uni-mp-xhs": "3.0.0-4020420240722002",
     "@dcloudio/uni-quickapp-webview": "3.0.0-4020420240722002",
+    "@uni-helper/uni-use": "^0.19.14",
+    "@vueuse/core": "10.11.1",
     "pinia": "^2.2.2",
     "vue": "^3.5.13",
     "wot-design-uni": "^1.4.0"
@@ -103,6 +105,8 @@
     "@dcloudio/uni-stacktracey": "3.0.0-4020420240722002",
     "@dcloudio/vite-plugin-uni": "3.0.0-4020420240722002",
     "@eslint/js": "^9.10.0",
+    "@uni-helper/vite-plugin-uni-layouts": "^0.1.10",
+    "@uni-helper/vite-plugin-uni-pages": "^0.2.28",
     "@vue/runtime-core": "^3.4.21",
     "commitizen": "^4.3.0",
     "cz-git": "^1.9.4",

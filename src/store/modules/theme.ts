@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { applyThemeToMiniProgram } from "@/utils/theme";
-import { getLighterColor, getDarkerColor } from "@/utils/colorUtils";
 
 // 从缓存获取主题色
 const getThemeColor = (): string => {
@@ -28,11 +27,9 @@ export const useThemeStore = defineStore("theme", () => {
       // H5环境
       document.documentElement.style.setProperty("--primary-color", color);
 
-      // 计算衍生色
-      const lighterColor = getLighterColor(color, 0.8);
-      const darkerColor = getDarkerColor(color, 0.8);
-      document.documentElement.style.setProperty("--primary-color-light", lighterColor);
-      document.documentElement.style.setProperty("--primary-color-dark", darkerColor);
+      // 设置简单的衍生色（不依赖外部工具函数）
+      document.documentElement.style.setProperty("--primary-color-light", color + "80"); // 添加透明度
+      document.documentElement.style.setProperty("--primary-color-dark", color);
     } else {
       // 小程序环境
       applyThemeToMiniProgram(color);

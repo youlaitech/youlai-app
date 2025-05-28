@@ -1,4 +1,4 @@
-import { getToken, clearAll } from "@/utils/cache";
+import { getAccessToken, clearTokens } from "@/utils/auth";
 import { ResultCodeEnum } from "@/enums/ResultCodeEnum";
 
 export default function request<T>(options: UniApp.RequestOptions): Promise<T> {
@@ -14,7 +14,7 @@ export default function request<T>(options: UniApp.RequestOptions): Promise<T> {
       url: `${baseApi}${options.url}`,
       header: {
         ...options.header,
-        Authorization: getToken() ? `Bearer ${getToken()}` : "",
+        Authorization: getAccessToken() ? `Bearer ${getAccessToken()}` : "",
       },
       success: (response) => {
         console.log("success response", response);
@@ -27,7 +27,7 @@ export default function request<T>(options: UniApp.RequestOptions): Promise<T> {
         // 令牌失效或过期处理
         else if (resData.code === ResultCodeEnum.TOKEN_INVALID) {
           console.log("令牌失效或过期处理");
-          clearAll();
+          clearTokens();
           // 跳转到登录页
           uni.reLaunch({
             url: "/pages/login/index",

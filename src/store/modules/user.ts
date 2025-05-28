@@ -1,7 +1,10 @@
 import { defineStore } from "pinia";
 import AuthAPI, { type LoginFormData } from "@/api/auth";
-import UserAPI, { type UserInfo } from "@/api/system/user";
-import { setToken, getUserInfo, setUserInfo, clearAll } from "@/utils/cache";
+import UserAPI, { type UserInfo } from "@/api/user";
+import { setAccessToken, clearTokens } from "@/utils/auth";
+import { getUserInfo, setUserInfo } from "@/utils/storage";
+import { USER_INFO_KEY } from "@/constants";
+import { Storage } from "@/utils/storage";
 
 export const useUserStore = defineStore("user", () => {
   const userInfo = ref<UserInfo | undefined>(getUserInfo());
@@ -11,7 +14,7 @@ export const useUserStore = defineStore("user", () => {
     return new Promise((resolve, reject) => {
       AuthAPI.login(data)
         .then((data) => {
-          setToken(data.accessToken);
+          setAccessToken(data.accessToken);
           resolve(data);
         })
         .catch((error) => {
@@ -26,11 +29,26 @@ export const useUserStore = defineStore("user", () => {
     return new Promise((resolve, reject) => {
       AuthAPI.wechatLogin(code)
         .then((data) => {
-          setToken(data.accessToken);
+          setAccessToken(data.accessToken);
           resolve(data);
         })
         .catch((error) => {
           console.error("微信登录失败", error);
+          reject(error);
+        });
+    });
+  };
+
+  // 微信小程序增强登录
+  const loginByWechatMini = (data: any): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      AuthAPI.wechatMiniLogin(data)
+        .then((result) => {
+          setAccessToken(result.accessToken);
+          resolve(result);
+        })
+        .catch((error) => {
+          console.error("微信小程序登录失败", error);
           reject(error);
         });
     });
@@ -59,7 +77,8 @@ export const useUserStore = defineStore("user", () => {
     } catch (error) {
       console.error("登出失败", error);
     } finally {
-      clearAll(); // 清除本地的 token 和用户信息缓存
+      clearTokens(); // 清除本地的 token
+      Storage.remove(USER_INFO_KEY); // 清除用户信息缓存
       userInfo.value = undefined; // 清空用户信息
     }
   };
@@ -75,6 +94,7 @@ export const useUserStore = defineStore("user", () => {
     userInfo,
     login,
     loginByWechat,
+    loginByWechatMini,
     logout,
     getInfo,
     isUserInfoComplete,

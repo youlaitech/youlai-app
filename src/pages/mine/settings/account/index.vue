@@ -157,7 +157,7 @@ import UserAPI, {
   MobileBindingForm,
   EmailBindingForm,
   UserProfileVO,
-} from "@/api/system/user";
+} from "@/api/user";
 
 const validatorConfirmPassword = (value: string) => {
   if (!value) {
