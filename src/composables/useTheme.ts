@@ -1,4 +1,4 @@
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import type { ConfigProviderThemeVars } from "wot-design-uni";
 
 /* 默认的主题色列表 */
@@ -41,83 +41,79 @@ const getStoredThemeColor = (): string => {
   }
 };
 
-/* 保存主题模式到存储 */
-const saveThemeToStorage = (theme: "light" | "dark") => {
-  try {
-    uni.setStorageSync(THEME_STORAGE_KEY, theme);
-  } catch (error) {
-    console.error("保存主题模式失败:", error);
-  }
-};
+/* 主题状态 */
+export const theme = ref<"light" | "dark">(getStoredTheme());
+export const currentThemeColor = ref<string>(getStoredThemeColor());
 
-/* 保存主题色到存储 */
-const saveThemeColorToStorage = (color: string) => {
-  try {
-    uni.setStorageSync(THEME_COLOR_STORAGE_KEY, color);
-  } catch (error) {
-    console.error("保存主题色失败:", error);
-  }
-};
+/* 主题变量（供 ConfigProvider 使用） */
+export const themeVars = computed<ConfigProviderThemeVars>(() => ({
+  colorTheme: currentThemeColor.value,
+  // 按钮颜色
+  buttonPrimaryBgColor: currentThemeColor.value,
+  buttonPrimaryColor: "#ffffff",
+  // 开关颜色
+  switchOnBgColor: currentThemeColor.value,
+  // 其他组件颜色
+  cellIconColor: currentThemeColor.value,
+  tagPrimaryBgColor: currentThemeColor.value,
+  tagPrimaryColor: "#ffffff",
+}));
 
-/* 应用暗黑模式的 body 样式 */
-const applyDarkModeBodyStyle = (isDark: boolean) => {
+/* 应用主题到根元素 */
+const applyThemeToRoot = () => {
+  // 获取根元素
+  const root = document.documentElement;
+  const body = document.body;
+
   // #ifdef H5
-  if (typeof document !== "undefined") {
-    const body = document.body;
-    if (isDark) {
-      body.style.backgroundColor = "#1a1a1a";
-      body.style.color = "#f5f5f5";
-      body.classList.add("wot-theme-dark");
-    } else {
-      body.style.backgroundColor = "#f8f8f8";
-      body.style.color = "#333";
-      body.classList.remove("wot-theme-dark");
-    }
+  // 应用暗黑模式
+  if (theme.value === "dark") {
+    root.setAttribute("data-theme", "dark");
+    body.classList.add("wot-theme-dark");
+  } else {
+    root.removeAttribute("data-theme");
+    body.classList.remove("wot-theme-dark");
   }
+
+  // 应用主题色类
+  // 移除所有主题色类
+  root.className = root.className.replace(/theme-color-\w+/g, "").trim();
+  // 添加当前主题色类
+  const colorClass = `theme-color-${currentThemeColor.value.replace("#", "")}`;
+  root.classList.add(colorClass);
   // #endif
 
   // #ifdef MP
-  // 小程序环境中设置页面样式
-  try {
-    const pages = getCurrentPages();
-    if (pages.length > 0) {
-      const currentPage = pages[pages.length - 1];
-      if (currentPage && currentPage.$vm) {
-        // 这里可以根据需要设置页面样式
-        console.log("小程序暗黑模式:", isDark ? "开启" : "关闭");
-      }
+  // 小程序环境下通过设置页面的 data-theme 属性
+  const pages = getCurrentPages();
+  if (pages.length > 0) {
+    const currentPage = pages[pages.length - 1] as any;
+    if (currentPage) {
+      currentPage.setData?.({
+        "data-theme": theme.value,
+        themeColor: currentThemeColor.value,
+      });
     }
-  } catch (error) {
-    console.error("设置小程序页面样式失败:", error);
   }
   // #endif
 };
 
-/* 主题状态 */
-export const theme = ref<"light" | "dark">(getStoredTheme());
-
-/* 主题变量 */
-export const themeVars = ref<ConfigProviderThemeVars>({
-  colorTheme: getStoredThemeColor(),
-});
-
-/* 监听主题模式变化，应用 body 样式 */
+/* 监听主题模式变化 */
 watch(
   theme,
   (newTheme) => {
-    saveThemeToStorage(newTheme);
-    applyDarkModeBodyStyle(newTheme === "dark");
+    uni.setStorageSync(THEME_STORAGE_KEY, newTheme);
+    applyThemeToRoot();
   },
   { immediate: true }
 );
 
-/* 监听主题色变化，保存到存储 */
+/* 监听主题色变化 */
 watch(
-  () => themeVars.value.colorTheme,
+  currentThemeColor,
   (newColor) => {
-    if (newColor) {
-      saveThemeColorToStorage(newColor);
-    }
+    uni.setStorageSync(THEME_COLOR_STORAGE_KEY, newColor);
+    applyThemeToRoot();
   },
   { immediate: true }
 );
@@ -129,31 +125,21 @@ export const toggleTheme = () => {
 
 /* 设置主题色 */
 export const setThemeColor = (color: string) => {
-  themeVars.value = {
-    ...themeVars.value,
-    colorTheme: color,
-  };
+  currentThemeColor.value = color;
 };
 
 /* 重置主题 */
 export const resetTheme = () => {
   theme.value = "light";
-  setThemeColor(colorColumns[0].value);
+  currentThemeColor.value = colorColumns[0].value;
 };
 
 /* 初始化主题 */
 export const initTheme = () => {
-  // 应用当前主题的 body 样式
-  applyDarkModeBodyStyle(theme.value === "dark");
-
-  // 确保主题变量已正确设置
-  if (!themeVars.value.colorTheme) {
-    themeVars.value.colorTheme = getStoredThemeColor();
-  }
-
+  applyThemeToRoot();
   console.log("主题初始化完成:", {
     mode: theme.value,
-    color: themeVars.value.colorTheme,
+    color: currentThemeColor.value,
   });
 };
 
@@ -162,6 +148,7 @@ export const useTheme = () => {
   return {
     theme,
     themeVars,
+    currentThemeColor,
     toggleTheme,
     setThemeColor,
     resetTheme,

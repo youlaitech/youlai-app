@@ -2,8 +2,7 @@ import { createSSRApp } from "vue";
 import App from "./App.vue";
 
 import "uno.css";
-import "@/styles/global.scss";
-import "@/styles/wot-theme.scss";
+import "@/styles/theme.scss";
 
 import { setupStore } from "@/store";
 

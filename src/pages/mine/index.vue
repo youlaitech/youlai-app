@@ -62,33 +62,33 @@
     <view class="card-container">
       <view class="card-header">
         <view class="card-title">
-          <wd-icon name="tools" size="18" :color="themeStore.primaryColor" />
+          <wd-icon name="tools" size="18" :color="currentThemeColor" />
           <text>常用工具</text>
         </view>
       </view>
       <view class="tools-grid">
         <view class="tool-item" @click="navigateToProfile">
           <view class="tool-icon">
-            <wd-icon name="user" size="24" :color="themeStore.primaryColor" />
+            <wd-icon name="user" size="24" :color="currentThemeColor" />
           </view>
           <view class="tool-label">个人资料</view>
         </view>
 
         <view class="tool-item" @click="navigateToFAQ">
           <view class="tool-icon">
-            <wd-icon name="help-circle" size="24" :color="themeStore.primaryColor" />
+            <wd-icon name="help-circle" size="24" :color="currentThemeColor" />
           </view>
           <view class="tool-label">常见问题</view>
         </view>
         <view class="tool-item" @click="handleQuestionFeedback">
           <view class="tool-icon">
-            <wd-icon name="check-circle" size="24" :color="themeStore.primaryColor" />
+            <wd-icon name="check-circle" size="24" :color="currentThemeColor" />
           </view>
           <view class="tool-label">问题反馈</view>
         </view>
         <view class="tool-item" @click="navigateToAbout">
           <view class="tool-icon">
-            <wd-icon name="info-circle" size="24" :color="themeStore.primaryColor" />
+            <wd-icon name="info-circle" size="24" :color="currentThemeColor" />
           </view>
           <view class="tool-label">关于我们</view>
         </view>
@@ -99,7 +99,7 @@
     <view class="card-container">
       <view class="card-header">
         <view class="card-title">
-          <wd-icon name="star" size="18" :color="themeStore.primaryColor" />
+          <wd-icon name="star" size="18" :color="currentThemeColor" />
           <text>推荐服务</text>
         </view>
       </view>
@@ -107,7 +107,7 @@
         <view class="service-item" @click="navigateToSection('services', 'vip')">
           <view class="service-left">
             <view class="service-icon">
-              <wd-icon name="dong" size="22" :color="themeStore.primaryColor" />
+              <wd-icon name="dong" size="22" :color="currentThemeColor" />
             </view>
             <view class="service-info">
               <view class="service-name">会员中心</view>
@@ -119,7 +119,7 @@
         <view class="service-item" @click="navigateToSection('services', 'coupon')">
           <view class="service-left">
             <view class="service-icon">
-              <wd-icon name="discount" size="22" :color="themeStore.primaryColor" />
+              <wd-icon name="discount" size="22" :color="currentThemeColor" />
             </view>
             <view class="service-info">
               <view class="service-name">优惠券</view>
@@ -131,7 +131,7 @@
         <view class="service-item" @click="navigateToSection('services', 'invite')">
           <view class="service-left">
             <view class="service-icon">
-              <wd-icon name="share" size="22" :color="themeStore.primaryColor" />
+              <wd-icon name="share" size="22" :color="currentThemeColor" />
             </view>
             <view class="service-info">
               <view class="service-name">邀请有礼</view>
@@ -152,14 +152,15 @@
 </template>
 
 <script lang="ts" setup>
+import { onShow } from "@dcloudio/uni-app";
 import { useToast } from "wot-design-uni";
 import { useUserStore } from "@/store/modules/user.store";
-import { useThemeStore } from "@/store/modules/theme.store";
+import { useTheme } from "@/composables/useTheme";
 import { computed } from "vue";
 
 const toast = useToast();
 const userStore = useUserStore();
-const themeStore = useThemeStore();
+const { currentThemeColor } = useTheme();
 const userInfo = computed(() => userStore.userInfo);
 const isLogin = computed(() => !!userInfo.value);
 const defaultAvatar = "/static/images/default-avatar.png";
@@ -246,7 +247,7 @@ onShow(() => {
 .mine-container {
   min-height: 100vh;
   padding-bottom: 100rpx;
-  background-color: #f5f7fa;
+  background-color: var(--wot-color-bg-page);
 }
 
 // 用户信息卡片
@@ -262,7 +263,7 @@ onShow(() => {
     left: 0;
     z-index: 0;
     height: 240rpx;
-    background: linear-gradient(to bottom, var(--primary-color), var(--primary-color-light));
+    background: linear-gradient(to bottom, var(--wot-color-theme), var(--primary-color-light));
   }
 
   .user-info {
@@ -333,7 +334,7 @@ onShow(() => {
           line-height: 32rpx;
           color: #fff;
           text-align: center;
-          background-color: #ff4d4f;
+          background-color: var(--wot-color-danger);
           border: 2rpx solid #fff;
           border-radius: 16rpx;
         }
@@ -347,9 +348,9 @@ onShow(() => {
   display: flex;
   padding: 30rpx 20rpx;
   margin: 20rpx 30rpx;
-  background: #fff;
+  background: var(--wot-color-bg-container);
   border-radius: 16rpx;
-  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--wot-card-shadow);
 
   .stat-item {
     display: flex;
@@ -361,19 +362,19 @@ onShow(() => {
       margin-bottom: 8rpx;
       font-size: 36rpx;
       font-weight: 600;
-      color: #333;
+      color: var(--wot-color-text);
     }
 
     .stat-label {
       font-size: 26rpx;
-      color: #666;
+      color: var(--wot-color-text-secondary);
     }
   }
 
   .divider {
     width: 1px;
     margin: 0 20rpx;
-    background-color: #eee;
+    background-color: var(--wot-color-border);
   }
 }
 
@@ -381,16 +382,16 @@ onShow(() => {
 .card-container {
   margin: 24rpx 30rpx;
   overflow: hidden;
-  background: #fff;
+  background: var(--wot-color-bg-container);
   border-radius: 16rpx;
-  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--wot-card-shadow);
 
   .card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 20rpx 24rpx;
-    border-bottom: 1rpx solid #f5f5f5;
+    border-bottom: 1rpx solid var(--wot-color-border);
 
     .card-title {
       display: flex;
@@ -400,7 +401,7 @@ onShow(() => {
         margin-left: 12rpx;
         font-size: 28rpx;
         font-weight: 600;
-        color: #333;
+        color: var(--wot-color-text);
       }
     }
 
@@ -481,7 +482,7 @@ onShow(() => {
       width: 90rpx;
       height: 90rpx;
       margin-bottom: 12rpx;
-      background-color: rgba(var(--primary-color-rgb), 0.08);
+      background-color: var(--wot-color-bg-light);
       border-radius: 18rpx;
       transition: transform 0.2s;
 
@@ -492,7 +493,7 @@ onShow(() => {
 
     .tool-label {
       font-size: 24rpx;
-      color: #555;
+      color: var(--wot-color-text);
     }
   }
 }
@@ -503,8 +504,13 @@ onShow(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 30rpx 24rpx;
-    border-bottom: 1rpx solid #f5f5f5;
+    padding: 24rpx;
+    border-bottom: 1rpx solid var(--wot-color-border);
+    transition: background-color 0.2s;
+
+    &:active {
+      background-color: var(--wot-color-bg-light);
+    }
 
     &:last-child {
       border-bottom: none;
@@ -518,25 +524,24 @@ onShow(() => {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 70rpx;
-        height: 70rpx;
-        background-color: rgba(var(--primary-color-rgb), 0.08);
+        width: 80rpx;
+        height: 80rpx;
+        margin-right: 20rpx;
+        background-color: var(--wot-color-bg-light);
         border-radius: 16rpx;
       }
 
       .service-info {
-        margin-left: 20rpx;
-
         .service-name {
-          margin-bottom: 6rpx;
           font-size: 28rpx;
           font-weight: 500;
-          color: #333;
+          color: var(--wot-color-text);
         }
 
         .service-desc {
+          margin-top: 8rpx;
           font-size: 24rpx;
-          color: #999;
+          color: var(--wot-color-text-secondary);
         }
       }
     }
@@ -545,7 +550,7 @@ onShow(() => {
 
 // 退出登录按钮
 .logout-btn-container {
-  margin: 60rpx 30rpx;
+  padding: 20rpx 30rpx;
 }
 </style>
 
@@ -560,17 +565,17 @@ onShow(() => {
   font-size: 32rpx !important;
   font-weight: bold !important;
   color: #fff !important;
-  background-color: var(--primary-color) !important;
-  border: 2rpx solid var(--primary-color) !important;
+  background-color: var(--wot-color-theme) !important;
+  border: none !important;
   border-radius: 40rpx !important;
-  box-shadow: 0 4rpx 12rpx rgba(var(--primary-color-rgb), 0.3) !important;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15) !important;
 }
 
 .btn-login {
   width: 160rpx !important;
   height: 60rpx !important;
   font-size: 26rpx !important;
-  color: var(--primary-color) !important;
+  color: var(--wot-color-theme) !important;
   background-color: #fff !important;
   border: none !important;
   border-radius: 30rpx !important;
