@@ -3,46 +3,48 @@
     <!-- 背景图 -->
     <image src="/static/images/login-bg.svg" mode="aspectFill" class="login-bg" />
 
-    <!-- Logo和标题区域 -->
     <view class="header">
-      <image src="/static/logo.png" class="logo" />
-      <text class="title">有来开源</text>
-      <text class="subtitle">专注于构建高效开发的应用解决方案</text>
+      <image src="/static/images/logo.png" mode="aspectFit" class="logo" />
+      <text class="title">您好，欢迎回来</text>
+      <text class="subtitle">登录您的账号，开始愉快的旅程</text>
     </view>
 
-    <!-- 登录表单区域 -->
     <view class="login-card">
       <view class="form-wrap">
-        <wd-form ref="loginFormRef" :model="loginFormData">
+        <!-- 账号密码登录表单 -->
+        <wd-form :model="LoginData" v-if="loginType === 'account'" ref="loginFormRef">
           <!-- 用户名输入框 -->
           <view class="form-item">
-            <wd-icon name="user" size="22" color="#165DFF" class="input-icon" />
-            <input v-model="loginFormData.username" class="form-input" placeholder="请输入用户名" />
+            <wd-icon name="user" size="20" class="input-icon" />
+            <input
+              v-model="LoginData.username"
+              class="form-input"
+              placeholder="请输入用户名"
+              placeholder-class="input-placeholder"
+            />
             <wd-icon
-              v-if="loginFormData.username"
-              name="close-fill"
-              size="18"
-              color="#9ca3af"
+              v-if="LoginData.username"
+              name="error-fill"
+              size="14"
               class="clear-icon"
-              @click="loginFormData.username = ''"
+              @click="LoginData.username = ''"
             />
           </view>
           <view class="divider"></view>
 
           <!-- 密码输入框 -->
           <view class="form-item">
-            <wd-icon name="lock-on" size="22" color="#165DFF" class="input-icon" />
+            <wd-icon name="lock" size="20" class="input-icon" />
             <input
-              v-model="loginFormData.password"
+              v-model="LoginData.password"
               class="form-input"
               :type="showPassword ? 'text' : 'password'"
               placeholder="请输入密码"
-              placeholder-style="color: #9ca3af; font-weight: normal;"
+              placeholder-class="input-placeholder"
             />
             <wd-icon
-              :name="showPassword ? 'eye-open' : 'eye-close'"
-              size="18"
-              color="#9ca3af"
+              :name="showPassword ? 'view' : 'view-off'"
+              size="14"
               class="eye-icon"
               @click="showPassword = !showPassword"
             />
@@ -54,13 +56,41 @@
             class="login-btn"
             :disabled="loading"
             :style="loading ? 'opacity: 0.7;' : ''"
-            @click="handleLogin"
+            @click="handleAccountLogin"
           >
-            登录
+            {{ loading ? "登录中..." : "账号登录" }}
           </button>
+
+          <!-- 切换登录方式 -->
+          <view class="switch-login-type" @click="loginType = 'phone'">
+            <text>使用手机号一键登录</text>
+            <wd-icon name="arrow-right" size="12" />
+          </view>
         </wd-form>
 
-        <!-- 微信登录 -->
+        <!-- 手机号登录 -->
+        <view v-else class="phone-login-form">
+          <view class="phone-login-title">微信一键登录</view>
+          <view class="phone-login-subtitle">授权后将获取您的手机号</view>
+
+          <button
+            class="wechat-phone-btn"
+            :disabled="loading"
+            open-type="getPhoneNumber"
+            @getphonenumber="handleWechatPhoneLogin"
+          >
+            <wd-icon name="weixin" size="24" color="#ffffff" />
+            <text>微信一键登录</text>
+          </button>
+
+          <!-- 切换登录方式 -->
+          <view class="switch-login-type" @click="loginType = 'account'">
+            <text>使用账号密码登录</text>
+            <wd-icon name="arrow-right" size="12" />
+          </view>
+        </view>
+
+        <!-- 其他登录方式 -->
         <view class="other-login">
           <view class="other-login-title">
             <view class="line"></view>
@@ -91,21 +121,24 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { type LoginFormData } from "@/api/auth";
+import { type LoginData } from "@/api/auth";
 import { useUserStore } from "@/store/modules/user.store";
 import { useToast } from "wot-design-uni";
-import { ref } from "vue";
+import { getWxLoginCode, getWxPhoneNumber, wxAuthState } from "@/services/wechat.service";
+import { useTheme } from "@/composables/useTheme";
 
 const loginFormRef = ref();
 const toast = useToast();
 const loading = ref(false);
 const userStore = useUserStore();
 const showPassword = ref(false);
+const loginType = ref<"account" | "phone">("account");
+const { theme } = useTheme();
 
 // 登录表单数据
-const loginFormData = ref<LoginFormData>({
-  username: "admin",
-  password: "123456",
+const LoginData = ref<LoginData>({
+  username: "",
+  password: "",
 });
 
 // 获取重定向参数
@@ -116,15 +149,50 @@ onLoad((options) => {
   } else {
     redirect.value = "/pages/index/index";
   }
+
+  // 检查是否已登录
+  checkLoginStatus();
 });
 
-// 登录处理
-const handleLogin = () => {
+// 检查登录状态
+const checkLoginStatus = async () => {
+  try {
+    const token = uni.getStorageSync("app_token");
+    if (token) {
+      // 验证token有效性
+      const isValid = await userStore.checkSession();
+      if (isValid) {
+        // 已登录，获取用户信息
+        await userStore.getInfo();
+        // 重定向到首页或指定页面
+        setTimeout(() => {
+          uni.reLaunch({ url: redirect.value });
+        }, 100);
+      }
+    }
+  } catch (error) {
+    console.error("检查登录状态失败", error);
+  }
+};
+
+// 账号密码登录处理
+const handleAccountLogin = () => {
   if (loading.value) return;
+
+  // 表单验证
+  if (!LoginData.value.username) {
+    toast.error("请输入用户名");
+    return;
+  }
+  if (!LoginData.value.password) {
+    toast.error("请输入密码");
+    return;
+  }
+
   loading.value = true;
 
   userStore
-    .login(loginFormData.value)
+    .login(LoginData.value)
     .then(() => userStore.getInfo())
     .then(() => {
       toast.success("登录成功");
@@ -154,6 +222,50 @@ const handleLogin = () => {
     });
 };
 
+// 微信一键登录（通过手机号）
+const handleWechatPhoneLogin = async (e) => {
+  if (loading.value || wxAuthState.value.isLogining) return;
+  loading.value = true;
+
+  try {
+    // 获取手机号加密数据
+    const phoneData = await getWxPhoneNumber(e);
+
+    // 调用登录接口
+    const result = await userStore.loginByWechatPhone(phoneData);
+
+    // 获取用户信息
+    await userStore.getInfo();
+    toast.success("登录成功");
+
+    // 检查是否为新用户或信息不完整
+    if (result.isNewUser || !userStore.isUserInfoComplete()) {
+      // 跳转到完善信息页面
+      setTimeout(() => {
+        uni.navigateTo({
+          url: `/pages/login/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
+        });
+      }, 1000);
+    } else {
+      // 跳转到重定向页面
+      setTimeout(() => {
+        uni.reLaunch({
+          url: redirect.value,
+        });
+      }, 1000);
+    }
+  } catch (error) {
+    if (error.message === "用户拒绝授权") {
+      toast.error("您已拒绝授权获取手机号");
+    } else {
+      toast.error(error?.message || "登录失败");
+    }
+    console.error("微信手机号登录失败:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
 // 微信登录处理
 const handleWechatLogin = async () => {
   if (loading.value) return;
@@ -162,78 +274,37 @@ const handleWechatLogin = async () => {
   try {
     // #ifdef MP-WEIXIN
     // 获取微信登录的临时 code
-    const { code } = await uni.login({
-      provider: "weixin",
-    });
+    const code = await getWxLoginCode();
 
-    // 尝试使用增强的微信登录接口
-    try {
-      const result = await userStore.loginByWechatMini({
-        code: code,
-      });
+    // 尝试使用微信登录接口
+    const result = await userStore.loginByWechat(code);
 
-      if (result) {
-        // 获取用户信息
-        await userStore.getInfo();
-        toast.success("登录成功");
+    // 获取用户信息
+    await userStore.getInfo();
+    toast.success("登录成功");
 
-        // 检查是否为新用户或信息不完整
-        const wechatResult = result as any; // 类型断言
-        if (
-          wechatResult.isNewUser ||
-          !wechatResult.isProfileComplete ||
-          !userStore.isUserInfoComplete()
-        ) {
-          // 如果信息不完整，跳转到完善信息页面
-          setTimeout(() => {
-            uni.navigateTo({
-              url: `/pages/login/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
-            });
-          }, 1000);
-        } else {
-          // 否则直接跳转到重定向页面
-          setTimeout(() => {
-            uni.reLaunch({
-              url: redirect.value,
-            });
-          }, 1000);
-        }
-      }
-    } catch (enhancedError) {
-      // 如果增强接口失败，回退到原始接口
-      console.log("增强微信登录失败，回退到原始接口:", enhancedError);
-
-      const result = await userStore.loginByWechat(code);
-
-      if (result) {
-        // 获取用户信息
-        await userStore.getInfo();
-        toast.success("登录成功");
-
-        // 检查用户信息是否完整
-        if (!userStore.isUserInfoComplete()) {
-          // 如果信息不完整，跳转到完善信息页面
-          setTimeout(() => {
-            uni.navigateTo({
-              url: `/pages/login/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
-            });
-          }, 1000);
-        } else {
-          // 否则直接跳转到重定向页面
-          setTimeout(() => {
-            uni.reLaunch({
-              url: redirect.value,
-            });
-          }, 1000);
-        }
-      }
+    // 检查用户信息是否完整
+    if (result.isNewUser || !userStore.isUserInfoComplete()) {
+      // 如果信息不完整，跳转到完善信息页面
+      setTimeout(() => {
+        uni.navigateTo({
+          url: `/pages/login/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
+        });
+      }, 1000);
+    } else {
+      // 否则直接跳转到重定向页面
+      setTimeout(() => {
+        uni.reLaunch({
+          url: redirect.value,
+        });
+      }, 1000);
     }
     // #endif
 
     // #ifndef MP-WEIXIN
     toast.error("当前环境不支持微信登录");
     // #endif
-  } catch (error: any) {
+  } catch (error) {
     toast.error(error?.message || "微信登录失败");
   } finally {
     loading.value = false;
@@ -243,14 +314,14 @@ const handleWechatLogin = async () => {
 // 跳转到用户协议页面
 const navigateToUserAgreement = () => {
   uni.navigateTo({
-    url: "/pages/mine/user-agreement/index",
+    url: "/pages/mine/settings/agreement/index",
   });
 };
 
 // 跳转到隐私政策页面
 const navigateToPrivacy = () => {
   uni.navigateTo({
-    url: "/pages/mine/privacy/index",
+    url: "/pages/mine/settings/privacy/index",
   });
 };
 </script>
@@ -263,6 +334,7 @@ const navigateToPrivacy = () => {
   align-items: center;
   height: 100vh;
   overflow: hidden;
+  background-color: var(--wot-color-bg-container);
 }
 
 .login-bg {
@@ -313,6 +385,11 @@ const navigateToPrivacy = () => {
   backdrop-filter: blur(10px);
   border-radius: 24rpx;
   box-shadow: 0 8rpx 40rpx rgba(0, 0, 0, 0.1);
+
+  .wot-theme-dark & {
+    background-color: rgba(31, 31, 31, 0.9);
+    box-shadow: 0 8rpx 40rpx rgba(0, 0, 0, 0.3);
+  }
 }
 
 .form-wrap {
@@ -336,6 +413,10 @@ const navigateToPrivacy = () => {
   font-size: 28rpx;
   line-height: 60rpx;
   color: #333;
+
+  .wot-theme-dark & {
+    color: #f5f5f5;
+  }
 }
 
 .clear-icon,
@@ -347,25 +428,78 @@ const navigateToPrivacy = () => {
   height: 1px;
   margin: 0;
   background-color: rgba(0, 0, 0, 0.06);
+
+  .wot-theme-dark & {
+    background-color: rgba(255, 255, 255, 0.06);
+  }
 }
 
 .login-btn {
   width: 100%;
-  height: 90rpx;
+  height: 88rpx;
   margin-top: 60rpx;
   font-size: 32rpx;
-  line-height: 90rpx;
+  font-weight: 500;
+  line-height: 88rpx;
   color: #fff;
-  background: linear-gradient(90deg, #165dff, #4080ff);
+  text-align: center;
+  background-color: var(--wot-color-theme);
   border: none;
-  border-radius: 45rpx;
-  box-shadow: 0 8rpx 20rpx rgba(22, 93, 255, 0.3);
-  transition: all 0.3s;
+  border-radius: 44rpx;
 }
 
-.login-btn:active {
-  box-shadow: 0 4rpx 10rpx rgba(22, 93, 255, 0.2);
-  transform: translateY(2rpx);
+.switch-login-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30rpx;
+  font-size: 26rpx;
+  color: var(--wot-color-theme);
+}
+
+.phone-login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 0;
+}
+
+.phone-login-title {
+  margin-bottom: 16rpx;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+
+  .wot-theme-dark & {
+    color: #f5f5f5;
+  }
+}
+
+.phone-login-subtitle {
+  margin-bottom: 60rpx;
+  font-size: 28rpx;
+  color: #666;
+
+  .wot-theme-dark & {
+    color: #aaaaaa;
+  }
+}
+
+.wechat-phone-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 88rpx;
+  font-size: 32rpx;
+  color: #ffffff;
+  background-color: #07c160;
+  border: none;
+  border-radius: 44rpx;
+
+  text {
+    margin-left: 16rpx;
+  }
 }
 
 .other-login {
@@ -375,56 +509,62 @@ const navigateToPrivacy = () => {
 .other-login-title {
   display: flex;
   align-items: center;
+  justify-content: center;
   margin-bottom: 40rpx;
 }
 
 .line {
-  flex: 1;
-  height: 1px;
-  background-color: rgba(0, 0, 0, 0.08);
+  width: 80rpx;
+  height: 1rpx;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .text {
-  padding: 0 30rpx;
+  margin: 0 20rpx;
   font-size: 26rpx;
-  color: #9ca3af;
+  color: rgba(0, 0, 0, 0.4);
+
+  .wot-theme-dark & {
+    color: rgba(255, 255, 255, 0.4);
+  }
 }
 
 .wechat-login {
   display: flex;
   justify-content: center;
-  margin-bottom: 30rpx;
 }
 
 .wechat-icon-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 90rpx;
-  height: 90rpx;
-  background-color: #fff;
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #07c160;
   border-radius: 50%;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
 }
 
 .wechat-icon {
-  width: 60rpx;
-  height: 60rpx;
+  width: 40rpx;
+  height: 40rpx;
 }
 
 .agreement {
   display: flex;
   justify-content: center;
-  margin-top: 30rpx;
+  margin-top: 60rpx;
   font-size: 24rpx;
 }
 
-.agreement .text {
-  padding: 0 4rpx;
-  color: #9ca3af;
+.link {
+  color: var(--wot-color-theme);
 }
 
-.agreement .link {
-  color: #165dff;
+.input-placeholder {
+  color: rgba(0, 0, 0, 0.3);
+
+  .wot-theme-dark & {
+    color: rgba(255, 255, 255, 0.3);
+  }
 }
 </style>

@@ -184,3 +184,7 @@ textarea {
 :deep(.wd-tabbar) {
   background-color: var(--wot-tabbar-bg-color) !important;
 }
+
+:deep(.wd-icon) {
+  color: var(--wot-color-theme) !important;
+}

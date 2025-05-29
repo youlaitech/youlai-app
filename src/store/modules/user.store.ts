@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import AuthAPI, { type LoginFormData } from "@/api/auth";
+import AuthAPI, { type LoginData, type WxLoginData } from "@/api/auth";
 import UserAPI, { type UserInfo } from "@/api/user";
 import { setAccessToken, clearTokens } from "@/utils/auth";
 import { getUserInfo, setUserInfo } from "@/utils/storage";
@@ -10,7 +10,7 @@ export const useUserStore = defineStore("user", () => {
   const userInfo = ref<UserInfo | undefined>(getUserInfo());
 
   // 登录
-  const login = (data: LoginFormData) => {
+  const login = (data: LoginData) => {
     return new Promise((resolve, reject) => {
       AuthAPI.login(data)
         .then((data) => {
@@ -40,7 +40,7 @@ export const useUserStore = defineStore("user", () => {
   };
 
   // 微信小程序增强登录
-  const loginByWechatMini = (data: any): Promise<any> => {
+  const loginByWechatMini = (data: WxLoginData): Promise<any> => {
     return new Promise((resolve, reject) => {
       AuthAPI.wechatMiniLogin(data)
         .then((result) => {
@@ -50,6 +50,34 @@ export const useUserStore = defineStore("user", () => {
         .catch((error) => {
           console.error("微信小程序登录失败", error);
           reject(error);
+        });
+    });
+  };
+
+  // 微信手机号一键登录
+  const loginByWechatPhone = (data: WxLoginData): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      AuthAPI.wechatPhoneLogin(data)
+        .then((result) => {
+          setAccessToken(result.accessToken);
+          resolve(result);
+        })
+        .catch((error) => {
+          console.error("微信手机号登录失败", error);
+          reject(error);
+        });
+    });
+  };
+
+  // 检查会话状态
+  const checkSession = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      AuthAPI.checkSession()
+        .then((result) => {
+          resolve(result.valid);
+        })
+        .catch(() => {
+          resolve(false);
         });
     });
   };
@@ -95,8 +123,10 @@ export const useUserStore = defineStore("user", () => {
     login,
     loginByWechat,
     loginByWechatMini,
+    loginByWechatPhone,
     logout,
     getInfo,
+    checkSession,
     isUserInfoComplete,
   };
 });
