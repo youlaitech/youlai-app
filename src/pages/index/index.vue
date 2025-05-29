@@ -252,6 +252,18 @@ onReady(() => {
   loadVisitStatsData();
   loadVisitTrendData();
 });
+
+onShow(() => {
+  // 确保 tabbar 状态正确
+  const pages = getCurrentPages();
+  if (pages.length > 0) {
+    const currentPage = pages[pages.length - 1];
+    if (currentPage.route === "pages/index/index") {
+      // 通过事件通知 tabbar 布局更新状态
+      uni.$emit("updateTabbar", "index");
+    }
+  }
+});
 </script>
 
 <style setup lang="scss">

@@ -12,6 +12,11 @@ interface ImportMetaEnv {
    * API 服务器的 URL
    */
   VITE_APP_API_URL: string;
+
+  /**
+   * WebSocket 端点
+   */
+  VITE_APP_WS_ENDPOINT: string;
 }
 
 interface ImportMeta {

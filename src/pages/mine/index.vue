@@ -220,29 +220,25 @@ const handleQuestionFeedback = () => {
 
 // 导航到各个板块
 const navigateToSection = (section: string, subSection?: string) => {
-  if (!isLogin.value && section !== "services") {
-    navigateToLoginPage();
-    return;
-  }
-
-  const sections: Record<string, string> = {
-    messages: "消息中心",
-    todos: "待办事项",
-    favorites: "我的收藏",
-    history: "浏览历史",
-    wallet: "我的钱包",
-    orders: "我的订单",
-    address: "收货地址",
-    services: "增值服务",
-  };
-
-  let message = sections[section];
-  if (subSection) {
-    message += ` - ${subSection}`;
-  }
-
-  toast.show(`${message}功能开发中...`);
+  console.log(`导航到: ${section}${subSection ? ` - ${subSection}` : ""}`);
+  // 这里可以根据需要实现具体的导航逻辑
+  uni.showToast({
+    title: "功能开发中",
+    icon: "none",
+  });
 };
+
+onShow(() => {
+  // 确保 tabbar 状态正确
+  const pages = getCurrentPages();
+  if (pages.length > 0) {
+    const currentPage = pages[pages.length - 1];
+    if (currentPage.route === "pages/mine/index") {
+      // 通过事件通知 tabbar 布局更新状态
+      uni.$emit("updateTabbar", "mine");
+    }
+  }
+});
 </script>
 
 <style lang="scss" scoped>

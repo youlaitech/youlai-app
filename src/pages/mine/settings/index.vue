@@ -38,6 +38,7 @@
 import { useUserStore } from "@/store/modules/user.store";
 import { checkLogin } from "@/utils/auth";
 import { computed, ref } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
 
 const userStore = useUserStore();
 const isLogin = computed(() => !!userStore.userInfo);
@@ -200,6 +201,39 @@ onLoad(() => {
 .settings-container {
   min-height: 100vh;
   padding: 20px;
+  color: var(--wot-color-text, #333);
+  background-color: var(--wot-color-bg-light, #f8f8f8);
+
+  // 强制 Wot 组件应用暗黑模式样式
+  :deep(.wd-cell-group) {
+    overflow: hidden;
+    background-color: var(--wot-card-bg-color, #fff);
+    border-radius: 16rpx;
+  }
+
+  :deep(.wd-cell) {
+    color: var(--wot-color-text, #333);
+    background-color: var(--wot-card-bg-color, #fff);
+
+    .wd-cell__title {
+      color: var(--wot-color-text, #333) !important;
+    }
+
+    .wd-cell__value {
+      color: var(--wot-color-text-secondary, #666) !important;
+    }
+
+    .wd-cell__right-icon {
+      color: var(--wot-color-text-secondary, #999) !important;
+    }
+  }
+
+  :deep(.wd-button) {
+    &.logout-btn {
+      color: #fff !important;
+      background-color: var(--wot-color-theme, var(--primary-color)) !important;
+    }
+  }
 
   .loading-mask {
     position: fixed;
@@ -216,7 +250,7 @@ onLoad(() => {
     .loading-content {
       padding: 30rpx 40rpx;
       text-align: center;
-      background-color: rgba(255, 255, 255, 0.95);
+      background-color: var(--wot-card-bg-color, rgba(255, 255, 255, 0.95));
       border-radius: 12rpx;
       box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
 
@@ -224,8 +258,8 @@ onLoad(() => {
         width: 60rpx;
         height: 60rpx;
         margin: 0 auto 20rpx;
-        border: 4rpx solid #f3f3f3;
-        border-top: 4rpx solid #409eff;
+        border: 4rpx solid var(--wot-color-border, #f3f3f3);
+        border-top: 4rpx solid var(--wot-color-theme, #409eff);
         border-radius: 50%;
         animation: spin 1s linear infinite;
       }
@@ -233,7 +267,7 @@ onLoad(() => {
       .loading-text {
         font-size: 28rpx;
         font-weight: 500;
-        color: #333;
+        color: var(--wot-color-text, #333);
       }
     }
   }
@@ -255,14 +289,50 @@ onLoad(() => {
     font-size: 32rpx;
     font-weight: 500;
     color: #fff;
-    background-color: var(--primary-color);
+    background-color: var(--wot-color-theme, var(--primary-color));
     border: none;
     border-radius: 45rpx;
-    box-shadow: 0 4rpx 12rpx rgba(var(--primary-color-rgb), 0.3);
+    box-shadow: 0 4rpx 12rpx rgba(22, 93, 255, 0.3);
     transition: opacity 0.2s;
 
     &:active {
       opacity: 0.85;
+    }
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// 全局暗黑模式适配（针对当前页面）
+:global([data-theme="dark"]) .settings-container {
+  color: var(--wot-color-text, #fff) !important;
+  background-color: var(--wot-color-bg, #1a1a1a) !important;
+
+  :deep(.wd-cell-group) {
+    background-color: var(--wot-card-bg-color, #2a2a2a) !important;
+  }
+
+  :deep(.wd-cell) {
+    color: var(--wot-color-text, #fff) !important;
+    background-color: var(--wot-card-bg-color, #2a2a2a) !important;
+
+    .wd-cell__title {
+      color: var(--wot-color-text, #fff) !important;
+    }
+
+    .wd-cell__value {
+      color: var(--wot-color-text-secondary, #d1d5db) !important;
+    }
+
+    .wd-cell__right-icon {
+      color: var(--wot-color-text-secondary, #9ca3af) !important;
     }
   }
 }

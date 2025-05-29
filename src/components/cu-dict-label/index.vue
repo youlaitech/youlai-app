@@ -1,6 +1,6 @@
 <template>
   <template v-if="tagType">
-    <wd-tag :type="tagType" :round="round">{{ label }}</wd-tag>
+    <wd-tag :type="tagType as any" :round="round">{{ label }}</wd-tag>
   </template>
   <template v-else>
     <view>{{ label }}</view>
