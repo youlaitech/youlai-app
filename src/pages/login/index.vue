@@ -4,10 +4,8 @@
     <image src="/static/images/login-bg.svg" mode="aspectFill" class="login-bg" />
 
     <!-- Logo和标题区域 -->
-    <view class="header">
-      <image src="/static/logo.png" class="logo" />
-      <text class="title">有来开源</text>
-      <text class="subtitle">专注于构建高效开发的应用解决方案</text>
+    <view class="header">    <view class="header">
+
     </view>
 
     <view class="login-card">
@@ -16,10 +14,15 @@
         <wd-form v-if="loginType === 'account'" ref="loginFormRef" :model="loginFormData">
           <!-- 用户名输入框 -->
           <view class="form-item">
-            <wd-icon name="user" size="22" class="input-icon" />
+            <wd-icon
+              name="user"
+              size="22"
+              :color="isDarkMode ? '#7AC5FF' : '#333'"
+              class="input-icon"
+            />
             <input
               v-model="loginFormData.username"
-              class="form-input"
+              class="form-input input-transparent"
               placeholder="请输入用户名"
               placeholder-class="input-placeholder"
             />
@@ -28,10 +31,15 @@
 
           <!-- 密码输入框 -->
           <view class="form-item">
-            <wd-icon name="lock-on" size="22" class="input-icon" />
+            <wd-icon
+              name="lock-on"
+              size="22"
+              :color="isDarkMode ? '#7AC5FF' : '#333'"
+              class="input-icon"
+            />
             <input
               v-model="loginFormData.password"
-              class="form-input"
+              class="form-input input-transparent"
               :type="showPassword ? 'text' : 'password'"
               placeholder="请输入密码"
               placeholder-class="input-placeholder"
@@ -39,7 +47,7 @@
             <wd-icon
               :name="showPassword ? 'eye-open' : 'eye-close'"
               size="18"
-              color="#9ca3af"
+              :color="isDarkMode ? '#7AC5FF' : '#9ca3af'"
               class="eye-icon"
               @click="showPassword = !showPassword"
             />
@@ -120,6 +128,8 @@ import { type LoginData } from "@/api/auth";
 import { useUserStore } from "@/store/modules/user.store";
 import { useToast } from "wot-design-uni";
 import { useWechat } from "@/composables/useWechat";
+import { useTheme } from "@/composables/useTheme";
+import { computed, onMounted } from "vue";
 
 const loginFormRef = ref();
 const toast = useToast();
@@ -128,6 +138,10 @@ const userStore = useUserStore();
 const showPassword = ref(false);
 const loginType = ref<"account" | "phone">("account");
 const { authState, getLoginCode, getPhoneNumber } = useWechat();
+const { theme } = useTheme();
+
+// 是否暗黑模式
+const isDarkMode = computed(() => theme.value === "dark");
 
 // 登录表单数据
 const loginFormData = ref<LoginData>({
@@ -141,6 +155,17 @@ onLoad((options) => {
   if (options && options.redirect) {
     redirect.value = decodeURIComponent(options.redirect);
   }
+});
+
+// 强制清除输入框背景色
+onMounted(() => {
+  setTimeout(() => {
+    const inputs = document.querySelectorAll("input");
+    inputs.forEach((input) => {
+      input.style.backgroundColor = "transparent";
+      input.style.boxShadow = "none";
+    });
+  }, 100);
 });
 
 // 账号密码登录处理
@@ -345,8 +370,8 @@ const navigateToPrivacy = () => {
   box-shadow: 0 8rpx 40rpx rgba(0, 0, 0, 0.1);
 
   .wot-theme-dark & {
-    background-color: rgba(31, 31, 31, 0.9);
-    box-shadow: 0 8rpx 40rpx rgba(0, 0, 0, 0.3);
+    background-color: rgba(31, 31, 31, 0.95);
+    box-shadow: 0 8rpx 40rpx rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -359,22 +384,62 @@ const navigateToPrivacy = () => {
   display: flex;
   align-items: center;
   padding: 24rpx 0;
+  background-color: transparent;
+
+  .wot-theme-dark & {
+    background-color: transparent;
+  }
 }
 
 .input-icon {
   margin-right: 20rpx;
 }
 
-.form-input {
+/* 强制所有输入元素为透明背景 */
+input,
+.form-input,
+.input-transparent {
   flex: 1;
   height: 60rpx;
   font-size: 28rpx;
   line-height: 60rpx;
   color: #333;
+  background-color: transparent !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
 
   .wot-theme-dark & {
     color: #f5f5f5;
+    background-color: transparent !important;
   }
+}
+
+/* 修复webkit浏览器自动填充问题 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  caret-color: var(--wot-color-text);
+  background-color: transparent !important;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  transition: background-color 5000s;
+  -webkit-text-fill-color: var(--wot-color-text) !important;
+
+  .wot-theme-dark & {
+    -webkit-text-fill-color: #f5f5f5 !important;
+    background-color: transparent !important;
+    -webkit-box-shadow: 0 0 0 1000px rgba(31, 31, 31, 0) inset !important;
+  }
+}
+
+/* 尝试通过更强的选择器覆盖自动填充 */
+.form-item input,
+input.form-input,
+input.input-transparent {
+  -webkit-appearance: none;
+  background: none !important;
+  background-color: transparent !important;
+  border: none !important;
 }
 
 .clear-icon,
@@ -388,7 +453,7 @@ const navigateToPrivacy = () => {
   background-color: rgba(0, 0, 0, 0.06);
 
   .wot-theme-dark & {
-    background-color: rgba(255, 255, 255, 0.06);
+    background-color: rgba(255, 255, 255, 0.15);
   }
 }
 
@@ -439,7 +504,7 @@ const navigateToPrivacy = () => {
   color: #666;
 
   .wot-theme-dark & {
-    color: #aaaaaa;
+    color: #c0c0c0;
   }
 }
 
@@ -475,6 +540,10 @@ const navigateToPrivacy = () => {
   width: 80rpx;
   height: 1rpx;
   background-color: rgba(0, 0, 0, 0.1);
+
+  .wot-theme-dark & {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
 }
 
 .text {
@@ -483,7 +552,7 @@ const navigateToPrivacy = () => {
   color: rgba(0, 0, 0, 0.4);
 
   .wot-theme-dark & {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.6);
   }
 }
 
@@ -500,6 +569,10 @@ const navigateToPrivacy = () => {
   height: 80rpx;
   background-color: #07c160;
   border-radius: 50%;
+
+  .wot-theme-dark & {
+    box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.3);
+  }
 }
 
 .wechat-icon {
@@ -522,7 +595,33 @@ const navigateToPrivacy = () => {
   color: rgba(0, 0, 0, 0.3);
 
   .wot-theme-dark & {
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* 加强输入框透明度 - 暗黑模式特别处理 */
+.wot-theme-dark {
+  :deep(input) {
+    background: none !important;
+    background-color: transparent !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  .form-input,
+  input {
+    background: none !important;
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+}
+
+/* 修复Android Chrome输入框背景色问题 */
+@supports (-webkit-appearance: none) {
+  input {
+    -webkit-appearance: none;
+    background: transparent !important;
+    background-color: transparent !important;
   }
 }
 </style>

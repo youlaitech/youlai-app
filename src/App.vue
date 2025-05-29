@@ -20,4 +20,7 @@ onHide(() => {
 });
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+/* 导入暗黑模式修复样式 */
+@import "./styles/dark-mode-fix';";
+</style>

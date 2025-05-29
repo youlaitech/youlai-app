@@ -1,0 +1,46 @@
+/**
+ * 暗黑模式输入框修复
+ * 强制所有输入框在暗黑模式下保持透明背景
+ */
+
+/* 暗黑模式下的输入框 */
+.wot-theme-dark {
+  /* 通用输入框 */
+  input,
+  textarea,
+  [contenteditable="true"] {
+    color: var(--wot-color-text, #f5f5f5) !important;
+    background-color: transparent !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  /* 自动填充覆盖 */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    background: none !important;
+    background-color: transparent !important;
+    -webkit-box-shadow: 0 0 0 1000px rgba(31, 31, 31, 0.95) inset !important;
+    transition: background-color 5000s;
+    -webkit-text-fill-color: var(--wot-color-text, #f5f5f5) !important;
+  }
+
+  /* 登录页特殊处理 */
+  .login-card {
+    input,
+    .form-input {
+      background-color: transparent !important;
+    }
+  }
+}
+
+/* 登录页面特别修复 */
+.login-container {
+  input,
+  .form-input {
+    background-color: transparent !important;
+    border: none !important;
+  }
+}
