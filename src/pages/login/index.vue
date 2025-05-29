@@ -3,48 +3,43 @@
     <!-- 背景图 -->
     <image src="/static/images/login-bg.svg" mode="aspectFill" class="login-bg" />
 
+    <!-- Logo和标题区域 -->
     <view class="header">
-      <image src="/static/images/logo.png" mode="aspectFit" class="logo" />
-      <text class="title">您好，欢迎回来</text>
-      <text class="subtitle">登录您的账号，开始愉快的旅程</text>
+      <image src="/static/logo.png" class="logo" />
+      <text class="title">有来开源</text>
+      <text class="subtitle">专注于构建高效开发的应用解决方案</text>
     </view>
 
     <view class="login-card">
       <view class="form-wrap">
         <!-- 账号密码登录表单 -->
-        <wd-form :model="LoginData" v-if="loginType === 'account'" ref="loginFormRef">
+        <wd-form v-if="loginType === 'account'" ref="loginFormRef" :model="loginFormData">
           <!-- 用户名输入框 -->
           <view class="form-item">
-            <wd-icon name="user" size="20" class="input-icon" />
+            <wd-icon name="user" size="22" class="input-icon" />
             <input
-              v-model="LoginData.username"
+              v-model="loginFormData.username"
               class="form-input"
               placeholder="请输入用户名"
               placeholder-class="input-placeholder"
-            />
-            <wd-icon
-              v-if="LoginData.username"
-              name="error-fill"
-              size="14"
-              class="clear-icon"
-              @click="LoginData.username = ''"
             />
           </view>
           <view class="divider"></view>
 
           <!-- 密码输入框 -->
           <view class="form-item">
-            <wd-icon name="lock" size="20" class="input-icon" />
+            <wd-icon name="lock-on" size="22" class="input-icon" />
             <input
-              v-model="LoginData.password"
+              v-model="loginFormData.password"
               class="form-input"
               :type="showPassword ? 'text' : 'password'"
               placeholder="请输入密码"
               placeholder-class="input-placeholder"
             />
             <wd-icon
-              :name="showPassword ? 'view' : 'view-off'"
-              size="14"
+              :name="showPassword ? 'eye-open' : 'eye-close'"
+              size="18"
+              color="#9ca3af"
               class="eye-icon"
               @click="showPassword = !showPassword"
             />
@@ -124,8 +119,7 @@ import { onLoad } from "@dcloudio/uni-app";
 import { type LoginData } from "@/api/auth";
 import { useUserStore } from "@/store/modules/user.store";
 import { useToast } from "wot-design-uni";
-import { getWxLoginCode, getWxPhoneNumber, wxAuthState } from "@/services/wechat.service";
-import { useTheme } from "@/composables/useTheme";
+import { useWechat } from "@/composables/useWechat";
 
 const loginFormRef = ref();
 const toast = useToast();
@@ -133,58 +127,32 @@ const loading = ref(false);
 const userStore = useUserStore();
 const showPassword = ref(false);
 const loginType = ref<"account" | "phone">("account");
-const { theme } = useTheme();
+const { authState, getLoginCode, getPhoneNumber } = useWechat();
 
 // 登录表单数据
-const LoginData = ref<LoginData>({
+const loginFormData = ref<LoginData>({
   username: "",
   password: "",
 });
 
 // 获取重定向参数
-const redirect = ref("");
+const redirect = ref("/pages/index/index");
 onLoad((options) => {
-  if (options) {
-    redirect.value = options.redirect ? decodeURIComponent(options.redirect) : "/pages/index/index";
-  } else {
-    redirect.value = "/pages/index/index";
+  if (options && options.redirect) {
+    redirect.value = decodeURIComponent(options.redirect);
   }
-
-  // 检查是否已登录
-  checkLoginStatus();
 });
-
-// 检查登录状态
-const checkLoginStatus = async () => {
-  try {
-    const token = uni.getStorageSync("app_token");
-    if (token) {
-      // 验证token有效性
-      const isValid = await userStore.checkSession();
-      if (isValid) {
-        // 已登录，获取用户信息
-        await userStore.getInfo();
-        // 重定向到首页或指定页面
-        setTimeout(() => {
-          uni.reLaunch({ url: redirect.value });
-        }, 100);
-      }
-    }
-  } catch (error) {
-    console.error("检查登录状态失败", error);
-  }
-};
 
 // 账号密码登录处理
 const handleAccountLogin = () => {
   if (loading.value) return;
 
   // 表单验证
-  if (!LoginData.value.username) {
+  if (!loginFormData.value.username) {
     toast.error("请输入用户名");
     return;
   }
-  if (!LoginData.value.password) {
+  if (!loginFormData.value.password) {
     toast.error("请输入密码");
     return;
   }
@@ -192,27 +160,17 @@ const handleAccountLogin = () => {
   loading.value = true;
 
   userStore
-    .login(LoginData.value)
+    .login(loginFormData.value)
     .then(() => userStore.getInfo())
     .then(() => {
       toast.success("登录成功");
 
-      // 检查用户信息是否完整
-      if (!userStore.isUserInfoComplete()) {
-        // 信息不完整，跳转到完善信息页面
-        setTimeout(() => {
-          uni.navigateTo({
-            url: `/pages/login/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
-          });
-        }, 1000);
-      } else {
-        // 否则直接跳转到重定向页面
-        setTimeout(() => {
-          uni.reLaunch({
-            url: redirect.value,
-          });
-        }, 1000);
-      }
+      // 账号密码登录直接跳转到重定向页面
+      setTimeout(() => {
+        uni.reLaunch({
+          url: redirect.value,
+        });
+      }, 1000);
     })
     .catch((error) => {
       toast.error(error?.message || "登录失败");
@@ -223,16 +181,16 @@ const handleAccountLogin = () => {
 };
 
 // 微信一键登录（通过手机号）
-const handleWechatPhoneLogin = async (e) => {
-  if (loading.value || wxAuthState.value.isLogining) return;
+const handleWechatPhoneLogin = async (e: any) => {
+  if (loading.value || authState.value.isLogining) return;
   loading.value = true;
 
   try {
     // 获取手机号加密数据
-    const phoneData = await getWxPhoneNumber(e);
+    const phoneData = await getPhoneNumber(e);
 
     // 调用登录接口
-    const result = await userStore.loginByWechatPhone(phoneData);
+    const result: any = await userStore.loginWithWxPhone(phoneData);
 
     // 获取用户信息
     await userStore.getInfo();
@@ -243,7 +201,7 @@ const handleWechatPhoneLogin = async (e) => {
       // 跳转到完善信息页面
       setTimeout(() => {
         uni.navigateTo({
-          url: `/pages/login/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
+          url: `/pages/mine/profile/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
         });
       }, 1000);
     } else {
@@ -254,7 +212,7 @@ const handleWechatPhoneLogin = async (e) => {
         });
       }, 1000);
     }
-  } catch (error) {
+  } catch (error: any) {
     if (error.message === "用户拒绝授权") {
       toast.error("您已拒绝授权获取手机号");
     } else {
@@ -266,7 +224,7 @@ const handleWechatPhoneLogin = async (e) => {
   }
 };
 
-// 微信登录处理
+// 微信授权登录处理
 const handleWechatLogin = async () => {
   if (loading.value) return;
   loading.value = true;
@@ -274,10 +232,10 @@ const handleWechatLogin = async () => {
   try {
     // #ifdef MP-WEIXIN
     // 获取微信登录的临时 code
-    const code = await getWxLoginCode();
+    const code = await getLoginCode();
 
-    // 尝试使用微信登录接口
-    const result = await userStore.loginByWechat(code);
+    // 尝试使用微信授权登录接口
+    const result: any = await userStore.loginWithWxCode(code);
 
     // 获取用户信息
     await userStore.getInfo();
@@ -288,7 +246,7 @@ const handleWechatLogin = async () => {
       // 如果信息不完整，跳转到完善信息页面
       setTimeout(() => {
         uni.navigateTo({
-          url: `/pages/login/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
+          url: `/pages/mine/profile/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
         });
       }, 1000);
     } else {
@@ -304,7 +262,7 @@ const handleWechatLogin = async () => {
     // #ifndef MP-WEIXIN
     toast.error("当前环境不支持微信登录");
     // #endif
-  } catch (error) {
+  } catch (error: any) {
     toast.error(error?.message || "微信登录失败");
   } finally {
     loading.value = false;

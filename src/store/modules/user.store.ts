@@ -9,7 +9,7 @@ import { Storage } from "@/utils/storage";
 export const useUserStore = defineStore("user", () => {
   const userInfo = ref<UserInfo | undefined>(getUserInfo());
 
-  // 登录
+  // 账号密码登录
   const login = (data: LoginData) => {
     return new Promise((resolve, reject) => {
       AuthAPI.login(data)
@@ -24,8 +24,8 @@ export const useUserStore = defineStore("user", () => {
     });
   };
 
-  // 微信登录
-  const loginByWechat = (code: string) => {
+  // 微信基础授权登录
+  const loginWithWxCode = (code: string) => {
     return new Promise((resolve, reject) => {
       AuthAPI.wechatLogin(code)
         .then((data) => {
@@ -33,29 +33,14 @@ export const useUserStore = defineStore("user", () => {
           resolve(data);
         })
         .catch((error) => {
-          console.error("微信登录失败", error);
+          console.error("微信授权登录失败", error);
           reject(error);
         });
     });
   };
 
-  // 微信小程序增强登录
-  const loginByWechatMini = (data: WxLoginData): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      AuthAPI.wechatMiniLogin(data)
-        .then((result) => {
-          setAccessToken(result.accessToken);
-          resolve(result);
-        })
-        .catch((error) => {
-          console.error("微信小程序登录失败", error);
-          reject(error);
-        });
-    });
-  };
-
-  // 微信手机号一键登录
-  const loginByWechatPhone = (data: WxLoginData): Promise<any> => {
+  // 微信手机号授权登录
+  const loginWithWxPhone = (data: WxLoginData): Promise<any> => {
     return new Promise((resolve, reject) => {
       AuthAPI.wechatPhoneLogin(data)
         .then((result) => {
@@ -121,9 +106,8 @@ export const useUserStore = defineStore("user", () => {
   return {
     userInfo,
     login,
-    loginByWechat,
-    loginByWechatMini,
-    loginByWechatPhone,
+    loginWithWxCode,
+    loginWithWxPhone,
     logout,
     getInfo,
     checkSession,

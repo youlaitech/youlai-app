@@ -7,11 +7,6 @@
       "layout": "tabbar"
     },
     {
-      "path": "pages/login/complete-profile",
-      "type": "page",
-      "style": {}
-    },
-    {
       "path": "pages/login/index",
       "type": "page",
       "style": {}
@@ -34,6 +29,11 @@
     },
     {
       "path": "pages/mine/feedback/index",
+      "type": "page",
+      "style": {}
+    },
+    {
+      "path": "pages/mine/profile/complete-profile",
       "type": "page",
       "style": {}
     },

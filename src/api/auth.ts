@@ -38,39 +38,26 @@ const AuthAPI = {
   },
 
   /**
-   * 微信登录 (基础版)
+   * 微信小程序授权登录 (仅使用code获取OpenID)
    * @param code 微信登录凭证
    * @returns 登录结果
    */
   wechatLogin(code: string): Promise<LoginResult> {
     return request<LoginResult>({
-      url: `${AUTH_BASE_URL}/wechat/login`,
+      url: `${AUTH_BASE_URL}/wx/miniapp/code-login`,
       method: "POST",
       data: { code },
     });
   },
 
   /**
-   * 微信小程序增强登录 (获取手机号)
-   * @param data 包含code, encryptedData, iv等的登录数据
-   * @returns 登录结果
-   */
-  wechatMiniLogin(data: WxLoginData): Promise<LoginResult> {
-    return request<LoginResult>({
-      url: `${AUTH_BASE_URL}/wechat/mini-login`,
-      method: "POST",
-      data,
-    });
-  },
-
-  /**
-   * 微信一键登录 (通过手机号)
-   * @param data 包含code和phoneCode的登录数据
+   * 微信小程序手机号授权登录
+   * @param data 包含code、encryptedData、iv等手机号相关数据
    * @returns 登录结果
    */
   wechatPhoneLogin(data: WxLoginData): Promise<LoginResult> {
     return request<LoginResult>({
-      url: `${AUTH_BASE_URL}/wechat/phone-login`,
+      url: `${AUTH_BASE_URL}/wx/miniapp/phone-login`,
       method: "POST",
       data,
     });

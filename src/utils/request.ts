@@ -1,4 +1,4 @@
-import { getAccessToken, getRefreshToken, isTokenExpired, setAccessToken } from "./auth";
+import { getAccessToken, getRefreshToken, setAccessToken } from "./auth";
 
 // 刷新令牌的锁，防止多个请求同时刷新令牌
 let isRefreshing = false;
@@ -58,8 +58,6 @@ interface RequestOptions<T = any> {
   header?: Record<string, string>;
   timeout?: number;
   responseType?: "text" | "arraybuffer";
-  // 是否跳过令牌刷新 (用于刷新令牌接口本身)
-  skipTokenRefresh?: boolean;
 }
 
 // 请求函数
@@ -89,12 +87,6 @@ function request<T = any>(options: RequestOptions): Promise<T> {
           }
           // 未授权错误
           else if (res.statusCode === 401) {
-            // 跳过令牌刷新的请求直接返回错误
-            if (options.skipTokenRefresh) {
-              reject(new Error("未授权"));
-              return;
-            }
-
             // 尝试刷新令牌
             if (!isRefreshing) {
               isRefreshing = true;
@@ -141,7 +133,7 @@ function request<T = any>(options: RequestOptions): Promise<T> {
     };
 
     // 检查令牌是否过期
-    if (token && !options.skipTokenRefresh && isTokenExpired(token)) {
+    if (token) {
       if (!isRefreshing) {
         isRefreshing = true;
 

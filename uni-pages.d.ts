@@ -5,12 +5,12 @@
 
 interface NavigateToOptions {
   url: "/pages/index/index" |
-       "/pages/login/complete-profile" |
        "/pages/login/index" |
        "/pages/mine/index" |
        "/pages/mine/about/index" |
        "/pages/mine/faq/index" |
        "/pages/mine/feedback/index" |
+       "/pages/mine/profile/complete-profile" |
        "/pages/mine/profile/index" |
        "/pages/mine/settings/index" |
        "/pages/mine/settings/account/index" |

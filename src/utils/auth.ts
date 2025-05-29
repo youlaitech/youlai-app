@@ -140,33 +140,3 @@ export function requireLogin(): void {
     });
   }
 }
-
-/**
- * 检查令牌是否过期
- * 这是一个简单实现，如果需要更精确的检查，应该解析JWT的payload
- * @returns 是否过期
- */
-export function isTokenExpired(token: string): boolean {
-  if (!token) return true;
-
-  try {
-    // 简单解析JWT payload (不验证签名)
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const payload = JSON.parse(
-      decodeURIComponent(
-        atob(base64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      )
-    );
-
-    // 检查过期时间
-    const now = Math.floor(Date.now() / 1000);
-    return payload.exp < now;
-  } catch (e) {
-    console.error("解析token失败", e);
-    return true;
-  }
-}
