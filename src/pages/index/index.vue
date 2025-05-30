@@ -1,6 +1,5 @@
 <template>
-  <view style="width: 100%; height: var(--status-bar-height)" />
-  <view class="home">
+  <view class="app-container">
     <wd-swiper
       v-model:current="current"
       :list="swiperList"
@@ -21,7 +20,7 @@
         <view class="p-2">
           <image class="w-72rpx h-72rpx rounded-8rpx" :src="item.icon" />
         </view>
-        <view class="text">{{ item.title }}</view>
+        <view class="text-sm text-center">{{ item.title }}</view>
       </wd-grid-item>
     </wd-grid>
 
@@ -40,9 +39,9 @@
 
     <!-- 数据统计 -->
     <wd-grid :column="2" :gutter="2">
-      <wd-grid-item use-slot custom-class="custom-item">
+      <wd-grid-item use-slot custom-class="h-80px">
         <view class="flex justify-start pl-5">
-          <view class="flex-center">
+          <view class="flex items-center">
             <image class="w-80rpx h-80rpx rounded-8rpx" src="/static/icons/visitor.png" />
             <view class="ml-5 text-left">
               <view class="font-bold">访客数</view>
@@ -51,9 +50,9 @@
           </view>
         </view>
       </wd-grid-item>
-      <wd-grid-item use-slot custom-class="custom-item">
+      <wd-grid-item use-slot custom-class="h-80px">
         <view class="flex justify-start pl-5">
-          <view class="flex-center">
+          <view class="flex items-center">
             <image class="w-80rpx h-80rpx rounded-8rpx" src="/static/icons/browser.png" />
             <view class="ml-5 text-left">
               <view class="font-bold">浏览量</view>
@@ -66,7 +65,7 @@
 
     <wd-card>
       <template #title>
-        <view class="flex-between">
+        <view class="flex justify-between items-center">
           <view>访问趋势</view>
           <view>
             <wd-radio-group
@@ -82,7 +81,7 @@
         </view>
       </template>
 
-      <view class="charts-box">
+      <view class="w-full h-300px mb-40rpx">
         <qiun-data-charts type="area" :chartData="chartData" :opts="chartOpts" />
       </view>
     </wd-card>
@@ -267,18 +266,5 @@ onShow(() => {
 </script>
 
 <style setup lang="scss">
-.home {
-  padding: 10rpx 10rpx;
-  :deep(.custom-item) {
-    height: 80px !important;
-  }
-  :deep(.wd-card) {
-    margin: 10rpx 0 !important;
-  }
-}
-
-.charts-box {
-  width: 100%;
-  height: 300px;
-}
+/* 已全部使用UnoCSS替代，不需要额外的样式 */
 </style>

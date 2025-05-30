@@ -40,13 +40,28 @@
 import { ref, watch } from "vue";
 import FileAPI, { type FileInfo } from "@/api/file";
 
+/**
+ * 微信小程序头像昵称组件
+ *
+ * @description 用于微信小程序环境下的头像、昵称和性别选择
+ * @component WechatProfile
+ * @example
+ * <WechatProfile v-model="profileData" @change="onProfileChange" />
+ */
+
+defineOptions({
+  name: "WechatProfile",
+});
+
 // Props
+interface ProfileData {
+  avatar?: string;
+  nickname?: string;
+  gender?: number;
+}
+
 interface Props {
-  modelValue?: {
-    avatar?: string;
-    nickname?: string;
-    gender?: number;
-  };
+  modelValue?: ProfileData;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -59,8 +74,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 // Emits
 const emit = defineEmits<{
-  "update:modelValue": [value: { avatar?: string; nickname?: string; gender?: number }];
-  change: [value: { avatar?: string; nickname?: string; gender?: number }];
+  "update:modelValue": [value: ProfileData];
+  change: [value: ProfileData];
 }>();
 
 // 响应式数据
@@ -134,7 +149,7 @@ watch(gender, () => {
   margin-bottom: 20rpx;
   font-size: 32rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--wot-color-text);
 }
 
 .avatar-section {
@@ -171,14 +186,14 @@ watch(gender, () => {
     justify-content: center;
     width: 100%;
     height: 100%;
-    background: #f8f9fa;
-    border: 2rpx dashed #ddd;
+    background: var(--wot-color-bg-light);
+    border: 2rpx dashed var(--wot-color-border);
     border-radius: 50%;
 
     .placeholder-text {
       margin-top: 10rpx;
       font-size: 24rpx;
-      color: #999;
+      color: var(--wot-color-text-secondary);
     }
   }
 }
@@ -192,8 +207,8 @@ watch(gender, () => {
     height: 80rpx;
     padding: 0 20rpx;
     font-size: 28rpx;
-    background: #f8f9fa;
-    border: 1rpx solid #e9ecef;
+    background: var(--wot-color-bg-light);
+    border: 1rpx solid var(--wot-color-border);
     border-radius: 12rpx;
   }
 }

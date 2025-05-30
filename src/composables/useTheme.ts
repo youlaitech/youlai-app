@@ -3,18 +3,22 @@ import type { ConfigProviderThemeVars } from "wot-design-uni";
 
 /* 默认的主题色列表 */
 export const colorColumns = [
-  { value: "#165DFF", label: "蓝色" },
-  { value: "#0FC6C2", label: "青绿色" },
-  { value: "#722ED1", label: "紫色" },
-  { value: "#F5222D", label: "红色" },
-  { value: "#FA8C16", label: "橙色" },
-  { value: "#FADB14", label: "黄色" },
-  { value: "#52C41A", label: "绿色" },
-  { value: "#EB2F96", label: "粉色" },
-  { value: "#13C2C2", label: "青色" },
-  { value: "#1890FF", label: "天蓝色" },
-  { value: "#CD5C5C", label: "经典红" },
-  { value: "#228B22", label: "自然绿" },
+  { value: "#165DFF", label: "海洋蓝" },
+  { value: "#1677FF", label: "天空蓝" },
+  { value: "#0081FF", label: "梦幻蓝" },
+  { value: "#4080FF", label: "皇家蓝" },
+  { value: "#4D74FF", label: "靛蓝" },
+  { value: "#0FC6C2", label: "碧波绿" },
+  { value: "#722ED1", label: "魔幻紫" },
+  { value: "#F5222D", label: "热情红" },
+  { value: "#FA8C16", label: "活力橙" },
+  { value: "#FADB14", label: "阳光黄" },
+  { value: "#52C41A", label: "生机绿" },
+  { value: "#EB2F96", label: "浪漫粉" },
+  { value: "#13C2C2", label: "清新青" },
+  { value: "#36CFC9", label: "湖水蓝" },
+  { value: "#CD5C5C", label: "复古红" },
+  { value: "#228B22", label: "森林绿" },
 ];
 
 /* 存储键名 */

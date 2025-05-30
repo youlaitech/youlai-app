@@ -6,7 +6,7 @@
       <wd-cell title="主题设置" icon="setting1" is-link @click="navigateToTheme" />
       <wd-cell title="用户协议" icon="user" is-link @click="navigateToUserAgreement" />
       <wd-cell title="隐私政策" icon="folder" is-link @click="navigateToPrivacy" />
-      <wd-cell title="关于我们" icon="info" is-link @click="navigateToAbout" />
+      <wd-cell title="关于我们" icon="info-circle" is-link @click="navigateToAbout" />
     </wd-cell-group>
 
     <wd-cell-group custom-style="margin-top:40rpx">
@@ -199,11 +199,6 @@ onLoad(() => {
 </script>
 <style lang="scss" scoped>
 .settings-container {
-  min-height: 100vh;
-  padding: 20px;
-  color: var(--wot-color-text, #333);
-  background-color: var(--wot-color-bg-light, #f8f8f8);
-
   // 强制 Wot 组件应用暗黑模式样式
   :deep(.wd-cell-group) {
     overflow: hidden;

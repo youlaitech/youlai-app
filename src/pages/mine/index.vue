@@ -1,5 +1,5 @@
 <template>
-  <view class="mine-container">
+  <view class="app-container">
     <!-- 用户信息卡片 -->
     <view class="user-profile">
       <view class="blur-bg"></view>
@@ -143,8 +143,15 @@
       </view>
     </view>
 
-    <view v-if="isLogin" class="logout-btn-container">
-      <wd-button custom-class="logout-btn-unocss" @click="handleLogout">退出登录</wd-button>
+    <!-- 退出登录按钮 -->
+    <view v-if="isLogin" class="logout-btn-wrap">
+      <wd-button
+        class="w-full h-80rpx rounded-40rpx font-bold text-32rpx"
+        plain
+        @click="handleLogout"
+      >
+        退出登录
+      </wd-button>
     </view>
 
     <wd-toast />
@@ -243,13 +250,6 @@ onShow(() => {
 </script>
 
 <style lang="scss" scoped>
-/* stylelint-disable declaration-property-value-no-unknown */
-.mine-container {
-  min-height: 100vh;
-  padding-bottom: 100rpx;
-  background-color: var(--wot-color-bg-page);
-}
-
 // 用户信息卡片
 .user-profile {
   position: relative;
@@ -549,35 +549,7 @@ onShow(() => {
 }
 
 // 退出登录按钮
-.logout-btn-container {
-  padding: 20rpx 30rpx;
-}
-</style>
-
-<style>
-/* 使用全局样式解决微信小程序组件样式问题 */
-.logout-btn-unocss {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  height: 80rpx !important;
-  font-size: 32rpx !important;
-  font-weight: bold !important;
-  color: #fff !important;
-  background-color: var(--wot-color-theme) !important;
-  border: none !important;
-  border-radius: 40rpx !important;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15) !important;
-}
-
-.btn-login {
-  width: 160rpx !important;
-  height: 60rpx !important;
-  font-size: 26rpx !important;
-  color: var(--wot-color-theme) !important;
-  background-color: #fff !important;
-  border: none !important;
-  border-radius: 30rpx !important;
+.logout-btn-wrap {
+  padding: 30rpx;
 }
 </style>

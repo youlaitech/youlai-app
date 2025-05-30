@@ -1,12 +1,10 @@
 <template>
-  <view class="login-container">
+  <view class="app-container">
     <!-- 背景图 -->
     <image src="/static/images/login-bg.svg" mode="aspectFill" class="login-bg" />
 
     <!-- Logo和标题区域 -->
-    <view class="header">    <view class="header">
-
-    </view>
+    <view class="header"></view>
 
     <view class="login-card">
       <view class="form-wrap">
@@ -310,12 +308,13 @@ const navigateToPrivacy = () => {
 </script>
 
 <style lang="scss" scoped>
-.login-container {
+.app-container {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
+  height: 100%;
+  min-height: 100vh;
   overflow: hidden;
   background-color: var(--wot-color-bg-container);
 }

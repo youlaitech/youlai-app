@@ -118,7 +118,7 @@ import { useToast } from "wot-design-uni";
 import { useUserStore } from "@/store/modules/user.store";
 import UserAPI, { type UserProfileForm } from "@/api/user";
 import FileAPI, { type FileInfo } from "@/api/file";
-import WechatProfile from "@/components/WechatProfile.vue";
+import WechatProfile from "@/components/business/WechatProfile.vue";
 
 const toast = useToast();
 const userStore = useUserStore();

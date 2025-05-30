@@ -2,7 +2,6 @@
 import { onLaunch, onShow, onHide } from "@dcloudio/uni-app";
 import { useTheme } from "@/composables/useTheme";
 
-// 使用主题 composable
 const { initTheme } = useTheme();
 
 onLaunch(() => {
@@ -20,7 +19,4 @@ onHide(() => {
 });
 </script>
 
-<style lang="scss">
-/* 导入暗黑模式修复样式 */
-@import "./styles/dark-mode-fix';";
-</style>
+<style lang="scss"></style>

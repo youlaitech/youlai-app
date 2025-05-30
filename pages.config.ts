@@ -14,8 +14,11 @@ export default defineUniPages({
     },
   ],
   globalStyle: {
+    navigationStyle: "custom",
     navigationBarTextStyle: "black",
-    navigationBarTitleText: "vue-uniapp-template",
+    navigationBarTitleText: "youlai-mall-app",
+    navigationBarBackgroundColor: "#F8F8F8",
+    backgroundColor: "#F8F8F8",
   },
 
   tabBar: {

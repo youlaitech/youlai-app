@@ -23,7 +23,7 @@ interface TabbarItem {
 
 // 根据 pages.json 配置的 tabbar 项目
 const tabbarItems = ref<TabbarItem[]>([
-  { name: "index", value: null, active: true, title: "首页", icon: "home" },
+  { name: "index", value: null, active: true, title: "首页123", icon: "home" },
   { name: "mine", value: null, active: false, title: "我的", icon: "user" },
 ]);
 
@@ -161,14 +161,6 @@ export default {
     custom-style="min-height: 100vh"
     :class="{ 'wot-theme-dark': theme === 'dark' }"
   >
-    <wd-navbar
-      :title="activeTabbar.title"
-      safe-area-inset-top
-      placeholder
-      fixed
-      :bordered="false"
-    />
-
     <slot />
     <wd-tabbar
       :model-value="activeTabbar.name"
@@ -193,20 +185,4 @@ export default {
   </wd-config-provider>
 </template>
 
-<style lang="scss" scoped>
-/* 暗黑模式样式 */
-.wot-theme-dark {
-  color: #f5f5f5;
-  background-color: #1a1a1a;
-
-  :deep(.wd-navbar) {
-    color: #f5f5f5;
-    background-color: #2a2a2a;
-  }
-
-  :deep(.wd-tabbar) {
-    background-color: #2a2a2a;
-    border-top-color: #404040;
-  }
-}
-</style>
+<style lang="scss" scoped></style>

@@ -25,3 +25,34 @@ pnpm run dev:h5
 ```
 
 访问 [http://localhost:4096](http://localhost:4096)
+
+## 组件结构
+
+项目组件分为以下几类：
+
+- **基础组件**：`src/components` 下的通用组件
+- **业务组件**：`src/components/business` 下的业务相关组件
+  - `WechatProfile.vue`: 微信小程序环境下的头像、昵称和性别选择组件
+
+使用业务组件：
+
+```vue
+<template>
+  <WechatProfile v-model="profileData" @change="onProfileChange" />
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import { WechatProfile } from "@/components/business";
+
+const profileData = ref({
+  avatar: "",
+  nickname: "",
+  gender: 1,
+});
+
+const onProfileChange = (data) => {
+  console.log("个人资料变更:", data);
+};
+</script>
+```

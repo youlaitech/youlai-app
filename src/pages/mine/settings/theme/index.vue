@@ -1,91 +1,81 @@
 <template>
-  <view class="theme-settings-container">
-    <!-- 页面标题 -->
-    <view class="page-header">
-      <text class="page-title">主题设置</text>
-      <text class="page-subtitle">个性化您的应用外观</text>
-    </view>
-
-    <!-- 暗黑模式设置 -->
-    <wd-card custom-class="setting-card">
-      <view class="setting-item">
-        <view class="setting-info">
-          <wd-icon name="moon" size="20" :color="currentThemeColor" />
-          <text class="setting-label">暗黑模式</text>
+  <view class="app-container">
+    <!-- 内容区域 -->
+    <view class="content-wrapper">
+      <!-- 页面标题 -->
+      <view class="page-header">
+        <text class="page-title">主题设置</text>
+        <text class="page-subtitle">个性化您的应用外观</text>
+      </view>
+      <!-- 暗黑模式设置 -->
+      <wd-card class="mb-3">
+        <view class="flex-between py-2">
+          <text>暗黑模式</text>
+          <wd-switch :model-value="theme === 'dark'" @change="toggleTheme" />
         </view>
-        <wd-switch :model-value="theme === 'dark'" @change="toggleTheme" />
-      </view>
-    </wd-card>
-
-    <!-- 主题色选择 -->
-    <wd-card custom-class="setting-card">
-      <view class="setting-header">
-        <wd-icon name="palette" size="20" :color="currentThemeColor" />
-        <text class="setting-title">主题色</text>
-      </view>
-
-      <view class="color-grid">
-        <view
-          v-for="item in colorColumns"
-          :key="item.value"
-          class="color-item"
-          :class="{ active: currentThemeColor === item.value }"
-          @click="setThemeColor(item.value)"
-        >
-          <view class="color-box" :style="{ backgroundColor: item.value }">
-            <wd-icon v-if="currentThemeColor === item.value" name="check" size="16" color="#fff" />
+      </wd-card>
+      <!-- 主题色选择 -->
+      <wd-card title="主题色" class="mb-3">
+        <view class="color-grid">
+          <view
+            v-for="item in colorColumns"
+            :key="item.value"
+            class="color-item"
+            :class="{ active: currentThemeColor === item.value }"
+            @click="setThemeColor(item.value)"
+          >
+            <view class="color-box" :style="{ backgroundColor: item.value }">
+              <wd-icon
+                v-if="currentThemeColor === item.value"
+                name="check"
+                size="16"
+                color="#fff"
+              />
+            </view>
+            <text class="color-label">{{ item.label }}</text>
           </view>
-          <text class="color-label">{{ item.label }}</text>
         </view>
+      </wd-card>
+      <!-- 自定义颜色 -->
+      <wd-card class="mb-3">
+        <view class="flex-between items-center py-2" @click="showCustomColorPopup = true">
+          <view class="flex-start gap-2 items-center">
+            <wd-icon name="edit" size="20" :color="currentThemeColor" />
+            <text>自定义颜色</text>
+          </view>
+          <view class="flex-start gap-2 items-center">
+            <view class="color-box small" :style="{ backgroundColor: currentThemeColor }"></view>
+            <text class="text-sm text-gray-500">{{ currentThemeColor }}</text>
+            <wd-icon name="arrow-right" size="14" color="#999" />
+          </view>
+        </view>
+      </wd-card>
+      <!-- 预览效果 -->
+      <wd-card title="预览效果" class="mb-3">
+        <view class="py-2">
+          <view class="flex-start gap-2">
+            <wd-button type="primary" size="small">主要按钮</wd-button>
+            <wd-button type="primary" plain size="small">次要按钮</wd-button>
+            <wd-tag type="primary">标签</wd-tag>
+          </view>
+        </view>
+      </wd-card>
+      <!-- 重置按钮 -->
+      <view class="mt-5 mx-3">
+        <wd-button plain block @click="handleReset">恢复默认</wd-button>
       </view>
-    </wd-card>
-
-    <!-- 自定义颜色 -->
-    <wd-card custom-class="setting-card">
-      <view class="setting-item" @click="showCustomColorPopup = true">
-        <view class="setting-info">
-          <wd-icon name="edit" size="20" :color="currentThemeColor" />
-          <text class="setting-label">自定义颜色</text>
-        </view>
-        <view class="custom-color-preview">
-          <view class="color-box small" :style="{ backgroundColor: currentThemeColor }"></view>
-          <text class="color-value">{{ currentThemeColor }}</text>
-          <wd-icon name="arrow-right" size="14" color="#999" />
-        </view>
-      </view>
-    </wd-card>
-
-    <!-- 预览效果 -->
-    <wd-card custom-class="setting-card">
-      <view class="preview-section">
-        <text class="preview-title">预览效果</text>
-        <view class="preview-items">
-          <wd-button type="primary" size="small">主要按钮</wd-button>
-          <wd-button type="primary" plain size="small">次要按钮</wd-button>
-          <wd-tag type="primary">标签</wd-tag>
-        </view>
-      </view>
-    </wd-card>
-
-    <!-- 重置按钮 -->
-    <view class="action-buttons">
-      <wd-button block @click="handleReset">恢复默认</wd-button>
     </view>
 
     <!-- 自定义颜色弹窗 -->
     <wd-popup v-model="showCustomColorPopup" position="bottom" closeable>
       <view class="custom-color-popup">
-        <view class="popup-header">
-          <text class="popup-title">自定义主题色</text>
-        </view>
-
-        <view class="color-input-section">
+        <view class="text-center mb-5"><text class="text-lg font-bold">自定义主题色</text></view>
+        <view class="mb-5">
           <view class="color-preview-large" :style="{ backgroundColor: customColor }"></view>
           <wd-input v-model="customColor" placeholder="请输入颜色值，如 #FF6B6B" clearable />
           <text class="input-tip">支持 HEX 格式颜色值</text>
         </view>
-
-        <view class="popup-actions">
+        <view class="flex gap-2">
           <wd-button type="info" block @click="showCustomColorPopup = false">取消</wd-button>
           <wd-button type="primary" block @click="applyCustomColor">应用</wd-button>
         </view>
@@ -93,9 +83,7 @@
     </wd-popup>
   </view>
 </template>
-
 <script lang="ts" setup>
-import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { useTheme } from "@/composables/useTheme";
 
@@ -149,12 +137,9 @@ onShow(() => {
   customColor.value = currentThemeColor.value;
 });
 </script>
-
 <style lang="scss" scoped>
-.theme-settings-container {
-  min-height: 100vh;
+.content-wrapper {
   padding: 20rpx;
-  background-color: var(--wot-color-bg-page);
 }
 
 .page-header {
@@ -178,58 +163,18 @@ onShow(() => {
   }
 }
 
-.setting-card {
-  margin-bottom: 20rpx;
-  background-color: var(--wot-color-bg-container) !important;
-  border-radius: 16rpx !important;
-
-  :deep(.wd-card__body) {
-    padding: 30rpx !important;
-  }
-}
-
-.setting-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  .setting-info {
-    display: flex;
-    gap: 20rpx;
-    align-items: center;
-  }
-
-  .setting-label {
-    font-size: 30rpx;
-    color: var(--wot-color-text);
-  }
-}
-
-.setting-header {
-  display: flex;
-  gap: 20rpx;
-  align-items: center;
-  margin-bottom: 30rpx;
-
-  .setting-title {
-    font-size: 30rpx;
-    font-weight: 600;
-    color: var(--wot-color-text);
-  }
-}
-
 .color-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20rpx;
+  gap: 24rpx 20rpx;
 }
 
 .color-item {
   display: flex;
   flex-direction: column;
-  gap: 10rpx;
+  gap: 8rpx;
   align-items: center;
-  padding: 10rpx;
+  padding: 8rpx;
   cursor: pointer;
 
   &.active .color-box {
@@ -255,79 +200,29 @@ onShow(() => {
   .color-label {
     font-size: 22rpx;
     color: var(--wot-color-text-secondary);
+    text-align: center;
+    white-space: nowrap;
   }
-}
-
-.custom-color-preview {
-  display: flex;
-  gap: 15rpx;
-  align-items: center;
-
-  .color-value {
-    font-size: 26rpx;
-    color: var(--wot-color-text-secondary);
-  }
-}
-
-.preview-section {
-  .preview-title {
-    display: block;
-    margin-bottom: 20rpx;
-    font-size: 28rpx;
-    color: var(--wot-color-text-secondary);
-  }
-
-  .preview-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20rpx;
-    align-items: center;
-  }
-}
-
-.action-buttons {
-  padding: 0 20rpx;
-  margin-top: 40rpx;
 }
 
 .custom-color-popup {
   padding: 40rpx 30rpx;
   background-color: var(--wot-color-bg-container);
 
-  .popup-header {
-    margin-bottom: 40rpx;
+  .color-preview-large {
+    width: 100%;
+    height: 120rpx;
+    margin-bottom: 30rpx;
+    border: 2rpx solid var(--wot-color-border);
+    border-radius: 16rpx;
+  }
+
+  .input-tip {
+    display: block;
+    margin-top: 15rpx;
+    font-size: 24rpx;
+    color: var(--wot-color-text-placeholder);
     text-align: center;
-
-    .popup-title {
-      font-size: 32rpx;
-      font-weight: 600;
-      color: var(--wot-color-text);
-    }
-  }
-
-  .color-input-section {
-    margin-bottom: 40rpx;
-
-    .color-preview-large {
-      width: 100%;
-      height: 120rpx;
-      margin-bottom: 30rpx;
-      border: 2rpx solid var(--wot-color-border);
-      border-radius: 16rpx;
-    }
-
-    .input-tip {
-      display: block;
-      margin-top: 15rpx;
-      font-size: 24rpx;
-      color: var(--wot-color-text-placeholder);
-      text-align: center;
-    }
-  }
-
-  .popup-actions {
-    display: flex;
-    gap: 20rpx;
   }
 }
 </style>
