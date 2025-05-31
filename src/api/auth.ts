@@ -30,10 +30,18 @@ const AuthAPI = {
    * @returns 登录结果
    */
   login(data: LoginData): Promise<LoginResult> {
+    const formData = {
+      username: data.username,
+      password: data.password,
+    };
+
     return request<LoginResult>({
       url: `${AUTH_BASE_URL}/login`,
       method: "POST",
-      data,
+      data: formData,
+      header: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
     });
   },
 
@@ -42,7 +50,7 @@ const AuthAPI = {
    * @param code 微信登录凭证
    * @returns 登录结果
    */
-  wechatLogin(code: string): Promise<LoginResult> {
+  loginByWxMiniAppCode(code: string): Promise<LoginResult> {
     return request<LoginResult>({
       url: `${AUTH_BASE_URL}/wx/miniapp/code-login`,
       method: "POST",
@@ -55,7 +63,7 @@ const AuthAPI = {
    * @param data 包含code、encryptedData、iv等手机号相关数据
    * @returns 登录结果
    */
-  wechatPhoneLogin(data: WxLoginData): Promise<LoginResult> {
+  loginByWxMiniAppPhone(data: WxLoginData): Promise<LoginResult> {
     return request<LoginResult>({
       url: `${AUTH_BASE_URL}/wx/miniapp/phone-login`,
       method: "POST",

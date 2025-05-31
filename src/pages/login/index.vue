@@ -143,8 +143,8 @@ const isDarkMode = computed(() => theme.value === "dark");
 
 // 登录表单数据
 const loginFormData = ref<LoginData>({
-  username: "",
-  password: "",
+  username: "admin",
+  password: "123456",
 });
 
 // 获取重定向参数

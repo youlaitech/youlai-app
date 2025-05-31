@@ -17,7 +17,6 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
       host: "0.0.0.0",
       port: +env.VITE_APP_PORT,
       open: true,
-      // 代理配置只在 H5（浏览器）开发时生效。 其他平台（如小程序、App）在开发时不使用 Vite 的开发服务器，它们直接运行在各自的环境中。
       proxy: {
         [env.VITE_APP_BASE_API]: {
           changeOrigin: true,

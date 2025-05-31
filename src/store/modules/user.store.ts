@@ -27,12 +27,12 @@ export const useUserStore = defineStore("user", () => {
   // 微信基础授权登录
   const loginWithWxCode = (code: string) => {
     return new Promise((resolve, reject) => {
-      AuthAPI.wechatLogin(code)
+      AuthAPI.loginByWxMiniAppCode(code)
         .then((data) => {
           setAccessToken(data.accessToken);
           resolve(data);
         })
-        .catch((error) => {
+        .catch((error: any) => {
           console.error("微信授权登录失败", error);
           reject(error);
         });
@@ -42,12 +42,12 @@ export const useUserStore = defineStore("user", () => {
   // 微信手机号授权登录
   const loginWithWxPhone = (data: WxLoginData): Promise<any> => {
     return new Promise((resolve, reject) => {
-      AuthAPI.wechatPhoneLogin(data)
-        .then((result) => {
+      AuthAPI.loginByWxMiniAppPhone(data)
+        .then((result: any) => {
           setAccessToken(result.accessToken);
           resolve(result);
         })
-        .catch((error) => {
+        .catch((error: any) => {
           console.error("微信手机号登录失败", error);
           reject(error);
         });
@@ -93,6 +93,11 @@ export const useUserStore = defineStore("user", () => {
       clearTokens(); // 清除本地的 token
       Storage.remove(USER_INFO_KEY); // 清除用户信息缓存
       userInfo.value = undefined; // 清空用户信息
+
+      // 跳转到登录页面
+      uni.reLaunch({
+        url: "/pages/login/index",
+      });
     }
   };
 
