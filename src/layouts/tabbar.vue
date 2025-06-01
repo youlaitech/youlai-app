@@ -23,7 +23,7 @@ interface TabbarItem {
 
 // 根据 pages.json 配置的 tabbar 项目
 const tabbarItems = ref<TabbarItem[]>([
-  { name: "index", value: null, active: true, title: "首页123", icon: "home" },
+  { name: "index", value: null, active: true, title: "首页", icon: "home" },
   { name: "mine", value: null, active: false, title: "我的", icon: "user" },
 ]);
 
@@ -83,15 +83,19 @@ const updateTabbarByRoute = () => {
 
 function handleTabbarChange({ value }: { value: string }) {
   console.log(`用户点击 tabbar: ${value}`);
-  setTabbarItemActive(value);
 
-  // 根据 tabbar 项目导航到对应页面
+  // 立即设置激活状态
+  tabbarItems.value.forEach((item) => {
+    item.active = item.name === value;
+  });
+
+  // 导航到对应页面
   if (value === "index") {
-    uni.switchTab({
+    uni.reLaunch({
       url: "/pages/index/index",
     });
   } else if (value === "mine") {
-    uni.switchTab({
+    uni.reLaunch({
       url: "/pages/mine/index",
     });
   }

@@ -8,17 +8,27 @@ interface RequestOptions<T = any> {
   header?: Record<string, string>;
   timeout?: number;
   responseType?: "text" | "arraybuffer";
+  skipAuth?: boolean; // 标记是否跳过认证
 }
 
 // 请求函数
 function request<T = any>(options: RequestOptions): Promise<T> {
   return new Promise<T>((resolve, reject) => {
-    // 添加授权头
-    const token = getAccessToken();
+    // 构建请求头
     const header = Object.assign({}, options.header || {});
 
-    if (token) {
-      header["Authorization"] = `Bearer ${token}`;
+    // 检查是否需要添加认证令牌
+    if (!options.skipAuth) {
+      const token = getAccessToken();
+      if (token) {
+        header["Authorization"] = `Bearer ${token}`;
+      } else {
+        // 需要认证但没有令牌，跳转到登录页
+        uni.navigateTo({
+          url: "/pages/login/index",
+        });
+        return reject(new Error("请先登录"));
+      }
     }
 
     // 根据平台决定URL前缀
@@ -48,11 +58,13 @@ function request<T = any>(options: RequestOptions): Promise<T> {
         }
         // 未授权错误
         else if (res.statusCode === 401) {
-          // 直接跳转到登录页
-          uni.redirectTo({
-            url: "/pages/login/index",
-          });
-          reject(new Error("未授权，请重新登录"));
+          // 如果需要认证且未授权，跳转到登录页
+          if (!options.skipAuth) {
+            uni.navigateTo({
+              url: "/pages/login/index",
+            });
+          }
+          reject(new Error(res.data.message || "未授权，请重新登录"));
         }
         // 其他错误
         else {
@@ -64,6 +76,17 @@ function request<T = any>(options: RequestOptions): Promise<T> {
         reject(new Error(err.errMsg || "网络请求失败"));
       },
     });
+  });
+}
+
+/**
+ * 无需认证的请求
+ * @param options 请求配置
+ */
+export function publicRequest<T = any>(options: RequestOptions): Promise<T> {
+  return request<T>({
+    ...options,
+    skipAuth: true,
   });
 }
 

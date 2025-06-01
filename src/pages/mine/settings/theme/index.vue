@@ -1,69 +1,65 @@
 <template>
+  <!-- 内容区域 -->
   <view class="app-container">
-    <!-- 内容区域 -->
-    <view class="content-wrapper">
-      <!-- 页面标题 -->
-      <view class="page-header">
-        <text class="page-title">主题设置</text>
-        <text class="page-subtitle">个性化您的应用外观</text>
+    <wd-navbar title="主题设置" left-arrow @click-left="handleBack" />
+
+    <!-- 页面标题 -->
+    <wd-card custom-class="page-header">
+      <text class="page-title">主题设置</text>
+      <view class="page-subtitle">个性化您的应用外观</view>
+    </wd-card>
+
+    <!-- 暗黑模式设置 -->
+    <wd-card class="mb-3">
+      <view class="flex-between py-2">
+        <text>暗黑模式</text>
+        <wd-switch :model-value="theme === 'dark'" @change="toggleTheme" />
       </view>
-      <!-- 暗黑模式设置 -->
-      <wd-card class="mb-3">
-        <view class="flex-between py-2">
-          <text>暗黑模式</text>
-          <wd-switch :model-value="theme === 'dark'" @change="toggleTheme" />
-        </view>
-      </wd-card>
-      <!-- 主题色选择 -->
-      <wd-card title="主题色" class="mb-3">
-        <view class="color-grid">
-          <view
-            v-for="item in colorColumns"
-            :key="item.value"
-            class="color-item"
-            :class="{ active: currentThemeColor === item.value }"
-            @click="setThemeColor(item.value)"
-          >
-            <view class="color-box" :style="{ backgroundColor: item.value }">
-              <wd-icon
-                v-if="currentThemeColor === item.value"
-                name="check"
-                size="16"
-                color="#fff"
-              />
-            </view>
-            <text class="color-label">{{ item.label }}</text>
+    </wd-card>
+    <!-- 主题色选择 -->
+    <wd-card title="主题色" class="mb-3">
+      <view class="color-grid">
+        <view
+          v-for="item in colorColumns"
+          :key="item.value"
+          class="color-item"
+          :class="{ active: currentThemeColor === item.value }"
+          @click="setThemeColor(item.value)"
+        >
+          <view class="color-box" :style="{ backgroundColor: item.value }">
+            <wd-icon v-if="currentThemeColor === item.value" name="check" size="16" color="#fff" />
           </view>
+          <text class="color-label">{{ item.label }}</text>
         </view>
-      </wd-card>
-      <!-- 自定义颜色 -->
-      <wd-card class="mb-3">
-        <view class="flex-between items-center py-2" @click="showCustomColorPopup = true">
-          <view class="flex-start gap-2 items-center">
-            <wd-icon name="edit" size="20" :color="currentThemeColor" />
-            <text>自定义颜色</text>
-          </view>
-          <view class="flex-start gap-2 items-center">
-            <view class="color-box small" :style="{ backgroundColor: currentThemeColor }"></view>
-            <text class="text-sm text-gray-500">{{ currentThemeColor }}</text>
-            <wd-icon name="arrow-right" size="14" color="#999" />
-          </view>
-        </view>
-      </wd-card>
-      <!-- 预览效果 -->
-      <wd-card title="预览效果" class="mb-3">
-        <view class="py-2">
-          <view class="flex-start gap-2">
-            <wd-button type="primary" size="small">主要按钮</wd-button>
-            <wd-button type="primary" plain size="small">次要按钮</wd-button>
-            <wd-tag type="primary">标签</wd-tag>
-          </view>
-        </view>
-      </wd-card>
-      <!-- 重置按钮 -->
-      <view class="mt-5 mx-3">
-        <wd-button plain block @click="handleReset">恢复默认</wd-button>
       </view>
+    </wd-card>
+    <!-- 自定义颜色 -->
+    <wd-card class="mb-3">
+      <view class="flex-between items-center py-2" @click="showCustomColorPopup = true">
+        <view class="flex-start gap-2 items-center">
+          <wd-icon name="edit" size="20" :color="currentThemeColor" />
+          <text>自定义颜色</text>
+        </view>
+        <view class="flex-start gap-2 items-center">
+          <view class="color-box small" :style="{ backgroundColor: currentThemeColor }"></view>
+          <text class="text-sm text-gray-500">{{ currentThemeColor }}</text>
+          <wd-icon name="arrow-right" size="14" color="#999" />
+        </view>
+      </view>
+    </wd-card>
+    <!-- 预览效果 -->
+    <wd-card title="预览效果" class="mb-3">
+      <view class="py-2">
+        <view class="flex-start gap-2">
+          <wd-button type="primary" size="small">主要按钮</wd-button>
+          <wd-button type="primary" plain size="small">次要按钮</wd-button>
+          <wd-tag type="primary">标签</wd-tag>
+        </view>
+      </view>
+    </wd-card>
+    <!-- 重置按钮 -->
+    <view class="mt-5 mx-3">
+      <wd-button plain block @click="handleReset">恢复默认</wd-button>
     </view>
 
     <!-- 自定义颜色弹窗 -->
@@ -84,7 +80,7 @@
   </view>
 </template>
 <script lang="ts" setup>
-import { onShow } from "@dcloudio/uni-app";
+import { onShow, onLoad } from "@dcloudio/uni-app";
 import { useTheme } from "@/composables/useTheme";
 
 const { theme, currentThemeColor, colorColumns, toggleTheme, setThemeColor, resetTheme } =
@@ -93,6 +89,13 @@ const { theme, currentThemeColor, colorColumns, toggleTheme, setThemeColor, rese
 // 自定义颜色相关
 const showCustomColorPopup = ref(false);
 const customColor = ref(currentThemeColor.value);
+
+// 动态设置页面标题
+onLoad(() => {
+  uni.setNavigationBarTitle({
+    title: "主题设置",
+  });
+});
 
 // 应用自定义颜色
 const applyCustomColor = () => {
@@ -132,22 +135,22 @@ const handleReset = () => {
   });
 };
 
+// 处理返回按钮点击
+const handleBack = () => {
+  uni.navigateBack();
+};
+
 // 页面显示时更新自定义颜色值
 onShow(() => {
   customColor.value = currentThemeColor.value;
 });
 </script>
 <style lang="scss" scoped>
-.content-wrapper {
-  padding: 20rpx;
-}
-
 .page-header {
   padding: 40rpx 20rpx;
-  margin-bottom: 30rpx;
+  margin-top: 20rpx;
   text-align: center;
   background: linear-gradient(135deg, var(--wot-color-theme) 0%, var(--primary-color-light) 100%);
-  border-radius: 16rpx;
 
   .page-title {
     display: block;

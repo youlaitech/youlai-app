@@ -1,48 +1,48 @@
 <template>
-  <view class="network-container">
+  <view class="app-container">
+    <wd-navbar title="网络测试" left-arrow @click-left="handleBack" />
+
     <!-- 网络状态展示 -->
-    <view class="status-card">
-      <view class="status-header">
-        <text class="title">网络状态</text>
-        <text :class="['status-badge', networkType ? 'online' : 'offline']">
-          {{ networkType ? "在线" : "离线" }}
-        </text>
-      </view>
-      <view class="status-info">
-        <view class="info-item">
-          <text class="label">网络类型：</text>
-          <text class="value">{{ networkType || "未知" }}</text>
-        </view>
-        <view class="info-item">
-          <text class="label">网络强度：</text>
-          <text class="value">{{ signalStrength }}</text>
-        </view>
-      </view>
-    </view>
+    <wd-card title="网络状态" custom-style="margin: 20rpx">
+      <wd-cell-group border>
+        <wd-cell title="网络状态">
+          <wd-tag :type="networkType ? 'success' : 'danger'" size="small">
+            {{ networkType ? "在线" : "离线" }}
+          </wd-tag>
+        </wd-cell>
+        <wd-cell title="网络类型" :value="networkType || '未知'" />
+        <wd-cell title="网络强度" :value="signalStrength" />
+      </wd-cell-group>
+    </wd-card>
 
     <!-- 网络测试 -->
-    <view class="test-card">
-      <view class="test-header">
-        <text class="title">网络测试</text>
-        <text class="subtitle">测试服务器连接情况</text>
+    <wd-card title="网络测试" custom-style="margin: 20rpx">
+      <view slot="extra">
+        <text class="text-gray-500 text-sm">测试服务器连接情况</text>
       </view>
 
-      <view class="test-content">
-        <view class="test-item">
-          <text class="label">延迟：</text>
-          <text class="value">{{ pingResult.delay }}ms</text>
-          <text :class="['status', getPingStatus]">{{ pingResult.status }}</text>
-        </view>
+      <wd-cell-group border>
+        <wd-cell title="延迟">
+          <view class="flex items-center">
+            <text class="mr-10">{{ pingResult.delay }}ms</text>
+            <wd-tag v-if="getPingStatus" :type="getPingStatusType" size="small">
+              {{ pingResult.status }}
+            </wd-tag>
+          </view>
+        </wd-cell>
+      </wd-cell-group>
 
-        <view v-if="testing" class="progress-bar">
-          <view class="progress" :style="{ width: `${progress}%` }" />
-        </view>
+      <wd-progress
+        v-if="testing"
+        :percentage="progress"
+        stroke-width="4"
+        custom-style="margin: 30rpx 0"
+      />
 
-        <button class="test-btn" :disabled="testing" @click="startTest">
-          {{ testing ? "测试中..." : "开始测试" }}
-        </button>
-      </view>
-    </view>
+      <wd-button block type="primary" :loading="testing" @click="startTest">
+        {{ testing ? "测试中..." : "开始测试" }}
+      </wd-button>
+    </wd-card>
   </view>
 </template>
 
@@ -77,6 +77,15 @@ const getPingStatus = computed(() => {
   if (delay < 100) return "good";
   if (delay < 300) return "normal";
   return "bad";
+});
+
+// 计算状态对应的Tag类型
+const getPingStatusType = computed(() => {
+  const status = getPingStatus.value;
+  if (status === "good") return "success";
+  if (status === "normal") return "warning";
+  if (status === "bad") return "danger";
+  return "primary";
 });
 
 // 方法
@@ -172,6 +181,11 @@ const startTest = async () => {
   }
 };
 
+// 返回
+const handleBack = () => {
+  uni.navigateBack();
+};
+
 // 生命周期钩子
 onMounted(() => {
   getNetworkType();
@@ -193,134 +207,23 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-.network-container {
-  min-height: 100vh;
-  padding: 20px;
-  background-color: #f5f5f5;
+.mr-10 {
+  margin-right: 10rpx;
 }
 
-.status-card,
-.test-card {
-  padding: 20px;
-  margin-bottom: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+.text-gray-500 {
+  color: #9e9e9e;
 }
 
-.status-header,
-.test-header {
+.text-sm {
+  font-size: 24rpx;
+}
+
+.flex {
   display: flex;
+}
+
+.items-center {
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-
-  .title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-  }
-}
-
-.status-badge {
-  padding: 4px 12px;
-  font-size: 14px;
-  border-radius: 12px;
-
-  &.online {
-    color: #4caf50;
-    background-color: #e8f5e9;
-  }
-
-  &.offline {
-    color: #f44336;
-    background-color: #ffebee;
-  }
-}
-
-.status-info,
-.test-content {
-  .info-item,
-  .test-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-
-    .label {
-      width: 100px;
-      font-size: 15px;
-      color: #666;
-    }
-
-    .value {
-      flex: 1;
-      font-size: 15px;
-      color: #333;
-    }
-
-    .status {
-      padding: 2px 8px;
-      font-size: 13px;
-      border-radius: 4px;
-
-      &.good {
-        color: #4caf50;
-        background-color: #e8f5e9;
-      }
-
-      &.normal {
-        color: #ff9800;
-        background-color: #fff3e0;
-      }
-
-      &.bad {
-        color: #f44336;
-        background-color: #ffebee;
-      }
-    }
-  }
-}
-
-.test-header {
-  .subtitle {
-    font-size: 14px;
-    color: #999;
-  }
-}
-
-.progress-bar {
-  height: 4px;
-  margin: 20px 0;
-  overflow: hidden;
-  background-color: #f5f5f5;
-  border-radius: 2px;
-
-  .progress {
-    height: 100%;
-    background-color: #409eff;
-    transition: width 0.2s ease-in-out;
-  }
-}
-
-.test-btn {
-  width: 100%;
-  height: 44px;
-  margin-top: 20px;
-  font-size: 16px;
-  line-height: 44px;
-  color: #fff;
-  text-align: center;
-  background-color: #409eff;
-  border: none;
-  border-radius: 22px;
-
-  &:active {
-    opacity: 0.9;
-  }
-
-  &[disabled] {
-    cursor: not-allowed;
-    background-color: #a0cfff;
-  }
 }
 </style>

@@ -12,7 +12,8 @@ export default {
   ],
   shortcuts: [
     {
-      "flex-center": "flex justify-center items-center flex-wrap",
+      "flex-center": "flex justify-center items-center",
+
       "flex-start": "flex justify-start items-center",
       "flex-end": "flex justify-end items-center",
       "flex-between": "flex justify-between items-center",
@@ -22,6 +23,9 @@ export default {
       "flex-baseline": "flex justify-baseline items-center",
       "flex-column": "flex flex-col",
       "flex-row": "flex flex-row",
+
+      // 垂直布局并居中对齐
+      "flex-col-center": "flex flex-col items-center",
     },
   ],
 

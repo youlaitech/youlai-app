@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import request, { publicRequest } from "@/utils/request";
 
 const AUTH_BASE_URL = "/api/v1/auth";
 
@@ -35,7 +35,7 @@ const AuthAPI = {
       password: data.password,
     };
 
-    return request<LoginResult>({
+    return publicRequest<LoginResult>({
       url: `${AUTH_BASE_URL}/login`,
       method: "POST",
       data: formData,
@@ -51,7 +51,7 @@ const AuthAPI = {
    * @returns 登录结果
    */
   loginByWxMiniAppCode(code: string): Promise<LoginResult> {
-    return request<LoginResult>({
+    return publicRequest<LoginResult>({
       url: `${AUTH_BASE_URL}/wx/miniapp/code-login`,
       method: "POST",
       data: { code },
@@ -64,7 +64,7 @@ const AuthAPI = {
    * @returns 登录结果
    */
   loginByWxMiniAppPhone(data: WxLoginData): Promise<LoginResult> {
-    return request<LoginResult>({
+    return publicRequest<LoginResult>({
       url: `${AUTH_BASE_URL}/wx/miniapp/phone-login`,
       method: "POST",
       data,
@@ -99,7 +99,7 @@ const AuthAPI = {
    * @returns 新的访问令牌
    */
   refreshToken(refreshToken: string): Promise<{ accessToken: string; expiresIn: number }> {
-    return request<{ accessToken: string; expiresIn: number }>({
+    return publicRequest<{ accessToken: string; expiresIn: number }>({
       url: `${AUTH_BASE_URL}/refresh-token`,
       method: "POST",
       data: { refreshToken },

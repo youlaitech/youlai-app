@@ -1,66 +1,80 @@
 <template>
-  <view class="about-container">
-    <!-- 顶部 Logo 区域 -->
-    <view class="logo-section">
-      <image class="logo" src="/static/logo.png" mode="aspectFit" />
-      <text class="app-name">vue-uniapp-template</text>
-      <text class="version">版本 {{ version }}</text>
-    </view>
+  <view class="app-container">
+    <wd-navbar title="关于我们" left-arrow @click-left="handleBack" />
+
+    <!-- 顶部信息区域 -->
+    <wd-card custom-style="margin-top: 20rpx">
+      <view class="flex items-center p-2">
+        <wd-img width="60px" height="60px" src="/static/logo.png" mode="aspectFit" class="mr-4" />
+        <view class="flex-1">
+          <text class="text-lg font-bold block mb-1">vue-uniapp-template</text>
+          <text class="text-xs text-gray-500">版本 {{ version }}</text>
+        </view>
+      </view>
+    </wd-card>
 
     <!-- 公司信息区域 -->
-    <view class="company-info">
-      <text class="company-name">有来开源组织</text>
-      <view class="divider" />
-      <text class="company-desc">专注于快速构建和高效开发的应用解决方案</text>
-    </view>
+    <wd-card custom-style="margin-top: 20rpx">
+      <view class="p-4">
+        <view class="flex items-center mb-3">
+          <wd-icon name="company" size="18" class="mr-2" />
+          <text class="text-base font-medium">有来开源组织</text>
+        </view>
+        <text class="text-sm text-gray-500 block pl-6">专注于快速构建和高效开发的应用解决方案</text>
+      </view>
+    </wd-card>
 
-    <!-- 信息列表 -->
-    <view class="info-list">
-      <view class="list-header">
-        <text class="header-title">优质项目</text>
-      </view>
-      <view class="info-item">
-        <view class="item-content">
-          <text class="item-label">vue3-element-admin</text>
-          <text class="item-desc">
-            基于 Vue3 + Vite5+ TypeScript5 + Element-Plus + Pinia
-            等主流技术栈构建的免费开源的中后台管理的前端模板
-          </text>
-        </view>
-      </view>
-      <view class="info-item">
-        <view class="item-content">
-          <text class="item-label">vue-uniapp-template</text>
-          <text class="item-desc">
-            基于 uni-app + Vue 3 + TypeScript 的项目，集成了 ESLint、Prettier、Stylelint、Husky 和
-            Commitlint 等工具，确保代码规范与质量。
-          </text>
-        </view>
-      </view>
-      <view class="info-item">
-        <view class="item-content">
-          <text class="item-label">youlai-boot</text>
-          <text class="item-desc">
-            基于 JDK 17、Spring Boot 3、Spring Security 6、JWT、Redis、Mybatis-Plus、Knife4j、Vue
-            3、Element-Plus 构建的前后端分离单体权限管理系统
-          </text>
-        </view>
-      </view>
-    </view>
+    <!-- 项目列表 -->
+    <wd-card title="优质项目" custom-style="margin-top: 20rpx">
+      <wd-cell-group border>
+        <wd-cell title="vue3-element-admin" icon="desktop">
+          <view slot="label" class="text-xs text-gray-500 mt-1">
+            基于 Vue3 + Vite5 + TypeScript5 + Element-Plus + Pinia 构建的中后台管理模板
+          </view>
+        </wd-cell>
+
+        <wd-cell title="vue-uniapp-template" icon="mobile">
+          <view slot="label" class="text-xs text-gray-500 mt-1">
+            基于 uni-app + Vue 3 + TypeScript，集成多种工具的移动端应用模板
+          </view>
+        </wd-cell>
+
+        <wd-cell title="youlai-boot" icon="server">
+          <view slot="label" class="text-xs text-gray-500 mt-1">
+            基于 Spring Boot 3 + Vue 3 构建的前后端分离单体权限管理系统
+          </view>
+        </wd-cell>
+      </wd-cell-group>
+    </wd-card>
+
+    <!-- 联系方式 -->
+    <wd-card title="联系我们" custom-style="margin-top: 20rpx">
+      <wd-cell-group border>
+        <wd-cell title="官方网站" value="www.youlai.tech" icon="link" />
+        <wd-cell title="GitHub" value="github.com/youlaitech" icon="github" />
+        <wd-cell title="联系邮箱" value="youlaitech@163.com" icon="mail" />
+      </wd-cell-group>
+    </wd-card>
 
     <!-- 底部版权信息 -->
-    <view class="copyright">
-      <text>Copyright © {{ getYear() }} 有来开源组织</text>
-      <text>All Rights Reserved</text>
+    <view class="text-center py-4">
+      <text class="block text-xs text-gray-400">Copyright © {{ getYear() }} 有来开源组织</text>
+      <text class="block text-xs text-gray-400 mt-1">All Rights Reserved</text>
     </view>
   </view>
 </template>
 
 <script lang="ts" setup>
 const version = ref("1.0.0");
+
+const handleBack = () => {
+  uni.navigateBack();
+};
+
 const getYear = () => {
   return new Date().getFullYear();
 };
+
 onMounted(() => {
   // #ifdef MP-WEIXIN
   version.value = uni.getSystemInfoSync().appVersion;
@@ -69,132 +83,14 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.about-container {
-  min-height: 100vh;
-  padding: 20px;
-  background-color: #f5f5f5;
+:deep(.wd-card__header) {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: var(--wot-color-text, #333);
 }
 
-.logo-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 30px 0;
-
-  .logo {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 15px;
-  }
-
-  .app-name {
-    margin-bottom: 8px;
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  .version {
-    font-size: 14px;
-    color: #666;
-  }
-}
-
-.company-info {
-  padding: 30px;
-  margin: 20px 0;
-  text-align: center;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-
-  .company-name {
-    margin-bottom: 15px;
-    font-size: 20px;
-    font-weight: 600;
-    color: #333;
-  }
-
-  .divider {
-    width: 40px;
-    height: 2px;
-    margin: 15px auto;
-    background-color: #409eff;
-  }
-
-  .company-desc {
-    padding: 0 10px;
-    margin-top: 15px;
-    overflow: hidden;
-    font-size: 15px;
-    line-height: 1.6;
-    color: #666;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
-.info-list {
-  margin: 20px 0;
-  background-color: #fff;
-  border-radius: 8px;
-
-  .list-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
-
-    .header-title {
-      font-size: 17px;
-      font-weight: 600;
-      color: #333;
-    }
-  }
-
-  .info-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    .item-content {
-      flex: 1;
-      padding-right: 15px;
-    }
-
-    .item-label {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 16px;
-      color: #333;
-    }
-
-    .item-desc {
-      display: block;
-      font-size: 13px;
-      line-height: 1.4;
-      color: #999;
-    }
-
-    .item-value {
-      font-size: 16px;
-      color: #999;
-    }
-  }
-}
-
-.copyright {
-  padding: 20px 0;
-  text-align: center;
-
-  text {
-    display: block;
-    font-size: 12px;
-    line-height: 1.5;
-    color: #999;
-  }
+:deep(.wd-cell__icon) {
+  font-size: 36rpx;
+  color: var(--wot-color-theme, #409eff);
 }
 </style>

@@ -1,20 +1,36 @@
 <template>
-  <view class="agreement-container">
-    <view class="agreement-header">
-      <text class="header-title">用户协议</text>
-      <text class="header-date">更新日期：2024年3月15日</text>
-    </view>
+  <view class="app-container">
+    <wd-navbar title="用户协议" left-arrow @click-left="handleBack" />
 
-    <view class="agreement-content">
-      <view v-for="(section, index) in agreementContent" :key="index" class="section">
-        <text class="section-title">{{ section.title }}</text>
-        <text class="section-text">{{ section.content }}</text>
+    <wd-card custom-style="margin-top: 20rpx">
+      <view class="flex-col-center py-4">
+        <text class="text-xl font-bold mb-2">用户协议</text>
+        <text class="text-sm text-gray-500">更新日期：2024年3月15日</text>
       </view>
+    </wd-card>
+
+    <wd-collapse v-model="activeNames" accordion>
+      <wd-collapse-item
+        v-for="(section, index) in agreementContent"
+        :key="index"
+        :title="section.title"
+        :name="String(index)"
+      >
+        <view class="py-3 px-4">
+          <text class="text-base leading-relaxed text-gray-600">{{ section.content }}</text>
+        </view>
+      </wd-collapse-item>
+    </wd-collapse>
+
+    <view class="mt-6 px-4">
+      <wd-button type="primary" block @click="handleAgree">我已阅读并同意</wd-button>
     </view>
   </view>
 </template>
 
 <script lang="ts" setup>
+const activeNames = ref(["0"]); // 默认展开第一项
+
 const agreementContent = [
   {
     title: "1. 协议的范围",
@@ -47,52 +63,22 @@ const agreementContent = [
       "我们保留随时修改本协议的权利。协议修改后，如果您继续使用本应用服务，即视为您已接受修改后的协议。我们建议您定期查看本协议以了解任何变更。",
   },
 ];
+
+// 返回
+const handleBack = () => {
+  uni.navigateBack();
+};
+
+// 同意协议
+const handleAgree = () => {
+  uni.showToast({
+    title: "感谢您的支持",
+    icon: "success",
+  });
+  setTimeout(() => {
+    uni.navigateBack();
+  }, 1500);
+};
 </script>
 
-<style lang="scss" scoped>
-.agreement-container {
-  min-height: 100vh;
-  padding: 20px;
-  background-color: #fff;
-}
-
-.agreement-header {
-  margin-bottom: 30px;
-  text-align: center;
-
-  .header-title {
-    display: block;
-    margin-bottom: 10px;
-    font-size: 22px;
-    font-weight: 600;
-    color: #333;
-  }
-
-  .header-date {
-    font-size: 14px;
-    color: #999;
-  }
-}
-
-.agreement-content {
-  .section {
-    margin-bottom: 25px;
-
-    .section-title {
-      display: block;
-      margin-bottom: 12px;
-      font-size: 17px;
-      font-weight: 500;
-      color: #333;
-    }
-
-    .section-text {
-      display: block;
-      font-size: 15px;
-      line-height: 1.6;
-      color: #666;
-      text-align: justify;
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

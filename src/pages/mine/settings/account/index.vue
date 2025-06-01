@@ -1,6 +1,8 @@
 <template>
-  <view class="profile">
-    <view class="profile-card">
+  <view class="app-container">
+    <wd-navbar title="账号和安全" left-arrow @click-left="handleBack" />
+
+    <wd-card custom-style="margin-top: 20rpx">
       <wd-cell-group border>
         <wd-cell
           title="账户密码"
@@ -22,7 +24,7 @@
           @click="handleOpenDialog(DialogType.EMAIL)"
         />
       </wd-cell-group>
-    </view>
+    </wd-card>
 
     <!--用户信息编辑弹出框-->
     <wd-popup v-model="dialog.visible" position="bottom">
@@ -64,7 +66,7 @@
             :rules="rules.confirmPassword"
           />
         </wd-cell-group>
-        <view class="footer">
+        <view class="p-6">
           <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -104,7 +106,7 @@
             </template>
           </wd-input>
         </wd-cell-group>
-        <view class="footer">
+        <view class="p-6">
           <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -144,7 +146,7 @@
             </template>
           </wd-input>
         </wd-cell-group>
-        <view class="footer">
+        <view class="p-6">
           <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -210,6 +212,11 @@ const mobileTimer = ref<ReturnType<typeof setInterval> | null>(null);
 
 const emailCountdown = ref(0);
 const emailTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+
+// 处理返回按钮点击
+const handleBack = () => {
+  uni.navigateBack();
+};
 
 /** 加载用户信息 */
 const loadUserProfile = async () => {
@@ -319,25 +326,4 @@ onMounted(() => {
   loadUserProfile();
 });
 </script>
-<style lang="scss" scoped>
-.profile {
-  .profile-card {
-    padding: 10rpx;
-    margin-bottom: 24rpx;
-    line-height: 1.1;
-    background-color: rgb(255, 255, 255);
-    border-radius: 16px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05);
-  }
-  .edit-form {
-    padding-top: 40rpx;
-    .ef-radio-group {
-      line-height: 1;
-      text-align: left;
-    }
-    .footer {
-      padding: 24rpx;
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

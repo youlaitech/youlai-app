@@ -1,5 +1,7 @@
 <template>
-  <view class="complete-profile-container">
+  <view class="app-container">
+    <wd-navbar title="完善个人信息" left-arrow @click-left="handleBack" />
+
     <!-- 头部标题 -->
     <view class="header">
       <view class="title">完善个人信息</view>
@@ -335,15 +337,14 @@ const onWechatProfileChange = (data: { avatar?: string; nickname?: string; gende
   profileForm.nickname = data.nickname || "";
   profileForm.gender = data.gender || 1;
 };
+
+// 返回
+function handleBack() {
+  uni.navigateBack();
+}
 </script>
 
 <style lang="scss" scoped>
-.complete-profile-container {
-  min-height: 100vh;
-  padding: 40rpx 30rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
 .header {
   margin-bottom: 60rpx;
   text-align: center;

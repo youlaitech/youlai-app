@@ -1,11 +1,18 @@
 <template>
-  <view class="settings-container">
-    <wd-cell-group>
-      <wd-cell title="个人资料" icon="user" is-link @click="navigateToProfile" />
-      <wd-cell title="账号和安全" icon="secured" is-link @click="navigateToAccount" />
+  <view class="app-container">
+    <wd-navbar title="设置" left-arrow @click-left="handleBack" />
+
+    <wd-cell-group custom-style="margin-top: 20rpx">
+      <wd-cell v-if="isLogin" title="个人资料" icon="user" is-link @click="navigateToProfile" />
+      <wd-cell
+        v-if="isLogin"
+        title="账号和安全"
+        icon="secured"
+        is-link
+        @click="navigateToAccount"
+      />
       <wd-cell title="主题设置" icon="setting1" is-link @click="navigateToTheme" />
       <wd-cell title="用户协议" icon="user" is-link @click="navigateToUserAgreement" />
-      <wd-cell title="隐私政策" icon="folder" is-link @click="navigateToPrivacy" />
       <wd-cell title="关于我们" icon="info-circle" is-link @click="navigateToAbout" />
     </wd-cell-group>
 
@@ -24,20 +31,20 @@
       <wd-button class="logout-btn" @click="handleLogout">退出登录</wd-button>
     </view>
 
-    <!-- 全屏 loading -->
-    <view v-if="clearing" class="loading-mask">
-      <view class="loading-content">
-        <view class="loading-icon" />
-        <text class="loading-text">正在清理...</text>
-      </view>
-    </view>
+    <!-- 使用wot-design-uni的Loading组件 -->
+    <wd-loading
+      v-if="clearing"
+      v-model="clearing"
+      text="正在清理..."
+      mask
+      custom-class="loading-center"
+    />
   </view>
 </template>
 
 <script lang="ts" setup>
 import { useUserStore } from "@/store/modules/user.store";
 import { checkLogin } from "@/utils/auth";
-import { computed, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 
 const userStore = useUserStore();
@@ -71,14 +78,7 @@ const navigateToTheme = () => {
 // 用户协议
 const navigateToUserAgreement = () => {
   uni.navigateTo({
-    url: "/pages/mine/agreements/user-agreement",
-  });
-};
-
-// 隐私政策
-const navigateToPrivacy = () => {
-  uni.navigateTo({
-    url: "/pages/mine/agreements/privacy-policy",
+    url: "/pages/mine/settings/agreement/index",
   });
 };
 
@@ -192,143 +192,61 @@ const handleLogout = () => {
   });
 };
 
+// 返回
+const handleBack = () => {
+  uni.navigateBack();
+};
+
 // 检查登录状态
 onLoad(() => {
   getCacheSize();
 });
 </script>
 <style lang="scss" scoped>
-.settings-container {
-  // 强制 Wot 组件应用暗黑模式样式
-  :deep(.wd-cell-group) {
-    overflow: hidden;
-    background-color: var(--wot-card-bg-color, #fff);
-    border-radius: 16rpx;
-  }
+.logout-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20rpx;
+  margin-top: 60rpx;
+}
 
-  :deep(.wd-cell) {
-    color: var(--wot-color-text, #333);
-    background-color: var(--wot-card-bg-color, #fff);
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  height: 90rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #fff;
+  background-color: var(--wot-color-theme, var(--primary-color));
+  border: none;
+  border-radius: 45rpx;
+  box-shadow: 0 4rpx 12rpx rgba(22, 93, 255, 0.3);
+  transition: opacity 0.2s;
 
-    .wd-cell__title {
-      color: var(--wot-color-text, #333) !important;
-    }
-
-    .wd-cell__value {
-      color: var(--wot-color-text-secondary, #666) !important;
-    }
-
-    .wd-cell__right-icon {
-      color: var(--wot-color-text-secondary, #999) !important;
-    }
-  }
-
-  :deep(.wd-button) {
-    &.logout-btn {
-      color: #fff !important;
-      background-color: var(--wot-color-theme, var(--primary-color)) !important;
-    }
-  }
-
-  .loading-mask {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.4);
-
-    .loading-content {
-      padding: 30rpx 40rpx;
-      text-align: center;
-      background-color: var(--wot-card-bg-color, rgba(255, 255, 255, 0.95));
-      border-radius: 12rpx;
-      box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
-
-      .loading-icon {
-        width: 60rpx;
-        height: 60rpx;
-        margin: 0 auto 20rpx;
-        border: 4rpx solid var(--wot-color-border, #f3f3f3);
-        border-top: 4rpx solid var(--wot-color-theme, #409eff);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-
-      .loading-text {
-        font-size: 28rpx;
-        font-weight: 500;
-        color: var(--wot-color-text, #333);
-      }
-    }
-  }
-
-  .logout-section {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 20rpx;
-    margin-top: 60rpx;
-  }
-
-  .logout-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 90rpx;
-    font-size: 32rpx;
-    font-weight: 500;
-    color: #fff;
-    background-color: var(--wot-color-theme, var(--primary-color));
-    border: none;
-    border-radius: 45rpx;
-    box-shadow: 0 4rpx 12rpx rgba(22, 93, 255, 0.3);
-    transition: opacity 0.2s;
-
-    &:active {
-      opacity: 0.85;
-    }
+  &:active {
+    opacity: 0.85;
   }
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+:deep(.loading-center) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 12rpx;
 }
 
-// 全局暗黑模式适配（针对当前页面）
-:global([data-theme="dark"]) .settings-container {
-  color: var(--wot-color-text, #fff) !important;
-  background-color: var(--wot-color-bg, #1a1a1a) !important;
+:deep(.loading-center .wd-loading__spinner) {
+  margin: 0 auto;
+}
 
-  :deep(.wd-cell-group) {
-    background-color: var(--wot-card-bg-color, #2a2a2a) !important;
-  }
-
-  :deep(.wd-cell) {
-    color: var(--wot-color-text, #fff) !important;
-    background-color: var(--wot-card-bg-color, #2a2a2a) !important;
-
-    .wd-cell__title {
-      color: var(--wot-color-text, #fff) !important;
-    }
-
-    .wd-cell__value {
-      color: var(--wot-color-text-secondary, #d1d5db) !important;
-    }
-
-    .wd-cell__right-icon {
-      color: var(--wot-color-text-secondary, #9ca3af) !important;
-    }
-  }
+:deep(.loading-center .wd-loading__text) {
+  margin-top: 20rpx;
+  color: #fff;
+  text-align: center;
 }
 </style>

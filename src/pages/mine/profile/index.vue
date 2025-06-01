@@ -1,6 +1,8 @@
 <template>
-  <view class="profile">
-    <view v-if="userProfile" class="profile-card">
+  <view class="app-container">
+    <wd-navbar title="个人信息" left-arrow @click-left="handleBack" />
+
+    <wd-card v-if="userProfile" custom-style="margin-top: 20rpx">
       <wd-cell-group border>
         <wd-cell class="avatar-cell" title="头像" center is-link>
           <view class="avatar">
@@ -31,7 +33,7 @@
         <wd-cell title="角色" :value="userProfile.roleNames" />
         <wd-cell title="创建日期" :value="userProfile.createTime" />
       </wd-cell-group>
-    </view>
+    </wd-card>
 
     <!--头像裁剪-->
     <wd-img-cropper v-model="avatarShow" :img-src="originalSrc" @confirm="handleAvatarConfirm" />
@@ -55,7 +57,7 @@
             </wd-radio-group>
           </wd-cell>
         </wd-cell-group>
-        <view class="footer">
+        <view class="p-6">
           <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -171,50 +173,41 @@ function touchstartListener(event: TouchEvent) {
 function touchmoveListener(event: TouchEvent) {
   event.preventDefault();
 }
+
+function handleBack() {
+  uni.navigateBack();
+}
 </script>
 <style lang="scss" scoped>
-.profile {
-  .profile-card {
-    padding: 10rpx;
-    margin-bottom: 24rpx;
-    line-height: 1.1;
-    background-color: rgb(255, 255, 255);
-    border-radius: 16px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05);
-
-    .avatar-cell {
-      :deep(.wd-cell__body) {
-        align-items: center;
-      }
-      .avatar {
-        display: flex;
-        align-items: center;
-        justify-content: right;
-        .img {
-          position: relative;
-          width: 80px;
-          height: 80px;
-          background-color: rgba(0, 0, 0, 0.04);
-          border-radius: 50%;
-          .img-icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            color: #fff;
-          }
-        }
+.avatar-cell {
+  :deep(.wd-cell__body) {
+    align-items: center;
+  }
+  .avatar {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    .img {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      background-color: rgba(0, 0, 0, 0.04);
+      border-radius: 50%;
+      .img-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        color: #fff;
       }
     }
   }
-  .edit-form {
-    padding-top: 40rpx;
-    .ef-radio-group {
-      line-height: 1;
-      text-align: left;
-    }
-    .footer {
-      padding: 24rpx;
-    }
+}
+
+.edit-form {
+  padding-top: 40rpx;
+  .ef-radio-group {
+    line-height: 1;
+    text-align: left;
   }
 }
 </style>
