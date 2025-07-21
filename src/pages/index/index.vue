@@ -147,25 +147,25 @@ const navList = reactive([
   {
     icon: "/static/icons/user.png",
     title: "用户管理",
-    url: "/pages/work/user/index",
+    url: "/pages/work/index",
     prem: "sys:user:query",
   },
   {
     icon: "/static/icons/role.png",
     title: "角色管理",
-    url: "/pages/work/role/index",
+    url: "/pages/work/index",
     prem: "sys:role:query",
   },
   {
     icon: "/static/icons/notice.png",
     title: "通知公告",
-    url: "/pages/work/notice/index",
+    url: "/pages/work/index",
     prem: "sys:notice:query",
   },
   {
     icon: "/static/icons/setting.png",
     title: "系统配置",
-    url: "/pages/work/config/index",
+    url: "/pages/work/index",
     prem: "sys:config:query",
   },
 ]);
@@ -265,6 +265,4 @@ onShow(() => {
 });
 </script>
 
-<style setup lang="scss">
-/* 已全部使用UnoCSS替代，不需要额外的样式 */
-</style>
+<style setup lang="scss"></style>

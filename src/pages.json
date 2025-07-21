@@ -18,6 +18,11 @@
       "layout": "tabbar"
     },
     {
+      "path": "pages/work/index",
+      "type": "page",
+      "style": {}
+    },
+    {
       "path": "pages/mine/about/index",
       "type": "page",
       "style": {}

@@ -1,152 +1,10 @@
 <!--
- * @Author: weisheng
- * @Date: 2024-11-01 12:31:47
- * @LastEditTime: 2024-11-14 19:02:06
- * @LastEditors: weisheng
- * @Description:
- * @FilePath: \wot-demo\src\layouts\tabbar.vue
- * 记得注释
+ * @Author: Ray.Hao
+ * @Date: 2025-05-01 12:31:47
+ * @LastEditTime: 2025-05-01 12:31:47
+ * @LastEditors: Ray.Hao
+ * @Description: Tabbar 布局组件
 -->
-<script lang="ts" setup>
-import { ref, computed, onMounted, nextTick, onUnmounted } from "vue";
-import { onShow } from "@dcloudio/uni-app";
-import { useTheme } from "@/composables/useTheme";
-
-// 定义 TabbarItem 接口
-interface TabbarItem {
-  name: string;
-  value: number | null;
-  active: boolean;
-  title: string;
-  icon: string;
-}
-
-// 根据 pages.json 配置的 tabbar 项目
-const tabbarItems = ref<TabbarItem[]>([
-  { name: "index", value: null, active: true, title: "首页", icon: "home" },
-  { name: "mine", value: null, active: false, title: "我的", icon: "user" },
-]);
-
-const { theme, themeVars } = useTheme();
-
-// 计算属性
-const tabbarList = computed(() => tabbarItems.value);
-
-const activeTabbar = computed(() => {
-  const item = tabbarItems.value.find((item) => item.active);
-  return item || tabbarItems.value[0];
-});
-
-// 方法
-const getTabbarItemValue = (name: string) => {
-  const item = tabbarItems.value.find((item) => item.name === name);
-  return item && item.value ? item.value : null;
-};
-
-const setTabbarItemActive = (name: string) => {
-  console.log(`设置 tabbar 激活状态: ${name}`);
-  tabbarItems.value.forEach((item) => {
-    if (item.name === name) {
-      item.active = true;
-    } else {
-      item.active = false;
-    }
-  });
-};
-
-// 根据当前路由更新 tabbar 激活状态
-const updateTabbarByRoute = () => {
-  const pages = getCurrentPages();
-  if (pages.length > 0) {
-    const currentPage = pages[pages.length - 1];
-    const route = currentPage.route;
-
-    console.log("=== Tabbar 路由更新 ===");
-    console.log("当前路由:", route);
-    console.log("当前激活的 tabbar:", activeTabbar.value.name);
-
-    // 根据当前路由设置活跃的 tabbar
-    if (route === "pages/index/index") {
-      console.log("设置首页为激活状态");
-      setTabbarItemActive("index");
-    } else if (route === "pages/mine/index") {
-      console.log("设置我的页面为激活状态");
-      setTabbarItemActive("mine");
-    } else {
-      console.log("非 tabbar 页面，保持当前状态");
-    }
-
-    console.log("更新后激活的 tabbar:", activeTabbar.value.name);
-    console.log("=== 更新完成 ===");
-  }
-};
-
-function handleTabbarChange({ value }: { value: string }) {
-  console.log(`用户点击 tabbar: ${value}`);
-
-  // 立即设置激活状态
-  tabbarItems.value.forEach((item) => {
-    item.active = item.name === value;
-  });
-
-  // 导航到对应页面
-  if (value === "index") {
-    uni.reLaunch({
-      url: "/pages/index/index",
-    });
-  } else if (value === "mine") {
-    uni.reLaunch({
-      url: "/pages/mine/index",
-    });
-  }
-}
-
-// 监听页面栈变化
-const currentRoute = ref("");
-
-const updateCurrentRoute = () => {
-  const pages = getCurrentPages();
-  if (pages.length > 0) {
-    const currentPage = pages[pages.length - 1];
-    const newRoute = currentPage.route || "";
-
-    if (newRoute !== currentRoute.value) {
-      currentRoute.value = newRoute;
-      console.log("页面路由发生变化:", newRoute);
-      updateTabbarByRoute();
-    }
-  }
-};
-
-onMounted(() => {
-  nextTick(() => {
-    updateTabbarByRoute();
-    updateCurrentRoute();
-  });
-
-  // 监听页面发出的 tabbar 更新事件
-  uni.$on("updateTabbar", (tabName: string) => {
-    console.log("收到 tabbar 更新事件:", tabName);
-    setTabbarItemActive(tabName);
-  });
-});
-
-// 页面显示时更新 tabbar 状态
-onShow(() => {
-  nextTick(() => {
-    updateCurrentRoute();
-  });
-
-  // #ifdef APP-PLUS
-  uni.hideTabBar();
-  // #endif
-});
-
-// 组件卸载时移除事件监听
-onUnmounted(() => {
-  uni.$off("updateTabbar");
-});
-</script>
 
 <script lang="ts">
 export default {
@@ -165,7 +23,9 @@ export default {
     custom-style="min-height: 100vh"
     :class="{ 'wot-theme-dark': theme === 'dark' }"
   >
-    <slot />
+    <view class="box-border w-full min-h-screen" :style="{ paddingTop: statusBarHeight + 'px' }">
+      <slot />
+    </view>
     <wd-tabbar
       :model-value="activeTabbar.name"
       placeholder
@@ -178,7 +38,7 @@ export default {
         v-for="(item, index) in tabbarList"
         :key="index"
         :name="item.name"
-        :value="getTabbarItemValue(item.name)"
+        :value="item.value"
         :title="item.title"
         :icon="item.icon"
       />
@@ -189,4 +49,93 @@ export default {
   </wd-config-provider>
 </template>
 
-<style lang="scss" scoped></style>
+<script setup lang="ts">
+import { onShow } from "@dcloudio/uni-app";
+import { useTheme } from "@/composables/useTheme";
+
+// 定义 TabbarItem 接口
+interface TabbarItem {
+  name: string;
+  value: number | null;
+  active: boolean;
+  title: string;
+  icon: string;
+}
+
+const { theme, themeVars } = useTheme();
+
+// 状态栏高度
+const statusBarHeight = ref(0);
+
+// tabbar 配置
+const tabbarItems = ref<TabbarItem[]>([
+  { name: "index", value: null, active: true, title: "首页", icon: "home" },
+  { name: "mine", value: null, active: false, title: "我的", icon: "user" },
+]);
+
+// 计算属性
+const tabbarList = computed(() => tabbarItems.value);
+const activeTabbar = computed(
+  () => tabbarItems.value.find((item) => item.active) || tabbarItems.value[0]
+);
+
+// 更新 tabbar 状态
+const updateTabbarState = () => {
+  const pages = getCurrentPages();
+  if (!pages.length) return;
+
+  const route = pages[pages.length - 1].route;
+
+  if (route === "pages/index/index") {
+    setTabbarActive("index");
+  } else if (route === "pages/mine/index") {
+    setTabbarActive("mine");
+  }
+};
+
+// 设置激活状态
+const setTabbarActive = (name: string) => {
+  tabbarItems.value.forEach((item) => {
+    item.active = item.name === name;
+  });
+};
+
+// 处理点击事件
+const handleTabbarChange = ({ value }: { value: string }) => {
+  setTabbarActive(value);
+
+  const url = value === "index" ? "/pages/index/index" : "/pages/mine/index";
+  uni.reLaunch({ url });
+};
+
+// 生命周期
+onMounted(() => {
+  // 获取状态栏高度（改为异步方法）
+  uni.getSystemInfo({
+    success: (res) => {
+      statusBarHeight.value = res.statusBarHeight || 20;
+    },
+    fail: () => {
+      statusBarHeight.value = 20;
+    },
+  });
+
+  // 初始化状态
+  nextTick(updateTabbarState);
+
+  // 监听事件
+  uni.$on("updateTabbar", setTabbarActive);
+});
+
+onShow(() => {
+  nextTick(updateTabbarState);
+
+  // #ifdef APP-PLUS
+  uni.hideTabBar();
+  // #endif
+});
+
+onUnmounted(() => {
+  uni.$off("updateTabbar");
+});
+</script>

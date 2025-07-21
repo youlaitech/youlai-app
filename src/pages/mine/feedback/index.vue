@@ -1,67 +1,62 @@
 <template>
-  <view class="feedback-container">
-    <!-- 问题类型选择 -->
-    <wd-cell-group title="问题类型" border>
-      <view class="radio-group">
-        <label v-for="item in feedbackTypes" :key="item.value" class="radio-item">
-          <text class="radio-text">{{ item.label }}</text>
-          <radio
-            :value="item.value"
-            :checked="feedbackType === item.value"
-            color="#0083ff"
-            class="radio-button"
-            style="transform: scale(0.8)"
-            @click="handleRadioChange(item.value)"
-          />
-        </label>
-      </view>
-    </wd-cell-group>
+  <view class="app-container">
+    <wd-navbar title="意见反馈" left-arrow @click-left="handleBack" />
 
-    <!-- 问题描述 -->
-    <wd-cell-group title="问题描述" border>
-      <wd-textarea
-        v-model="description"
-        placeholder="请详细描述您遇到的问题或建议..."
-        :maxlength="500"
-        show-count
-        :rows="5"
-      />
-    </wd-cell-group>
+    123
+    <wd-text size="small">选填，最多上传3张图片</wd-text>
+    <wd-form ref="formRef" :model="formData" :rules="rules">
+      <!-- 问题类型选择 -->
+      <wd-form-item label="问题类型" prop="feedbackType">
+        <wd-radio-group v-model="formData.feedbackType" inline>
+          <wd-radio v-for="item in feedbackTypes" :key="item.value" :value="item.value">
+            {{ item.label }}
+          </wd-radio>
+        </wd-radio-group>
+      </wd-form-item>
 
-    <!-- 图片上传 -->
-    <wd-cell-group title="相关截图（选填）" border>
-      <view class="upload-box">
+      <!-- 问题描述 -->
+      <wd-form-item label="问题描述" prop="description">
+        <wd-textarea
+          v-model="formData.description"
+          placeholder="请详细描述您遇到的问题或建议..."
+          :maxlength="120"
+          show-word-limit
+        />
+      </wd-form-item>
+
+      <!-- 图片上传 -->
+      <wd-form-item label="相关截图" prop="fileList">
         <wd-upload
-          v-model="fileList"
+          v-model="formData.fileList"
           :max-count="3"
           :before-read="beforeRead"
           @delete="handleDelete"
         />
+      </wd-form-item>
+
+      <!-- 联系方式 -->
+      <wd-form-item label="联系方式" prop="contact">
+        <wd-input v-model="formData.contact" placeholder="请输入您的手机号或邮箱" clearable />
+        <wd-text size="small">选填，便于我们与您联系</wd-text>
+      </wd-form-item>
+
+      <!-- 提交按钮 -->
+      <view class="submit-btn">
+        <wd-button type="primary" block :loading="submitting" @click="handleSubmit">
+          提交反馈
+        </wd-button>
       </view>
-    </wd-cell-group>
-
-    <!-- 联系方式 -->
-    <wd-cell-group title="联系方式（选填）" border>
-      <wd-input v-model="contact" placeholder="请输入您的手机号或邮箱" clearable />
-    </wd-cell-group>
-
-    <!-- 提交按钮 -->
-    <view class="submit-btn">
-      <wd-button type="primary" block :loading="submitting" @click="handleSubmit">
-        提交反馈
-      </wd-button>
-    </view>
-
-    <wd-toast />
+    </wd-form>
   </view>
 </template>
 
-<script lang="ts" setup>
-import { ref } from "vue";
-import { useToast } from "wot-design-uni";
+<script setup lang="ts">
 import { checkLogin } from "@/utils/auth";
+import { useToast } from "wot-design-uni";
+import { FormRules } from "wot-design-uni/components/wd-form/types";
 
 const toast = useToast();
+const formRef = ref();
 
 // 检查登录状态
 onLoad(() => {
@@ -76,14 +71,50 @@ const feedbackTypes = [
 ];
 
 // 表单数据
-const feedbackType = ref("bug");
-const description = ref("");
-const fileList = ref<any[]>([]);
-const contact = ref("");
+const formData = reactive({
+  feedbackType: "bug",
+  description: "",
+  fileList: [] as Array<Record<string, any>>,
+  contact: "",
+});
+
+// 表单验证规则
+const rules: FormRules = {
+  description: [
+    {
+      required: true,
+      message: "请描述您遇到的问题",
+      validator: (value) => {
+        if (value && value.trim()) {
+          return Promise.resolve();
+        } else {
+          return Promise.reject("请描述您遇到的问题");
+        }
+      },
+    },
+  ],
+  contact: [
+    {
+      required: false,
+      validator: (value) => {
+        if (!value) return Promise.resolve(); // 非必填
+        const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+        const phoneReg = /^1[3456789]\d{9}$/;
+        return emailReg.test(value) || phoneReg.test(value)
+          ? Promise.resolve()
+          : Promise.reject("请输入正确的手机号或邮箱");
+      },
+      message: "请输入正确的手机号或邮箱",
+      trigger: "blur",
+    },
+  ],
+};
+
+// 提交状态
 const submitting = ref(false);
 
 // 图片上传前的校验
-const beforeRead = (file: any) => {
+const beforeRead = (file: Record<string, any>) => {
   // 验证文件类型
   const validTypes = ["image/jpeg", "image/png", "image/gif"];
   if (!validTypes.includes(file.type)) {
@@ -99,95 +130,59 @@ const beforeRead = (file: any) => {
 };
 
 // 删除图片
-const handleDelete = (detail: any) => {
+const handleDelete = (detail: { index: number }) => {
   const index = detail.index;
-  fileList.value.splice(index, 1);
-};
-
-// 处理单选框变化
-const handleRadioChange = (value: string) => {
-  feedbackType.value = value;
+  formData.fileList.splice(index, 1);
 };
 
 // 提交反馈
 const handleSubmit = async () => {
   // 表单验证
-  if (!description.value.trim()) {
-    toast.error("请描述您遇到的问题");
-    return;
-  }
-
-  submitting.value = true;
   try {
-    // TODO: 调用提交反馈的接口
-    await new Promise((resolve) => setTimeout(resolve, 1500)); // 模拟提交
-    toast.success("提交成功");
-    // 重置表单
-    description.value = "";
-    fileList.value = [];
-    contact.value = "";
+    const { valid } = await formRef.value.validate();
 
-    // 延迟返回上一页
-    setTimeout(() => {
-      uni.navigateBack();
-    }, 1500);
-  } catch {
-    toast.error("提交失败，请重试");
-  } finally {
-    submitting.value = false;
+    if (valid) {
+      submitting.value = true;
+      try {
+        // TODO: 调用提交反馈的接口
+        await new Promise((resolve) => setTimeout(resolve, 1500)); // 模拟提交
+        toast.success("提交成功");
+
+        // 重置表单
+        formRef.value.reset();
+        formData.feedbackType = "bug";
+        formData.description = "";
+        formData.fileList = [];
+        formData.contact = "";
+
+        // 延迟返回上一页
+        setTimeout(() => {
+          uni.navigateBack();
+        }, 1500);
+      } catch (_error) {
+        toast.error("提交失败，请重试");
+      } finally {
+        submitting.value = false;
+      }
+    }
+  } catch (_error) {
+    // 表单验证失败
+    console.log("表单验证失败");
   }
+};
+
+// 返回
+const handleBack = () => {
+  uni.navigateBack();
 };
 </script>
 
 <style lang="scss" scoped>
-.feedback-container {
-  min-height: 100vh;
-  padding: 20rpx 0;
-  background-color: #f5f5f5;
+:deep(.wd-form-item) {
+  margin-bottom: 12rpx;
+}
 
-  :deep(.wd-cell-group__title) {
-    padding: 20rpx 30rpx 10rpx;
-    font-size: 28rpx;
-    color: #666;
-  }
-
-  .radio-group {
-    padding: 4rpx 0;
-    background-color: #fff;
-  }
-
-  .radio-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10rpx 30rpx;
-    border-bottom: 1px solid #eee;
-
-    &:last-child {
-      border-bottom: none;
-    }
-  }
-
-  .radio-text {
-    font-size: 22rpx;
-    color: #333;
-  }
-
-  .upload-box {
-    padding: 20rpx 30rpx;
-  }
-
-  .submit-btn {
-    margin: 40rpx 30rpx;
-  }
-
-  :deep(.wd-textarea) {
-    padding: 20rpx 30rpx;
-    background-color: #fff;
-  }
-
-  .radio-button {
-    margin-right: -8rpx;
-  }
+.submit-btn {
+  margin: 40rpx 30rpx;
 }
 </style>

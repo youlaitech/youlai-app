@@ -8,8 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     CuDateQuery: typeof import('./src/components/cu-date-query/index.vue')['default']
-    CuDict: typeof import('./src/components/cu-dict/index.vue')['default']
-    CuDictLabel: typeof import('./src/components/cu-dict-label/index.vue')['default']
     CuPicker: typeof import('./src/components/cu-picker/index.vue')['default']
     Loading1: typeof import('./src/components/qiun-loading/loading1.vue')['default']
     Loading2: typeof import('./src/components/qiun-loading/loading2.vue')['default']
@@ -27,6 +25,7 @@ declare module 'vue' {
     WdCollapseItem: typeof import('wot-design-uni/components/wd-collapse-item/wd-collapse-item.vue')['default']
     WdConfigProvider: typeof import('wot-design-uni/components/wd-config-provider/wd-config-provider.vue')['default']
     WdForm: typeof import('wot-design-uni/components/wd-form/wd-form.vue')['default']
+    WdFormItem: typeof import('wot-design-uni/components/wd-form-item/wd-form-item.vue')['default']
     WdGrid: typeof import('wot-design-uni/components/wd-grid/wd-grid.vue')['default']
     WdGridItem: typeof import('wot-design-uni/components/wd-grid-item/wd-grid-item.vue')['default']
     WdIcon: typeof import('wot-design-uni/components/wd-icon/wd-icon.vue')['default']
@@ -42,14 +41,15 @@ declare module 'vue' {
     WdProgress: typeof import('wot-design-uni/components/wd-progress/wd-progress.vue')['default']
     WdRadio: typeof import('wot-design-uni/components/wd-radio/wd-radio.vue')['default']
     WdRadioGroup: typeof import('wot-design-uni/components/wd-radio-group/wd-radio-group.vue')['default']
+    WdStatusTip: typeof import('wot-design-uni/components/wd-status-tip/wd-status-tip.vue')['default']
     WdSwiper: typeof import('wot-design-uni/components/wd-swiper/wd-swiper.vue')['default']
     WdSwitch: typeof import('wot-design-uni/components/wd-switch/wd-switch.vue')['default']
     WdTabbar: typeof import('wot-design-uni/components/wd-tabbar/wd-tabbar.vue')['default']
     WdTabbarItem: typeof import('wot-design-uni/components/wd-tabbar-item/wd-tabbar-item.vue')['default']
     WdTag: typeof import('wot-design-uni/components/wd-tag/wd-tag.vue')['default']
+    WdText: typeof import('wot-design-uni/components/wd-text/wd-text.vue')['default']
     WdTextarea: typeof import('wot-design-uni/components/wd-textarea/wd-textarea.vue')['default']
     WdToast: typeof import('wot-design-uni/components/wd-toast/wd-toast.vue')['default']
     WdUpload: typeof import('wot-design-uni/components/wd-upload/wd-upload.vue')['default']
-    WechatProfile: typeof import('./src/components/business/WechatProfile.vue')['default']
   }
 }
