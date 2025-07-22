@@ -44,11 +44,19 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
       }),
 
       AutoImport({
-        imports: ["vue", "uni-app", uniuseAutoImports()],
+        imports: [
+          "vue",
+          "uni-app",
+          "pinia",
+          uniuseAutoImports(),
+          {
+            from: "wot-design-uni",
+            imports: ["useToast", "useMessage", "useNotify", "CommonUtil"],
+          },
+        ],
         dts: "src/types/auto-imports.d.ts", // 自动生成的类型声明文件
-        eslintrc: {
-          enabled: false,
-        },
+        dirs: ["src/composables", "src/store", "src/utils", "src/api"],
+        vueTemplate: true,
       }),
 
       uni(),

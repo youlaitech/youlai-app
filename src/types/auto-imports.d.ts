@@ -6,22 +6,49 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const CommonUtil: typeof import('wot-design-uni')['CommonUtil']
   const EffectScope: typeof import('vue')['EffectScope']
+  const Storage: typeof import('../utils/storage')['Storage']
+  const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
+  const applyThemeOnPageShow: typeof import('../utils/theme')['applyThemeOnPageShow']
+  const applyThemeToMiniProgram: typeof import('../utils/theme')['applyThemeToMiniProgram']
+  const auth: typeof import('../api/auth')['default']
+  const checkLogin: typeof import('../utils/auth')['checkLogin']
+  const clearAll: typeof import('../utils/storage')['clearAll']
+  const clearTokens: typeof import('../utils/auth')['clearTokens']
+  const colorColumns: typeof import('../composables/useTheme')['colorColumns']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
+  const createPinia: typeof import('pinia')['createPinia']
+  const currentThemeColor: typeof import('../composables/useTheme')['currentThemeColor']
   const customRef: typeof import('vue')['customRef']
+  const debounce: typeof import('../utils/index')['debounce']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
+  const defineStore: typeof import('pinia')['defineStore']
   const effectScope: typeof import('vue')['effectScope']
+  const file: typeof import('../api/file')['default']
+  const getAccessToken: typeof import('../utils/auth')['getAccessToken']
+  const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
+  const getRefreshToken: typeof import('../utils/auth')['getRefreshToken']
+  const getToken: typeof import('../utils/storage')['getToken']
+  const getUserInfo: typeof import('../utils/storage')['getUserInfo']
   const guessSerializerType: typeof import('@uni-helper/uni-use')['guessSerializerType']
   const h: typeof import('vue')['h']
+  const initTheme: typeof import('../composables/useTheme')['initTheme']
   const inject: typeof import('vue')['inject']
+  const isLoggedIn: typeof import('../utils/auth')['isLoggedIn']
   const isProxy: typeof import('vue')['isProxy']
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
+  const mapActions: typeof import('pinia')['mapActions']
+  const mapGetters: typeof import('pinia')['mapGetters']
+  const mapState: typeof import('pinia')['mapState']
+  const mapStores: typeof import('pinia')['mapStores']
+  const mapWritableState: typeof import('pinia')['mapWritableState']
   const markRaw: typeof import('vue')['markRaw']
   const nextTick: typeof import('vue')['nextTick']
   const onActivated: typeof import('vue')['onActivated']
@@ -65,17 +92,35 @@ declare global {
   const onUpdated: typeof import('vue')['onUpdated']
   const onWatcherCleanup: typeof import('vue')['onWatcherCleanup']
   const provide: typeof import('vue')['provide']
+  const publicRequest: typeof import('../utils/request')['publicRequest']
   const reactive: typeof import('vue')['reactive']
   const readonly: typeof import('vue')['readonly']
   const ref: typeof import('vue')['ref']
+  const request: typeof import('../utils/request')['default']
+  const requireLogin: typeof import('../utils/auth')['requireLogin']
+  const resetTheme: typeof import('../composables/useTheme')['resetTheme']
   const resolveComponent: typeof import('vue')['resolveComponent']
+  const setAccessToken: typeof import('../utils/auth')['setAccessToken']
+  const setActivePinia: typeof import('pinia')['setActivePinia']
+  const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
+  const setRefreshToken: typeof import('../utils/auth')['setRefreshToken']
+  const setThemeColor: typeof import('../composables/useTheme')['setThemeColor']
+  const setToken: typeof import('../utils/storage')['setToken']
+  const setUserInfo: typeof import('../utils/storage')['setUserInfo']
+  const setupStore: typeof import('../store/index')['setupStore']
   const shallowReactive: typeof import('vue')['shallowReactive']
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
+  const store: typeof import('../store/index')['store']
+  const storeToRefs: typeof import('pinia')['storeToRefs']
+  const theme: typeof import('../composables/useTheme')['theme']
+  const themeColorOptions: typeof import('../composables/useTheme')['themeColorOptions']
+  const themeVars: typeof import('../composables/useTheme')['themeVars']
   const toRaw: typeof import('vue')['toRaw']
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
   const toValue: typeof import('vue')['toValue']
+  const toggleTheme: typeof import('../composables/useTheme')['toggleTheme']
   const triggerRef: typeof import('vue')['triggerRef']
   const tryOnBackPress: typeof import('@uni-helper/uni-use')['tryOnBackPress']
   const tryOnHide: typeof import('@uni-helper/uni-use')['tryOnHide']
@@ -97,9 +142,11 @@ declare global {
   const useInterceptor: typeof import('@uni-helper/uni-use')['useInterceptor']
   const useLink: (typeof import("vue-router"))["useLink"]
   const useLoading: typeof import('@uni-helper/uni-use')['useLoading']
+  const useMessage: typeof import('wot-design-uni')['useMessage']
   const useModal: typeof import('@uni-helper/uni-use')['useModal']
   const useModel: typeof import('vue')['useModel']
   const useNetwork: typeof import('@uni-helper/uni-use')['useNetwork']
+  const useNotify: typeof import('wot-design-uni')['useNotify']
   const useOnline: typeof import('@uni-helper/uni-use')['useOnline']
   const usePage: typeof import('@uni-helper/uni-use')['usePage']
   const usePageScroll: typeof import('@uni-helper/uni-use')['usePageScroll']
@@ -117,13 +164,20 @@ declare global {
   const useSelectorQuery: typeof import('@uni-helper/uni-use')['useSelectorQuery']
   const useSlots: typeof import('vue')['useSlots']
   const useSocket: typeof import('@uni-helper/uni-use')['useSocket']
+  const useStomp: typeof import('../composables/useStomp')['useStomp']
   const useStorage: typeof import('@uni-helper/uni-use')['useStorage']
   const useStorageAsync: typeof import('@uni-helper/uni-use')['useStorageAsync']
   const useStorageSync: typeof import('@uni-helper/uni-use')['useStorageSync']
+  const useTabbar: typeof import('../composables/useTabbar')['useTabbar']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
-  const useToast: typeof import('@uni-helper/uni-use')['useToast']
+  const useTheme: typeof import('../composables/useTheme')['useTheme']
+  const useThemeStore: typeof import('../store/modules/theme.store')['useThemeStore']
+  const useToast: typeof import('wot-design-uni')['useToast']
   const useUploadFile: typeof import('@uni-helper/uni-use')['useUploadFile']
+  const useUserStore: typeof import('../store/modules/user.store')['useUserStore']
   const useVisible: typeof import('@uni-helper/uni-use')['useVisible']
+  const useWechat: typeof import('../composables/useWechat')['useWechat']
+  const user: typeof import('../api/user')['default']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
   const watchPostEffect: typeof import('vue')['watchPostEffect']
@@ -134,4 +188,177 @@ declare global {
   // @ts-ignore
   export type { Component, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+}
+
+// for vue template auto import
+import { UnwrapRef } from 'vue'
+declare module 'vue' {
+  interface GlobalComponents {}
+  interface ComponentCustomProperties {
+    readonly CommonUtil: UnwrapRef<typeof import('wot-design-uni')['CommonUtil']>
+    readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly Storage: UnwrapRef<typeof import('../utils/storage')['Storage']>
+    readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
+    readonly applyThemeOnPageShow: UnwrapRef<typeof import('../utils/theme')['applyThemeOnPageShow']>
+    readonly applyThemeToMiniProgram: UnwrapRef<typeof import('../utils/theme')['applyThemeToMiniProgram']>
+    readonly auth: UnwrapRef<typeof import('../api/auth')['default']>
+    readonly checkLogin: UnwrapRef<typeof import('../utils/auth')['checkLogin']>
+    readonly clearAll: UnwrapRef<typeof import('../utils/storage')['clearAll']>
+    readonly clearTokens: UnwrapRef<typeof import('../utils/auth')['clearTokens']>
+    readonly computed: UnwrapRef<typeof import('vue')['computed']>
+    readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
+    readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
+    readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
+    readonly debounce: UnwrapRef<typeof import('../utils/index')['debounce']>
+    readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
+    readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
+    readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
+    readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
+    readonly file: UnwrapRef<typeof import('../api/file')['default']>
+    readonly getAccessToken: UnwrapRef<typeof import('../utils/auth')['getAccessToken']>
+    readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
+    readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
+    readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly getRefreshToken: UnwrapRef<typeof import('../utils/auth')['getRefreshToken']>
+    readonly getToken: UnwrapRef<typeof import('../utils/storage')['getToken']>
+    readonly getUserInfo: UnwrapRef<typeof import('../utils/storage')['getUserInfo']>
+    readonly guessSerializerType: UnwrapRef<typeof import('@uni-helper/uni-use')['guessSerializerType']>
+    readonly h: UnwrapRef<typeof import('vue')['h']>
+    readonly inject: UnwrapRef<typeof import('vue')['inject']>
+    readonly isLoggedIn: UnwrapRef<typeof import('../utils/auth')['isLoggedIn']>
+    readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
+    readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
+    readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
+    readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
+    readonly mapActions: UnwrapRef<typeof import('pinia')['mapActions']>
+    readonly mapGetters: UnwrapRef<typeof import('pinia')['mapGetters']>
+    readonly mapState: UnwrapRef<typeof import('pinia')['mapState']>
+    readonly mapStores: UnwrapRef<typeof import('pinia')['mapStores']>
+    readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
+    readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
+    readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
+    readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
+    readonly onAddToFavorites: UnwrapRef<typeof import('@dcloudio/uni-app')['onAddToFavorites']>
+    readonly onBackPress: UnwrapRef<typeof import('@dcloudio/uni-app')['onBackPress']>
+    readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
+    readonly onBeforeUnmount: UnwrapRef<typeof import('vue')['onBeforeUnmount']>
+    readonly onBeforeUpdate: UnwrapRef<typeof import('vue')['onBeforeUpdate']>
+    readonly onDeactivated: UnwrapRef<typeof import('vue')['onDeactivated']>
+    readonly onError: UnwrapRef<typeof import('@dcloudio/uni-app')['onError']>
+    readonly onErrorCaptured: UnwrapRef<typeof import('vue')['onErrorCaptured']>
+    readonly onHide: UnwrapRef<typeof import('@dcloudio/uni-app')['onHide']>
+    readonly onLaunch: UnwrapRef<typeof import('@dcloudio/uni-app')['onLaunch']>
+    readonly onLoad: UnwrapRef<typeof import('@dcloudio/uni-app')['onLoad']>
+    readonly onMounted: UnwrapRef<typeof import('vue')['onMounted']>
+    readonly onNavigationBarButtonTap: UnwrapRef<typeof import('@dcloudio/uni-app')['onNavigationBarButtonTap']>
+    readonly onNavigationBarSearchInputChanged: UnwrapRef<typeof import('@dcloudio/uni-app')['onNavigationBarSearchInputChanged']>
+    readonly onNavigationBarSearchInputClicked: UnwrapRef<typeof import('@dcloudio/uni-app')['onNavigationBarSearchInputClicked']>
+    readonly onNavigationBarSearchInputConfirmed: UnwrapRef<typeof import('@dcloudio/uni-app')['onNavigationBarSearchInputConfirmed']>
+    readonly onNavigationBarSearchInputFocusChanged: UnwrapRef<typeof import('@dcloudio/uni-app')['onNavigationBarSearchInputFocusChanged']>
+    readonly onPageNotFound: UnwrapRef<typeof import('@dcloudio/uni-app')['onPageNotFound']>
+    readonly onPageScroll: UnwrapRef<typeof import('@dcloudio/uni-app')['onPageScroll']>
+    readonly onPullDownRefresh: UnwrapRef<typeof import('@dcloudio/uni-app')['onPullDownRefresh']>
+    readonly onReachBottom: UnwrapRef<typeof import('@dcloudio/uni-app')['onReachBottom']>
+    readonly onReady: UnwrapRef<typeof import('@dcloudio/uni-app')['onReady']>
+    readonly onRenderTracked: UnwrapRef<typeof import('vue')['onRenderTracked']>
+    readonly onRenderTriggered: UnwrapRef<typeof import('vue')['onRenderTriggered']>
+    readonly onResize: UnwrapRef<typeof import('@dcloudio/uni-app')['onResize']>
+    readonly onScopeDispose: UnwrapRef<typeof import('vue')['onScopeDispose']>
+    readonly onServerPrefetch: UnwrapRef<typeof import('vue')['onServerPrefetch']>
+    readonly onShareAppMessage: UnwrapRef<typeof import('@dcloudio/uni-app')['onShareAppMessage']>
+    readonly onShareTimeline: UnwrapRef<typeof import('@dcloudio/uni-app')['onShareTimeline']>
+    readonly onShow: UnwrapRef<typeof import('@dcloudio/uni-app')['onShow']>
+    readonly onTabItemTap: UnwrapRef<typeof import('@dcloudio/uni-app')['onTabItemTap']>
+    readonly onThemeChange: UnwrapRef<typeof import('@dcloudio/uni-app')['onThemeChange']>
+    readonly onUnhandledRejection: UnwrapRef<typeof import('@dcloudio/uni-app')['onUnhandledRejection']>
+    readonly onUnload: UnwrapRef<typeof import('@dcloudio/uni-app')['onUnload']>
+    readonly onUnmounted: UnwrapRef<typeof import('vue')['onUnmounted']>
+    readonly onUpdated: UnwrapRef<typeof import('vue')['onUpdated']>
+    readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
+    readonly provide: UnwrapRef<typeof import('vue')['provide']>
+    readonly publicRequest: UnwrapRef<typeof import('../utils/request')['publicRequest']>
+    readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
+    readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
+    readonly ref: UnwrapRef<typeof import('vue')['ref']>
+    readonly request: UnwrapRef<typeof import('../utils/request')['default']>
+    readonly requireLogin: UnwrapRef<typeof import('../utils/auth')['requireLogin']>
+    readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly setAccessToken: UnwrapRef<typeof import('../utils/auth')['setAccessToken']>
+    readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
+    readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
+    readonly setRefreshToken: UnwrapRef<typeof import('../utils/auth')['setRefreshToken']>
+    readonly setToken: UnwrapRef<typeof import('../utils/storage')['setToken']>
+    readonly setUserInfo: UnwrapRef<typeof import('../utils/storage')['setUserInfo']>
+    readonly setupStore: UnwrapRef<typeof import('../store/index')['setupStore']>
+    readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
+    readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
+    readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
+    readonly store: UnwrapRef<typeof import('../store/index')['store']>
+    readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
+    readonly themeColorOptions: UnwrapRef<typeof import('../composables/useTheme')['themeColorOptions']>
+    readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
+    readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
+    readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
+    readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
+    readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
+    readonly tryOnBackPress: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnBackPress']>
+    readonly tryOnHide: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnHide']>
+    readonly tryOnInit: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnInit']>
+    readonly tryOnLoad: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnLoad']>
+    readonly tryOnReady: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnReady']>
+    readonly tryOnScopeDispose: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnScopeDispose']>
+    readonly tryOnShow: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnShow']>
+    readonly tryOnUnload: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnUnload']>
+    readonly unref: UnwrapRef<typeof import('vue')['unref']>
+    readonly useActionSheet: UnwrapRef<typeof import('@uni-helper/uni-use')['useActionSheet']>
+    readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
+    readonly useClipboardData: UnwrapRef<typeof import('@uni-helper/uni-use')['useClipboardData']>
+    readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
+    readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
+    readonly useDownloadFile: UnwrapRef<typeof import('@uni-helper/uni-use')['useDownloadFile']>
+    readonly useGlobalData: UnwrapRef<typeof import('@uni-helper/uni-use')['useGlobalData']>
+    readonly useId: UnwrapRef<typeof import('vue')['useId']>
+    readonly useInterceptor: UnwrapRef<typeof import('@uni-helper/uni-use')['useInterceptor']>
+    readonly useLoading: UnwrapRef<typeof import('@uni-helper/uni-use')['useLoading']>
+    readonly useMessage: UnwrapRef<typeof import('wot-design-uni')['useMessage']>
+    readonly useModal: UnwrapRef<typeof import('@uni-helper/uni-use')['useModal']>
+    readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly useNetwork: UnwrapRef<typeof import('@uni-helper/uni-use')['useNetwork']>
+    readonly useNotify: UnwrapRef<typeof import('wot-design-uni')['useNotify']>
+    readonly useOnline: UnwrapRef<typeof import('@uni-helper/uni-use')['useOnline']>
+    readonly usePage: UnwrapRef<typeof import('@uni-helper/uni-use')['usePage']>
+    readonly usePageScroll: UnwrapRef<typeof import('@uni-helper/uni-use')['usePageScroll']>
+    readonly usePages: UnwrapRef<typeof import('@uni-helper/uni-use')['usePages']>
+    readonly usePreferredDark: UnwrapRef<typeof import('@uni-helper/uni-use')['usePreferredDark']>
+    readonly usePreferredLanguage: UnwrapRef<typeof import('@uni-helper/uni-use')['usePreferredLanguage']>
+    readonly usePrevPage: UnwrapRef<typeof import('@uni-helper/uni-use')['usePrevPage']>
+    readonly usePrevRoute: UnwrapRef<typeof import('@uni-helper/uni-use')['usePrevRoute']>
+    readonly useProvider: UnwrapRef<typeof import('@uni-helper/uni-use')['useProvider']>
+    readonly useRequest: UnwrapRef<typeof import('@uni-helper/uni-use')['useRequest']>
+    readonly useRoute: UnwrapRef<typeof import('@uni-helper/uni-use')['useRoute']>
+    readonly useRouter: UnwrapRef<typeof import('@uni-helper/uni-use')['useRouter']>
+    readonly useScanCode: UnwrapRef<typeof import('@uni-helper/uni-use')['useScanCode']>
+    readonly useScreenBrightness: UnwrapRef<typeof import('@uni-helper/uni-use')['useScreenBrightness']>
+    readonly useSelectorQuery: UnwrapRef<typeof import('@uni-helper/uni-use')['useSelectorQuery']>
+    readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
+    readonly useSocket: UnwrapRef<typeof import('@uni-helper/uni-use')['useSocket']>
+    readonly useStomp: UnwrapRef<typeof import('../composables/useStomp')['useStomp']>
+    readonly useStorage: UnwrapRef<typeof import('@uni-helper/uni-use')['useStorage']>
+    readonly useStorageAsync: UnwrapRef<typeof import('@uni-helper/uni-use')['useStorageAsync']>
+    readonly useStorageSync: UnwrapRef<typeof import('@uni-helper/uni-use')['useStorageSync']>
+    readonly useTabbar: UnwrapRef<typeof import('../composables/useTabbar')['useTabbar']>
+    readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
+    readonly useTheme: UnwrapRef<typeof import('../composables/useTheme')['useTheme']>
+    readonly useThemeStore: UnwrapRef<typeof import('../store/modules/theme.store')['useThemeStore']>
+    readonly useToast: UnwrapRef<typeof import('wot-design-uni')['useToast']>
+    readonly useUploadFile: UnwrapRef<typeof import('@uni-helper/uni-use')['useUploadFile']>
+    readonly useUserStore: UnwrapRef<typeof import('../store/modules/user.store')['useUserStore']>
+    readonly useVisible: UnwrapRef<typeof import('@uni-helper/uni-use')['useVisible']>
+    readonly useWechat: UnwrapRef<typeof import('../composables/useWechat')['useWechat']>
+    readonly user: UnwrapRef<typeof import('../api/user')['default']>
+    readonly watch: UnwrapRef<typeof import('vue')['watch']>
+    readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
+    readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>
+    readonly watchSyncEffect: UnwrapRef<typeof import('vue')['watchSyncEffect']>
+  }
 }

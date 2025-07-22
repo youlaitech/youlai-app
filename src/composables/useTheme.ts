@@ -1,162 +1,178 @@
-import { ref, watch, computed } from "vue";
 import type { ConfigProviderThemeVars } from "wot-design-uni";
 
-/* 默认的主题色列表 */
-export const colorColumns = [
-  { value: "#165DFF", label: "海洋蓝" },
-  { value: "#1677FF", label: "天空蓝" },
-  { value: "#0081FF", label: "梦幻蓝" },
-  { value: "#4080FF", label: "皇家蓝" },
-  { value: "#4D74FF", label: "靛蓝" },
-  { value: "#0FC6C2", label: "碧波绿" },
-  { value: "#722ED1", label: "魔幻紫" },
-  { value: "#F5222D", label: "热情红" },
-  { value: "#FA8C16", label: "活力橙" },
-  { value: "#FADB14", label: "阳光黄" },
-  { value: "#52C41A", label: "生机绿" },
-  { value: "#EB2F96", label: "浪漫粉" },
-  { value: "#13C2C2", label: "清新青" },
-  { value: "#36CFC9", label: "湖水蓝" },
-  { value: "#CD5C5C", label: "复古红" },
-  { value: "#228B22", label: "森林绿" },
+// 定义主题色选项
+export interface ThemeColorOption {
+  name: string;
+  value: string;
+  primary: string;
+}
+
+// 预定义的主题色选项
+export const themeColorOptions: ThemeColorOption[] = [
+  { name: "默认蓝", value: "blue", primary: "#4D7FFF" },
+  { name: "活力橙", value: "orange", primary: "#FF7D00" },
+  { name: "薄荷绿", value: "green", primary: "#07C160" },
+  { name: "樱花粉", value: "pink", primary: "#FF69B4" },
+  { name: "紫罗兰", value: "purple", primary: "#8A2BE2" },
+  { name: "朱砂红", value: "red", primary: "#FF4757" },
 ];
 
-/* 存储键名 */
-const THEME_STORAGE_KEY = "app_theme_mode";
-const THEME_COLOR_STORAGE_KEY = "app_theme_color";
+export function useTheme() {
+  // 状态定义
+  const theme = ref<"light" | "dark">("light");
+  const followSystem = ref(true); // 是否跟随系统主题
+  const hasUserSet = ref(false); // 用户是否手动设置过主题
+  const currentThemeColor = ref<ThemeColorOption>(themeColorOptions[0]);
+  const showThemeColorSheet = ref(false);
 
-/* 从存储中获取主题模式 */
-const getStoredTheme = (): "light" | "dark" => {
-  try {
-    const stored = uni.getStorageSync(THEME_STORAGE_KEY);
-    return stored === "dark" ? "dark" : "light";
-  } catch {
-    return "light";
-  }
-};
+  const themeVars = reactive<ConfigProviderThemeVars>({
+    darkBackground: "#0f0f0f",
+    darkBackground2: "#1a1a1a",
+    darkBackground3: "#242424",
+    darkBackground4: "#2f2f2f",
+    darkBackground5: "#3d3d3d",
+    darkBackground6: "#4a4a4a",
+    darkBackground7: "#606060",
+    darkColor: "#ffffff",
+    darkColor2: "#e0e0e0",
+    darkColor3: "#a0a0a0",
+    colorTheme: themeColorOptions[0].primary,
+  });
 
-/* 从存储中获取主题色 */
-const getStoredThemeColor = (): string => {
-  try {
-    const stored = uni.getStorageSync(THEME_COLOR_STORAGE_KEY);
-    return stored || colorColumns[0].value;
-  } catch {
-    return colorColumns[0].value;
-  }
-};
+  // 计算属性
+  const isDark = computed(() => theme.value === "dark");
 
-/* 主题状态 */
-export const theme = ref<"light" | "dark">(getStoredTheme());
-export const currentThemeColor = ref<string>(getStoredThemeColor());
-
-/* 主题变量（供 ConfigProvider 使用） */
-export const themeVars = computed<ConfigProviderThemeVars>(() => ({
-  colorTheme: currentThemeColor.value,
-  // 按钮颜色
-  buttonPrimaryBgColor: currentThemeColor.value,
-  buttonPrimaryColor: "#ffffff",
-  // 开关颜色
-  switchOnBgColor: currentThemeColor.value,
-  // 其他组件颜色
-  cellIconColor: currentThemeColor.value,
-  tagPrimaryBgColor: currentThemeColor.value,
-  tagPrimaryColor: "#ffffff",
-}));
-
-/* 应用主题到根元素 */
-const applyThemeToRoot = () => {
-  // 获取根元素
-  const root = document.documentElement;
-  const body = document.body;
-
-  // #ifdef H5
-  // 应用暗黑模式
-  if (theme.value === "dark") {
-    root.setAttribute("data-theme", "dark");
-    body.classList.add("wot-theme-dark");
-  } else {
-    root.removeAttribute("data-theme");
-    body.classList.remove("wot-theme-dark");
+  /* 手动切换主题 */
+  function toggleTheme(mode?: "light" | "dark") {
+    theme.value = mode || (theme.value === "light" ? "dark" : "light");
+    hasUserSet.value = true; // 标记用户已手动设置
+    followSystem.value = false; // 不再跟随系统
+    setNavigationBarColor();
   }
 
-  // 应用主题色类
-  // 移除所有主题色类
-  root.className = root.className.replace(/theme-color-\w+/g, "").trim();
-  // 添加当前主题色类
-  const colorClass = `theme-color-${currentThemeColor.value.replace("#", "")}`;
-  root.classList.add(colorClass);
-  // #endif
-
-  // #ifdef MP
-  // 小程序环境下通过设置页面的 data-theme 属性
-  const pages = getCurrentPages();
-  if (pages.length > 0) {
-    const currentPage = pages[pages.length - 1] as any;
-    if (currentPage) {
-      currentPage.setData?.({
-        "data-theme": theme.value,
-        themeColor: currentThemeColor.value,
-      });
+  /* 设置是否跟随系统主题 */
+  function setFollowSystem(follow: boolean) {
+    followSystem.value = follow;
+    if (follow) {
+      hasUserSet.value = false;
+      initTheme(); // 重新获取系统主题
     }
   }
-  // #endif
-};
 
-/* 监听主题模式变化 */
-watch(
-  theme,
-  (newTheme) => {
-    uni.setStorageSync(THEME_STORAGE_KEY, newTheme);
-    applyThemeToRoot();
-  },
-  { immediate: true }
-);
+  /* 设置导航栏颜色 */
+  function setNavigationBarColor() {
+    uni.setNavigationBarColor({
+      frontColor: theme.value === "light" ? "#000000" : "#ffffff",
+      backgroundColor: theme.value === "light" ? "#ffffff" : "#000000",
+    });
+  }
 
-/* 监听主题色变化 */
-watch(
-  currentThemeColor,
-  (newColor) => {
-    uni.setStorageSync(THEME_COLOR_STORAGE_KEY, newColor);
-    applyThemeToRoot();
-  },
-  { immediate: true }
-);
+  /* 设置主题色 */
+  function setCurrentThemeColor(color: ThemeColorOption) {
+    currentThemeColor.value = color;
+    themeVars.colorTheme = color.primary;
+  }
 
-/* 切换主题模式 */
-export const toggleTheme = () => {
-  theme.value = theme.value === "light" ? "dark" : "light";
-};
+  /* 获取系统主题 */
+  function getSystemTheme(): "light" | "dark" {
+    try {
+      // #ifdef MP-WEIXIN
+      // 微信小程序使用 getAppBaseInfo
+      const appBaseInfo = uni.getAppBaseInfo();
+      if (appBaseInfo && appBaseInfo.theme) {
+        return appBaseInfo.theme as "light" | "dark";
+      }
+      // #endif
 
-/* 设置主题色 */
-export const setThemeColor = (color: string) => {
-  currentThemeColor.value = color;
-};
+      // #ifndef MP-WEIXIN
+      // 其他平台使用 getSystemInfoSync
+      const systemInfo = uni.getSystemInfoSync();
+      if (systemInfo && systemInfo.theme) {
+        return systemInfo.theme as "light" | "dark";
+      }
+      // #endif
+    } catch (error) {
+      console.warn("获取系统主题失败:", error);
+    }
+    return "light"; // 默认返回 light
+  }
 
-/* 重置主题 */
-export const resetTheme = () => {
-  theme.value = "light";
-  currentThemeColor.value = colorColumns[0].value;
-};
+  /* 初始化主题 */
+  function initTheme() {
+    // 如果用户已手动设置且不跟随系统，保持当前主题
+    if (hasUserSet.value && !followSystem.value) {
+      console.log("使用用户设置的主题:", theme.value);
+      setNavigationBarColor();
+      return;
+    }
 
-/* 初始化主题 */
-export const initTheme = () => {
-  applyThemeToRoot();
-  console.log("主题初始化完成:", {
-    mode: theme.value,
-    color: currentThemeColor.value,
+    // 获取系统主题
+    const systemTheme = getSystemTheme();
+
+    // 如果是首次启动或跟随系统，使用系统主题
+    if (!hasUserSet.value || followSystem.value) {
+      theme.value = systemTheme;
+      if (!hasUserSet.value) {
+        followSystem.value = true;
+        console.log("首次启动，使用系统主题:", theme.value);
+      } else {
+        console.log("跟随系统主题:", theme.value);
+      }
+    }
+
+    setNavigationBarColor();
+  }
+
+  /* 打开主题色选择 */
+  function openThemeColorPicker() {
+    showThemeColorSheet.value = true;
+  }
+
+  /* 关闭主题色选择 */
+  function closeThemeColorPicker() {
+    showThemeColorSheet.value = false;
+  }
+
+  /* 选择主题色 */
+  function selectThemeColor(option: ThemeColorOption) {
+    setCurrentThemeColor(option);
+    closeThemeColorPicker();
+  }
+
+  // 检查函数是否存在的工具函数
+  const isFunction = (fn: any): boolean => typeof fn === "function";
+
+  onBeforeMount(() => {
+    initTheme();
+    if (isFunction(uni.onThemeChange)) {
+      uni.onThemeChange((res) => {
+        toggleTheme(res.theme);
+      });
+    }
   });
-};
 
-/* 导出主题相关的工具 */
-export const useTheme = () => {
+  onUnmounted(() => {
+    if (isFunction(uni.offThemeChange)) {
+      uni.offThemeChange((res) => {
+        toggleTheme(res.theme);
+      });
+    }
+  });
+
   return {
-    theme,
+    theme: computed(() => theme.value),
+    isDark,
+    followSystem: computed(() => followSystem.value),
+    hasUserSet: computed(() => hasUserSet.value),
+    currentThemeColor: computed(() => currentThemeColor.value),
+    showThemeColorSheet,
     themeVars,
-    currentThemeColor,
-    toggleTheme,
-    setThemeColor,
-    resetTheme,
+    themeColorOptions,
     initTheme,
-    colorColumns,
+    toggleTheme,
+    setFollowSystem,
+    openThemeColorPicker,
+    closeThemeColorPicker,
+    selectThemeColor,
   };
-};
+}
