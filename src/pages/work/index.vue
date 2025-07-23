@@ -6,6 +6,16 @@
   </view>
 </template>
 
+<route lang="json">
+{
+  "name": "work",
+  "meta": {
+    "requireAuth": true,
+    "title": "需要登录的页面"
+  }
+}
+</route>
+
 <script setup lang="ts">
 const handleBack = () => {
   uni.navigateBack();

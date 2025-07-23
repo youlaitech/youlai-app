@@ -20,6 +20,7 @@ declare global {
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createPinia: typeof import('pinia')['createPinia']
+  const createRouter: typeof import('uni-mini-router')['createRouter']
   const currentThemeColor: typeof import('../composables/useTheme')['currentThemeColor']
   const customRef: typeof import('vue')['customRef']
   const debounce: typeof import('../utils/index')['debounce']
@@ -157,8 +158,8 @@ declare global {
   const usePrevRoute: typeof import('@uni-helper/uni-use')['usePrevRoute']
   const useProvider: typeof import('@uni-helper/uni-use')['useProvider']
   const useRequest: typeof import('@uni-helper/uni-use')['useRequest']
-  const useRoute: typeof import('@uni-helper/uni-use')['useRoute']
-  const useRouter: typeof import('@uni-helper/uni-use')['useRouter']
+  const useRoute: typeof import('../composables/useCommon')['useRoute']
+  const useRouter: typeof import('../composables/useCommon')['useRouter']
   const useScanCode: typeof import('@uni-helper/uni-use')['useScanCode']
   const useScreenBrightness: typeof import('@uni-helper/uni-use')['useScreenBrightness']
   const useSelectorQuery: typeof import('@uni-helper/uni-use')['useSelectorQuery']
@@ -172,7 +173,7 @@ declare global {
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const useTheme: typeof import('../composables/useTheme')['useTheme']
   const useThemeStore: typeof import('../store/modules/theme.store')['useThemeStore']
-  const useToast: typeof import('wot-design-uni')['useToast']
+  const useToast: typeof import('../composables/useCommon')['useToast']
   const useUploadFile: typeof import('@uni-helper/uni-use')['useUploadFile']
   const useUserStore: typeof import('../store/modules/user.store')['useUserStore']
   const useVisible: typeof import('@uni-helper/uni-use')['useVisible']
@@ -208,6 +209,7 @@ declare module 'vue' {
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
+    readonly createRouter: UnwrapRef<typeof import('uni-mini-router')['createRouter']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly debounce: UnwrapRef<typeof import('../utils/index')['debounce']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
@@ -222,7 +224,6 @@ declare module 'vue' {
     readonly getRefreshToken: UnwrapRef<typeof import('../utils/auth')['getRefreshToken']>
     readonly getToken: UnwrapRef<typeof import('../utils/storage')['getToken']>
     readonly getUserInfo: UnwrapRef<typeof import('../utils/storage')['getUserInfo']>
-    readonly guessSerializerType: UnwrapRef<typeof import('@uni-helper/uni-use')['guessSerializerType']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly isLoggedIn: UnwrapRef<typeof import('../utils/auth')['isLoggedIn']>
@@ -301,59 +302,24 @@ declare module 'vue' {
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
-    readonly tryOnBackPress: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnBackPress']>
-    readonly tryOnHide: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnHide']>
-    readonly tryOnInit: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnInit']>
-    readonly tryOnLoad: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnLoad']>
-    readonly tryOnReady: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnReady']>
-    readonly tryOnScopeDispose: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnScopeDispose']>
-    readonly tryOnShow: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnShow']>
-    readonly tryOnUnload: UnwrapRef<typeof import('@uni-helper/uni-use')['tryOnUnload']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
-    readonly useActionSheet: UnwrapRef<typeof import('@uni-helper/uni-use')['useActionSheet']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
-    readonly useClipboardData: UnwrapRef<typeof import('@uni-helper/uni-use')['useClipboardData']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
-    readonly useDownloadFile: UnwrapRef<typeof import('@uni-helper/uni-use')['useDownloadFile']>
-    readonly useGlobalData: UnwrapRef<typeof import('@uni-helper/uni-use')['useGlobalData']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
-    readonly useInterceptor: UnwrapRef<typeof import('@uni-helper/uni-use')['useInterceptor']>
-    readonly useLoading: UnwrapRef<typeof import('@uni-helper/uni-use')['useLoading']>
     readonly useMessage: UnwrapRef<typeof import('wot-design-uni')['useMessage']>
-    readonly useModal: UnwrapRef<typeof import('@uni-helper/uni-use')['useModal']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
-    readonly useNetwork: UnwrapRef<typeof import('@uni-helper/uni-use')['useNetwork']>
     readonly useNotify: UnwrapRef<typeof import('wot-design-uni')['useNotify']>
-    readonly useOnline: UnwrapRef<typeof import('@uni-helper/uni-use')['useOnline']>
-    readonly usePage: UnwrapRef<typeof import('@uni-helper/uni-use')['usePage']>
-    readonly usePageScroll: UnwrapRef<typeof import('@uni-helper/uni-use')['usePageScroll']>
-    readonly usePages: UnwrapRef<typeof import('@uni-helper/uni-use')['usePages']>
-    readonly usePreferredDark: UnwrapRef<typeof import('@uni-helper/uni-use')['usePreferredDark']>
-    readonly usePreferredLanguage: UnwrapRef<typeof import('@uni-helper/uni-use')['usePreferredLanguage']>
-    readonly usePrevPage: UnwrapRef<typeof import('@uni-helper/uni-use')['usePrevPage']>
-    readonly usePrevRoute: UnwrapRef<typeof import('@uni-helper/uni-use')['usePrevRoute']>
-    readonly useProvider: UnwrapRef<typeof import('@uni-helper/uni-use')['useProvider']>
-    readonly useRequest: UnwrapRef<typeof import('@uni-helper/uni-use')['useRequest']>
-    readonly useRoute: UnwrapRef<typeof import('@uni-helper/uni-use')['useRoute']>
-    readonly useRouter: UnwrapRef<typeof import('@uni-helper/uni-use')['useRouter']>
-    readonly useScanCode: UnwrapRef<typeof import('@uni-helper/uni-use')['useScanCode']>
-    readonly useScreenBrightness: UnwrapRef<typeof import('@uni-helper/uni-use')['useScreenBrightness']>
-    readonly useSelectorQuery: UnwrapRef<typeof import('@uni-helper/uni-use')['useSelectorQuery']>
+    readonly useRoute: UnwrapRef<typeof import('../composables/useCommon')['useRoute']>
+    readonly useRouter: UnwrapRef<typeof import('../composables/useCommon')['useRouter']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
-    readonly useSocket: UnwrapRef<typeof import('@uni-helper/uni-use')['useSocket']>
     readonly useStomp: UnwrapRef<typeof import('../composables/useStomp')['useStomp']>
-    readonly useStorage: UnwrapRef<typeof import('@uni-helper/uni-use')['useStorage']>
-    readonly useStorageAsync: UnwrapRef<typeof import('@uni-helper/uni-use')['useStorageAsync']>
-    readonly useStorageSync: UnwrapRef<typeof import('@uni-helper/uni-use')['useStorageSync']>
     readonly useTabbar: UnwrapRef<typeof import('../composables/useTabbar')['useTabbar']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../composables/useTheme')['useTheme']>
     readonly useThemeStore: UnwrapRef<typeof import('../store/modules/theme.store')['useThemeStore']>
-    readonly useToast: UnwrapRef<typeof import('wot-design-uni')['useToast']>
-    readonly useUploadFile: UnwrapRef<typeof import('@uni-helper/uni-use')['useUploadFile']>
+    readonly useToast: UnwrapRef<typeof import('../composables/useCommon')['useToast']>
     readonly useUserStore: UnwrapRef<typeof import('../store/modules/user.store')['useUserStore']>
-    readonly useVisible: UnwrapRef<typeof import('@uni-helper/uni-use')['useVisible']>
     readonly useWechat: UnwrapRef<typeof import('../composables/useWechat')['useWechat']>
     readonly user: UnwrapRef<typeof import('../api/user')['default']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>

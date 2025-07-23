@@ -3,7 +3,6 @@ import uni from "@dcloudio/vite-plugin-uni";
 import AutoImport from "unplugin-auto-import/vite";
 import UniLayouts from "@uni-helper/vite-plugin-uni-layouts";
 import UniPages from "@uni-helper/vite-plugin-uni-pages";
-import { uniuseAutoImports } from "@uni-helper/uni-use";
 
 import Components from "@uni-helper/vite-plugin-uni-components";
 import { WotResolver } from "@uni-helper/vite-plugin-uni-components/resolvers";
@@ -48,7 +47,10 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
           "vue",
           "uni-app",
           "pinia",
-          uniuseAutoImports(),
+          {
+            from: "uni-mini-router",
+            imports: ["createRouter", "useRouter", "useRoute"],
+          },
           {
             from: "wot-design-uni",
             imports: ["useToast", "useMessage", "useNotify", "CommonUtil"],

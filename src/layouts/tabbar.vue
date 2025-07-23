@@ -13,7 +13,7 @@
         v-for="(item, index) in tabbarList"
         :key="index"
         :name="item.name"
-        :value="item.value"
+        :value="getTabbarItemValue(item.name)"
         :title="item.title"
         :icon="item.icon"
       />
@@ -25,20 +25,24 @@
 </template>
 
 <script setup lang="ts">
-const { theme, themeVars } = useTheme();
+const router = useRouter();
+
+const route = useRoute();
+
+const { themeVars, theme } = useTheme();
 
 const { activeTabbar, getTabbarItemValue, setTabbarItemActive, tabbarList } = useTabbar();
 
-// 生命周期
+function handleTabbarChange({ value }: { value: string }) {
+  setTabbarItemActive(value);
+  router.pushTab({ name: value });
+}
+
 onMounted(() => {
   // #ifdef APP-PLUS
   uni.hideTabBar();
   // #endif
   nextTick(() => {
-    const pages = getCurrentPages();
-    if (!pages.length) return;
-
-    const route = pages[pages.length - 1].route;
     if (route.name && route.name !== activeTabbar.value.name) {
       setTabbarItemActive(route.name);
     }

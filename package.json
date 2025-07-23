@@ -134,6 +134,7 @@
     "stylelint-prettier": "^5.0.2",
     "typescript": "^4.9.4",
     "typescript-eslint": "^8.6.0",
+    "uni-mini-router": "^0.1.6",
     "unocss": "^0.62.4",
     "unocss-preset-weapp": "^0.62.2",
     "unplugin-auto-import": "^0.18.3",

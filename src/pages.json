@@ -20,6 +20,11 @@
     {
       "path": "pages/work/index",
       "type": "page",
+      "name": "work",
+      "meta": {
+        "requireAuth": true,
+        "title": "需要登录的页面"
+      },
       "style": {}
     },
     {
