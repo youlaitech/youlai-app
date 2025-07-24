@@ -1,4 +1,3 @@
-import { createRouter } from "uni-mini-router";
 import { pages, subPackages } from "virtual:uni-pages";
 import { isLoggedIn } from "@/utils/auth";
 // 生成路由配置
@@ -29,6 +28,7 @@ const router = createRouter({
 
 // 全局前置守卫
 router.beforeEach((to, from, next) => {
+  console.log("路由跳转:", to.path);
   // 检查页面是否需要登录
   if (to.meta && to.meta.requireAuth) {
     if (!isLoggedIn) {

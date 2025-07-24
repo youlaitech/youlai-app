@@ -26,14 +26,13 @@
 
 <script setup lang="ts">
 const router = useRouter();
-
 const route = useRoute();
-
 const { themeVars, theme } = useTheme();
-
 const { activeTabbar, getTabbarItemValue, setTabbarItemActive, tabbarList } = useTabbar();
 
 function handleTabbarChange({ value }: { value: string }) {
+  console.log("tabbarChange", value);
+
   setTabbarItemActive(value);
   router.pushTab({ name: value });
 }

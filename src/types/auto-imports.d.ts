@@ -158,8 +158,8 @@ declare global {
   const usePrevRoute: typeof import('@uni-helper/uni-use')['usePrevRoute']
   const useProvider: typeof import('@uni-helper/uni-use')['useProvider']
   const useRequest: typeof import('@uni-helper/uni-use')['useRequest']
-  const useRoute: typeof import('../composables/useCommon')['useRoute']
-  const useRouter: typeof import('../composables/useCommon')['useRouter']
+  const useRoute: typeof import('uni-mini-router')['useRoute']
+  const useRouter: typeof import('uni-mini-router')['useRouter']
   const useScanCode: typeof import('@uni-helper/uni-use')['useScanCode']
   const useScreenBrightness: typeof import('@uni-helper/uni-use')['useScreenBrightness']
   const useSelectorQuery: typeof import('@uni-helper/uni-use')['useSelectorQuery']
@@ -173,7 +173,7 @@ declare global {
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const useTheme: typeof import('../composables/useTheme')['useTheme']
   const useThemeStore: typeof import('../store/modules/theme.store')['useThemeStore']
-  const useToast: typeof import('../composables/useCommon')['useToast']
+  const useToast: typeof import('wot-design-uni')['useToast']
   const useUploadFile: typeof import('@uni-helper/uni-use')['useUploadFile']
   const useUserStore: typeof import('../store/modules/user.store')['useUserStore']
   const useVisible: typeof import('@uni-helper/uni-use')['useVisible']
@@ -310,15 +310,15 @@ declare module 'vue' {
     readonly useMessage: UnwrapRef<typeof import('wot-design-uni')['useMessage']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useNotify: UnwrapRef<typeof import('wot-design-uni')['useNotify']>
-    readonly useRoute: UnwrapRef<typeof import('../composables/useCommon')['useRoute']>
-    readonly useRouter: UnwrapRef<typeof import('../composables/useCommon')['useRouter']>
+    readonly useRoute: UnwrapRef<typeof import('uni-mini-router')['useRoute']>
+    readonly useRouter: UnwrapRef<typeof import('uni-mini-router')['useRouter']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useStomp: UnwrapRef<typeof import('../composables/useStomp')['useStomp']>
     readonly useTabbar: UnwrapRef<typeof import('../composables/useTabbar')['useTabbar']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../composables/useTheme')['useTheme']>
     readonly useThemeStore: UnwrapRef<typeof import('../store/modules/theme.store')['useThemeStore']>
-    readonly useToast: UnwrapRef<typeof import('../composables/useCommon')['useToast']>
+    readonly useToast: UnwrapRef<typeof import('wot-design-uni')['useToast']>
     readonly useUserStore: UnwrapRef<typeof import('../store/modules/user.store')['useUserStore']>
     readonly useWechat: UnwrapRef<typeof import('../composables/useWechat')['useWechat']>
     readonly user: UnwrapRef<typeof import('../api/user')['default']>
