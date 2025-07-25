@@ -1,5 +1,7 @@
 import { pages, subPackages } from "virtual:uni-pages";
 import { isLoggedIn } from "@/utils/auth";
+
+import { createRouter } from "uni-mini-router";
 // 生成路由配置
 function generateRoutes() {
   const routes = pages.map((page: { path: string; [key: string]: any }) => {
