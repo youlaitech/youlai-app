@@ -3,79 +3,75 @@
     {
       "path": "pages/index/index",
       "type": "home",
-      "style": {},
+      "name": "home",
+      "style": {
+        "navigationStyle": "custom"
+      },
       "layout": "tabbar"
     },
     {
       "path": "pages/login/index",
-      "type": "page",
-      "style": {}
+      "type": "page"
     },
     {
       "path": "pages/mine/index",
       "type": "page",
-      "style": {},
+      "name": "mine",
+      "style": {
+        "navigationStyle": "custom"
+      },
       "layout": "tabbar"
     },
     {
       "path": "pages/work/index",
       "type": "page",
       "name": "work",
-      "meta": {
-        "requireAuth": true,
-        "title": "需要登录的页面"
+      "style": {
+        "navigationBarTitleText": "工作台"
       },
-      "style": {}
+      "meta": {
+        "requireAuth": true
+      }
     },
     {
       "path": "pages/mine/about/index",
-      "type": "page",
-      "style": {}
+      "type": "page"
     },
     {
       "path": "pages/mine/faq/index",
-      "type": "page",
-      "style": {}
+      "type": "page"
     },
     {
       "path": "pages/mine/feedback/index",
-      "type": "page",
-      "style": {}
+      "type": "page"
     },
     {
       "path": "pages/mine/profile/complete-profile",
-      "type": "page",
-      "style": {}
+      "type": "page"
     },
     {
       "path": "pages/mine/profile/index",
-      "type": "page",
-      "style": {}
+      "type": "page"
     },
     {
       "path": "pages/mine/settings/index",
-      "type": "page",
-      "style": {}
+      "type": "page"
     },
     {
       "path": "pages/mine/settings/account/index",
-      "type": "page",
-      "style": {}
+      "type": "page"
     },
     {
       "path": "pages/mine/settings/agreement/index",
-      "type": "page",
-      "style": {}
+      "type": "page"
     },
     {
       "path": "pages/mine/settings/network/index",
-      "type": "page",
-      "style": {}
+      "type": "page"
     },
     {
       "path": "pages/mine/settings/theme/index",
-      "type": "page",
-      "style": {}
+      "type": "page"
     }
   ],
   "globalStyle": {

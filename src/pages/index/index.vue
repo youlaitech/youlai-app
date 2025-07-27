@@ -14,8 +14,7 @@
         v-for="(item, index) in navList"
         :key="index"
         use-slot
-        link-type="navigateTo"
-        :url="item.url"
+        @click="handleNavClick(item)"
       >
         <view class="p-2">
           <image class="w-72rpx h-72rpx rounded-8rpx" :src="item.icon" />
@@ -101,6 +100,7 @@ interface VisitStatsVO {
   totalPvCount: number;
 }
 
+const router = useRouter();
 const current = ref<number>(0);
 
 const visitStatsData = ref<VisitStatsVO>({
@@ -169,6 +169,12 @@ const navList = reactive([
     prem: "sys:config:query",
   },
 ]);
+
+// 处理导航点击
+function handleNavClick(item: any) {
+  // 使用路由系统进行导航，这样会触发路由守卫
+  router.push({ path: item.url });
+}
 
 // 生成静态的访问趋势数据
 const generateStaticTrendData = (days: number) => {
@@ -265,4 +271,11 @@ onShow(() => {
 });
 </script>
 
+<route lang="json">
+{
+  "name": "home",
+  "style": { "navigationStyle": "custom" },
+  "layout": "tabbar"
+}
+</route>
 <style setup lang="scss"></style>

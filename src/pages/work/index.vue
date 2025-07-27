@@ -1,25 +1,21 @@
 <template>
   <view class="app-container">
-    <wd-navbar title="设置" left-arrow @click-left="handleBack" />
-
     <wd-status-tip type="search" tip="建设中..." />
   </view>
 </template>
 
+<script setup lang="ts"></script>
+
 <route lang="json">
 {
   "name": "work",
+  "style": {
+    "navigationBarTitleText": "工作台"
+  },
   "meta": {
-    "requireAuth": true,
-    "title": "需要登录的页面"
+    "requireAuth": true
   }
 }
 </route>
-
-<script setup lang="ts">
-const handleBack = () => {
-  uni.navigateBack();
-};
-</script>
 
 <style lang="scss"></style>
