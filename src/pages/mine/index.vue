@@ -249,6 +249,14 @@ onShow(() => {
 });
 </script>
 
+<route lang="json">
+{
+  "name": "mine",
+  "style": { "navigationStyle": "custom" },
+  "layout": "tabbar"
+}
+</route>
+
 <style lang="scss" scoped>
 // 用户信息卡片
 .user-profile {
