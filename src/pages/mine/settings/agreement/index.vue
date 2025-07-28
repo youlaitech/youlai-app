@@ -1,8 +1,6 @@
 <template>
   <view class="app-container">
-    <wd-navbar title="用户协议" left-arrow @click-left="handleBack" />
-
-    <wd-card custom-style="margin-top: 20rpx">
+    <wd-card>
       <view class="flex-col-center py-4">
         <text class="text-xl font-bold mb-2">用户协议</text>
         <text class="text-sm text-gray-500">更新日期：2024年3月15日</text>
@@ -63,11 +61,6 @@ const agreementContent = [
       "我们保留随时修改本协议的权利。协议修改后，如果您继续使用本应用服务，即视为您已接受修改后的协议。我们建议您定期查看本协议以了解任何变更。",
   },
 ];
-
-// 返回
-const handleBack = () => {
-  uni.navigateBack();
-};
 
 // 同意协议
 const handleAgree = () => {

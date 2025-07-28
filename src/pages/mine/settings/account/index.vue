@@ -1,8 +1,6 @@
 <template>
   <view class="app-container">
-    <wd-navbar title="账号和安全" left-arrow @click-left="handleBack" />
-
-    <wd-card custom-style="margin-top: 20rpx">
+    <wd-card>
       <wd-cell-group border>
         <wd-cell
           title="账户密码"
@@ -212,11 +210,6 @@ const mobileTimer = ref<ReturnType<typeof setInterval> | null>(null);
 
 const emailCountdown = ref(0);
 const emailTimer = ref<ReturnType<typeof setTimeout> | null>(null);
-
-// 处理返回按钮点击
-const handleBack = () => {
-  uni.navigateBack();
-};
 
 /** 加载用户信息 */
 const loadUserProfile = async () => {

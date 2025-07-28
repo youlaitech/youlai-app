@@ -1,9 +1,7 @@
 <template>
   <view class="app-container">
-    <wd-navbar title="网络测试" left-arrow @click-left="handleBack" />
-
     <!-- 网络状态展示 -->
-    <wd-card title="网络状态" custom-style="margin: 20rpx">
+    <wd-card>
       <wd-cell-group border>
         <wd-cell title="网络状态">
           <wd-tag :type="networkType ? 'success' : 'danger'" size="small">
@@ -179,11 +177,6 @@ const startTest = async () => {
       progress.value = 0;
     }, 500);
   }
-};
-
-// 返回
-const handleBack = () => {
-  uni.navigateBack();
 };
 
 // 生命周期钩子

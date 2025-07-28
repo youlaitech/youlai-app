@@ -1,8 +1,6 @@
 <template>
   <view class="app-container">
-    <wd-navbar title="设置" left-arrow @click-left="handleBack" />
-
-    <wd-cell-group custom-style="margin-top: 20rpx">
+    <wd-cell-group>
       <wd-cell v-if="isLogin" title="个人资料" icon="user" is-link @click="navigateToProfile" />
       <wd-cell
         v-if="isLogin"
@@ -190,11 +188,6 @@ const handleLogout = () => {
       }
     },
   });
-};
-
-// 返回
-const handleBack = () => {
-  uni.navigateBack();
 };
 
 // 检查登录状态

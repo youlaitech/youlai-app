@@ -1,9 +1,6 @@
 <template>
   <view class="app-container">
-    <wd-navbar title="关于我们" left-arrow @click-left="handleBack" />
-
-    <!-- 顶部信息区域 -->
-    <wd-card custom-style="margin-top: 20rpx">
+    <wd-card>
       <view class="flex items-center p-2">
         <wd-img width="60px" height="60px" src="/static/logo.png" mode="aspectFit" class="mr-4" />
         <view class="flex-1">
@@ -66,11 +63,6 @@
 
 <script lang="ts" setup>
 const version = ref("1.0.0");
-
-const handleBack = () => {
-  uni.navigateBack();
-};
-
 const getYear = () => {
   return new Date().getFullYear();
 };
