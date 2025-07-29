@@ -1,5 +1,9 @@
 <script lang="ts" setup>
-const { theme, themeVars } = useTheme();
+import { useThemeStore } from "@/composables/useTheme";
+import { storeToRefs } from "pinia";
+
+const themeStore = useThemeStore();
+const { theme, themeVars } = storeToRefs(themeStore);
 </script>
 
 <script lang="ts">

@@ -26,13 +26,15 @@
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import { useTheme } from "@/composables/useTheme";
+import { useThemeStore } from "@/composables/useTheme";
 import { useTabbar } from "@/composables/useTabbar";
 import { useRouter } from "uni-mini-router";
+import { storeToRefs } from "pinia";
 
 const router = useRouter();
 const route = useRoute();
-const { themeVars, theme } = useTheme();
+const themeStore = useThemeStore();
+const { themeVars, theme } = storeToRefs(themeStore);
 const { activeTabbar, getTabbarItemValue, setTabbarItemActive, tabbarList } = useTabbar();
 
 function handleTabbarChange({ value }: { value: string }) {

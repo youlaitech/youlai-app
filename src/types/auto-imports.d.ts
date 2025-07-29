@@ -143,6 +143,7 @@ declare global {
   const useInterceptor: typeof import('@uni-helper/uni-use')['useInterceptor']
   const useLink: (typeof import("vue-router"))["useLink"]
   const useLoading: typeof import('@uni-helper/uni-use')['useLoading']
+  const useManualTheme: typeof import('../composables/useTheme')['useManualTheme']
   const useMessage: typeof import('wot-design-uni')['useMessage']
   const useModal: typeof import('@uni-helper/uni-use')['useModal']
   const useModel: typeof import('vue')['useModel']
@@ -296,7 +297,6 @@ declare module 'vue' {
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly store: UnwrapRef<typeof import('../store/index')['store']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
-    readonly themeColorOptions: UnwrapRef<typeof import('../composables/useTheme')['themeColorOptions']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
@@ -316,7 +316,6 @@ declare module 'vue' {
     readonly useStomp: UnwrapRef<typeof import('../composables/useStomp')['useStomp']>
     readonly useTabbar: UnwrapRef<typeof import('../composables/useTabbar')['useTabbar']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
-    readonly useTheme: UnwrapRef<typeof import('../composables/useTheme')['useTheme']>
     readonly useThemeStore: UnwrapRef<typeof import('../store/modules/theme.store')['useThemeStore']>
     readonly useToast: UnwrapRef<typeof import('wot-design-uni')['useToast']>
     readonly useUserStore: UnwrapRef<typeof import('../store/modules/user.store')['useUserStore']>

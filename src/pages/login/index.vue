@@ -126,7 +126,7 @@ import { type LoginData } from "@/api/auth";
 import { useUserStore } from "@/store/modules/user.store";
 import { useToast } from "wot-design-uni";
 import { useWechat } from "@/composables/useWechat";
-import { useTheme } from "@/composables/useTheme";
+import { useThemeStore } from "@/composables/useTheme";
 import { computed, onMounted } from "vue";
 
 const loginFormRef = ref();
@@ -136,10 +136,10 @@ const userStore = useUserStore();
 const showPassword = ref(false);
 const loginType = ref<"account" | "phone">("account");
 const { authState, getLoginCode, getPhoneNumber } = useWechat();
-const { theme } = useTheme();
+const themeStore = useThemeStore();
 
 // 是否暗黑模式
-const isDarkMode = computed(() => theme.value === "dark");
+const isDarkMode = computed(() => themeStore.theme === "dark");
 
 // 登录表单数据
 const loginFormData = ref<LoginData>({

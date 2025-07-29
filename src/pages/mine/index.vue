@@ -162,12 +162,13 @@
 import { onShow } from "@dcloudio/uni-app";
 import { useToast } from "wot-design-uni";
 import { useUserStore } from "@/store/modules/user.store";
-import { useTheme } from "@/composables/useTheme";
+import { useThemeStore } from "@/composables/useTheme";
 import { computed } from "vue";
 
 const toast = useToast();
 const userStore = useUserStore();
-const { currentThemeColor } = useTheme();
+const themeStore = useThemeStore();
+const currentThemeColor = computed(() => themeStore.themeVars.colorTheme);
 const userInfo = computed(() => userStore.userInfo);
 const isLogin = computed(() => !!userInfo.value);
 const defaultAvatar = "/static/images/default-avatar.png";

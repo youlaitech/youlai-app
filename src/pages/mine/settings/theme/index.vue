@@ -9,11 +9,11 @@
     <!-- 暗黑模式设置 -->
     <wd-card class="setting-section">
       <view class="section-header">
-        <wd-icon name="moon" size="20" :color="theme === 'dark' ? '#FFD700' : '#666'" />
+        <wd-icon name="moon" size="20" :color="isDarkMode ? '#FFD700' : '#666'" />
         <text class="section-title">外观模式</text>
       </view>
-      <wd-cell title="暗黑模式" :value="theme === 'dark' ? '已开启' : '已关闭'">
-        <wd-switch :model-value="theme === 'dark'" @change="handleToggleDarkMode" />
+      <wd-cell title="暗黑模式" :value="isDarkMode ? '已开启' : '已关闭'">
+        <wd-switch :model-value="isDarkMode" @change="handleToggleDarkMode" />
       </wd-cell>
     </wd-card>
 
@@ -95,6 +95,16 @@
       </wd-grid>
     </wd-card>
 
+    <!-- 跟随系统设置 -->
+    <wd-card class="setting-section">
+      <wd-cell title="跟随系统主题" :value="followSystemActive ? '已开启' : '已关闭'">
+        <wd-switch :model-value="followSystemActive" @change="handleFollowSystemChange" />
+      </wd-cell>
+      <view class="follow-system-tip p-3 text-sm text-gray-500">
+        开启后，应用会自动适配系统的深色/浅色模式设置
+      </view>
+    </wd-card>
+
     <!-- 操作按钮 -->
     <wd-card class="action-section">
       <wd-button type="info" size="large" block @click="handleResetTheme">重置为默认主题</wd-button>
@@ -136,9 +146,17 @@
 </template>
 
 <script lang="ts" setup>
-import { useTheme, themeColorOptions } from "@/composables/useTheme";
+import { useThemeStore } from "@/composables/useTheme";
+import { themeColorOptions } from "@/composables/types/theme";
+import { storeToRefs } from "pinia";
 
-const { theme, themeVars, toggleTheme, selectThemeColor } = useTheme();
+const themeStore = useThemeStore();
+// 将store中的数据解构为响应式引用
+const { themeVars } = storeToRefs(themeStore);
+
+// 创建响应式的计算属性来解决类型问题
+const isDarkMode = computed(() => themeStore.theme === "dark");
+const followSystemActive = computed(() => themeStore.followSystem);
 
 // 自定义颜色输入
 const customColor = ref("");
@@ -146,12 +164,12 @@ const showCustomColorInput = ref(false);
 
 // 当前选中的主题色
 const currentThemeColor = computed(() => {
-  return themeVars.colorTheme || themeColorOptions[0].primary;
+  return themeVars.value.colorTheme || themeColorOptions[0].primary;
 });
 
 // 选择预设颜色
 const handleSelectColor = (color: (typeof themeColorOptions)[0]) => {
-  selectThemeColor(color);
+  themeStore.setCurrentThemeColor(color);
   customColor.value = color.primary;
 
   // 提示
@@ -194,7 +212,7 @@ const applyCustomColor = () => {
     primary: color,
   };
 
-  selectThemeColor(customColorOption);
+  themeStore.setCurrentThemeColor(customColorOption);
   showCustomColorInput.value = false;
 
   // 提示
@@ -212,7 +230,7 @@ const handleResetTheme = () => {
     content: "确定要重置为默认主题吗？",
     success: (res) => {
       if (res.confirm) {
-        selectThemeColor(themeColorOptions[0]);
+        themeStore.setCurrentThemeColor(themeColorOptions[0]);
         customColor.value = themeColorOptions[0].primary;
 
         uni.showToast({
@@ -227,14 +245,19 @@ const handleResetTheme = () => {
 
 // 切换暗黑模式
 const handleToggleDarkMode = () => {
-  toggleTheme();
+  themeStore.toggleTheme();
   nextTick(() => {
     uni.showToast({
-      title: `已切换到${theme.value === "dark" ? "暗黑" : "浅色"}模式`,
+      title: `已切换到${isDarkMode.value ? "暗黑" : "浅色"}模式`,
       icon: "success",
       duration: 1500,
     });
   });
+};
+
+// 处理跟随系统设置的变更
+const handleFollowSystemChange = (value: boolean) => {
+  themeStore.setFollowSystem(value);
 };
 
 onLoad(() => {
@@ -245,13 +268,15 @@ onLoad(() => {
 onMounted(() => {
   // 初始化自定义颜色输入框
   customColor.value = currentThemeColor.value;
+  // 初始化主题
+  themeStore.initTheme();
 });
 
 // 页面显示时确保主题色同步
 onShow(() => {
   customColor.value = currentThemeColor.value;
   console.log("主题设置页面显示，当前主题:", {
-    mode: theme.value,
+    mode: isDarkMode.value ? "dark" : "light",
     color: currentThemeColor.value,
   });
 });
