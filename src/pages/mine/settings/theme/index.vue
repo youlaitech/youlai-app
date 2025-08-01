@@ -1,5 +1,5 @@
 <template>
-  <view class="theme-settings-container">
+  <view class="app-container">
     <!-- 页面标题 -->
     <view class="page-header">
       <text class="page-title">主题设置</text>
@@ -95,16 +95,6 @@
       </wd-grid>
     </wd-card>
 
-    <!-- 跟随系统设置 -->
-    <wd-card class="setting-section">
-      <wd-cell title="跟随系统主题" :value="followSystemActive ? '已开启' : '已关闭'">
-        <wd-switch :model-value="followSystemActive" @change="handleFollowSystemChange" />
-      </wd-cell>
-      <view class="follow-system-tip p-3 text-sm text-gray-500">
-        开启后，应用会自动适配系统的深色/浅色模式设置
-      </view>
-    </wd-card>
-
     <!-- 操作按钮 -->
     <wd-card class="action-section">
       <wd-button type="info" size="large" block @click="handleResetTheme">重置为默认主题</wd-button>
@@ -146,17 +136,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useThemeStore } from "@/composables/useTheme";
-import { themeColorOptions } from "@/composables/types/theme";
-import { storeToRefs } from "pinia";
+import { useTheme } from "@/composables/useTheme";
 
-const themeStore = useThemeStore();
-// 将store中的数据解构为响应式引用
-const { themeVars } = storeToRefs(themeStore);
+// 使用主题组合函数
+const { isDark, themeVars, themeColorOptions, toggleTheme, setThemeColor } = useTheme();
 
-// 创建响应式的计算属性来解决类型问题
-const isDarkMode = computed(() => themeStore.theme === "dark");
-const followSystemActive = computed(() => themeStore.followSystem);
+// 创建响应式的计算属性
+const isDarkMode = computed(() => isDark.value);
 
 // 自定义颜色输入
 const customColor = ref("");
@@ -169,7 +155,7 @@ const currentThemeColor = computed(() => {
 
 // 选择预设颜色
 const handleSelectColor = (color: (typeof themeColorOptions)[0]) => {
-  themeStore.setCurrentThemeColor(color);
+  setThemeColor(color);
   customColor.value = color.primary;
 
   // 提示
@@ -212,7 +198,7 @@ const applyCustomColor = () => {
     primary: color,
   };
 
-  themeStore.setCurrentThemeColor(customColorOption);
+  setCurrentThemeColor(customColorOption);
   showCustomColorInput.value = false;
 
   // 提示
@@ -230,7 +216,7 @@ const handleResetTheme = () => {
     content: "确定要重置为默认主题吗？",
     success: (res) => {
       if (res.confirm) {
-        themeStore.setCurrentThemeColor(themeColorOptions[0]);
+        setThemeColor(themeColorOptions[0]);
         customColor.value = themeColorOptions[0].primary;
 
         uni.showToast({
@@ -245,7 +231,7 @@ const handleResetTheme = () => {
 
 // 切换暗黑模式
 const handleToggleDarkMode = () => {
-  themeStore.toggleTheme();
+  toggleTheme();
   nextTick(() => {
     uni.showToast({
       title: `已切换到${isDarkMode.value ? "暗黑" : "浅色"}模式`,
@@ -255,126 +241,50 @@ const handleToggleDarkMode = () => {
   });
 };
 
-// 处理跟随系统设置的变更
-const handleFollowSystemChange = (value: boolean) => {
-  themeStore.setFollowSystem(value);
-};
-
 onLoad(() => {
-  // 初始化自定义颜色输入框
   customColor.value = currentThemeColor.value;
 });
 
 onMounted(() => {
-  // 初始化自定义颜色输入框
   customColor.value = currentThemeColor.value;
-  // 初始化主题
-  themeStore.initTheme();
 });
 
 // 页面显示时确保主题色同步
 onShow(() => {
   customColor.value = currentThemeColor.value;
-  console.log("主题设置页面显示，当前主题:", {
-    mode: isDarkMode.value ? "dark" : "light",
-    color: currentThemeColor.value,
-  });
 });
 </script>
 
-<style lang="scss" scoped>
-.theme-settings-container {
-  min-height: 100vh;
-  padding: 20rpx;
-  background-color: var(--wot-color-bg-light, #f8f9fa);
-  transition: background-color 0.3s ease;
-
-  // 强制 Wot 组件应用暗黑模式样式
-  :deep(.wd-card) {
-    background: var(--wot-card-bg-color, #fff);
-    border-radius: 16rpx;
-    box-shadow: var(--wot-card-shadow, 0 2rpx 12rpx rgba(0, 0, 0, 0.05));
-    transition: background-color 0.3s ease;
-  }
-
-  :deep(.wd-cell) {
-    color: var(--wot-color-text, #333);
-    background-color: var(--wot-card-bg-color, #fff);
-
-    .wd-cell__title {
-      color: var(--wot-color-text, #333) !important;
-    }
-
-    .wd-cell__value {
-      color: var(--wot-color-text-secondary, #666) !important;
-    }
-
-    .wd-cell__right-icon {
-      color: var(--wot-color-text-secondary, #999) !important;
-    }
-  }
-
-  :deep(.wd-grid-item) {
-    color: var(--wot-color-text, #333) !important;
-    background-color: var(--wot-card-bg-color, #fff) !important;
-  }
-
-  // 专门为颜色预览块重置背景色
-  :deep(.color-item) {
-    background-color: transparent !important;
-
-    .color-preview {
-      background-color: inherit !important;
-    }
-  }
-
-  :deep(.wd-button) {
-    &[type="primary"] {
-      color: #fff !important;
-      background-color: var(--wot-color-theme, #165dff) !important;
-    }
-
-    &[type="info"] {
-      color: #fff !important;
-      background-color: var(--wot-color-info, #909399) !important;
-    }
-  }
-
-  :deep(.wd-input) {
-    color: var(--wot-color-text, #333) !important;
-    background-color: var(--wot-card-bg-color, #fff) !important;
-  }
-
-  :deep(.wd-popup) {
-    background-color: var(--wot-popup-bg-color, #fff) !important;
-  }
-
-  .custom-color-popup {
-    padding: 40rpx 30rpx;
-    background: var(--wot-popup-bg-color, #fff);
-    border-radius: 20rpx 20rpx 0 0;
+<route lang="json">
+{
+  "name": "theme",
+  "style": {
+    "navigationBarTitleText": "主题设置"
   }
 }
+</route>
 
+<style lang="scss" scoped>
+// 基础布局
 .page-header {
   padding: 40rpx 20rpx;
   margin-bottom: 30rpx;
   text-align: center;
   background: linear-gradient(135deg, var(--wot-color-theme, #165dff) 0%, #667eea 100%);
   border-radius: 16rpx;
-}
 
-.page-title {
-  display: block;
-  margin-bottom: 10rpx;
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #fff;
-}
+  .page-title {
+    display: block;
+    margin-bottom: 10rpx;
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #fff;
+  }
 
-.page-subtitle {
-  font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.8);
+  .page-subtitle {
+    font-size: 26rpx;
+    color: rgba(255, 255, 255, 0.8);
+  }
 }
 
 .setting-section {
@@ -386,45 +296,43 @@ onShow(() => {
   align-items: center;
   padding: 30rpx 30rpx 20rpx;
   border-bottom: 1rpx solid var(--wot-color-border, #f0f0f0);
+
+  .section-title {
+    margin-left: 12rpx;
+    font-size: 32rpx;
+    font-weight: 600;
+    color: var(--wot-color-text, #333);
+  }
 }
 
-.section-title {
-  margin-left: 12rpx;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--wot-color-text, #333);
-}
-
+// 颜色选择区域
 .color-section {
   padding: 30rpx;
-}
 
-.color-label {
-  margin-bottom: 20rpx;
-  font-size: 28rpx;
-  color: var(--wot-color-text-secondary, #666);
-}
+  .color-label {
+    margin-bottom: 20rpx;
+    font-size: 28rpx;
+    color: var(--wot-color-text-secondary, #666);
+  }
 
-.color-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20rpx;
-  justify-content: space-between;
+  .color-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20rpx;
+    justify-content: space-between;
+  }
 }
 
 .color-item {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   width: calc(25% - 15rpx);
   padding: 10rpx;
   cursor: pointer;
   transition: all 0.3s ease;
 
   .color-preview {
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -434,18 +342,17 @@ onShow(() => {
     border-radius: 12rpx;
     box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
-  }
 
-  .check-icon {
-    font-size: 24rpx;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.5);
+    .check-icon {
+      font-size: 24rpx;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.5);
+    }
   }
 
   .color-name {
     font-size: 22rpx;
-    line-height: 1.2;
     color: var(--wot-color-text-secondary, #666);
     text-align: center;
   }
@@ -460,39 +367,41 @@ onShow(() => {
   }
 }
 
+// 当前主题色显示
 .current-theme-section {
   padding: 30rpx;
+
+  .current-theme-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .current-theme-label {
+      font-size: 28rpx;
+      color: var(--wot-color-text-secondary, #666);
+    }
+
+    .current-theme-value {
+      display: flex;
+      align-items: center;
+
+      .current-color-preview {
+        width: 40rpx;
+        height: 40rpx;
+        border: 2rpx solid var(--wot-color-border, #f0f0f0);
+        border-radius: 8rpx;
+      }
+
+      .current-color-text {
+        margin-left: 10rpx;
+        font-size: 28rpx;
+        font-weight: 500;
+      }
+    }
+  }
 }
 
-.current-theme-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.current-theme-label {
-  font-size: 28rpx;
-  color: var(--wot-color-text-secondary, #666);
-}
-
-.current-theme-value {
-  display: flex;
-  align-items: center;
-}
-
-.current-color-preview {
-  width: 40rpx;
-  height: 40rpx;
-  border: 2rpx solid var(--wot-color-border, #f0f0f0);
-  border-radius: 8rpx;
-}
-
-.current-color-text {
-  margin-left: 10rpx;
-  font-size: 28rpx;
-  font-weight: 500;
-}
-
+// 效果预览
 .preview-text {
   font-size: 28rpx;
   font-weight: 500;
@@ -510,160 +419,63 @@ onShow(() => {
   border-radius: 8rpx;
 }
 
-.action-section {
-  :deep(.wd-card) {
-    padding: 30rpx;
-    background: var(--wot-card-bg-color, #fff);
-    border-radius: 16rpx;
-    box-shadow: var(--wot-card-shadow, 0 2rpx 12rpx rgba(0, 0, 0, 0.05));
-  }
-}
+// 自定义颜色弹窗
+.custom-color-popup {
+  padding: 40rpx 30rpx;
+  background: var(--wot-popup-bg-color, #fff);
+  border-radius: 20rpx 20rpx 0 0;
 
-.popup-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 30rpx;
-}
+  .popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30rpx;
 
-.popup-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--wot-color-text, #333);
-}
-
-.color-input-section {
-  margin-bottom: 40rpx;
-}
-
-.input-label {
-  margin-bottom: 20rpx;
-  font-size: 28rpx;
-  color: var(--wot-color-text-secondary, #666);
-}
-
-.input-container {
-  display: flex;
-  gap: 20rpx;
-  align-items: center;
-  margin-bottom: 10rpx;
-}
-
-.color-preview-small {
-  flex-shrink: 0;
-  width: 60rpx;
-  height: 60rpx;
-  border: 2rpx solid var(--wot-color-border, #f0f0f0);
-  border-radius: 8rpx;
-}
-
-.color-input {
-  flex: 1;
-}
-
-.input-tip {
-  margin-left: 80rpx;
-  font-size: 24rpx;
-  color: var(--wot-color-text-placeholder, #999);
-}
-
-.popup-actions {
-  display: flex;
-  gap: 20rpx;
-}
-
-/* 响应式布局 */
-@media (max-width: 750rpx) {
-  .color-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 600rpx) {
-  .color-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-// 全局暗黑模式适配（针对当前页面）
-:global([data-theme="dark"]) .theme-settings-container {
-  color: var(--wot-color-text, #fff) !important;
-  background-color: var(--wot-color-bg, #1a1a1a) !important;
-
-  .page-header {
-    background: linear-gradient(135deg, var(--wot-color-theme, #165dff) 0%, #4a5568 100%);
-  }
-
-  .section-title {
-    color: var(--wot-color-text, #fff) !important;
-  }
-
-  .color-label {
-    color: var(--wot-color-text-secondary, #d1d5db) !important;
-  }
-
-  .preview-text {
-    color: var(--wot-color-text, #fff) !important;
-  }
-
-  .preview-border {
-    color: var(--wot-color-text-secondary, #d1d5db) !important;
-  }
-
-  .popup-title {
-    color: var(--wot-color-text, #fff) !important;
-  }
-
-  .input-label {
-    color: var(--wot-color-text-secondary, #d1d5db) !important;
-  }
-
-  .input-tip {
-    color: var(--wot-color-text-placeholder, #9ca3af) !important;
-  }
-
-  :deep(.wd-card) {
-    background: var(--wot-card-bg-color, #2a2a2a) !important;
-  }
-
-  :deep(.wd-cell) {
-    color: var(--wot-color-text, #fff) !important;
-    background-color: var(--wot-card-bg-color, #2a2a2a) !important;
-
-    .wd-cell__title {
-      color: var(--wot-color-text, #fff) !important;
-    }
-
-    .wd-cell__value {
-      color: var(--wot-color-text-secondary, #d1d5db) !important;
-    }
-
-    .wd-cell__right-icon {
-      color: var(--wot-color-text-secondary, #9ca3af) !important;
+    .popup-title {
+      font-size: 32rpx;
+      font-weight: 600;
+      color: var(--wot-color-text, #333);
     }
   }
 
-  :deep(.wd-grid-item) {
-    color: var(--wot-color-text, #fff) !important;
-    background-color: var(--wot-card-bg-color, #2a2a2a) !important;
+  .color-input-section {
+    margin-bottom: 40rpx;
+
+    .input-label {
+      margin-bottom: 20rpx;
+      font-size: 28rpx;
+      color: var(--wot-color-text-secondary, #666);
+    }
+
+    .input-container {
+      display: flex;
+      gap: 20rpx;
+      align-items: center;
+      margin-bottom: 10rpx;
+
+      .color-preview-small {
+        flex-shrink: 0;
+        width: 60rpx;
+        height: 60rpx;
+        border: 2rpx solid var(--wot-color-border, #f0f0f0);
+        border-radius: 8rpx;
+      }
+
+      .color-input {
+        flex: 1;
+      }
+    }
+
+    .input-tip {
+      margin-left: 80rpx;
+      font-size: 24rpx;
+      color: var(--wot-color-text-placeholder, #999);
+    }
   }
 
-  // 专门为颜色预览块重置背景色
-  :deep(.color-item) {
-    background-color: transparent !important;
-  }
-
-  :deep(.wd-input) {
-    color: var(--wot-color-text, #fff) !important;
-    background-color: var(--wot-card-bg-color, #2a2a2a) !important;
-  }
-
-  :deep(.wd-popup) {
-    background-color: var(--wot-popup-bg-color, #2a2a2a) !important;
-  }
-
-  .custom-color-popup {
-    background: var(--wot-popup-bg-color, #2a2a2a) !important;
+  .popup-actions {
+    display: flex;
+    gap: 20rpx;
   }
 }
 </style>

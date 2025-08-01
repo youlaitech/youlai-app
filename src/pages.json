@@ -55,7 +55,11 @@
     },
     {
       "path": "pages/mine/settings/index",
-      "type": "page"
+      "type": "page",
+      "name": "settings",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
     },
     {
       "path": "pages/mine/settings/account/index",
@@ -63,7 +67,11 @@
     },
     {
       "path": "pages/mine/settings/agreement/index",
-      "type": "page"
+      "type": "page",
+      "name": "theme",
+      "style": {
+        "navigationBarTitleText": "用户协议"
+      }
     },
     {
       "path": "pages/mine/settings/network/index",
@@ -71,7 +79,11 @@
     },
     {
       "path": "pages/mine/settings/theme/index",
-      "type": "page"
+      "type": "page",
+      "name": "theme",
+      "style": {
+        "navigationBarTitleText": "主题设置"
+      }
     }
   ],
   "globalStyle": {

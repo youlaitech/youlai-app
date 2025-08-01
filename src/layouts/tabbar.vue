@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import { useThemeStore } from "@/composables/useTheme";
+import { useThemeStore } from "@/store";
 import { useTabbar } from "@/composables/useTabbar";
 import { useRouter } from "uni-mini-router";
 import { storeToRefs } from "pinia";

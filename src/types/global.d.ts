@@ -1,3 +1,13 @@
+// 全局类型声明文件
+// 自动引入 virtual 模块类型
+
+/// <reference types="@uni-helper/vite-plugin-uni-pages/client" />
+/// <reference types="@dcloudio/types" />
+/// <reference types="@uni-helper/uni-types" />
+
+// 如果需要其他 virtual 模块类型，可以在这里添加
+// 例如：/// <reference types="xxx/client" />
+
 declare global {
   /**
    * 分页查询参数
@@ -38,4 +48,5 @@ declare global {
     msg: string;
   }
 }
+
 export {};

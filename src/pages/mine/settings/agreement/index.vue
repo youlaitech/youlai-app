@@ -1,12 +1,5 @@
 <template>
   <view class="app-container">
-    <wd-card>
-      <view class="flex-col-center py-4">
-        <text class="text-xl font-bold mb-2">用户协议</text>
-        <text class="text-sm text-gray-500">更新日期：2024年3月15日</text>
-      </view>
-    </wd-card>
-
     <wd-collapse v-model="activeNames" accordion>
       <wd-collapse-item
         v-for="(section, index) in agreementContent"
@@ -73,5 +66,14 @@ const handleAgree = () => {
   }, 1500);
 };
 </script>
+
+<route lang="json">
+{
+  "name": "theme",
+  "style": {
+    "navigationBarTitleText": "用户协议"
+  }
+}
+</route>
 
 <style lang="scss" scoped></style>

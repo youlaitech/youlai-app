@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container">
+  <view class="app-container dark-mode">
     <wd-cell-group>
       <wd-cell v-if="isLogin" title="个人资料" icon="user" is-link @click="navigateToProfile" />
       <wd-cell
@@ -195,6 +195,16 @@ onLoad(() => {
   getCacheSize();
 });
 </script>
+
+<route lang="json">
+{
+  "name": "settings",
+  "style": {
+    "navigationBarTitleText": "设置"
+  }
+}
+</route>
+
 <style lang="scss" scoped>
 .logout-section {
   display: flex;

@@ -126,7 +126,7 @@ import { type LoginData } from "@/api/auth";
 import { useUserStore } from "@/store/modules/user.store";
 import { useToast } from "wot-design-uni";
 import { useWechat } from "@/composables/useWechat";
-import { useThemeStore } from "@/composables/useTheme";
+import { useThemeStore } from "@/composables/types/theme";
 import { computed, onMounted } from "vue";
 
 const loginFormRef = ref();

@@ -159,11 +159,8 @@
 </template>
 
 <script lang="ts" setup>
-import { onShow } from "@dcloudio/uni-app";
 import { useToast } from "wot-design-uni";
-import { useUserStore } from "@/store/modules/user.store";
-import { useThemeStore } from "@/composables/useTheme";
-import { computed } from "vue";
+import { useUserStore, useThemeStore } from "@/store";
 
 const toast = useToast();
 const userStore = useUserStore();

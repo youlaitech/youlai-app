@@ -19,17 +19,7 @@ export type ThemeMode = "light" | "dark";
  */
 export interface ThemeState {
   theme: ThemeMode;
-  followSystem: boolean;
-  hasUserSet: boolean;
   currentThemeColor: ThemeColorOption;
-  themeVars: ConfigProviderThemeVars;
-}
-
-/**
- * 系统主题状态接口（简化版）
- */
-export interface SystemThemeState {
-  theme: ThemeMode;
   themeVars: ConfigProviderThemeVars;
 }
 

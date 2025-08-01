@@ -36,8 +36,15 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
       // make sure put it before `Uni()`
       UnoCss(),
       UniLayouts(),
-      UniPages(),
-
+      UniPages({
+        dts: "src/types/uni-pages.d.ts",
+        subPackages: ["src/subPages"],
+        /**
+         * 排除的页面，相对于 dir 和 subPackages
+         * @default []
+         */
+        exclude: ["**/components/**/*.*"],
+      }),
       Components({
         resolvers: [WotResolver()],
       }),

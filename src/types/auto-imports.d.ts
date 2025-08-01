@@ -16,12 +16,12 @@ declare global {
   const checkLogin: typeof import('../utils/auth')['checkLogin']
   const clearAll: typeof import('../utils/storage')['clearAll']
   const clearTokens: typeof import('../utils/auth')['clearTokens']
-  const colorColumns: typeof import('../composables/useTheme')['colorColumns']
+  const colorColumns: typeof import('../composables/types/theme')['colorColumns']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createPinia: typeof import('pinia')['createPinia']
   const createRouter: typeof import('uni-mini-router')['createRouter']
-  const currentThemeColor: typeof import('../composables/useTheme')['currentThemeColor']
+  const currentThemeColor: typeof import('../composables/types/theme')['currentThemeColor']
   const customRef: typeof import('vue')['customRef']
   const debounce: typeof import('../utils/index')['debounce']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
@@ -38,7 +38,7 @@ declare global {
   const getUserInfo: typeof import('../utils/storage')['getUserInfo']
   const guessSerializerType: typeof import('@uni-helper/uni-use')['guessSerializerType']
   const h: typeof import('vue')['h']
-  const initTheme: typeof import('../composables/useTheme')['initTheme']
+  const initTheme: typeof import('../composables/types/theme')['initTheme']
   const inject: typeof import('vue')['inject']
   const isLoggedIn: typeof import('../utils/auth')['isLoggedIn']
   const isProxy: typeof import('vue')['isProxy']
@@ -99,13 +99,13 @@ declare global {
   const ref: typeof import('vue')['ref']
   const request: typeof import('../utils/request')['default']
   const requireLogin: typeof import('../utils/auth')['requireLogin']
-  const resetTheme: typeof import('../composables/useTheme')['resetTheme']
+  const resetTheme: typeof import('../composables/types/theme')['resetTheme']
   const resolveComponent: typeof import('vue')['resolveComponent']
   const setAccessToken: typeof import('../utils/auth')['setAccessToken']
   const setActivePinia: typeof import('pinia')['setActivePinia']
   const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
   const setRefreshToken: typeof import('../utils/auth')['setRefreshToken']
-  const setThemeColor: typeof import('../composables/useTheme')['setThemeColor']
+  const setThemeColor: typeof import('../composables/types/theme')['setThemeColor']
   const setToken: typeof import('../utils/storage')['setToken']
   const setUserInfo: typeof import('../utils/storage')['setUserInfo']
   const setupStore: typeof import('../store/index')['setupStore']
@@ -114,14 +114,15 @@ declare global {
   const shallowRef: typeof import('vue')['shallowRef']
   const store: typeof import('../store/index')['store']
   const storeToRefs: typeof import('pinia')['storeToRefs']
-  const theme: typeof import('../composables/useTheme')['theme']
+  const testThemeSystem: typeof import('../utils/theme-test')['testThemeSystem']
+  const theme: typeof import('../composables/types/theme')['theme']
   const themeColorOptions: typeof import('../composables/useTheme')['themeColorOptions']
-  const themeVars: typeof import('../composables/useTheme')['themeVars']
+  const themeVars: typeof import('../composables/types/theme')['themeVars']
   const toRaw: typeof import('vue')['toRaw']
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
   const toValue: typeof import('vue')['toValue']
-  const toggleTheme: typeof import('../composables/useTheme')['toggleTheme']
+  const toggleTheme: typeof import('../composables/types/theme')['toggleTheme']
   const triggerRef: typeof import('vue')['triggerRef']
   const tryOnBackPress: typeof import('@uni-helper/uni-use')['tryOnBackPress']
   const tryOnHide: typeof import('@uni-helper/uni-use')['tryOnHide']
@@ -201,8 +202,6 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly Storage: UnwrapRef<typeof import('../utils/storage')['Storage']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
-    readonly applyThemeOnPageShow: UnwrapRef<typeof import('../utils/theme')['applyThemeOnPageShow']>
-    readonly applyThemeToMiniProgram: UnwrapRef<typeof import('../utils/theme')['applyThemeToMiniProgram']>
     readonly auth: UnwrapRef<typeof import('../api/auth')['default']>
     readonly checkLogin: UnwrapRef<typeof import('../utils/auth')['checkLogin']>
     readonly clearAll: UnwrapRef<typeof import('../utils/storage')['clearAll']>
@@ -297,6 +296,7 @@ declare module 'vue' {
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly store: UnwrapRef<typeof import('../store/index')['store']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
+    readonly themeColorOptions: UnwrapRef<typeof import('../composables/useTheme')['themeColorOptions']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
@@ -316,6 +316,7 @@ declare module 'vue' {
     readonly useStomp: UnwrapRef<typeof import('../composables/useStomp')['useStomp']>
     readonly useTabbar: UnwrapRef<typeof import('../composables/useTabbar')['useTabbar']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
+    readonly useTheme: UnwrapRef<typeof import('../composables/useTheme')['useTheme']>
     readonly useThemeStore: UnwrapRef<typeof import('../store/modules/theme.store')['useThemeStore']>
     readonly useToast: UnwrapRef<typeof import('wot-design-uni')['useToast']>
     readonly useUserStore: UnwrapRef<typeof import('../store/modules/user.store')['useUserStore']>
