@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container">
+  <view class="app-container dark:text-[var(--wot-dark-color)]">
     <!-- 页面标题 -->
     <view class="page-header">
       <text class="page-title">主题设置</text>
@@ -73,7 +73,7 @@
     <!-- 预览区域 -->
     <wd-card class="setting-section">
       <view class="section-header">
-        <wd-icon name="eye" size="20" color="#666" />
+        <wd-icon name="eye" size="20" />
         <text class="section-title">效果预览</text>
       </view>
 
@@ -81,7 +81,7 @@
 
       <wd-grid :column="2" border>
         <wd-grid-item>
-          <wd-button type="primary" size="small">主要按钮</wd-button>
+          <wd-button type="primary">主要按钮</wd-button>
         </wd-grid-item>
         <wd-grid-item>
           <text class="preview-text" :style="{ color: currentThemeColor }">主题色文本</text>
@@ -353,7 +353,7 @@ onShow(() => {
 
   .color-name {
     font-size: 22rpx;
-    color: var(--wot-color-text-secondary, #666);
+    color: var(--wot-color-text-secondary);
     text-align: center;
   }
 

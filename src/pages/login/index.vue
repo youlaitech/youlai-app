@@ -29,12 +29,7 @@
 
           <!-- 密码输入框 -->
           <view class="form-item">
-            <wd-icon
-              name="lock-on"
-              size="22"
-              :color="isDarkMode ? '#7AC5FF' : '#333'"
-              class="input-icon"
-            />
+            <wd-icon name="lock-on" size="22" class="input-icon" />
             <input
               v-model="loginFormData.password"
               class="form-input input-transparent"
@@ -45,7 +40,6 @@
             <wd-icon
               :name="showPassword ? 'eye-open' : 'eye-close'"
               size="18"
-              :color="isDarkMode ? '#7AC5FF' : '#9ca3af'"
               class="eye-icon"
               @click="showPassword = !showPassword"
             />
@@ -126,8 +120,6 @@ import { type LoginData } from "@/api/auth";
 import { useUserStore } from "@/store/modules/user.store";
 import { useToast } from "wot-design-uni";
 import { useWechat } from "@/composables/useWechat";
-import { useThemeStore } from "@/composables/types/theme";
-import { computed, onMounted } from "vue";
 
 const loginFormRef = ref();
 const toast = useToast();
@@ -136,10 +128,6 @@ const userStore = useUserStore();
 const showPassword = ref(false);
 const loginType = ref<"account" | "phone">("account");
 const { authState, getLoginCode, getPhoneNumber } = useWechat();
-const themeStore = useThemeStore();
-
-// 是否暗黑模式
-const isDarkMode = computed(() => themeStore.theme === "dark");
 
 // 登录表单数据
 const loginFormData = ref<LoginData>({

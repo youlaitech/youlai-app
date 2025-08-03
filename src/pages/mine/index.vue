@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container">
+  <view class="app-container dark:text-[var(--wot-dark-color)]">
     <!-- 用户信息卡片 -->
     <view class="user-profile">
       <view class="blur-bg"></view>
@@ -44,7 +44,7 @@
     <view class="stats-container">
       <view class="stat-item" @click="navigateToSection('wallet')">
         <view class="stat-value">0.00</view>
-        <view class="stat-label">我的余额</view>
+        <view class="">我的余额</view>
       </view>
       <view class="divider"></view>
       <view class="stat-item" @click="navigateToSection('favorites')">
@@ -114,7 +114,7 @@
               <view class="service-desc">解锁更多特权</view>
             </view>
           </view>
-          <wd-icon name="arrow-right" size="14" color="#999" />
+          <wd-icon name="arrow-right" size="14" />
         </view>
         <view class="service-item" @click="navigateToSection('services', 'coupon')">
           <view class="service-left">
@@ -126,7 +126,7 @@
               <view class="service-desc">查看我的优惠券</view>
             </view>
           </view>
-          <wd-icon name="arrow-right" size="14" color="#999" />
+          <wd-icon name="arrow-right" size="14" />
         </view>
         <view class="service-item" @click="navigateToSection('services', 'invite')">
           <view class="service-left">
@@ -138,7 +138,7 @@
               <view class="service-desc">邀请好友得奖励</view>
             </view>
           </view>
-          <wd-icon name="arrow-right" size="14" color="#999" />
+          <wd-icon name="arrow-right" size="14" />
         </view>
       </view>
     </view>
