@@ -1,11 +1,7 @@
 <template>
-  <view class="app-container">
-    <wd-navbar title="意见反馈" left-arrow @click-left="handleBack" />
-
-    123
+  <view class="app-container dark:text-[var(--wot-dark-color)]">
     <wd-text size="small">选填，最多上传3张图片</wd-text>
     <wd-form ref="formRef" :model="formData" :rules="rules">
-      <!-- 问题类型选择 -->
       <wd-form-item label="问题类型" prop="feedbackType">
         <wd-radio-group v-model="formData.feedbackType" inline>
           <wd-radio v-for="item in feedbackTypes" :key="item.value" :value="item.value">
@@ -41,7 +37,7 @@
       </wd-form-item>
 
       <!-- 提交按钮 -->
-      <view class="submit-btn">
+      <view class="mx-30rpx mt-40rpx">
         <wd-button type="primary" block :loading="submitting" @click="handleSubmit">
           提交反馈
         </wd-button>
@@ -50,18 +46,22 @@
   </view>
 </template>
 
+<route lang="json">
+{
+  "name": "feedback",
+  "style": {
+    "navigationBarTitleText": "意见反馈"
+  },
+  "meta": { "requireAuth": true }
+}
+</route>
+
 <script setup lang="ts">
-import { checkLogin } from "@/utils/auth";
 import { useToast } from "wot-design-uni";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
 
 const toast = useToast();
 const formRef = ref();
-
-// 检查登录状态
-onLoad(() => {
-  if (!checkLogin()) return;
-});
 
 // 问题类型选项
 const feedbackTypes = [
@@ -138,51 +138,31 @@ const handleDelete = (detail: { index: number }) => {
 // 提交反馈
 const handleSubmit = async () => {
   // 表单验证
-  try {
-    const { valid } = await formRef.value.validate();
+  const { valid } = await formRef.value.validate();
 
-    if (valid) {
-      submitting.value = true;
-      try {
-        // TODO: 调用提交反馈的接口
-        await new Promise((resolve) => setTimeout(resolve, 1500)); // 模拟提交
-        toast.success("提交成功");
+  if (valid) {
+    submitting.value = true;
+    try {
+      // TODO: 调用提交反馈的接口
+      await new Promise((resolve) => setTimeout(resolve, 1500)); // 模拟提交
+      toast.success("提交成功");
 
-        // 重置表单
-        formRef.value.reset();
-        formData.feedbackType = "bug";
-        formData.description = "";
-        formData.fileList = [];
-        formData.contact = "";
+      // 重置表单
+      formRef.value.reset();
+      formData.feedbackType = "bug";
+      formData.description = "";
+      formData.fileList = [];
+      formData.contact = "";
 
-        // 延迟返回上一页
-        setTimeout(() => {
-          uni.navigateBack();
-        }, 1500);
-      } catch (_error) {
-        toast.error("提交失败，请重试");
-      } finally {
-        submitting.value = false;
-      }
+      // 延迟返回上一页
+      setTimeout(() => {
+        uni.navigateBack();
+      }, 1500);
+    } finally {
+      submitting.value = false;
     }
-  } catch (_error) {
-    // 表单验证失败
-    console.log("表单验证失败");
   }
-};
-
-// 返回
-const handleBack = () => {
-  uni.navigateBack();
 };
 </script>
 
-<style lang="scss" scoped>
-:deep(.wd-form-item) {
-  margin-bottom: 12rpx;
-}
-
-.submit-btn {
-  margin: 40rpx 30rpx;
-}
-</style>
+<style lang="scss" scoped></style>

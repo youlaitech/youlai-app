@@ -1,7 +1,5 @@
 <template>
-  <view class="app-container">
-    <wd-navbar title="完善个人信息" left-arrow @click-left="handleBack" />
-
+  <view class="app-container dark:text-[var(--wot-dark-color)]">
     <!-- 头部标题 -->
     <view class="header">
       <view class="title">完善个人信息</view>
@@ -164,7 +162,7 @@ import FileAPI, { type FileInfo } from "@/api/file";
 const toast = useToast();
 const userStore = useUserStore();
 
-// 页面参数
+// 页面参数：使用 query 读取重定向
 const redirect = ref("/pages/index/index");
 
 // 表单数据
@@ -356,9 +354,7 @@ const handleComplete = async () => {
 
     // 跳转到目标页面
     setTimeout(() => {
-      uni.reLaunch({
-        url: redirect.value,
-      });
+      uni.reLaunch({ url: redirect.value });
     }, 1000);
   } catch (error: any) {
     console.error("完善信息失败:", error);
@@ -375,18 +371,11 @@ const handleSkip = () => {
     content: "跳过信息完善可能会影响部分功能使用，确定要跳过吗？",
     success: (res) => {
       if (res.confirm) {
-        uni.reLaunch({
-          url: redirect.value,
-        });
+        uni.reLaunch({ url: redirect.value });
       }
     },
   });
 };
-
-// 返回
-function handleBack() {
-  uni.navigateBack();
-}
 </script>
 
 <style lang="scss" scoped>

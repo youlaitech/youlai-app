@@ -1,7 +1,7 @@
 <template>
-  <view class="faq-container">
-    <view class="wechat">
-      <view class="tips">
+  <view class="app-container dark:text-[var(--wot-dark-color)]">
+    <view>
+      <view class="text-center font-600">
         <text>长按关注「有来技术」公众号，获取交流群二维码。</text>
       </view>
       <view class="flex-center">
@@ -12,12 +12,12 @@
           mode="aspectFit"
         />
       </view>
-      <view>
+      <view class="mt-10rpx">
         <text>如果交流群的二维码过期，请加微信(</text>
         <text :user-select="true" :selectable="true">haoxianrui</text>
         <text>)并备注「前端」、「后端」或「全栈」以获取最新二维码。</text>
       </view>
-      <view>
+      <view class="mt-10rpx">
         <text>为确保交流群质量，防止营销广告人群混入，我们采取了此措施。望各位理解！</text>
       </view>
     </view>
@@ -135,20 +135,4 @@ const pagesStr = ref<string>(`<pre style="background-color: #f9f9fa"><code>
 onMounted(() => {});
 </script>
 
-<style lang="scss" scoped>
-.faq-container {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  .wechat {
-    padding: 30rpx;
-    margin: 20px 0;
-    font-size: 14px;
-    color: var(--wot-card-content-color, rgba(0, 0, 0, 0.45));
-    background-color: #fff;
-    .tips {
-      font-weight: bold;
-      text-align: center;
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

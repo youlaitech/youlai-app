@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container">
+  <view class="app-container dark:text-[var(--wot-dark-color)]">
     <wd-swiper
       v-model:current="current"
       :list="swiperList"
@@ -89,6 +89,7 @@
 
 <script setup lang="ts">
 import { dayjs } from "wot-design-uni";
+import { useRouter } from "uni-mini-router";
 
 // 定义访问统计数据类型
 interface VisitStatsVO {
@@ -256,18 +257,6 @@ const handleDataRangeChange = ({ value }: { value: number }) => {
 onReady(() => {
   loadVisitStatsData();
   loadVisitTrendData();
-});
-
-onShow(() => {
-  // 确保 tabbar 状态正确
-  const pages = getCurrentPages();
-  if (pages.length > 0) {
-    const currentPage = pages[pages.length - 1];
-    if (currentPage.route === "pages/index/index") {
-      // 通过事件通知 tabbar 布局更新状态
-      uni.$emit("updateTabbar", "index");
-    }
-  }
 });
 </script>
 

@@ -6,7 +6,9 @@ import { createRouter } from "uni-mini-router";
 function generateRoutes() {
   const routes = pages.map((page: { path: string; [key: string]: any }) => {
     const newPath = `/${page.path}`;
-    return { ...page, path: newPath };
+    // 透传 meta 字段（如果 pages.json 中定义了）
+    const meta = page.meta ?? undefined;
+    return { ...page, path: newPath, meta };
   });
 
   // 处理分包路由
@@ -14,7 +16,8 @@ function generateRoutes() {
     subPackages.forEach((subPackage: { root: string; pages: any[] }) => {
       const subRoutes = subPackage.pages.map((page: any) => {
         const newPath = `/${subPackage.root}/${page.path}`;
-        return { ...page, path: newPath };
+        const meta = page.meta ?? undefined;
+        return { ...page, path: newPath, meta };
       });
       routes.push(...subRoutes);
     });
@@ -29,8 +32,10 @@ const router = createRouter({
 
 // 全局前置守卫
 router.beforeEach((to, from, next) => {
-  // 检查页面是否需要登录
   if (to.meta && to.meta.requireAuth && !isLoggedIn()) {
+    const redirectPath = (to.path || "/pages/index/index") as string;
+    // 先取消本次导航，避免在异步对话框中遗漏 next 导致报错
+    next(false);
     uni.showModal({
       title: "提示",
       content: "该功能需要登录后使用",
@@ -38,32 +43,20 @@ router.beforeEach((to, from, next) => {
       cancelText: "返回",
       success: (res) => {
         if (res.confirm) {
-          // 记住原来要去的页面
-          uni.setStorageSync("redirect", to.fullPath);
-          // 使用 uni 原生导航而不是 router
-          uni.navigateTo({
-            url: "/pages/login/index",
-          });
-        } else {
-          // 取消则返回首页
-          uni.switchTab({
-            url: "/pages/index/index",
+          router.push({
+            path: "/pages/login/index",
+            query: { redirect: encodeURIComponent(redirectPath) },
           });
         }
       },
-      // 确保在取消弹窗时也能调用 next
-      fail: () => {
-        next(false);
-      },
     });
   } else {
-    // 继续导航
     next();
   }
 });
 
-router.afterEach((to) => {
-  console.log("路由跳转完成:", to.path);
+router.afterEach((to, from) => {
+  console.log("🎯 afterEach 钩子触发:", { to, from });
 });
 
 export default router;

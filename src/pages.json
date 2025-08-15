@@ -43,7 +43,14 @@
     },
     {
       "path": "pages/mine/feedback/index",
-      "type": "page"
+      "type": "page",
+      "name": "feedback",
+      "style": {
+        "navigationBarTitleText": "意见反馈"
+      },
+      "meta": {
+        "requireAuth": true
+      }
     },
     {
       "path": "pages/mine/profile/complete-profile",
@@ -117,5 +124,6 @@
       }
     ]
   },
+  "__esModule": true,
   "subPackages": []
 }

@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container dark-mode">
+  <view class="app-container dark:text-[var(--wot-dark-color)]">
     <wd-cell-group>
       <wd-cell v-if="isLogin" title="个人资料" icon="user" is-link @click="navigateToProfile" />
       <wd-cell

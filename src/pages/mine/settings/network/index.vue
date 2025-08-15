@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container">
+  <view class="app-container dark:text-[var(--wot-dark-color)]">
     <!-- 网络状态展示 -->
     <wd-card>
       <wd-cell-group border>

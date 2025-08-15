@@ -12,12 +12,7 @@
         <wd-form v-if="loginType === 'account'" ref="loginFormRef" :model="loginFormData">
           <!-- 用户名输入框 -->
           <view class="form-item">
-            <wd-icon
-              name="user"
-              size="22"
-              :color="isDarkMode ? '#7AC5FF' : '#333'"
-              class="input-icon"
-            />
+            <wd-icon name="user" size="22" class="input-icon" />
             <input
               v-model="loginFormData.username"
               class="form-input input-transparent"
@@ -33,7 +28,7 @@
             <input
               v-model="loginFormData.password"
               class="form-input input-transparent"
-              :type="showPassword ? 'text' : 'password'"
+              :password="!showPassword"
               placeholder="请输入密码"
               placeholder-class="input-placeholder"
             />
@@ -135,11 +130,12 @@ const loginFormData = ref<LoginData>({
   password: "123456",
 });
 
-// 获取重定向参数
+// 仅使用 query 作为重定向来源
 const redirect = ref("/pages/index/index");
 onLoad((options) => {
-  if (options && options.redirect) {
-    redirect.value = decodeURIComponent(options.redirect);
+  const fromQuery = options && options.redirect ? decodeURIComponent(options.redirect) : "";
+  if (fromQuery && fromQuery !== "/pages/login/index") {
+    redirect.value = fromQuery;
   }
 });
 
@@ -176,11 +172,11 @@ const handleAccountLogin = () => {
     .then(() => {
       toast.success("登录成功");
 
+      console.log("跳转链接", redirect.value);
+
       // 账号密码登录直接跳转到重定向页面
       setTimeout(() => {
-        uni.reLaunch({
-          url: redirect.value,
-        });
+        uni.reLaunch({ url: redirect.value });
       }, 1000);
     })
     .catch((error) => {
@@ -211,16 +207,13 @@ const handleWechatPhoneLogin = async (e: any) => {
     if (result.isNewUser || !userStore.isUserInfoComplete()) {
       // 跳转到完善信息页面
       setTimeout(() => {
-        uni.navigateTo({
-          url: `/pages/mine/profile/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
-        });
+        // 跳转完善资料，redirect 保持在缓存中供目标页读取
+        uni.navigateTo({ url: "/pages/mine/profile/complete-profile" });
       }, 1000);
     } else {
       // 跳转到重定向页面
       setTimeout(() => {
-        uni.reLaunch({
-          url: redirect.value,
-        });
+        uni.reLaunch({ url: redirect.value });
       }, 1000);
     }
   } catch (error: any) {
@@ -256,16 +249,12 @@ const handleWechatLogin = async () => {
     if (result.isNewUser || !userStore.isUserInfoComplete()) {
       // 如果信息不完整，跳转到完善信息页面
       setTimeout(() => {
-        uni.navigateTo({
-          url: `/pages/mine/profile/complete-profile?redirect=${encodeURIComponent(redirect.value)}`,
-        });
+        uni.navigateTo({ url: "/pages/mine/profile/complete-profile" });
       }, 1000);
     } else {
       // 否则直接跳转到重定向页面
       setTimeout(() => {
-        uni.reLaunch({
-          url: redirect.value,
-        });
+        uni.reLaunch({ url: redirect.value });
       }, 1000);
     }
     // #endif

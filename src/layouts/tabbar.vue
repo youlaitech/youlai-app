@@ -25,10 +25,9 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
 import { useThemeStore } from "@/store";
 import { useTabbar } from "@/composables/useTabbar";
-import { useRouter } from "uni-mini-router";
+import { useRouter, useRoute } from "uni-mini-router";
 import { storeToRefs } from "pinia";
 
 const router = useRouter();
@@ -47,11 +46,8 @@ onMounted(() => {
   uni.hideTabBar();
   // #endif
   nextTick(() => {
-    if (route.name) {
-      const routeName = typeof route.name === "string" ? route.name : "";
-      if (routeName !== activeTabbar.value.name) {
-        setTabbarItemActive(routeName);
-      }
+    if (route.name && route.name !== activeTabbar.value.name) {
+      setTabbarItemActive(route.name);
     }
   });
 });

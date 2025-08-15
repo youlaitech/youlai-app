@@ -1,7 +1,5 @@
 <template>
-  <view class="app-container">
-    <wd-navbar title="个人信息" left-arrow @click-left="handleBack" />
-
+  <view class="app-container dark:text-[var(--wot-dark-color)]">
     <wd-card v-if="userProfile" custom-style="margin-top: 20rpx">
       <wd-cell-group border>
         <wd-cell class="avatar-cell" title="头像" center is-link>
