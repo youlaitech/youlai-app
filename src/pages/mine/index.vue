@@ -47,22 +47,22 @@
     </view>
 
     <!-- 数据统计 -->
-    <wd-card custom-class="mx-30rpx my-20rpx">
+    <wd-card custom-class="stats-card">
       <wd-grid :column="3" border>
         <wd-grid-item @click="navigateToSection('wallet')">
-          <view class="flex-col-center py-20rpx">
+          <view class="stats-item">
             <view class="mb-8rpx text-36rpx font-600">0.00</view>
             <view class="text-26rpx text-gray-500">我的余额</view>
           </view>
         </wd-grid-item>
         <wd-grid-item @click="navigateToSection('favorites')">
-          <view class="flex-col-center py-20rpx">
+          <view class="stats-item">
             <view class="mb-8rpx text-36rpx font-600">0</view>
             <view class="text-26rpx text-gray-500">我的收藏</view>
           </view>
         </wd-grid-item>
         <wd-grid-item @click="navigateToSection('history')">
-          <view class="flex-col-center py-20rpx">
+          <view class="stats-item">
             <view class="mb-8rpx text-36rpx font-600">0</view>
             <view class="text-26rpx text-gray-500">浏览历史</view>
           </view>
@@ -71,7 +71,7 @@
     </wd-card>
 
     <!-- 常用工具 -->
-    <wd-card>
+    <wd-card custom-class="tools-card">
       <template #header>
         <view class="flex-start">
           <wd-icon name="tools" size="18" :color="currentThemeColor" />
@@ -90,7 +90,7 @@
         </wd-grid-item>
         <wd-grid-item @click="navigateToFAQ">
           <view class="flex-col-center py-20rpx">
-            <view class="tool-icon mb-12rpx">
+            <view class="mb-12rpx">
               <wd-icon name="help-circle" size="24" :color="currentThemeColor" />
             </view>
             <view class="text-24rpx">常见问题</view>
@@ -98,7 +98,7 @@
         </wd-grid-item>
         <wd-grid-item @click="handleQuestionFeedback">
           <view class="flex-col-center py-20rpx">
-            <view class="tool-icon mb-12rpx">
+            <view class="mb-12rpx">
               <wd-icon name="check-circle" size="24" :color="currentThemeColor" />
             </view>
             <view class="text-24rpx">问题反馈</view>
@@ -106,7 +106,7 @@
         </wd-grid-item>
         <wd-grid-item @click="navigateToAbout">
           <view class="flex-col-center py-20rpx">
-            <view class="tool-icon mb-12rpx">
+            <view class="mb-12rpx">
               <wd-icon name="info-circle" size="24" :color="currentThemeColor" />
             </view>
             <view class="text-24rpx">关于我们</view>
@@ -116,7 +116,7 @@
     </wd-card>
 
     <!-- 推荐服务 -->
-    <wd-card>
+    <wd-card custom-class="services-card">
       <template #header>
         <view class="flex-start">
           <wd-icon name="star" size="18" :color="currentThemeColor" />
@@ -129,6 +129,7 @@
           title="会员中心"
           label="解锁更多特权"
           is-link
+          custom-class="service-cell"
           @click="navigateToSection('services', 'vip')"
         >
           <template #icon>
@@ -142,6 +143,7 @@
           title="优惠券"
           label="查看我的优惠券"
           is-link
+          custom-class="service-cell"
           @click="navigateToSection('services', 'coupon')"
         >
           <template #icon>
@@ -155,6 +157,7 @@
           title="邀请有礼"
           label="邀请好友得奖励"
           is-link
+          custom-class="service-cell"
           @click="navigateToSection('services', 'invite')"
         >
           <template #icon>
@@ -326,8 +329,14 @@ const navigateToSection = (section: string, subSection?: string) => {
       width: 70rpx;
       height: 70rpx;
       background-color: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10rpx);
       border-radius: 50%;
-      // 移除无效果的box-shadow
+      transition: all 0.3s ease;
+
+      &:active {
+        background-color: rgba(255, 255, 255, 0.7);
+        transform: scale(0.9);
+      }
     }
 
     // 通知徽章 - 超过5个原子类，使用CSS类
@@ -359,21 +368,53 @@ const navigateToSection = (section: string, subSection?: string) => {
   height: 80rpx;
   background-color: var(--wot-color-bg-light, #f3f4f6);
   border-radius: 16rpx;
-}
-
-// 工具图标
-.tool-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 90rpx;
-  height: 90rpx;
-  background-color: var(--wot-color-bg-light, #f3f4f6);
-  border-radius: 18rpx;
-  transition: transform 0.15s ease;
+  transition: all 0.3s ease;
 
   &:active {
+    background-color: var(--wot-color-theme, #165dff);
     transform: scale(0.95);
+  }
+}
+
+// 数据统计项
+.stats-item {
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:active {
+    background-color: var(--wot-color-bg-light, #f8f9fa);
+    transform: scale(0.98);
+  }
+}
+
+// 卡片动画
+:deep(.stats-card) {
+  margin: 20rpx 30rpx;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+    transform: translateY(-2rpx);
+  }
+}
+
+:deep(.tools-card),
+:deep(.services-card) {
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+    transform: translateY(-2rpx);
+  }
+}
+
+// 服务项动画
+:deep(.service-cell) {
+  transition: all 0.2s ease;
+
+  &:active {
+    background-color: var(--wot-color-bg-light, #f8f9fa) !important;
+    transform: scale(0.98);
   }
 }
 
@@ -390,5 +431,11 @@ const navigateToSection = (section: string, subSection?: string) => {
   font-size: 32rpx !important;
   font-weight: bold !important;
   border-radius: 40rpx !important;
+  transition: all 0.3s ease !important;
+
+  &:active {
+    opacity: 0.8 !important;
+    transform: scale(0.98) !important;
+  }
 }
 </style>

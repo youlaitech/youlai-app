@@ -225,7 +225,31 @@ const iconColor = computed(() => (themeStore.isDark ? "#ffffff" : "#333333"));
 ❌ **不要使用 `@apply` 指令**  
 ❌ **不要把一次性样式放到全局**  
 ❌ **不要使用非语义化的类名**  
-❌ **不要在模板中堆叠超过5个原子类**
+❌ **不要在模板中堆叠超过5个原子类**  
+❌ **不要混用UnoCSS原子类和自定义CSS类** - 一个元素应该只使用原子类或只使用自定义类，避免样式管理混乱
+
+### 混用问题示例
+
+```vue
+<!-- ❌ 错误：混用原子类和自定义类 -->
+<view class="flex-col-center py-20rpx tool-item">内容</view>
+<wd-card custom-class="mx-30rpx my-20rpx stats-card">内容</wd-card>
+
+<!-- ✅ 正确：只使用原子类（≤5个） -->
+<view class="flex-col-center py-20rpx">内容</view>
+
+<!-- ✅ 正确：只使用自定义类 -->
+<view class="tool-item">内容</view>
+<wd-card custom-class="stats-card">内容</wd-card>
+```
+
+### 解决方案
+
+当需要混用时，选择以下方案之一：
+
+1. **原子类数量≤5个**：移除自定义类，只使用原子类
+2. **原子类数量>5个**：将所有样式合并到自定义类中
+3. **语义明确的区域**：优先使用自定义类，将原子类样式合并进去
 
 ## 组件库样式覆盖
 
