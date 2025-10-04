@@ -105,10 +105,17 @@
   </view>
 </template>
 
+<route lang="json">
+{
+  "name": "login",
+  "style": { "navigationStyle": "custom" }
+}
+</route>
+
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { type LoginData } from "@/api/auth";
-import { useUserStore } from "@/store/modules/user.store";
+import { useUserStore } from "@/store/modules/user-store";
 import { useToast } from "wot-design-uni";
 import { useWechat } from "@/composables/useWechat";
 

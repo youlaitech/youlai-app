@@ -1,11 +1,14 @@
 import { defineStore } from "pinia";
-import { useStorage } from "@uni-helper/uni-use";
+import { Storage } from "@/utils/storage";
+import { THEME_MODE_KEY, THEME_COLOR_KEY } from "@/constants";
 import type { ThemeColorOption, ThemeMode } from "@/composables/types/theme";
 import { themeColorOptions } from "@/composables/types/theme";
 
 export const useThemeStore = defineStore("theme", () => {
-  const theme = useStorage<ThemeMode>("app-theme", "light");
-  const currentThemeColor = useStorage<ThemeColorOption>("app-theme-color", themeColorOptions[0]);
+  const theme = ref<ThemeMode>(Storage.get<ThemeMode>(THEME_MODE_KEY, "light"));
+  const currentThemeColor = ref<ThemeColorOption>(
+    Storage.get<ThemeColorOption>(THEME_COLOR_KEY, themeColorOptions[0])
+  );
 
   // 主题变量（响应式对象）
   const themeVars = reactive({
@@ -40,6 +43,7 @@ export const useThemeStore = defineStore("theme", () => {
    */
   const toggleTheme = (mode?: ThemeMode) => {
     theme.value = mode || (theme.value === "light" ? "dark" : "light");
+    Storage.set(THEME_MODE_KEY, theme.value);
     setNavigationBarColor();
   };
 
@@ -49,6 +53,7 @@ export const useThemeStore = defineStore("theme", () => {
    */
   const setCurrentThemeColor = (color: ThemeColorOption) => {
     currentThemeColor.value = color;
+    Storage.set(THEME_COLOR_KEY, color);
     themeVars.colorTheme = color.primary;
     console.log("主题色已设置:", color.name);
   };

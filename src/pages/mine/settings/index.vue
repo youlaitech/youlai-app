@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useUserStore } from "@/store/modules/user.store";
+import { useUserStore } from "@/store";
 import { checkLogin } from "@/utils/auth";
 import { onLoad } from "@dcloudio/uni-app";
 

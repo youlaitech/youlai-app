@@ -33,7 +33,7 @@ export const Storage = {
 };
 
 // 为了向后兼容，导出具体的函数
-import { ACCESS_TOKEN_KEY, USER_INFO_KEY } from "@/constants";
+import { ACCESS_TOKEN_KEY, USER_INFO_KEY, THEME_MODE_KEY, THEME_COLOR_KEY } from "@/constants";
 
 /**
  * 获取令牌
@@ -69,4 +69,6 @@ export function setUserInfo(userInfo: any): void {
 export function clearAll(): void {
   Storage.remove(ACCESS_TOKEN_KEY);
   Storage.remove(USER_INFO_KEY);
+  Storage.remove(THEME_MODE_KEY);
+  Storage.remove(THEME_COLOR_KEY);
 }

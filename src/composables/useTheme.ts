@@ -1,6 +1,6 @@
 import type { ThemeColorOption, ThemeMode } from "@/composables/types/theme";
 import { themeColorOptions } from "@/composables/types/theme";
-import { useThemeStore } from "@/store/modules/theme.store";
+import { useThemeStore } from "@/store";
 
 export function useTheme() {
   const store = useThemeStore();
