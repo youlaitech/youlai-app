@@ -7,7 +7,7 @@ export default defineUniPages({
   globalStyle: {
     navigationBarBackgroundColor: "@navBgColor",
     navigationBarTextStyle: "@navTxtStyle",
-    navigationBarTitleText: "Wot-Demo",
+    navigationBarTitleText: "vue-uniapp-template",
     backgroundColor: "@bgColor",
     backgroundTextStyle: "@bgTxtStyle",
     backgroundColorTop: "@bgColorTop",

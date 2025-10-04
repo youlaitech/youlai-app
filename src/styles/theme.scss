@@ -1,0 +1,48 @@
+/* 默认主题 (light) */
+:root,
+page {
+  /* 官方主题变量 */
+  --wot-color-theme: #4d80f0;
+  --wot-color-success: #34d19d;
+  --wot-color-warning: #f0883a;
+  --wot-color-danger: #ff4757;
+
+  /* 自定义扩展变量 */
+  --wot-button-normal-bg: #ffffff;
+  --wot-card-bg: #ffffff;
+  --wot-color-bg-light: #f3f4f6;
+  --wot-dark-color: #333333;
+
+  /* 文本颜色变量 */
+  --wot-color-text: #333333;
+  --wot-color-text-secondary: #666666;
+  --wot-color-text-placeholder: #999999;
+
+  /* 边框和背景变量 */
+  --wot-color-border: #e5e7eb;
+  --wot-color-bg-container: #f5f5f5;
+}
+
+/* 暗黑主题 (dark) */
+.wot-theme-dark {
+  /* 官方主题变量 */
+  --wot-color-theme: #1a73e8;
+  --wot-color-success: #28a745;
+  --wot-color-warning: #ffc107;
+  --wot-color-danger: #ff4757;
+
+  /* 自定义扩展变量 */
+  --wot-button-normal-bg: #2a2a2a;
+  --wot-card-bg: #1b1b1b;
+  --wot-color-bg-light: #2a2a2a;
+  --wot-dark-color: #ffffff;
+
+  /* 暗黑模式下的文本颜色变量 */
+  --wot-color-text: #ffffff;
+  --wot-color-text-secondary: #cccccc;
+  --wot-color-text-placeholder: #999999;
+
+  /* 暗黑模式下的边框和背景变量 */
+  --wot-color-border: #374151;
+  --wot-color-bg-container: #111111;
+}

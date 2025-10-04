@@ -1,132 +1,134 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-dark-color)]">
-    <!-- 页面标题 -->
-    <view class="page-header">
-      <text class="page-title">主题设置</text>
-      <text class="page-subtitle">个性化您的应用外观</text>
-    </view>
-
+  <view class="app-container">
     <!-- 暗黑模式设置 -->
-    <wd-card class="setting-section">
-      <view class="section-header">
-        <wd-icon name="moon" size="20" :color="isDarkMode ? '#FFD700' : '#666'" />
-        <text class="section-title">外观模式</text>
-      </view>
+    <wd-card custom-class="mx-30rpx my-20rpx">
+      <template #header>
+        <view class="flex-start">
+          <wd-icon name="moon" size="20" :color="isDarkMode ? '#FFD700' : '#666'" />
+          <text class="ml-12rpx text-28rpx font-600">外观模式</text>
+        </view>
+      </template>
+
       <wd-cell title="暗黑模式" :value="isDarkMode ? '已开启' : '已关闭'">
         <wd-switch :model-value="isDarkMode" @change="handleToggleDarkMode" />
       </wd-cell>
     </wd-card>
 
     <!-- 主题色设置 -->
-    <wd-card class="setting-section">
-      <view class="section-header">
-        <wd-icon name="palette" size="20" color="#666" />
-        <text class="section-title">主题色彩</text>
-      </view>
+    <wd-card custom-class="mx-30rpx my-20rpx">
+      <template #header>
+        <view class="flex-start">
+          <wd-icon name="palette" size="20" color="#666" />
+          <text class="ml-12rpx text-28rpx font-600">主题色彩</text>
+        </view>
+      </template>
 
       <!-- 预设颜色选择 -->
-      <view class="color-section">
-        <text class="color-label">预设主题色</text>
-        <view class="color-grid">
-          <view
+      <view class="theme-colors">
+        <view class="theme-colors__label">预设主题色</view>
+        <wd-grid :column="3" border>
+          <wd-grid-item
             v-for="(color, index) in themeColorOptions"
             :key="index"
-            class="color-item"
-            :class="{ active: currentThemeColor === color.primary }"
             @click="handleSelectColor(color)"
           >
-            <view
-              class="color-preview"
-              :style="{
-                backgroundColor: color.primary,
-                border:
-                  currentThemeColor === color.primary ? '3px solid #fff' : '1px solid #e0e0e0',
-              }"
-            >
-              <text v-if="currentThemeColor === color.primary" class="check-icon">✓</text>
+            <view class="theme-colors__item">
+              <view
+                class="theme-colors__preview"
+                :class="{ 'theme-colors__preview--active': currentThemeColor === color.primary }"
+                :style="{ backgroundColor: color.primary }"
+              >
+                <text v-if="currentThemeColor === color.primary" class="theme-colors__check">
+                  ✓
+                </text>
+              </view>
+              <text class="theme-colors__name">{{ color.name }}</text>
             </view>
-            <text class="color-name">{{ color.name }}</text>
-          </view>
-        </view>
+          </wd-grid-item>
+        </wd-grid>
       </view>
 
       <!-- 当前主题色显示 -->
-      <view class="current-theme-section">
-        <view class="current-theme-item">
-          <text class="current-theme-label">当前主题色</text>
-          <view class="current-theme-value">
+      <view class="current-theme">
+        <view class="current-theme__item">
+          <view class="current-theme__info">
             <view
-              class="current-color-preview"
+              class="current-theme__preview"
               :style="{ backgroundColor: currentThemeColor }"
             ></view>
-            <text class="current-color-text">{{ currentThemeColor }}</text>
+            <text class="current-theme__label">当前主题色</text>
           </view>
+          <text class="current-theme__value">{{ currentThemeColor }}</text>
         </view>
       </view>
 
       <!-- 自定义颜色 -->
       <wd-cell title="自定义颜色" is-link @click="showCustomInput">
-        <wd-icon name="edit" size="16" color="#999" />
+        <template #icon>
+          <wd-icon name="edit" size="16" :color="themeStore.isDark ? '#fff' : '#999'" />
+        </template>
       </wd-cell>
     </wd-card>
 
-    <!-- 预览区域 -->
-    <wd-card class="setting-section">
-      <view class="section-header">
-        <wd-icon name="eye" size="20" />
-        <text class="section-title">效果预览</text>
-      </view>
-
-      <wd-divider />
-
-      <wd-grid :column="2" border>
+    <!-- 效果预览 -->
+    <wd-card title="效果预览" custom-class="mx-30rpx my-20rpx">
+      <wd-grid :column="3" border>
         <wd-grid-item>
-          <wd-button type="primary">主要按钮</wd-button>
+          <view class="flex-col-center py-20rpx">
+            <wd-button type="primary" size="small">主要按钮</wd-button>
+          </view>
         </wd-grid-item>
         <wd-grid-item>
-          <text class="preview-text" :style="{ color: currentThemeColor }">主题色文本</text>
+          <view class="flex-col-center py-20rpx">
+            <text class="text-28rpx font-500" :style="{ color: currentThemeColor }">
+              主题色文本
+            </text>
+          </view>
         </wd-grid-item>
         <wd-grid-item>
-          <view class="preview-border" :style="{ borderColor: currentThemeColor }">主题色边框</view>
-        </wd-grid-item>
-        <wd-grid-item>
-          <wd-tag type="primary" size="small">标签</wd-tag>
+          <view class="flex-col-center py-20rpx">
+            <wd-tag type="primary" size="small">标签</wd-tag>
+          </view>
         </wd-grid-item>
       </wd-grid>
     </wd-card>
 
     <!-- 操作按钮 -->
-    <wd-card class="action-section">
+    <view class="p-30rpx">
       <wd-button type="info" size="large" block @click="handleResetTheme">重置为默认主题</wd-button>
-    </wd-card>
+    </view>
 
     <!-- 自定义颜色输入弹窗 -->
     <wd-popup v-model="showCustomColorInput" position="bottom" :safe-area-inset-bottom="true">
       <view class="custom-color-popup">
-        <view class="popup-header">
-          <text class="popup-title">自定义主题色</text>
-          <wd-icon name="close" size="20" color="#999" @click="showCustomColorInput = false" />
+        <view class="custom-color-popup__header">
+          <text class="custom-color-popup__title">自定义主题色</text>
+          <wd-icon
+            name="close"
+            size="20"
+            :color="themeStore.isDark ? '#999' : '#666'"
+            @click="showCustomColorInput = false"
+          />
         </view>
 
-        <wd-divider />
-
-        <view class="color-input-section">
-          <view class="input-label">请输入十六进制颜色值</view>
-          <view class="input-container">
-            <view class="color-preview-small" :style="{ backgroundColor: customColor }"></view>
+        <view class="custom-color-popup__content">
+          <text class="custom-color-popup__label">请输入十六进制颜色值</text>
+          <view class="custom-color-popup__input-row">
+            <view
+              class="custom-color-popup__preview"
+              :style="{ backgroundColor: customColor || '#FF4757' }"
+            ></view>
             <wd-input
               v-model="customColor"
-              placeholder="例如: #165DFF"
+              placeholder="例如: #FF4757"
               :maxlength="7"
-              class="color-input"
+              custom-class="custom-color-popup__input"
             />
           </view>
-          <view class="input-tip">支持格式：#RGB 或 #RRGGBB</view>
+          <text class="custom-color-popup__tip">支持格式：#RGB 或 #RRGGBB</text>
         </view>
 
-        <wd-divider />
-
-        <view class="popup-actions">
+        <view class="custom-color-popup__actions">
           <wd-button type="info" size="large" @click="showCustomColorInput = false">取消</wd-button>
           <wd-button type="primary" size="large" @click="applyCustomColor">应用</wd-button>
         </view>
@@ -198,7 +200,7 @@ const applyCustomColor = () => {
     primary: color,
   };
 
-  setCurrentThemeColor(customColorOption);
+  setThemeColor(customColorOption);
   showCustomColorInput.value = false;
 
   // 提示
@@ -265,217 +267,152 @@ onShow(() => {
 </route>
 
 <style lang="scss" scoped>
-// 基础布局
-.page-header {
-  padding: 40rpx 20rpx;
-  margin-bottom: 30rpx;
-  text-align: center;
-  background: linear-gradient(135deg, var(--wot-color-theme, #165dff) 0%, #667eea 100%);
-  border-radius: 16rpx;
-
-  .page-title {
-    display: block;
-    margin-bottom: 10rpx;
-    font-size: 36rpx;
-    font-weight: bold;
-    color: #fff;
-  }
-
-  .page-subtitle {
-    font-size: 26rpx;
-    color: rgba(255, 255, 255, 0.8);
-  }
-}
-
-.setting-section {
-  margin-bottom: 30rpx;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  padding: 30rpx 30rpx 20rpx;
-  border-bottom: 1rpx solid var(--wot-color-border, #f0f0f0);
-
-  .section-title {
-    margin-left: 12rpx;
-    font-size: 32rpx;
-    font-weight: 600;
-    color: var(--wot-color-text, #333);
-  }
-}
-
-// 颜色选择区域
-.color-section {
+// 主题颜色选择区域
+.theme-colors {
   padding: 30rpx;
 
-  .color-label {
+  &__label {
+    display: block;
     margin-bottom: 20rpx;
     font-size: 28rpx;
-    color: var(--wot-color-text-secondary, #666);
+    color: var(--wot-color-text-secondary);
   }
 
-  .color-grid {
+  &__item {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20rpx;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    padding: 10rpx;
   }
-}
 
-.color-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: calc(25% - 15rpx);
-  padding: 10rpx;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  .color-preview {
+  &__preview {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 60rpx;
     height: 60rpx;
     margin-bottom: 8rpx;
+    border: 2rpx solid var(--wot-color-border);
     border-radius: 12rpx;
-    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 
-    .check-icon {
-      font-size: 24rpx;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.5);
+    &--active {
+      border-color: var(--wot-color-theme);
+      box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
+      transform: scale(1.05);
     }
   }
 
-  .color-name {
+  &__check {
+    font-size: 24rpx;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.5);
+  }
+
+  &__name {
     font-size: 22rpx;
     color: var(--wot-color-text-secondary);
     text-align: center;
   }
-
-  &.active .color-preview {
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
-    transform: scale(1.05);
-  }
-
-  &:active .color-preview {
-    transform: scale(0.95);
-  }
 }
 
-// 当前主题色显示
-.current-theme-section {
+// 当前主题色显示区域
+.current-theme {
   padding: 30rpx;
+  border-bottom: 1rpx solid var(--wot-color-border);
 
-  .current-theme-item {
+  &__item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    .current-theme-label {
-      font-size: 28rpx;
-      color: var(--wot-color-text-secondary, #666);
-    }
-
-    .current-theme-value {
-      display: flex;
-      align-items: center;
-
-      .current-color-preview {
-        width: 40rpx;
-        height: 40rpx;
-        border: 2rpx solid var(--wot-color-border, #f0f0f0);
-        border-radius: 8rpx;
-      }
-
-      .current-color-text {
-        margin-left: 10rpx;
-        font-size: 28rpx;
-        font-weight: 500;
-      }
-    }
   }
-}
 
-// 效果预览
-.preview-text {
-  font-size: 28rpx;
-  font-weight: 500;
-}
+  &__info {
+    display: flex;
+    align-items: center;
+  }
 
-.preview-border {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 200rpx;
-  height: 60rpx;
-  font-size: 26rpx;
-  color: var(--wot-color-text-secondary, #666);
-  border: 2rpx solid;
-  border-radius: 8rpx;
+  &__preview {
+    width: 40rpx;
+    height: 40rpx;
+    margin-right: 12rpx;
+    border: 2rpx solid var(--wot-color-border);
+    border-radius: 8rpx;
+  }
+
+  &__label {
+    font-size: 28rpx;
+    color: var(--wot-color-text);
+  }
+
+  &__value {
+    font-size: 28rpx;
+    font-weight: 500;
+    color: var(--wot-color-text-secondary);
+  }
 }
 
 // 自定义颜色弹窗
 .custom-color-popup {
-  padding: 40rpx 30rpx;
-  background: var(--wot-popup-bg-color, #fff);
+  min-height: 400rpx;
+  background-color: var(--wot-card-bg);
   border-radius: 20rpx 20rpx 0 0;
 
-  .popup-header {
+  &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 30rpx;
-
-    .popup-title {
-      font-size: 32rpx;
-      font-weight: 600;
-      color: var(--wot-color-text, #333);
-    }
+    padding: 30rpx;
+    border-bottom: 1rpx solid var(--wot-color-border);
   }
 
-  .color-input-section {
-    margin-bottom: 40rpx;
-
-    .input-label {
-      margin-bottom: 20rpx;
-      font-size: 28rpx;
-      color: var(--wot-color-text-secondary, #666);
-    }
-
-    .input-container {
-      display: flex;
-      gap: 20rpx;
-      align-items: center;
-      margin-bottom: 10rpx;
-
-      .color-preview-small {
-        flex-shrink: 0;
-        width: 60rpx;
-        height: 60rpx;
-        border: 2rpx solid var(--wot-color-border, #f0f0f0);
-        border-radius: 8rpx;
-      }
-
-      .color-input {
-        flex: 1;
-      }
-    }
-
-    .input-tip {
-      margin-left: 80rpx;
-      font-size: 24rpx;
-      color: var(--wot-color-text-placeholder, #999);
-    }
+  &__title {
+    font-size: 32rpx;
+    font-weight: 600;
+    color: var(--wot-color-text);
   }
 
-  .popup-actions {
+  &__content {
+    padding: 40rpx 30rpx;
+  }
+
+  &__label {
+    display: block;
+    margin-bottom: 20rpx;
+    font-size: 28rpx;
+    color: var(--wot-color-text);
+  }
+
+  &__input-row {
     display: flex;
     gap: 20rpx;
+    align-items: center;
+    margin-bottom: 20rpx;
+  }
+
+  &__preview {
+    flex-shrink: 0;
+    width: 60rpx;
+    height: 60rpx;
+    border: 2rpx solid var(--wot-color-border);
+    border-radius: 8rpx;
+  }
+
+  &__input {
+    flex: 1;
+  }
+
+  &__tip {
+    font-size: 24rpx;
+    color: var(--wot-color-text-placeholder);
+  }
+
+  &__actions {
+    display: flex;
+    gap: 20rpx;
+    padding: 20rpx 30rpx 30rpx;
+    border-top: 1rpx solid var(--wot-color-border);
   }
 }
 </style>

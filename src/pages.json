@@ -11,7 +11,10 @@
     },
     {
       "path": "pages/login/index",
-      "type": "page"
+      "type": "page",
+      "style": {
+        "navigationStyle": "custom"
+      }
     },
     {
       "path": "pages/mine/index",
@@ -96,7 +99,7 @@
   "globalStyle": {
     "navigationBarBackgroundColor": "@navBgColor",
     "navigationBarTextStyle": "@navTxtStyle",
-    "navigationBarTitleText": "Wot-Demo",
+    "navigationBarTitleText": "vue-uniapp-template",
     "backgroundColor": "@bgColor",
     "backgroundTextStyle": "@bgTxtStyle",
     "backgroundColorTop": "@bgColorTop",
@@ -124,6 +127,5 @@
       }
     ]
   },
-  "__esModule": true,
   "subPackages": []
 }
