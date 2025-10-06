@@ -1,8 +1,9 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-dark-color)]">
+  <view class="app-container dark:text-[var(--wot-color-text)]">
     <!-- 用户信息卡片 -->
     <view class="user-profile">
       <view class="blur-bg"></view>
+
       <view class="user-info">
         <view class="avatar-container" @click="navigateToProfile">
           <image
@@ -30,17 +31,15 @@
             </wd-button>
           </block>
         </view>
-        <view class="flex">
-          <view class="user-profile__action" @click="navigateToSettings">
-            <wd-icon name="setting1" size="22" :color="themeStore.isDark ? '#fff' : '#333'" />
+
+        <!-- 操作按钮区域 - 放在用户信息右侧 -->
+        <view class="action-buttons">
+          <view class="action-btn" @click="navigateToSettings">
+            <wd-icon name="setting1" size="22" />
           </view>
-          <view
-            v-if="isLogin"
-            class="user-profile__action relative ml-16rpx"
-            @click="navigateToSection('messages')"
-          >
+          <view v-if="isLogin" class="action-btn relative" @click="navigateToSection('messages')">
             <wd-icon name="notification" size="22" />
-            <view v-if="true" class="user-profile__badge">2</view>
+            <view v-if="true" class="action-badge">2</view>
           </view>
         </view>
       </view>
@@ -71,7 +70,7 @@
     </wd-card>
 
     <!-- 常用工具 -->
-    <wd-card custom-class="tools-card">
+    <wd-card>
       <template #header>
         <view class="flex-start">
           <wd-icon name="tools" size="18" :color="currentThemeColor" />
@@ -116,7 +115,7 @@
     </wd-card>
 
     <!-- 推荐服务 -->
-    <wd-card custom-class="services-card">
+    <wd-card>
       <template #header>
         <view class="flex-start">
           <wd-icon name="star" size="18" :color="currentThemeColor" />
@@ -170,13 +169,21 @@
     </wd-card>
 
     <!-- 退出登录按钮 -->
-    <view v-if="isLogin">
+    <view v-if="isLogin" class="flex-center mt-20rpx">
       <wd-button custom-class="logout-button" plain @click="handleLogout">退出登录</wd-button>
     </view>
 
     <wd-toast />
   </view>
 </template>
+
+<route lang="json">
+{
+  "name": "mine",
+  "style": { "navigationStyle": "custom" },
+  "layout": "tabbar"
+}
+</route>
 
 <script lang="ts" setup>
 import { useToast } from "wot-design-uni";
@@ -255,19 +262,11 @@ const navigateToSection = (section: string, subSection?: string) => {
 };
 </script>
 
-<route lang="json">
-{
-  "name": "mine",
-  "style": { "navigationStyle": "custom" },
-  "layout": "tabbar"
-}
-</route>
-
 <style lang="scss" scoped>
 // 用户信息卡片
 .user-profile {
   position: relative;
-  padding: 30rpx;
+  padding: calc(var(--status-bar-height) + 80rpx) 30rpx 30rpx; // 顶部：状态栏高度 + 操作按钮区域(80rpx)
   overflow: hidden;
 
   .blur-bg {
@@ -276,7 +275,7 @@ const navigateToSection = (section: string, subSection?: string) => {
     right: 0;
     left: 0;
     z-index: 0;
-    height: 240rpx;
+    height: 320rpx;
     background: linear-gradient(135deg, var(--wot-color-theme, #165dff) 0%, #667eea 100%);
   }
 
@@ -321,30 +320,29 @@ const navigateToSection = (section: string, subSection?: string) => {
       }
     }
 
-    // BEM命名规范的用户操作按钮
-    .user-profile__action {
+    // 操作按钮区域
+    .action-buttons {
+      display: flex;
+      gap: 16rpx;
+      margin-left: auto;
+    }
+
+    .action-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 70rpx;
       height: 70rpx;
-      background-color: rgba(255, 255, 255, 0.9);
+      background-color: rgba(255, 255, 255, 0.25);
       backdrop-filter: blur(10rpx);
       border-radius: 50%;
-      transition: all 0.3s ease;
-
-      &:active {
-        background-color: rgba(255, 255, 255, 0.7);
-        transform: scale(0.9);
-      }
     }
 
-    // 通知徽章 - 超过5个原子类，使用CSS类
-    .user-profile__badge {
+    .action-badge {
       position: absolute;
       top: -6rpx;
       right: -6rpx;
-      z-index: 2;
+      z-index: 3;
       min-width: 32rpx;
       height: 32rpx;
       padding: 0 6rpx;
@@ -352,11 +350,15 @@ const navigateToSection = (section: string, subSection?: string) => {
       line-height: 32rpx;
       color: #fff;
       text-align: center;
-      background-color: #ff4757; // 明确的红色
+      background-color: #ff4757;
       border: 2rpx solid #fff;
       border-radius: 16rpx;
     }
   }
+}
+
+:deep(.stats-card) {
+  margin: 20rpx 30rpx !important;
 }
 
 // 服务图标
@@ -366,56 +368,8 @@ const navigateToSection = (section: string, subSection?: string) => {
   justify-content: center;
   width: 80rpx;
   height: 80rpx;
-  background-color: var(--wot-color-bg-light, #f3f4f6);
+  background-color: var(--wot-color-bg-light);
   border-radius: 16rpx;
-  transition: all 0.3s ease;
-
-  &:active {
-    background-color: var(--wot-color-theme, #165dff);
-    transform: scale(0.95);
-  }
-}
-
-// 数据统计项
-.stats-item {
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:active {
-    background-color: var(--wot-color-bg-light, #f8f9fa);
-    transform: scale(0.98);
-  }
-}
-
-// 卡片动画
-:deep(.stats-card) {
-  margin: 20rpx 30rpx;
-  transition: all 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
-    transform: translateY(-2rpx);
-  }
-}
-
-:deep(.tools-card),
-:deep(.services-card) {
-  transition: all 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
-    transform: translateY(-2rpx);
-  }
-}
-
-// 服务项动画
-:deep(.service-cell) {
-  transition: all 0.2s ease;
-
-  &:active {
-    background-color: var(--wot-color-bg-light, #f8f9fa) !important;
-    transform: scale(0.98);
-  }
 }
 
 // 登录按钮样式
@@ -426,7 +380,7 @@ const navigateToSection = (section: string, subSection?: string) => {
 
 // 退出登录按钮样式
 :deep(.logout-button) {
-  width: 100% !important;
+  width: 80% !important;
   height: 80rpx !important;
   font-size: 32rpx !important;
   font-weight: bold !important;

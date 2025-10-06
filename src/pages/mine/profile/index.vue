@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-dark-color)]">
+  <view class="app-container dark:text-[var(--wot-color-text)]">
     <wd-card v-if="userProfile" custom-style="margin-top: 20rpx">
       <wd-cell-group border>
         <wd-cell class="avatar-cell" title="头像" center is-link>

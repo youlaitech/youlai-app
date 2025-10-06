@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-dark-color)]">
+  <view class="app-container dark:text-[var(--wot-color-text)]">
     <view>
       <view class="text-center font-600">
         <text>长按关注「有来技术」公众号，获取交流群二维码。</text>

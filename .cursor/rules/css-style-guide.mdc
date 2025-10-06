@@ -145,7 +145,7 @@ page {
 ```scss
 // ✅ 推荐：使用wot内置变量
 .my-component {
-  background-color: var(--wot-card-bg);
+  background-color: var(--wot-color-bg);
   color: var(--wot-color-text);
 }
 

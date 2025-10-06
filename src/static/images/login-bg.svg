@@ -1,4 +1,4 @@
-<svg width="100%" height="100%" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+<svg width="100%" height="100%" viewBox="0 0 750 1334" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
   <!-- 背景渐变 -->
   <defs>
     <!-- 主背景渐变 - 蓝色系 -->
@@ -31,18 +31,18 @@
   <rect width="100%" height="50%" fill="url(#bgGradient)" />
   
   <!-- 左侧装饰图形 -->
-  <rect x="100" y="150" width="120" height="120" rx="15" fill="url(#shapeGradient)" transform="rotate(-10, 160, 210)" opacity="0.7" />
-  <rect x="190" y="90" width="80" height="80" rx="10" fill="url(#shapeGradient)" transform="rotate(15, 230, 130)" opacity="0.6" />
-  <rect x="60" y="250" width="100" height="100" rx="10" fill="url(#shapeGradient)" transform="rotate(-5, 110, 300)" opacity="0.5" />
+  <rect x="60" y="120" width="110" height="110" rx="15" fill="url(#shapeGradient)" transform="rotate(-10, 115, 175)" opacity="0.7" />
+  <rect x="140" y="70" width="75" height="75" rx="10" fill="url(#shapeGradient)" transform="rotate(15, 177, 107)" opacity="0.6" />
+  <rect x="30" y="220" width="90" height="90" rx="10" fill="url(#shapeGradient)" transform="rotate(-5, 75, 265)" opacity="0.5" />
   
-  <!-- 右侧装饰图形 -->
-  <circle cx="750" cy="150" r="60" fill="url(#shapeGradient)" opacity="0.7" />
-  <circle cx="820" cy="230" r="90" fill="url(#shapeGradient)" opacity="0.5" />
-  <circle cx="690" cy="250" r="40" fill="url(#shapeGradient)" opacity="0.6" />
+  <!-- 右侧装饰图形（对称） -->
+  <circle cx="635" cy="120" r="55" fill="url(#shapeGradient)" opacity="0.7" />
+  <circle cx="573" cy="70" r="37" fill="url(#shapeGradient)" opacity="0.6" />
+  <circle cx="675" cy="220" r="45" fill="url(#shapeGradient)" opacity="0.5" />
   
   <!-- 底部波浪形状，适配深色和浅色模式 -->
-  <path d="M0,900 C200,800 350,950 550,870 C750,790 850,900 1000,850 L1000,1000 L0,1000 Z" fill="url(#waveGradient)" class="wave-light" />
-  <path d="M0,900 C200,800 350,950 550,870 C750,790 850,900 1000,850 L1000,1000 L0,1000 Z" fill="#1A1A1A" opacity="0" class="wave-dark" />
+  <path d="M0,1200 C150,1100 260,1250 410,1150 C560,1050 640,1180 750,1150 L750,1334 L0,1334 Z" fill="url(#waveGradient)" class="wave-light" />
+  <path d="M0,1200 C150,1100 260,1250 410,1150 C560,1050 640,1180 750,1150 L750,1334 L0,1334 Z" fill="#1A1A1A" opacity="0" class="wave-dark" />
 
   <style>
     @media (prefers-color-scheme: dark) {

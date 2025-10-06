@@ -1,5 +1,5 @@
 <template>
-  <view class="login-page dark:text-[var(--wot-dark-color)]">
+  <view class="login-page dark:text-[var(--wot-color-text)]">
     <!-- 背景图 -->
     <image src="/static/images/login-bg.svg" mode="aspectFill" class="login-page__bg" />
 
@@ -294,9 +294,9 @@ const navigateToPrivacy = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center; // 垂直居中
   min-height: 100vh;
   overflow: hidden;
-  background-color: var(--wot-color-bg-container);
 
   // 背景图
   &__bg {
@@ -313,11 +313,13 @@ const navigateToPrivacy = () => {
 .login-card {
   position: relative;
   z-index: 2;
-  width: 80%; // 进一步减少宽度，增加更多左右间距
-  padding: 40rpx;
-  margin-top: 200rpx;
-  background-color: var(--wot-card-bg);
+  width: 80%;
+  max-width: 600rpx; // 限制最大宽度
+  padding: 50rpx 40rpx;
+  background-color: var(--wot-color-bg);
+  border: 1rpx solid var(--wot-color-border);
   border-radius: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
 }
 
 // 登录表单

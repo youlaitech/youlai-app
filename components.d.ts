@@ -40,6 +40,7 @@ declare module 'vue' {
     WdProgress: typeof import('wot-design-uni/components/wd-progress/wd-progress.vue')['default']
     WdRadio: typeof import('wot-design-uni/components/wd-radio/wd-radio.vue')['default']
     WdRadioGroup: typeof import('wot-design-uni/components/wd-radio-group/wd-radio-group.vue')['default']
+    WdSearch: typeof import('wot-design-uni/components/wd-search/wd-search.vue')['default']
     WdStatusTip: typeof import('wot-design-uni/components/wd-status-tip/wd-status-tip.vue')['default']
     WdSwiper: typeof import('wot-design-uni/components/wd-swiper/wd-swiper.vue')['default']
     WdSwitch: typeof import('wot-design-uni/components/wd-switch/wd-switch.vue')['default']

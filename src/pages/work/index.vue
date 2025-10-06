@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-dark-color)]">
+  <view class="app-container dark:text-[var(--wot-color-text)]">
     <wd-status-tip type="search" tip="建设中..." />
   </view>
 </template>

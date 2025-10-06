@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-dark-color)]">
+  <view class="app-container dark:text-[var(--wot-color-text)]">
     <wd-text size="small">选填，最多上传3张图片</wd-text>
     <wd-form ref="formRef" :model="formData" :rules="rules">
       <wd-form-item label="问题类型" prop="feedbackType">

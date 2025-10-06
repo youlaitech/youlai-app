@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-dark-color)]">
+  <view class="app-container dark:text-[var(--wot-color-text)]">
     <wd-cell-group>
       <wd-cell v-if="isLogin" title="个人资料" icon="user" is-link @click="navigateToProfile" />
       <wd-cell
@@ -26,7 +26,7 @@
     </wd-cell-group>
 
     <view v-if="isLogin" class="logout-section">
-      <wd-button class="logout-btn" @click="handleLogout">退出登录</wd-button>
+      <wd-button custom-class="logout-btn" plain @click="handleLogout">退出登录</wd-button>
     </view>
 
     <!-- 使用wot-design-uni的Loading组件 -->
@@ -210,27 +210,21 @@ onLoad(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 20rpx;
   margin-top: 60rpx;
 }
 
-.logout-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 90%;
-  height: 90rpx;
-  font-size: 32rpx;
-  font-weight: 500;
-  color: #fff;
-  background-color: var(--wot-color-theme, var(--primary-color));
-  border: none;
-  border-radius: 45rpx;
-  box-shadow: 0 4rpx 12rpx rgba(22, 93, 255, 0.3);
-  transition: opacity 0.2s;
+// 退出登录按钮样式
+:deep(.logout-btn) {
+  width: 80% !important;
+  height: 80rpx !important;
+  font-size: 32rpx !important;
+  font-weight: bold !important;
+  border-radius: 40rpx !important;
+  transition: all 0.3s ease !important;
 
   &:active {
-    opacity: 0.85;
+    opacity: 0.8 !important;
+    transform: scale(0.98) !important;
   }
 }
 

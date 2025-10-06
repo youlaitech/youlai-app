@@ -1,5 +1,26 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-dark-color)]">
+  <view class="app-container dark:text-[var(--wot-color-text)]">
+    <!-- 自定义导航栏 -->
+    <view class="custom-navbar">
+      <!-- 状态栏占位 -->
+      <view :style="{ height: statusBarHeight + 'px' }"></view>
+      <!-- 导航栏内容 -->
+      <view class="navbar-content">
+        <wd-search
+          v-model="searchValue"
+          :custom-style="`width: ${searchWidth}`"
+          placeholder="搜索"
+          :placeholder-left="true"
+          hide-cancel
+          disabled
+          @click="handleSearch"
+        />
+      </view>
+    </view>
+    <!-- 占位符，避免内容被固定导航栏遮挡 -->
+    <view class="navbar-placeholder" :style="{ paddingTop: statusBarHeight + 'px' }"></view>
+
+    <!-- 轮播图 -->
     <wd-swiper
       v-model:current="current"
       :list="swiperList"
@@ -104,6 +125,36 @@ interface VisitStatsVO {
 const router = useRouter();
 const current = ref<number>(0);
 
+// 搜索相关
+const searchValue = ref("");
+
+// 导航栏相关数据
+const statusBarHeight = ref(0); // 状态栏高度
+const navBarHeight = ref(88); // 导航栏高度（rpx）
+const searchWidth = ref("100%"); // 搜索框宽度
+
+// 初始化导航栏信息
+onMounted(() => {
+  const systemInfo = uni.getSystemInfoSync();
+  statusBarHeight.value = systemInfo.statusBarHeight || 0;
+
+  // #ifdef MP-WEIXIN
+  // 微信小程序：获取胶囊按钮信息
+  const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
+  // 计算导航栏高度：(胶囊底部 - 状态栏高度) + (胶囊顶部 - 状态栏高度)
+  navBarHeight.value =
+    menuButtonInfo.bottom - statusBarHeight.value + (menuButtonInfo.top - statusBarHeight.value);
+  // 搜索框宽度：胶囊左侧位置 - 左右边距
+  searchWidth.value = `${menuButtonInfo.left - 30}px`;
+  // #endif
+
+  // #ifdef H5 || APP-PLUS
+  // H5 和 App 使用默认高度和 100% 宽度
+  navBarHeight.value = 88;
+  searchWidth.value = "100%";
+  // #endif
+});
+
 const visitStatsData = ref<VisitStatsVO>({
   todayUvCount: 1234,
   uvGrowthRate: 15.6,
@@ -170,6 +221,14 @@ const navList = reactive([
     prem: "sys:config:query",
   },
 ]);
+
+// 处理搜索
+function handleSearch() {
+  uni.showToast({
+    title: "搜索功能开发中",
+    icon: "none",
+  });
+}
 
 // 处理导航点击
 function handleNavClick(item: any) {
@@ -267,4 +326,29 @@ onReady(() => {
   "layout": "tabbar"
 }
 </route>
-<style setup lang="scss"></style>
+<style lang="scss" scoped>
+// 自定义导航栏
+.custom-navbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 999;
+  background-color: var(--wot-color-bg);
+}
+
+// 占位符，避免内容被固定导航栏遮挡
+.navbar-placeholder {
+  height: 88rpx;
+}
+
+.navbar-content {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 88rpx;
+  padding: 0 20rpx;
+  background-color: var(--wot-color-bg);
+}
+</style>

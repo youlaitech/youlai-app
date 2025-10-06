@@ -1,10 +1,10 @@
 <template>
-  <view class="app-container">
+  <view class="app-container dark:text-[var(--wot-color-text)]">
     <!-- 暗黑模式设置 -->
     <wd-card custom-class="mx-30rpx my-20rpx">
       <template #header>
         <view class="flex-start">
-          <wd-icon name="moon" size="20" :color="isDarkMode ? '#FFD700' : '#666'" />
+          <wd-icon name="moon" size="20" />
           <text class="ml-12rpx text-28rpx font-600">外观模式</text>
         </view>
       </template>
@@ -18,7 +18,7 @@
     <wd-card custom-class="mx-30rpx my-20rpx">
       <template #header>
         <view class="flex-start">
-          <wd-icon name="palette" size="20" color="#666" />
+          <wd-icon name="palette" size="20" />
           <text class="ml-12rpx text-28rpx font-600">主题色彩</text>
         </view>
       </template>
@@ -65,7 +65,7 @@
       <!-- 自定义颜色 -->
       <wd-cell title="自定义颜色" is-link @click="showCustomInput">
         <template #icon>
-          <wd-icon name="edit" size="16" :color="themeStore.isDark ? '#fff' : '#999'" />
+          <wd-icon name="edit" size="16" />
         </template>
       </wd-cell>
     </wd-card>
@@ -103,12 +103,7 @@
       <view class="custom-color-popup">
         <view class="custom-color-popup__header">
           <text class="custom-color-popup__title">自定义主题色</text>
-          <wd-icon
-            name="close"
-            size="20"
-            :color="themeStore.isDark ? '#999' : '#666'"
-            @click="showCustomColorInput = false"
-          />
+          <wd-icon name="close" size="20" @click="showCustomColorInput = false" />
         </view>
 
         <view class="custom-color-popup__content">
@@ -356,7 +351,7 @@ onShow(() => {
 // 自定义颜色弹窗
 .custom-color-popup {
   min-height: 400rpx;
-  background-color: var(--wot-card-bg);
+  background-color: var(--wot-color-bg);
   border-radius: 20rpx 20rpx 0 0;
 
   &__header {
