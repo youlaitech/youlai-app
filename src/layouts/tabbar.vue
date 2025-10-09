@@ -71,16 +71,6 @@ export default {
   // --window-top: uni-app提供的状态栏高度CSS变量(包含状态栏+导航栏)
   min-height: calc(100vh - var(--window-top));
 
-  // 为固定定位的tabbar预留底部空间，避免内容被遮挡
-  // 50px: wd-tabbar组件的固定高度
-  // env(safe-area-inset-bottom): iOS设备底部安全区域高度(iPhone X系列的Home Indicator区域)
-  // 34px: 当设备不支持safe-area-inset-bottom时的降级值(一般Android设备)
-  padding-bottom: calc(50px + env(safe-area-inset-bottom, 34px));
-
-  background: #f9f9f9;
-}
-
-.wot-theme-dark.page-wraper {
-  background: #222;
+  background: var(--wot-color-bg);
 }
 </style>

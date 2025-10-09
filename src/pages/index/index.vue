@@ -1,9 +1,10 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-color-text)]">
+  <view
+    class="app-container dark:text-[var(--wot-color-text)]"
+    :style="{ paddingTop: statusBarHeight + navBarHeight + 'px' }"
+  >
     <!-- 自定义导航栏 -->
-    <view class="custom-navbar">
-      <!-- 状态栏占位 -->
-      <view :style="{ height: statusBarHeight + 'px' }"></view>
+    <view class="custom-navbar" :style="{ paddingTop: statusBarHeight + 'px' }">
       <!-- 导航栏内容 -->
       <view class="navbar-content">
         <wd-search
@@ -17,8 +18,6 @@
         />
       </view>
     </view>
-    <!-- 占位符，避免内容被固定导航栏遮挡 -->
-    <view class="navbar-placeholder" :style="{ paddingTop: statusBarHeight + 'px' }"></view>
 
     <!-- 轮播图 -->
     <wd-swiper
@@ -129,8 +128,8 @@ const current = ref<number>(0);
 const searchValue = ref("");
 
 // 导航栏相关数据
-const statusBarHeight = ref(0); // 状态栏高度
-const navBarHeight = ref(88); // 导航栏高度（rpx）
+const statusBarHeight = ref(0); // 状态栏高度（px）
+const navBarHeight = ref(44); // 导航栏高度（px，默认44px ≈ 88rpx）
 const searchWidth = ref("100%"); // 搜索框宽度
 
 // 初始化导航栏信息
@@ -149,8 +148,8 @@ onMounted(() => {
   // #endif
 
   // #ifdef H5 || APP-PLUS
-  // H5 和 App 使用默认高度和 100% 宽度
-  navBarHeight.value = 88;
+  // H5 和 App 使用默认高度和 100% 宽度（44px ≈ 88rpx）
+  navBarHeight.value = 44;
   searchWidth.value = "100%";
   // #endif
 });
@@ -335,11 +334,6 @@ onReady(() => {
   left: 0;
   z-index: 999;
   background-color: var(--wot-color-bg);
-}
-
-// 占位符，避免内容被固定导航栏遮挡
-.navbar-placeholder {
-  height: 88rpx;
 }
 
 .navbar-content {
