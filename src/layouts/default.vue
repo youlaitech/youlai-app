@@ -29,10 +29,6 @@ export default {
 .page-wraper {
   box-sizing: border-box;
   min-height: calc(100vh - var(--window-top));
-  background: #f9f9f9;
-}
-
-.wot-theme-dark.page-wraper {
-  background: #222;
+  background: var(--wot-color-bg);
 }
 </style>

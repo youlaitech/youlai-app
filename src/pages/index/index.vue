@@ -22,6 +22,7 @@
     <!-- 轮播图 -->
     <wd-swiper
       v-model:current="current"
+      custom-class="swiper-box"
       :list="swiperList"
       autoplay
       @click="handleClick"
@@ -342,7 +343,6 @@ onReady(() => {
   align-items: center;
   justify-content: flex-start;
   height: 88rpx;
-  padding: 0 20rpx;
   background-color: var(--wot-color-bg);
 }
 </style>
