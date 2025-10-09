@@ -135,11 +135,12 @@ const searchWidth = ref("100%"); // 搜索框宽度
 
 // 初始化导航栏信息
 onMounted(() => {
-  const systemInfo = uni.getSystemInfoSync();
-  statusBarHeight.value = systemInfo.statusBarHeight || 0;
-
   // #ifdef MP-WEIXIN
-  // 微信小程序：获取胶囊按钮信息
+  // 微信小程序：使用新的 API 获取窗口信息
+  const windowInfo = uni.getWindowInfo();
+  statusBarHeight.value = windowInfo.statusBarHeight || 0;
+
+  // 获取胶囊按钮信息
   const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
   // 计算导航栏高度：(胶囊底部 - 状态栏高度) + (胶囊顶部 - 状态栏高度)
   navBarHeight.value =
@@ -149,7 +150,9 @@ onMounted(() => {
   // #endif
 
   // #ifdef H5 || APP-PLUS
-  // H5 和 App 使用默认高度和 100% 宽度（44px ≈ 88rpx）
+  // H5 和 App：使用 getSystemInfoSync（非小程序环境仍然可用）
+  const systemInfo = uni.getSystemInfoSync();
+  statusBarHeight.value = systemInfo.statusBarHeight || 0;
   navBarHeight.value = 44;
   searchWidth.value = "100%";
   // #endif
