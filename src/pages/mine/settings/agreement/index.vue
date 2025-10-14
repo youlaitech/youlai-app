@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-color-text)]">
+  <view class="page-container dark:text-[var(--wot-color-text)]">
     <wd-collapse v-model="activeNames" accordion>
       <wd-collapse-item
         v-for="(section, index) in agreementContent"

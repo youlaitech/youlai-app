@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-color-text)]">
+  <view class="page-container dark:text-[var(--wot-color-text)]">
     <!-- 用户信息卡片 -->
     <view class="user-profile">
       <view class="blur-bg"></view>

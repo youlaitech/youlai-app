@@ -32,6 +32,9 @@ export default defineUniPages({
         pagePath: "pages/index/index",
       },
       {
+        pagePath: "pages/work/index",
+      },
+      {
         pagePath: "pages/mine/index",
       },
     ],

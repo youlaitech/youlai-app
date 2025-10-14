@@ -1,5 +1,5 @@
 <template>
-  <view class="app-container dark:text-[var(--wot-color-text)]">
+  <view class="page-container dark:text-[var(--wot-color-text)]">
     <!-- 头部标题 -->
     <view class="header">
       <view class="title">完善个人信息</view>

@@ -1,10 +1,12 @@
 <template>
   <view
-    class="app-container dark:text-[var(--wot-color-text)]"
-    :style="{ paddingTop: statusBarHeight + navBarHeight + 'px' }"
+    class="page-container dark:text-[var(--wot-color-text)]"
+    :style="{
+      paddingTop: 'calc(var(--status-bar-height) + ' + navBarHeight + 'px)',
+    }"
   >
     <!-- 自定义导航栏 -->
-    <view class="custom-navbar" :style="{ paddingTop: statusBarHeight + 'px' }">
+    <view class="custom-navbar" :style="{ paddingTop: 'var(--status-bar-height)' }">
       <!-- 导航栏内容 -->
       <view class="navbar-content">
         <wd-search
@@ -128,31 +130,26 @@ const current = ref<number>(0);
 // 搜索相关
 const searchValue = ref("");
 
-// 导航栏相关数据
-const statusBarHeight = ref(0); // 状态栏高度（px）
 const navBarHeight = ref(44); // 导航栏高度（px，默认44px ≈ 88rpx）
 const searchWidth = ref("100%"); // 搜索框宽度
 
 // 初始化导航栏信息
 onMounted(() => {
   // #ifdef MP-WEIXIN
-  // 微信小程序：使用新的 API 获取窗口信息
+  // 微信小程序：获取胶囊按钮信息计算导航栏高度
   const windowInfo = uni.getWindowInfo();
-  statusBarHeight.value = windowInfo.statusBarHeight || 0;
+  const statusBarHeight = windowInfo.statusBarHeight || 0; // 临时获取，仅用于计算
 
-  // 获取胶囊按钮信息
   const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
   // 计算导航栏高度：(胶囊底部 - 状态栏高度) + (胶囊顶部 - 状态栏高度)
   navBarHeight.value =
-    menuButtonInfo.bottom - statusBarHeight.value + (menuButtonInfo.top - statusBarHeight.value);
+    menuButtonInfo.bottom - statusBarHeight + (menuButtonInfo.top - statusBarHeight);
   // 搜索框宽度：胶囊左侧位置 - 左右边距
   searchWidth.value = `${menuButtonInfo.left - 30}px`;
   // #endif
 
   // #ifdef H5 || APP-PLUS
-  // H5 和 App：使用 getSystemInfoSync（非小程序环境仍然可用）
-  const systemInfo = uni.getSystemInfoSync();
-  statusBarHeight.value = systemInfo.statusBarHeight || 0;
+  // H5 和 App：使用固定导航栏高度
   navBarHeight.value = 44;
   searchWidth.value = "100%";
   // #endif
@@ -202,25 +199,25 @@ const navList = reactive([
   {
     icon: "/static/icons/user.png",
     title: "用户管理",
-    url: "/pages/work/index",
+    url: "/pages/work/user/index",
     prem: "sys:user:query",
   },
   {
     icon: "/static/icons/role.png",
     title: "角色管理",
-    url: "/pages/work/index",
+    url: "/pages/work/role/index",
     prem: "sys:role:query",
   },
   {
     icon: "/static/icons/notice.png",
     title: "通知公告",
-    url: "/pages/work/index",
+    url: "/pages/work/notice/index",
     prem: "sys:notice:query",
   },
   {
     icon: "/static/icons/setting.png",
     title: "系统配置",
-    url: "/pages/work/index",
+    url: "/pages/work/config/index",
     prem: "sys:config:query",
   },
 ]);
