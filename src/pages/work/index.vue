@@ -1,11 +1,11 @@
 <template>
-  <view class="page-container work">
+  <view class="work">
     <template v-for="(item, index) in gridList" :key="index">
       <wd-card :title="item.title">
         <wd-grid clickable :column="4">
           <wd-grid-item
-            v-for="(child, index) in item.children"
-            :key="index"
+            v-for="(child, childIndex) in item.children"
+            :key="childIndex"
             :v-has-perm="child.prem"
             use-slot
             @click="handleNavClick(child)"

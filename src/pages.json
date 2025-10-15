@@ -33,9 +33,7 @@
       "style": {
         "navigationBarTitleText": "工作台"
       },
-      "meta": {
-        "requireAuth": true
-      }
+      "layout": "tabbar"
     },
     {
       "path": "pages/mine/about/index",
@@ -73,6 +71,46 @@
       }
     },
     {
+      "path": "pages/work/config/index",
+      "type": "page",
+      "name": "config",
+      "style": {
+        "navigationBarTitleText": "系统配置"
+      }
+    },
+    {
+      "path": "pages/work/log/index",
+      "type": "page",
+      "name": "log",
+      "style": {
+        "navigationBarTitleText": "系统日志"
+      }
+    },
+    {
+      "path": "pages/work/notice/index",
+      "type": "page",
+      "name": "notice",
+      "style": {
+        "navigationBarTitleText": "通知公告"
+      }
+    },
+    {
+      "path": "pages/work/role/index",
+      "type": "page",
+      "name": "role",
+      "style": {
+        "navigationBarTitleText": "角色管理"
+      }
+    },
+    {
+      "path": "pages/work/user/index",
+      "type": "page",
+      "name": "user",
+      "style": {
+        "navigationBarTitleText": "用户管理"
+      }
+    },
+    {
       "path": "pages/mine/settings/account/index",
       "type": "page"
     },
@@ -87,6 +125,14 @@
     {
       "path": "pages/mine/settings/network/index",
       "type": "page"
+    },
+    {
+      "path": "pages/mine/settings/privacy/index",
+      "type": "page",
+      "name": "privacy",
+      "style": {
+        "navigationBarTitleText": "隐私政策"
+      }
     },
     {
       "path": "pages/mine/settings/theme/index",
@@ -122,6 +168,9 @@
     "list": [
       {
         "pagePath": "pages/index/index"
+      },
+      {
+        "pagePath": "pages/work/index"
       },
       {
         "pagePath": "pages/mine/index"

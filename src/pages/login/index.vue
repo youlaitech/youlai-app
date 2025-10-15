@@ -94,10 +94,16 @@
 
       <!-- 底部协议 -->
       <view class="login-agreement">
-        <text class="login-agreement__text">登录即同意</text>
-        <text class="login-agreement__link" @click="navigateToUserAgreement">《用户协议》</text>
-        <text class="login-agreement__text">和</text>
-        <text class="login-agreement__link" @click="navigateToPrivacy">《隐私政策》</text>
+        <wd-checkbox v-model="isAgreePolicy" shape="square" size="16px">
+          <view class="login-agreement__content">
+            <text class="login-agreement__text">我已阅读并同意</text>
+            <text class="login-agreement__link" @click.stop="navigateToUserAgreement">
+              《用户协议》
+            </text>
+            <text class="login-agreement__text">和</text>
+            <text class="login-agreement__link" @click.stop="navigateToPrivacy">《隐私政策》</text>
+          </view>
+        </wd-checkbox>
       </view>
     </view>
 
@@ -125,6 +131,7 @@ const loading = ref(false);
 const userStore = useUserStore();
 const showPassword = ref(false);
 const loginType = ref<"account" | "phone">("account");
+const isAgreePolicy = ref(false); // 是否同意隐私协议
 const { authState, getLoginCode, getPhoneNumber } = useWechat();
 
 // 登录表单数据
@@ -142,20 +149,15 @@ onLoad((options) => {
   }
 });
 
-// 强制清除输入框背景色
-onMounted(() => {
-  setTimeout(() => {
-    const inputs = document.querySelectorAll("input");
-    inputs.forEach((input) => {
-      input.style.backgroundColor = "transparent";
-      input.style.boxShadow = "none";
-    });
-  }, 100);
-});
-
 // 账号密码登录处理
 const handleAccountLogin = () => {
   if (loading.value) return;
+
+  // 检查是否同意隐私协议
+  if (!isAgreePolicy.value) {
+    toast.error("请先阅读并同意用户协议和隐私政策");
+    return;
+  }
 
   // 表单验证
   if (!loginFormData.value.username) {
@@ -193,6 +195,13 @@ const handleAccountLogin = () => {
 // 微信一键登录（通过手机号）
 const handleWechatPhoneLogin = async (e: any) => {
   if (loading.value || authState.value.isLogining) return;
+
+  // 检查是否同意隐私协议
+  if (!isAgreePolicy.value) {
+    toast.error("请先阅读并同意用户协议和隐私政策");
+    return;
+  }
+
   loading.value = true;
 
   try {
@@ -234,6 +243,13 @@ const handleWechatPhoneLogin = async (e: any) => {
 // 微信授权登录处理
 const handleWechatLogin = async () => {
   if (loading.value) return;
+
+  // 检查是否同意隐私协议
+  if (!isAgreePolicy.value) {
+    toast.error("请先阅读并同意用户协议和隐私政策");
+    return;
+  }
+
   loading.value = true;
 
   try {
@@ -313,8 +329,8 @@ const navigateToPrivacy = () => {
 .login-card {
   position: relative;
   z-index: 2;
-  width: 80%;
-  max-width: 600rpx; // 限制最大宽度
+  width: 85%; // 移动端保持两边边距
+  max-width: 420px; // 桌面端最大宽度
   padding: 50rpx 40rpx;
   background-color: var(--wot-color-bg);
   border: 1rpx solid var(--wot-color-border);
@@ -452,9 +468,21 @@ const navigateToPrivacy = () => {
 // 登录协议
 .login-agreement {
   display: flex;
+  align-items: flex-start;
   justify-content: center;
   margin-top: 60rpx;
   font-size: 24rpx;
+
+  :deep(.wd-checkbox) {
+    align-items: flex-start;
+  }
+
+  &__content {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    line-height: 1.6;
+  }
 
   &__text {
     color: var(--wot-color-text-secondary);
@@ -462,6 +490,7 @@ const navigateToPrivacy = () => {
 
   &__link {
     color: var(--wot-color-theme);
+    text-decoration: underline;
   }
 }
 </style>

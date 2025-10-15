@@ -14,15 +14,21 @@ interface NavigateToOptions {
        "/pages/mine/profile/complete-profile" |
        "/pages/mine/profile/index" |
        "/pages/mine/settings/index" |
+       "/pages/work/config/index" |
+       "/pages/work/log/index" |
+       "/pages/work/notice/index" |
+       "/pages/work/role/index" |
+       "/pages/work/user/index" |
        "/pages/mine/settings/account/index" |
        "/pages/mine/settings/agreement/index" |
        "/pages/mine/settings/network/index" |
+       "/pages/mine/settings/privacy/index" |
        "/pages/mine/settings/theme/index";
 }
 interface RedirectToOptions extends NavigateToOptions {}
 
 interface SwitchTabOptions {
-  url: "/pages/index/index" | "/pages/mine/index"
+  url: "/pages/index/index" | "/pages/work/index" | "/pages/mine/index"
 }
 
 type ReLaunchOptions = NavigateToOptions | SwitchTabOptions;
