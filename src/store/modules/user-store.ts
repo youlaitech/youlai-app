@@ -24,8 +24,23 @@ export const useUserStore = defineStore("user", () => {
     });
   };
 
-  // 微信基础授权登录
+  // 微信Web授权登录
   const loginWithWxCode = (code: string) => {
+    return new Promise((resolve, reject) => {
+      AuthAPI.loginByWechat(code)
+        .then((data) => {
+          setAccessToken(data.accessToken);
+          resolve(data);
+        })
+        .catch((error: any) => {
+          console.error("微信授权登录失败", error);
+          reject(error);
+        });
+    });
+  };
+
+  // 微信小程序授权登录 (仅使用code获取OpenID)
+  const loginWithWxMiniAppCode = (code: string) => {
     return new Promise((resolve, reject) => {
       AuthAPI.loginByWxMiniAppCode(code)
         .then((data) => {
@@ -33,7 +48,7 @@ export const useUserStore = defineStore("user", () => {
           resolve(data);
         })
         .catch((error: any) => {
-          console.error("微信授权登录失败", error);
+          console.error("微信小程序授权登录失败", error);
           reject(error);
         });
     });
@@ -112,6 +127,7 @@ export const useUserStore = defineStore("user", () => {
     userInfo,
     login,
     loginWithWxCode,
+    loginWithWxMiniAppCode,
     loginWithWxPhone,
     logout,
     getInfo,

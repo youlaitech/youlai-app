@@ -30,18 +30,23 @@ const AuthAPI = {
    * @returns 登录结果
    */
   login(data: LoginData): Promise<LoginResult> {
-    const formData = {
-      username: data.username,
-      password: data.password,
-    };
-
     return publicRequest<LoginResult>({
       url: `${AUTH_BASE_URL}/login`,
       method: "POST",
-      data: formData,
-      header: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
+      data: data, // 发送JSON格式的请求体
+    });
+  },
+
+  /**
+   * 微信Web授权登录 (使用code进行授权登录)
+   * @param code 微信授权码
+   * @returns 登录结果
+   */
+  loginByWechat(code: string): Promise<LoginResult> {
+    return publicRequest<LoginResult>({
+      url: `${AUTH_BASE_URL}/login/wechat`,
+      method: "POST",
+      data: { code },
     });
   },
 

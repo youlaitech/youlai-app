@@ -257,8 +257,8 @@ const handleWechatLogin = async () => {
     // 获取微信登录的临时 code
     const code = await getLoginCode();
 
-    // 尝试使用微信授权登录接口
-    const result: any = await userStore.loginWithWxCode(code);
+    // 在微信小程序环境下，使用小程序授权登录接口
+    const result: any = await userStore.loginWithWxMiniAppCode(code);
 
     // 获取用户信息
     await userStore.getInfo();
