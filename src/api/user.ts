@@ -21,11 +21,14 @@ const UserAPI = {
    * @param queryParams 查询参数
    */
   getPage(queryParams: UserPageQuery) {
-    return request<PageResult<UserPageVO[]>>({
-      url: `${USER_BASE_URL}/page`,
+    return request<any>({
+      url: `${USER_BASE_URL}`,
       method: "GET",
       data: queryParams,
-    });
+    }).then((res: { data: UserPageVO[]; page?: { total?: number } }) => ({
+      list: res.data,
+      total: res.page?.total ?? 0,
+    }));
   },
   /**
    * 添加用户

@@ -9,7 +9,7 @@
   "plugins": ["stylelint-prettier"],
   "overrides": [
     {
-      "files": ["**/*.{vue,html}"],
+      "files": ["**/*.{vue,html}"], 
       "customSyntax": "postcss-html"
     },
     {
