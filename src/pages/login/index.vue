@@ -6,7 +6,7 @@
     <!-- 登录卡片 -->
     <view class="login-card">
       <!-- 账号密码登录表单 -->
-      <wd-form v-if="loginType === 'account'" ref="loginFormRef" :model="loginFormData">
+      <wd-form v-if="loginMode === 'ACCOUNT'" ref="loginFormRef" :model="loginFormData">
         <!-- 用户名输入框 -->
         <view class="login-form__item">
           <wd-icon name="user" size="22" class="mr-20rpx" />
@@ -47,49 +47,51 @@
         >
           {{ loading ? "登录中..." : "账号登录" }}
         </button>
-
-        <!-- 切换登录方式 -->
-        <view class="login-switch" @click="loginType = 'phone'">
-          <text>使用手机号一键登录</text>
-          <wd-icon name="arrow-right" size="12" />
-        </view>
       </wd-form>
 
-      <!-- 手机号登录 -->
-      <view v-else class="phone-login">
-        <view class="phone-login__title">微信一键登录</view>
-        <view class="phone-login__subtitle">授权后将获取您的手机号</view>
+      <wd-form v-else ref="smsLoginFormRef" :model="smsLoginFormData">
+        <view class="login-form__item">
+          <wd-icon name="phone" size="22" class="mr-20rpx" />
+          <input
+            v-model="smsLoginFormData.mobile"
+            class="login-form__input"
+            placeholder="请输入手机号"
+            placeholder-class="login-form__placeholder"
+          />
+        </view>
+        <view class="login-form__divider"></view>
+
+        <view class="login-form__item">
+          <wd-icon name="security" size="22" class="mr-20rpx" />
+          <input
+            v-model="smsLoginFormData.code"
+            class="login-form__input"
+            placeholder="请输入验证码"
+            placeholder-class="login-form__placeholder"
+          />
+          <wd-button
+            size="small"
+            plain
+            :disabled="smsCountdown > 0"
+            @click="handleSendSmsLoginCode"
+          >
+            {{ smsCountdown > 0 ? `${smsCountdown}s后重试` : "发送验证码" }}
+          </wd-button>
+        </view>
+        <view class="login-form__divider"></view>
 
         <button
-          class="wechat-btn"
+          class="login-btn"
           :disabled="loading"
-          open-type="getPhoneNumber"
-          @getphonenumber="handleWechatPhoneLogin"
+          :class="{ 'login-btn--loading': loading }"
+          @click="handleSmsLogin"
         >
-          <wd-icon name="weixin" size="24" color="#ffffff" />
-          <text class="ml-16rpx">微信一键登录</text>
+          {{ loading ? "登录中..." : "短信登录" }}
         </button>
+      </wd-form>
 
-        <!-- 切换登录方式 -->
-        <view class="login-switch" @click="loginType = 'account'">
-          <text>使用账号密码登录</text>
-          <wd-icon name="arrow-right" size="12" />
-        </view>
-      </view>
-
-      <!-- 其他登录方式 -->
-      <view class="other-login">
-        <view class="other-login__title">
-          <view class="other-login__line"></view>
-          <text class="other-login__text">其他登录方式</text>
-          <view class="other-login__line"></view>
-        </view>
-
-        <view class="flex-center" @click="handleWechatLogin">
-          <view class="wechat-icon">
-            <image src="/static/icons/weixin.png" class="w-40rpx h-40rpx" />
-          </view>
-        </view>
+      <view class="login-switch" @click="loginMode = loginMode === 'ACCOUNT' ? 'SMS' : 'ACCOUNT'">
+        {{ loginMode === "ACCOUNT" ? "使用短信验证码登录" : "使用账号密码登录" }}
       </view>
 
       <!-- 底部协议 -->
@@ -120,19 +122,21 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { type LoginData } from "@/api/auth";
+import AuthAPI, { type LoginData } from "@/api/auth";
 import { useUserStore } from "@/store/modules/user-store";
 import { useToast } from "wot-design-uni";
-import { useWechat } from "@/composables/useWechat";
 
 const loginFormRef = ref();
+const smsLoginFormRef = ref();
 const toast = useToast();
 const loading = ref(false);
 const userStore = useUserStore();
 const showPassword = ref(false);
-const loginType = ref<"account" | "phone">("account");
 const isAgreePolicy = ref(false); // 是否同意隐私协议
-const { authState, getLoginCode, getPhoneNumber } = useWechat();
+
+const loginMode = ref<"ACCOUNT" | "SMS">("ACCOUNT");
+const smsCountdown = ref(0);
+const smsTimer = ref<ReturnType<typeof setInterval> | null>(null);
 
 // 登录表单数据
 const loginFormData = ref<LoginData>({
@@ -140,9 +144,14 @@ const loginFormData = ref<LoginData>({
   password: "123456",
 });
 
+const smsLoginFormData = ref({
+  mobile: "",
+  code: "",
+});
+
 // 仅使用 query 作为重定向来源
 const redirect = ref("/pages/index/index");
-onLoad((options) => {
+onLoad((options: any) => {
   const fromQuery = options && options.redirect ? decodeURIComponent(options.redirect) : "";
   if (fromQuery && fromQuery !== "/pages/login/index") {
     redirect.value = fromQuery;
@@ -184,7 +193,7 @@ const handleAccountLogin = () => {
         uni.reLaunch({ url: redirect.value });
       }, 1000);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       toast.error(error?.message || "登录失败");
     })
     .finally(() => {
@@ -192,100 +201,63 @@ const handleAccountLogin = () => {
     });
 };
 
-// 微信一键登录（通过手机号）
-const handleWechatPhoneLogin = async (e: any) => {
-  if (loading.value || authState.value.isLogining) return;
-
-  // 检查是否同意隐私协议
-  if (!isAgreePolicy.value) {
-    toast.error("请先阅读并同意用户协议和隐私政策");
+const handleSendSmsLoginCode = async () => {
+  if (smsCountdown.value > 0) return;
+  if (!smsLoginFormData.value.mobile) {
+    toast.error("请输入手机号");
     return;
   }
-
-  loading.value = true;
-
   try {
-    // 获取手机号加密数据
-    const phoneData = await getPhoneNumber(e);
-
-    // 调用登录接口
-    const result: any = await userStore.loginWithWxPhone(phoneData);
-
-    // 获取用户信息
-    await userStore.getInfo();
-    toast.success("登录成功");
-
-    // 检查是否为新用户或信息不完整
-    if (result.isNewUser || !userStore.isUserInfoComplete()) {
-      // 跳转到完善信息页面
-      setTimeout(() => {
-        // 跳转完善资料，redirect 保持在缓存中供目标页读取
-        uni.navigateTo({ url: "/pages/mine/profile/complete-profile" });
-      }, 1000);
-    } else {
-      // 跳转到重定向页面
-      setTimeout(() => {
-        uni.reLaunch({ url: redirect.value });
-      }, 1000);
-    }
+    await AuthAPI.sendSmsLoginCode(smsLoginFormData.value.mobile);
+    toast.success("验证码已发送");
+    smsCountdown.value = 60;
+    if (smsTimer.value) clearInterval(smsTimer.value);
+    smsTimer.value = setInterval(() => {
+      smsCountdown.value -= 1;
+      if (smsCountdown.value <= 0) {
+        smsCountdown.value = 0;
+        if (smsTimer.value) {
+          clearInterval(smsTimer.value);
+          smsTimer.value = null;
+        }
+      }
+    }, 1000);
   } catch (error: any) {
-    if (error.message === "用户拒绝授权") {
-      toast.error("您已拒绝授权获取手机号");
-    } else {
-      toast.error(error?.message || "登录失败");
-    }
-    console.error("微信手机号登录失败:", error);
-  } finally {
-    loading.value = false;
+    toast.error(error?.message || "发送失败");
   }
 };
 
-// 微信授权登录处理
-const handleWechatLogin = async () => {
+const handleSmsLogin = () => {
   if (loading.value) return;
-
-  // 检查是否同意隐私协议
   if (!isAgreePolicy.value) {
     toast.error("请先阅读并同意用户协议和隐私政策");
     return;
   }
+  if (!smsLoginFormData.value.mobile) {
+    toast.error("请输入手机号");
+    return;
+  }
+  if (!smsLoginFormData.value.code) {
+    toast.error("请输入验证码");
+    return;
+  }
 
   loading.value = true;
-
-  try {
-    // #ifdef MP-WEIXIN
-    // 获取微信登录的临时 code
-    const code = await getLoginCode();
-
-    // 在微信小程序环境下，使用小程序授权登录接口
-    const result: any = await userStore.loginWithWxMiniAppCode(code);
-
-    // 获取用户信息
-    await userStore.getInfo();
-    toast.success("登录成功");
-
-    // 检查用户信息是否完整
-    if (result.isNewUser || !userStore.isUserInfoComplete()) {
-      // 如果信息不完整，跳转到完善信息页面
-      setTimeout(() => {
-        uni.navigateTo({ url: "/pages/mine/profile/complete-profile" });
-      }, 1000);
-    } else {
-      // 否则直接跳转到重定向页面
+  userStore
+    .loginBySms({ mobile: smsLoginFormData.value.mobile, code: smsLoginFormData.value.code })
+    .then(() => userStore.getInfo())
+    .then(() => {
+      toast.success("登录成功");
       setTimeout(() => {
         uni.reLaunch({ url: redirect.value });
       }, 1000);
-    }
-    // #endif
-
-    // #ifndef MP-WEIXIN
-    toast.error("当前环境不支持微信登录");
-    // #endif
-  } catch (error: any) {
-    toast.error(error?.message || "微信登录失败");
-  } finally {
-    loading.value = false;
-  }
+    })
+    .catch((error: any) => {
+      toast.error(error?.message || "登录失败");
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 // 跳转到用户协议页面
@@ -416,20 +388,6 @@ const navigateToPrivacy = () => {
   }
 }
 
-// 微信按钮
-.wechat-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 88rpx;
-  font-size: 32rpx;
-  color: #ffffff;
-  background-color: #07c160;
-  border: none;
-  border-radius: 44rpx;
-}
-
 // 其他登录方式
 .other-login {
   margin-top: 60rpx;
@@ -452,17 +410,6 @@ const navigateToPrivacy = () => {
     font-size: 26rpx;
     color: var(--wot-color-text-secondary);
   }
-}
-
-// 微信图标
-.wechat-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80rpx;
-  height: 80rpx;
-  background-color: #07c160;
-  border-radius: 50%;
 }
 
 // 登录协议

@@ -54,11 +54,7 @@ function request<T = any>(options: RequestOptions): Promise<T> {
       success: (res: any) => {
         // 请求成功
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          if (res.data && typeof res.data === "object" && "page" in res.data && res.data.page != null) {
-            resolve({ data: res.data.data, page: res.data.page } as any);
-          } else {
-            resolve(res.data.data);
-          }
+          resolve(res.data.data);
         }
         // 未授权错误
         else if (res.statusCode === 401) {

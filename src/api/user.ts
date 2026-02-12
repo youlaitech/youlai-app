@@ -25,10 +25,7 @@ const UserAPI = {
       url: `${USER_BASE_URL}`,
       method: "GET",
       data: queryParams,
-    }).then((res: { data: UserPageVO[]; page?: { total?: number } }) => ({
-      list: res.data,
-      total: res.page?.total ?? 0,
-    }));
+    });
   },
   /**
    * 添加用户
@@ -136,15 +133,6 @@ const UserAPI = {
     return request({
       url: `${USER_BASE_URL}/${ids}`,
       method: "DELETE",
-    });
-  },
-
-  /** 获取微信手机号 */
-  getPhoneNumber(data: WechatPhoneData): Promise<PhoneNumberResult> {
-    return request<PhoneNumberResult>({
-      url: `${USER_BASE_URL}/wechat-phone`,
-      method: "POST",
-      data: data,
     });
   },
 };
@@ -325,24 +313,4 @@ export interface UserForm {
   status?: number;
   /** 用户名 */
   username?: string;
-}
-
-/** 微信手机号授权数据 */
-export interface WechatPhoneData {
-  /** 微信授权码 */
-  code: string;
-  /** 加密数据 */
-  encryptedData?: string;
-  /** 初始向量 */
-  iv?: string;
-}
-
-/** 手机号获取结果 */
-export interface PhoneNumberResult {
-  /** 手机号 */
-  phoneNumber: string;
-  /** 纯手机号（去除+86） */
-  purePhoneNumber?: string;
-  /** 国家代码 */
-  countryCode?: string;
 }

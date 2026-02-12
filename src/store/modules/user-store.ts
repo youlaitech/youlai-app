@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import AuthAPI, { type LoginData, type WxLoginData } from "@/api/auth";
+import AuthAPI, { type LoginData, type SmsLoginData } from "@/api/auth";
 import UserAPI, { type UserInfo } from "@/api/user";
 import { setAccessToken, clearTokens } from "@/utils/auth";
 import { getUserInfo, setUserInfo } from "@/utils/storage";
@@ -24,46 +24,15 @@ export const useUserStore = defineStore("user", () => {
     });
   };
 
-  // 微信Web授权登录
-  const loginWithWxCode = (code: string) => {
+  const loginBySms = (data: SmsLoginData) => {
     return new Promise((resolve, reject) => {
-      AuthAPI.loginByWechat(code)
+      AuthAPI.loginBySms(data)
         .then((data) => {
           setAccessToken(data.accessToken);
           resolve(data);
         })
-        .catch((error: any) => {
-          console.error("微信授权登录失败", error);
-          reject(error);
-        });
-    });
-  };
-
-  // 微信小程序授权登录 (仅使用code获取OpenID)
-  const loginWithWxMiniAppCode = (code: string) => {
-    return new Promise((resolve, reject) => {
-      AuthAPI.loginByWxMiniAppCode(code)
-        .then((data) => {
-          setAccessToken(data.accessToken);
-          resolve(data);
-        })
-        .catch((error: any) => {
-          console.error("微信小程序授权登录失败", error);
-          reject(error);
-        });
-    });
-  };
-
-  // 微信手机号授权登录
-  const loginWithWxPhone = (data: WxLoginData): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      AuthAPI.loginByWxMiniAppPhone(data)
-        .then((result: any) => {
-          setAccessToken(result.accessToken);
-          resolve(result);
-        })
-        .catch((error: any) => {
-          console.error("微信手机号登录失败", error);
+        .catch((error) => {
+          console.error("登录失败", error);
           reject(error);
         });
     });
@@ -126,9 +95,7 @@ export const useUserStore = defineStore("user", () => {
   return {
     userInfo,
     login,
-    loginWithWxCode,
-    loginWithWxMiniAppCode,
-    loginWithWxPhone,
+    loginBySms,
     logout,
     getInfo,
     checkSession,

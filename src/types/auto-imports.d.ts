@@ -179,7 +179,6 @@ declare global {
   const useUploadFile: typeof import('@uni-helper/uni-use')['useUploadFile']
   const useUserStore: typeof import('../store/modules/user-store')['useUserStore']
   const useVisible: typeof import('@uni-helper/uni-use')['useVisible']
-  const useWechat: typeof import('../composables/useWechat')['useWechat']
   const user: typeof import('../api/user')['default']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
@@ -320,7 +319,6 @@ declare module 'vue' {
     readonly useThemeStore: UnwrapRef<typeof import('../store/modules/theme-store')['useThemeStore']>
     readonly useToast: UnwrapRef<typeof import('wot-design-uni')['useToast']>
     readonly useUserStore: UnwrapRef<typeof import('../store/modules/user-store')['useUserStore']>
-    readonly useWechat: UnwrapRef<typeof import('../composables/useWechat')['useWechat']>
     readonly user: UnwrapRef<typeof import('../api/user')['default']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>

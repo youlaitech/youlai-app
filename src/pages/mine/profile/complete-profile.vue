@@ -102,22 +102,12 @@
             手机号
             <text class="required">*</text>
           </view>
-          <view v-if="!profileForm.mobile" class="phone-auth">
-            <button
-              class="phone-auth-btn"
-              open-type="getPhoneNumber"
-              :disabled="phoneAuthLoading"
-              @getphonenumber="onGetPhoneNumber"
-            >
-              <wd-icon name="phone" size="20" color="#165DFF" />
-              <text class="auth-text">{{ phoneAuthLoading ? "授权中..." : "授权获取手机号" }}</text>
-            </button>
-          </view>
-          <view v-else class="phone-display">
-            <wd-icon name="phone" size="20" color="#52c41a" />
-            <text class="phone-number">{{ formatPhoneNumber(profileForm.mobile) }}</text>
-            <text class="change-phone" @click="changePhone">更换</text>
-          </view>
+          <wd-input
+            v-model="profileForm.mobile"
+            placeholder="请输入手机号"
+            prop="mobile"
+            custom-class="nickname-input"
+          />
         </view>
       </wd-form>
     </view>
@@ -183,7 +173,6 @@ const rules = {
 
 // 状态管理
 const loading = ref(false);
-const phoneAuthLoading = ref(false);
 const cropperVisible = ref(false);
 const originalImageSrc = ref("");
 const profileFormRef = ref();
@@ -280,45 +269,6 @@ const handleAvatarConfirm = async (event: any) => {
   }
 };
 
-// 获取手机号授权
-const onGetPhoneNumber = async (e: any) => {
-  console.log("手机号授权回调:", e);
-
-  if (e.detail.errMsg === "getPhoneNumber:ok") {
-    phoneAuthLoading.value = true;
-
-    try {
-      // 调用后端接口解析手机号
-      const phoneData = await UserAPI.getPhoneNumber({
-        code: e.detail.code,
-        encryptedData: e.detail.encryptedData,
-        iv: e.detail.iv,
-      });
-
-      profileForm.mobile = phoneData.phoneNumber;
-      toast.success("手机号授权成功");
-    } catch (error: any) {
-      console.error("手机号授权失败:", error);
-      toast.error(error?.message || "手机号授权失败");
-    } finally {
-      phoneAuthLoading.value = false;
-    }
-  } else {
-    toast.error("手机号授权失败");
-  }
-};
-
-// 更换手机号
-const changePhone = () => {
-  profileForm.mobile = "";
-};
-
-// 格式化手机号显示
-const formatPhoneNumber = (phone: string) => {
-  if (!phone) return "";
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
-};
-
 // 完成信息填写
 const handleComplete = async () => {
   try {
@@ -327,7 +277,7 @@ const handleComplete = async () => {
     if (!valid) return;
 
     if (!profileForm.mobile) {
-      toast.error("请先授权获取手机号");
+      toast.error("请输入手机号");
       return;
     }
 
@@ -474,51 +424,6 @@ const handleSkip = () => {
       justify-content: center;
       width: 100%;
     }
-  }
-}
-
-.phone-auth {
-  .phone-auth-btn {
-    display: flex;
-    gap: 12rpx;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 88rpx;
-    font-size: 28rpx;
-    color: #fff;
-    background: linear-gradient(90deg, #165dff, #4080ff);
-    border: none;
-    border-radius: 12rpx;
-
-    &[disabled] {
-      opacity: 0.6;
-    }
-
-    .auth-text {
-      font-size: 28rpx;
-    }
-  }
-}
-
-.phone-display {
-  display: flex;
-  gap: 12rpx;
-  align-items: center;
-  padding: 24rpx 20rpx;
-  background: #f0f9ff;
-  border: 1rpx solid #bae6fd;
-  border-radius: 12rpx;
-
-  .phone-number {
-    flex: 1;
-    font-size: 28rpx;
-    color: #333;
-  }
-
-  .change-phone {
-    font-size: 26rpx;
-    color: #165dff;
   }
 }
 

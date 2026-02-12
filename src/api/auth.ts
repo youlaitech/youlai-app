@@ -7,13 +7,6 @@ export interface LoginData {
   password: string;
 }
 
-export interface WxLoginData {
-  code: string;
-  encryptedData?: string;
-  iv?: string;
-  phoneCode?: string;
-}
-
 export interface LoginResult {
   accessToken: string;
   refreshToken?: string;
@@ -21,6 +14,11 @@ export interface LoginResult {
   expiresIn: number;
   isNewUser?: boolean;
   isProfileComplete?: boolean;
+}
+
+export interface SmsLoginData {
+  mobile: string;
+  code: string;
 }
 
 const AuthAPI = {
@@ -37,42 +35,20 @@ const AuthAPI = {
     });
   },
 
-  /**
-   * 微信Web授权登录 (使用code进行授权登录)
-   * @param code 微信授权码
-   * @returns 登录结果
-   */
-  loginByWechat(code: string): Promise<LoginResult> {
-    return publicRequest<LoginResult>({
-      url: `${AUTH_BASE_URL}/login/wechat`,
+  sendSmsLoginCode(mobile: string): Promise<void> {
+    const mobileSafe = encodeURIComponent(mobile);
+    return publicRequest<void>({
+      url: `${AUTH_BASE_URL}/sms/code?mobile=${mobileSafe}`,
       method: "POST",
-      data: { code },
     });
   },
 
-  /**
-   * 微信小程序授权登录 (仅使用code获取OpenID)
-   * @param code 微信登录凭证
-   * @returns 登录结果
-   */
-  loginByWxMiniAppCode(code: string): Promise<LoginResult> {
+  loginBySms(data: SmsLoginData): Promise<LoginResult> {
+    const mobileSafe = encodeURIComponent(data.mobile);
+    const codeSafe = encodeURIComponent(data.code);
     return publicRequest<LoginResult>({
-      url: `${AUTH_BASE_URL}/wx/miniapp/code-login`,
+      url: `${AUTH_BASE_URL}/login/sms?mobile=${mobileSafe}&code=${codeSafe}`,
       method: "POST",
-      data: { code },
-    });
-  },
-
-  /**
-   * 微信小程序手机号授权登录
-   * @param data 包含code、encryptedData、iv等手机号相关数据
-   * @returns 登录结果
-   */
-  loginByWxMiniAppPhone(data: WxLoginData): Promise<LoginResult> {
-    return publicRequest<LoginResult>({
-      url: `${AUTH_BASE_URL}/wx/miniapp/phone-login`,
-      method: "POST",
-      data,
     });
   },
 
