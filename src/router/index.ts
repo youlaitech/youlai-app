@@ -1,4 +1,4 @@
-import { pages, subPackages } from "virtual:uni-pages";
+﻿import { pages, subPackages } from "virtual:uni-pages";
 import { isLoggedIn } from "@/utils/auth";
 import { createRouter } from "uni-mini-router";
 

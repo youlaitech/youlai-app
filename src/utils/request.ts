@@ -1,4 +1,4 @@
-import { getAccessToken } from "./auth";
+﻿import { getAccessToken } from "./auth";
 
 // 请求配置
 interface RequestOptions<T = any> {
@@ -52,6 +52,7 @@ function request<T = any>(options: RequestOptions): Promise<T> {
       timeout: options.timeout || 30000,
       responseType: options.responseType,
       success: (res: any) => {
+        const serverMsg = res?.data?.msg || res?.data?.message;
         // 请求成功
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data.data);
@@ -64,11 +65,11 @@ function request<T = any>(options: RequestOptions): Promise<T> {
               url: "/pages/login/index",
             });
           }
-          reject(new Error(res.data.message || "未授权，请重新登录"));
+          reject(new Error(serverMsg || "未授权，请重新登录"));
         }
         // 其他错误
         else {
-          const errorMsg = res.data.message || `请求失败: ${res.statusCode}`;
+          const errorMsg = serverMsg || `请求失败: ${res.statusCode}`;
           reject(new Error(errorMsg));
         }
       },

@@ -1,4 +1,4 @@
-// pages.config.ts
+﻿// pages.config.ts
 import { defineUniPages } from "@uni-helper/vite-plugin-uni-pages";
 
 export default defineUniPages({

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 存储工具类
  * 提供localStorage和sessionStorage操作方法
  */

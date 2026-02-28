@@ -1,4 +1,4 @@
-import { defineStore } from "pinia";
+﻿import { defineStore } from "pinia";
 import { Storage } from "@/utils/storage";
 import { THEME_MODE_KEY, THEME_COLOR_KEY } from "@/constants";
 import type { ThemeColorOption, ThemeMode } from "@/composables/types/theme";

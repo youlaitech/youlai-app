@@ -1,4 +1,4 @@
-// 扩展 uni-mini-router 路由类型，支持从 pages.json 注入的 meta 字段
+﻿// 扩展 uni-mini-router 路由类型，支持从 pages.json 注入的 meta 字段
 // 该声明文件会被 ts 自动合并到库类型中
 
 import "uni-mini-router";

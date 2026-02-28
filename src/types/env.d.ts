@@ -1,4 +1,4 @@
-// src/types/env.d.ts
+﻿// src/types/env.d.ts
 /**
  * 环境变量类型声明
  */

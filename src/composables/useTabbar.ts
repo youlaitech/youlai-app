@@ -1,4 +1,4 @@
-export interface TabbarItem {
+﻿export interface TabbarItem {
   name: string;
   value: number | null;
   active: boolean;

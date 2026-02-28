@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 防抖函数
  * @param fn 函数
  * @param delay 延迟时间

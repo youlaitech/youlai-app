@@ -1,4 +1,4 @@
-import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
+﻿import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import { getAccessToken } from "@/utils/auth";
 
 export interface UseStompOptions {

@@ -1,4 +1,4 @@
-import type { ThemeColorOption, ThemeMode } from "@/composables/types/theme";
+﻿import type { ThemeColorOption, ThemeMode } from "@/composables/types/theme";
 import { themeColorOptions } from "@/composables/types/theme";
 import { useThemeStore } from "@/store";
 

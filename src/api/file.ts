@@ -1,4 +1,4 @@
-import { getToken } from "@/utils/storage";
+﻿import { getToken } from "@/utils/storage";
 import { ApiCode } from "@/enums/api-code-enum";
 
 // H5 使用 VITE_APP_BASE_API 作为代理路径，其他平台使用 VITE_APP_API_URL 作为请求路径
