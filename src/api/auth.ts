@@ -1,6 +1,7 @@
 ﻿import request, { publicRequest } from "@/utils/request";
 
 const AUTH_BASE_URL = "/api/v1/auth";
+const WECHAT_MINIAPP_AUTH_BASE_URL = "/api/v1/wechat/miniapp/auth";
 
 export interface LoginData {
   username: string;
@@ -40,7 +41,7 @@ export interface WechatMiniappPhoneLoginData {
 export interface WechatMiniappBindMobileData {
   openid: string;
   mobile: string;
-  code: string;
+  smsCode: string;
 }
 
 const AuthAPI = {
@@ -57,6 +58,8 @@ const AuthAPI = {
 
   /**
    * 发送短信验证码
+   * 
+   * 演示环境说明：短信服务未配置，验证码固定为 123456
    */
   sendSmsLoginCode(mobile: string): Promise<void> {
     const mobileSafe = encodeURIComponent(mobile);
@@ -79,34 +82,46 @@ const AuthAPI = {
   },
 
   /**
-   * 微信小程序登录（个人小程序）
+   * 微信小程序静默登录
+   * 
+   * 适用场景：个人小程序
+   * - 已绑定手机号的用户：直接返回 token，登录成功
+   * - 未绑定手机号的用户：返回 openid，需调用绑定手机号接口
    */
-  wechatMiniappLogin(code: string): Promise<WechatMiniappLoginResult> {
+  wechatMiniappSilentLogin(code: string): Promise<WechatMiniappLoginResult> {
     return publicRequest<WechatMiniappLoginResult>({
-      url: `${AUTH_BASE_URL}/wechat-miniapp/login?code=${encodeURIComponent(code)}`,
+      url: `${WECHAT_MINIAPP_AUTH_BASE_URL}/silent-login?code=${encodeURIComponent(code)}`,
       method: "POST",
     });
   },
 
   /**
-   * 微信小程序一键登录（企业小程序）
+   * 微信小程序手机号快捷登录
+   * 
+   * 适用场景：企业认证小程序（已开通手机号快捷登录权限）
+   * 一步完成登录，无需绑定流程，自动创建新用户
    */
   wechatMiniappPhoneLogin(data: WechatMiniappPhoneLoginData): Promise<LoginResult> {
+    const loginCodeSafe = encodeURIComponent(data.loginCode);
+    const phoneCodeSafe = encodeURIComponent(data.phoneCode);
     return publicRequest<LoginResult>({
-      url: `${AUTH_BASE_URL}/wechat-miniapp/phone-login`,
+      url: `${WECHAT_MINIAPP_AUTH_BASE_URL}/phone-login?loginCode=${loginCodeSafe}&phoneCode=${phoneCodeSafe}`,
       method: "POST",
-      data,
     });
   },
 
   /**
    * 微信小程序绑定手机号
+   * 
+   * 演示环境说明：短信服务未配置，验证码固定为 123456
    */
   wechatMiniappBindMobile(data: WechatMiniappBindMobileData): Promise<LoginResult> {
+    const openidSafe = encodeURIComponent(data.openid);
+    const mobileSafe = encodeURIComponent(data.mobile);
+    const smsCodeSafe = encodeURIComponent(data.smsCode);
     return publicRequest<LoginResult>({
-      url: `${AUTH_BASE_URL}/wechat-miniapp/bind-mobile`,
+      url: `${WECHAT_MINIAPP_AUTH_BASE_URL}/bind-mobile?openid=${openidSafe}&mobile=${mobileSafe}&smsCode=${smsCodeSafe}`,
       method: "POST",
-      data,
     });
   },
 

@@ -21,6 +21,9 @@
           is-link
           @click="handleOpenDialog(DialogType.EMAIL)"
         />
+        <!-- #ifdef MP-WEIXIN -->
+        <wd-cell title="微信" value="解绑" is-link @click="handleUnbindWechat" />
+        <!-- #endif -->
       </wd-cell-group>
     </wd-card>
 
@@ -210,6 +213,25 @@ const mobileTimer = ref<ReturnType<typeof setInterval> | null>(null);
 
 const emailCountdown = ref(0);
 const emailTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+
+const handleUnbindWechat = async () => {
+  uni.showModal({
+    title: "提示",
+    content: "确定要解绑微信吗？解绑后将无法使用微信小程序登录",
+    success: async (res) => {
+      if (!res.confirm) return;
+
+      try {
+        await UserAPI.unbindSocial("WECHAT_MINI");
+        uni.showToast({ title: "解绑成功", icon: "success" });
+        loadUserProfile();
+      } catch (e) {
+        console.error("解绑微信失败", e);
+        uni.showToast({ title: "解绑失败", icon: "none" });
+      }
+    },
+  });
+};
 
 /** 加载用户信息 */
 const loadUserProfile = async () => {

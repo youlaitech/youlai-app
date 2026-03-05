@@ -44,10 +44,10 @@ export const useUserStore = defineStore("user", () => {
     });
   };
 
-  // 微信小程序登录（个人小程序）
+  // 微信小程序静默登录
   const loginByWechatMiniapp = (code: string) => {
     return new Promise((resolve, reject) => {
-      AuthAPI.wechatMiniappLogin(code)
+      AuthAPI.wechatMiniappSilentLogin(code)
         .then((data) => {
           if (data.accessToken) {
             setAccessToken(data.accessToken);

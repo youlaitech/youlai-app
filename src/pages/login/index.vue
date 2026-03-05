@@ -71,6 +71,11 @@
             </view>
           </view>
 
+          <!-- 演示环境提示 -->
+          <view v-if="loginMode === 'SMS'" class="demo-tip">
+            <text class="demo-tip-text">演示环境验证码：123456</text>
+          </view>
+
           <!-- 登录按钮 -->
           <button class="btn-primary" :disabled="loading || !canSubmit" @click="handleLogin">
             {{ loading ? "登录中..." : "登 录" }}
@@ -87,7 +92,7 @@
           </view>
         </view>
 
-        <!-- #ifdef MP-WECHAT -->
+        <!-- #ifdef MP-WEIXIN -->
         <!-- 微信登录区域 -->
         <view v-else class="form-area">
           <!-- 企业一键登录 -->
@@ -96,7 +101,7 @@
             open-type="getPhoneNumber"
             @getphonenumber="handleWechatPhoneLogin"
           >
-            <wd-icon name="wechat" size="20" color="#fff" class="mr-2" />
+            <image class="btn-wechat-icon" src="/static/icons/weixin.png" mode="aspectFit" />
             微信一键登录
           </button>
 
@@ -108,7 +113,7 @@
         </view>
         <!-- #endif -->
 
-        <!-- #ifdef MP-WECHAT -->
+        <!-- #ifdef MP-WEIXIN -->
         <!-- 分割线 -->
         <view v-if="loginMode !== 'WECHAT'" class="divider">
           <view class="divider-line" />
@@ -118,9 +123,12 @@
 
         <!-- 微信登录入口 -->
         <view v-if="loginMode !== 'WECHAT'" class="wechat-entry">
-          <view class="wechat-icon" @click="loginMode = 'WECHAT'">
-            <wd-icon name="wechat" size="24" color="#fff" />
-          </view>
+          <image
+            class="wechat-icon-img"
+            src="/static/icons/weixin.png"
+            mode="aspectFit"
+            @click="loginMode = 'WECHAT'"
+          />
         </view>
         <!-- #endif -->
 
@@ -183,6 +191,11 @@
             </view>
           </view>
 
+          <!-- 演示环境提示 -->
+          <view class="demo-tip">
+            <text class="demo-tip-text">演示环境验证码：123456</text>
+          </view>
+
           <button class="btn-bind" :disabled="bindLoading" @click="handleBindMobile">
             {{ bindLoading ? "绑定中..." : "确认绑定" }}
           </button>
@@ -221,7 +234,7 @@ const smsTimer = ref<ReturnType<typeof setInterval> | null>(null);
 const formData = ref({
   username: "admin",
   password: "123456",
-  code: "1234",
+  code: "123456",
 });
 
 const redirect = ref("/pages/index/index");
@@ -459,7 +472,7 @@ const handleBindMobile = async () => {
     await userStore.bindMobileForWechatMiniapp({
       openid: wechatOpenid.value,
       mobile,
-      code,
+      smsCode: code,
     });
     await userStore.getInfo();
     showBindMobilePopup.value = false;
@@ -502,8 +515,8 @@ const navigateToAgreement = (type: string) => {
 
 .bg-circle {
   position: absolute;
-  border-radius: 50%;
   filter: blur(64px);
+  border-radius: 50%;
 }
 
 .bg-circle-1 {
@@ -515,8 +528,8 @@ const navigateToAgreement = (type: string) => {
 }
 
 .bg-circle-2 {
-  bottom: -80px;
   right: -80px;
+  bottom: -80px;
   width: 320px;
   height: 320px;
   background-color: rgba(59, 130, 246, 0.15);
@@ -562,9 +575,9 @@ const navigateToAgreement = (type: string) => {
   width: 100%;
   padding: 32px;
   background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px);
   border-radius: 24px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(24px);
 }
 
 :global(.dark) .login-card {
@@ -573,8 +586,8 @@ const navigateToAgreement = (type: string) => {
 
 // 卡片头部
 .card-header {
-  text-align: center;
   margin-bottom: 32px;
+  text-align: center;
 }
 
 .card-title {
@@ -589,9 +602,9 @@ const navigateToAgreement = (type: string) => {
 
 .card-desc {
   display: block;
+  margin-top: 8px;
   font-size: 14px;
   color: #6b7280;
-  margin-top: 8px;
 }
 
 :global(.dark) .card-desc {
@@ -641,11 +654,11 @@ const navigateToAgreement = (type: string) => {
 
 // 主按钮
 .btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 48px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-size: 16px;
   font-weight: 600;
   color: #fff;
@@ -659,18 +672,18 @@ const navigateToAgreement = (type: string) => {
   }
 
   &:disabled {
-    opacity: 0.5;
     box-shadow: none;
+    opacity: 0.5;
   }
 }
 
 // 微信按钮
 .btn-wechat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 48px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-size: 16px;
   font-weight: 600;
   color: #fff;
@@ -683,13 +696,19 @@ const navigateToAgreement = (type: string) => {
   }
 }
 
+.btn-wechat-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+
 // 绑定按钮
 .btn-bind {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 48px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-size: 16px;
   font-weight: 600;
   color: #fff;
@@ -703,11 +722,11 @@ const navigateToAgreement = (type: string) => {
 
 // 验证码按钮
 .sms-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 32px;
   padding: 0 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-size: 14px;
   font-weight: 500;
   border-radius: 8px;
@@ -751,10 +770,10 @@ const navigateToAgreement = (type: string) => {
 }
 
 .switch-link {
+  margin-left: 4px;
   font-size: 14px;
   font-weight: 500;
   color: #2563eb;
-  margin-left: 4px;
   border-bottom: 1px solid #2563eb;
 }
 
@@ -790,19 +809,13 @@ const navigateToAgreement = (type: string) => {
 // 微信登录入口
 .wechat-entry {
   display: flex;
-  justify-content: center;
   gap: 32px;
+  justify-content: center;
 }
 
-.wechat-icon {
+.wechat-icon-img {
   width: 48px;
   height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #22c55e;
-  border-radius: 50%;
-  box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.3);
 
   &:active {
     transform: scale(0.95);
@@ -813,8 +826,8 @@ const navigateToAgreement = (type: string) => {
 .agreement {
   display: flex;
   align-items: flex-start;
-  margin-top: 24px;
   padding-top: 16px;
+  margin-top: 24px;
   border-top: 1px solid #f3f4f6;
 }
 
@@ -824,8 +837,8 @@ const navigateToAgreement = (type: string) => {
 
 .agreement-text {
   font-size: 12px;
-  color: #6b7280;
   line-height: 1.5;
+  color: #6b7280;
 }
 
 :global(.dark) .agreement-text {
@@ -847,15 +860,35 @@ const navigateToAgreement = (type: string) => {
 
 .bind-title {
   display: block;
+  margin-bottom: 24px;
   font-size: 18px;
   font-weight: 600;
   color: #111827;
   text-align: center;
-  margin-bottom: 24px;
 }
 
 :global(.dark) .bind-title {
   color: #fff;
+}
+
+// 演示环境提示
+.demo-tip {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.demo-tip-text {
+  padding: 4px 12px;
+  font-size: 12px;
+  color: #f59e0b;
+  background-color: #fef3c7;
+  border-radius: 4px;
+}
+
+:global(.dark) .demo-tip-text {
+  color: #fbbf24;
+  background-color: rgba(251, 191, 36, 0.1);
 }
 
 // 暗黑模式适配
@@ -865,7 +898,7 @@ const navigateToAgreement = (type: string) => {
 }
 
 :deep(.wd-popup__close) {
-  right: 16px;
   top: 16px;
+  right: 16px;
 }
 </style>

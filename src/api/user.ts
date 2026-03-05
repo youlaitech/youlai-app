@@ -93,6 +93,14 @@ const UserAPI = {
     });
   },
 
+  /** 解绑第三方账号 */
+  unbindSocial(platform: string) {
+    return request({
+      url: `${USER_BASE_URL}/social?platform=${encodeURIComponent(platform)}`,
+      method: "DELETE",
+    });
+  },
+
   /**
    *   发送手机/邮箱验证码
    *

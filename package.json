@@ -1,5 +1,5 @@
 {
-  "name": "vue-uniapp-template",
+  "name": "youlai-uniapp-template",
   "version": "0.0.0",
   "scripts": {
     "dev:app": "uni -p app",
