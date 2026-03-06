@@ -9,7 +9,7 @@
       backgroundColor: bgColor,
     }"
   >
-    <view class="custom-navbar__content" :style="{ height: navBarHeight + 'px' }">
+    <view class="custom-navbar__content" :style="{ height: contentHeight + 'px' }">
       <view class="custom-navbar__left" :style="{ width: leftWidth + 'px' }">
         <view v-if="showBack" class="custom-navbar__back" @click="handleBack">
           <wd-icon :name="backIcon" :size="backIconSize" :color="iconColor" />
@@ -81,6 +81,11 @@ const placeholder = computed(() => props.placeholder);
 const statusBarHeight = computed(() => navbar.statusBarHeight.value);
 const navBarHeight = computed(() => navbar.navBarHeight);
 const totalHeight = computed(() => navbar.totalHeight.value);
+
+const contentHeight = computed(() => {
+  const height = totalHeight.value - statusBarHeight.value;
+  return height > 0 ? height : navBarHeight.value;
+});
 
 const menuButtonWidth = computed(() => navbar.menuButtonWidth.value);
 const menuButtonRightGap = computed(() => navbar.menuButtonRightGap.value);

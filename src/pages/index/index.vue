@@ -1,6 +1,6 @@
 <template>
   <view class="home-page">
-    <custom-navbar title="首页" fixed placeholder>
+    <custom-navbar title="首页" fixed placeholder :showBack="false">
       <template #right>
         <wd-search
           v-model="searchValue"
