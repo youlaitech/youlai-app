@@ -160,6 +160,15 @@ export interface UserInfo {
   /** 头像URL */
   avatar?: string
 
+  /** 手机号 */
+  mobile?: string
+
+  /** 邮箱 */
+  email?: string
+
+  /** 部门名称 */
+  deptName?: string
+
   /** 角色编码集合 */
   roles?: string[]
 
