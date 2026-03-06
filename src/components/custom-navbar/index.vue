@@ -1,0 +1,207 @@
+<template>
+  <view v-if="fixed && placeholder" :style="{ height: totalHeight + 'px' }" />
+  <view
+    class="custom-navbar"
+    :class="{ 'custom-navbar--fixed': fixed }"
+    :style="{
+      height: totalHeight + 'px',
+      paddingTop: statusBarHeight + 'px',
+      backgroundColor: bgColor,
+    }"
+  >
+    <view class="custom-navbar__content" :style="{ height: navBarHeight + 'px' }">
+      <view class="custom-navbar__left" :style="{ width: leftWidth + 'px' }">
+        <view v-if="showBack" class="custom-navbar__back" @click="handleBack">
+          <wd-icon :name="backIcon" :size="backIconSize" :color="iconColor" />
+        </view>
+
+        <view v-if="showHome" class="custom-navbar__home" @click="handleHome">
+          <wd-icon name="home" :size="backIconSize" :color="iconColor" />
+        </view>
+
+        <slot name="left" />
+      </view>
+
+      <view class="custom-navbar__center">
+        <text v-if="title" class="custom-navbar__title" :style="{ color: titleColor }">
+          {{ title }}
+        </text>
+        <slot name="center" />
+      </view>
+
+      <view class="custom-navbar__right" :style="{ width: rightWidth + 'px' }">
+        <slot name="right" />
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="ts">
+import { computed } from "vue";
+import { useNavbar } from "@/composables/useNavbar";
+
+interface Props {
+  title?: string;
+  titleColor?: string;
+  bgColor?: string;
+  showBack?: boolean;
+  showHome?: boolean;
+  backIcon?: string;
+  backIconSize?: string;
+  iconColor?: string;
+  fixed?: boolean;
+  placeholder?: boolean;
+  navBarHeight?: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  title: "",
+  titleColor: "#333333",
+  bgColor: "#ffffff",
+  showBack: true,
+  showHome: false,
+  backIcon: "arrow-left",
+  backIconSize: "20px",
+  iconColor: "#333333",
+  fixed: true,
+  placeholder: false,
+  navBarHeight: 44,
+});
+
+const emit = defineEmits<{
+  (e: "back"): void;
+  (e: "home"): void;
+}>();
+
+const navbar = useNavbar({ navBarHeight: props.navBarHeight });
+
+const fixed = computed(() => props.fixed);
+const placeholder = computed(() => props.placeholder);
+
+const statusBarHeight = computed(() => navbar.statusBarHeight.value);
+const navBarHeight = computed(() => navbar.navBarHeight);
+const totalHeight = computed(() => navbar.totalHeight.value);
+
+const menuButtonWidth = computed(() => navbar.menuButtonWidth.value);
+const menuButtonRightGap = computed(() => navbar.menuButtonRightGap.value);
+const menuButtonLeft = computed(() => navbar.menuButtonLeft.value);
+
+const leftWidth = computed(() => {
+  let width = 80;
+  // #ifdef MP-WEIXIN
+  width = menuButtonLeft.value > 0 ? menuButtonLeft.value : 80;
+  // #endif
+  return width;
+});
+
+const rightWidth = computed(() => {
+  let width = 80;
+  // #ifdef MP-WEIXIN
+  if (menuButtonWidth.value > 0) {
+    width = menuButtonWidth.value + menuButtonRightGap.value * 2;
+  }
+  // #endif
+  return width;
+});
+
+function handleBack() {
+  emit("back");
+
+  const pages = getCurrentPages();
+  if (pages.length > 1) {
+    uni.navigateBack();
+  } else {
+    uni.switchTab({ url: "/pages/index/index" });
+  }
+}
+
+function handleHome() {
+  emit("home");
+  uni.switchTab({ url: "/pages/index/index" });
+}
+</script>
+
+<script lang="ts">
+export default {
+  name: "CustomNavbar",
+  options: {
+    virtualHost: true,
+    styleIsolation: "shared",
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.custom-navbar {
+  position: relative;
+  z-index: 999;
+  box-sizing: border-box;
+  background-color: var(--color-bg);
+
+  &--fixed {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+  }
+}
+
+.custom-navbar__content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16rpx;
+}
+
+.custom-navbar__left {
+  z-index: 10;
+  display: flex;
+  align-items: center;
+}
+
+.custom-navbar__back,
+.custom-navbar__home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  margin-right: 8rpx;
+  border-radius: 50%;
+
+  &:active {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.custom-navbar__center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 50%;
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+}
+
+.custom-navbar__title {
+  z-index: 10;
+  overflow: hidden;
+  font-size: 32rpx;
+  color: var(--color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.custom-navbar__right {
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+</style>

@@ -79,6 +79,14 @@
       }
     },
     {
+      "path": "pages/work/dept/index",
+      "type": "page",
+      "name": "dept",
+      "style": {
+        "navigationBarTitleText": "部门管理"
+      }
+    },
+    {
       "path": "pages/work/log/index",
       "type": "page",
       "name": "log",
@@ -87,11 +95,27 @@
       }
     },
     {
+      "path": "pages/work/menu/index",
+      "type": "page",
+      "name": "menu",
+      "style": {
+        "navigationBarTitleText": "菜单管理"
+      }
+    },
+    {
       "path": "pages/work/notice/index",
       "type": "page",
       "name": "notice",
       "style": {
         "navigationBarTitleText": "通知公告"
+      }
+    },
+    {
+      "path": "pages/work/permission/index",
+      "type": "page",
+      "name": "permission",
+      "style": {
+        "navigationBarTitleText": "权限管理"
       }
     },
     {
@@ -152,10 +176,15 @@
     "backgroundColorTop": "@bgColorTop",
     "backgroundColorBottom": "@bgColorBottom",
     "enablePullDownRefresh": false,
-    "onReachBottomDistance": 50
+    "onReachBottomDistance": 50,
+    "animationType": "pop-in",
+    "animationDuration": 300
   },
   "tabBar": {
     "custom": true,
+    "customize": true,
+    "overlay": true,
+    "height": "0",
     "color": "@tabColor",
     "selectedColor": "@tabSelectedColor",
     "backgroundColor": "@tabBgColor",

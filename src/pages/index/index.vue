@@ -1,25 +1,16 @@
 <template>
-  <view
-    class="page-container dark:text-[var(--wot-color-text)]"
-    :style="{
-      paddingTop: 'calc(var(--status-bar-height) + ' + navBarHeight + 'px)',
-    }"
-  >
-    <!-- 自定义导航栏 -->
-    <view class="custom-navbar" :style="{ paddingTop: 'var(--status-bar-height)' }">
-      <!-- 导航栏内容 -->
-      <view class="navbar-content">
+  <view class="home-page">
+    <custom-navbar title="首页" fixed placeholder>
+      <template #right>
         <wd-search
           v-model="searchValue"
-          :custom-style="`width: ${searchWidth}`"
-          placeholder="搜索"
-          :placeholder-left="true"
+          class="navbar__search"
           hide-cancel
           disabled
           @click="handleSearch"
         />
-      </view>
-    </view>
+      </template>
+    </custom-navbar>
 
     <!-- 轮播图 -->
     <wd-swiper
@@ -27,69 +18,68 @@
       custom-class="swiper-box"
       :list="swiperList"
       autoplay
-      @click="handleClick"
-      @change="onChange"
+      @click="handleSwiperClick"
+      @change="handleSwiperChange"
     />
 
     <!-- 快捷导航 -->
-    <wd-grid clickable :column="4" class="mt-2">
-      <wd-grid-item
-        v-for="(item, index) in navList"
-        :key="index"
-        use-slot
-        @click="handleNavClick(item)"
-      >
-        <view class="p-2">
-          <image class="w-72rpx h-72rpx rounded-8rpx" :src="item.icon" />
-        </view>
-        <view class="text-sm text-center">{{ item.title }}</view>
-      </wd-grid-item>
-    </wd-grid>
+    <view class="section">
+      <wd-grid clickable :column="4">
+        <wd-grid-item
+          v-for="(item, index) in navList"
+          :key="index"
+          use-slot
+          @click="handleNavClick(item)"
+        >
+          <view class="nav-item">
+            <image class="nav-item__icon" :src="item.icon" />
+            <text class="nav-item__label">{{ item.title }}</text>
+          </view>
+        </wd-grid-item>
+      </wd-grid>
+    </view>
 
     <!-- 通知公告 -->
-    <wd-notice-bar
-      text="vue-uniapp-template 是一个基于 Vue3 + UniApp 的前端模板项目，提供了一套完整的前端解决方案，包括登录、权限、字典、接口请求、状态管理、页面布局、组件封装等功能。"
-      color="#34D19D"
-      type="info"
-    >
-      <template #prefix>
-        <wd-tag color="#FAA21E" bg-color="#FAA21E" plain custom-style="margin-right:10rpx">
-          通知公告
-        </wd-tag>
-      </template>
-    </wd-notice-bar>
+    <view class="section">
+      <wd-notice-bar
+        text="vue-uniapp-template 是一个基于 Vue3 + UniApp 的前端模板项目，提供了一套完整的前端解决方案，包括登录、权限、字典、接口请求、状态管理、页面布局、组件封装等功能。"
+        color="#34D19D"
+        type="info"
+      >
+        <template #prefix>
+          <wd-tag color="#FAA21E" bg-color="#FAA21E" plain custom-style="margin-right: 10rpx">
+            通知公告
+          </wd-tag>
+        </template>
+      </wd-notice-bar>
+    </view>
 
     <!-- 数据统计 -->
-    <wd-grid :column="2" :gutter="2">
-      <wd-grid-item use-slot custom-class="h-80px">
-        <view class="flex justify-start pl-5">
-          <view class="flex items-center">
-            <image class="w-80rpx h-80rpx rounded-8rpx" src="/static/icons/visitor.png" />
-            <view class="ml-5 text-left">
-              <view class="font-bold">访客数</view>
-              <view class="mt-2">{{ visitStatsData.todayUvCount }}</view>
-            </view>
+    <view class="section">
+      <view class="stats-grid">
+        <view class="stats-card">
+          <image class="stats-card__icon" src="/static/icons/visitor.png" />
+          <view class="stats-card__info">
+            <text class="stats-card__label">访客数</text>
+            <text class="stats-card__value">{{ visitStatsData.todayUvCount }}</text>
           </view>
         </view>
-      </wd-grid-item>
-      <wd-grid-item use-slot custom-class="h-80px">
-        <view class="flex justify-start pl-5">
-          <view class="flex items-center">
-            <image class="w-80rpx h-80rpx rounded-8rpx" src="/static/icons/browser.png" />
-            <view class="ml-5 text-left">
-              <view class="font-bold">浏览量</view>
-              <view class="mt-2">{{ visitStatsData.todayPvCount }}</view>
-            </view>
+        <view class="stats-card">
+          <image class="stats-card__icon" src="/static/icons/browser.png" />
+          <view class="stats-card__info">
+            <text class="stats-card__label">浏览量</text>
+            <text class="stats-card__value">{{ visitStatsData.todayPvCount }}</text>
           </view>
         </view>
-      </wd-grid-item>
-    </wd-grid>
+      </view>
+    </view>
 
-    <wd-card>
-      <template #title>
-        <view class="flex justify-between items-center">
-          <view>访问趋势</view>
-          <view>
+    <!-- 访问趋势图表 -->
+    <view class="section">
+      <wd-card>
+        <template #title>
+          <view class="chart-header">
+            <text class="chart-header__title">访问趋势</text>
             <wd-radio-group
               v-model="recentDaysRange"
               shape="button"
@@ -100,21 +90,42 @@
               <wd-radio :value="15">近15天</wd-radio>
             </wd-radio-group>
           </view>
-        </view>
-      </template>
+        </template>
 
-      <view class="w-full h-300px mb-40rpx">
-        <qiun-data-charts type="area" :chartData="chartData" :opts="chartOpts" />
-      </view>
-    </wd-card>
+        <view class="chart-container">
+          <qiun-data-charts type="area" :chartData="chartData" :opts="chartOpts" />
+        </view>
+      </wd-card>
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
+/**
+ * 首页
+ *
+ * 功能说明：
+ * - 自定义导航栏（搜索框）
+ * - 轮播图展示
+ * - 快捷导航入口
+ * - 通知公告
+ * - 数据统计
+ * - 访问趋势图表
+ *
+ * 技术要点：
+ * - 使用 useNavbar 处理自定义导航栏高度和胶囊避让;
+ * - 使用 BEM 命名规范组织 CSS
+ * - 支持暗黑模式（通过 CSS 变量）
+ */
+
 import { dayjs } from "wot-design-uni";
 import { useRouter } from "uni-mini-router";
+import CustomNavbar from "@/components/custom-navbar/index.vue";
 
-// 定义访问统计数据类型
+// ============================================================================
+// 类型定义
+// ============================================================================
+
 interface VisitStatsVO {
   todayUvCount: number;
   uvGrowthRate: number;
@@ -124,36 +135,29 @@ interface VisitStatsVO {
   totalPvCount: number;
 }
 
+interface NavItem {
+  icon: string;
+  title: string;
+  url: string;
+  prem: string;
+}
+
+// ============================================================================
+// Hooks
+// ============================================================================
+
 const router = useRouter();
-const current = ref<number>(0);
+// custom-navbar 组件内部已处理导航栏高度与胶囊避让
 
-// 搜索相关
+// ============================================================================
+// 响应式数据
+// ============================================================================
+
+const current = ref(0);
 const searchValue = ref("");
+const recentDaysRange = ref(7);
 
-const navBarHeight = ref(44); // 导航栏高度（px，默认44px ≈ 88rpx）
-const searchWidth = ref("100%"); // 搜索框宽度
-
-// 初始化导航栏信息
-onMounted(() => {
-  // #ifdef MP-WEIXIN
-  // 微信小程序：获取胶囊按钮信息计算导航栏高度
-  const windowInfo = uni.getWindowInfo();
-  const statusBarHeight = windowInfo.statusBarHeight || 0; // 临时获取，仅用于计算
-
-  const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
-  // 计算导航栏高度：(胶囊底部 - 状态栏高度) + (胶囊顶部 - 状态栏高度)
-  navBarHeight.value =
-    menuButtonInfo.bottom - statusBarHeight + (menuButtonInfo.top - statusBarHeight);
-  // 搜索框宽度：胶囊左侧位置 - 左右边距
-  searchWidth.value = `${menuButtonInfo.left - 30}px`;
-  // #endif
-
-  // #ifdef H5 || APP-PLUS
-  // H5 和 App：使用固定导航栏高度
-  navBarHeight.value = 44;
-  searchWidth.value = "100%";
-  // #endif
-});
+const swiperList = ref(["https://www.youlai.tech/storage/blog/banner9.png"]);
 
 const visitStatsData = ref<VisitStatsVO>({
   todayUvCount: 1234,
@@ -164,38 +168,7 @@ const visitStatsData = ref<VisitStatsVO>({
   totalPvCount: 123456,
 });
 
-// 图表数据
-const chartData = ref({});
-
-const chartOpts = ref({
-  padding: [20, 0, 20, 0],
-  xAxis: {
-    fontSize: 10,
-    rotateLabel: true,
-    rotateAngle: 30,
-  },
-  yAxis: {
-    disabled: true,
-  },
-  extra: {
-    area: {
-      type: "curve",
-      opacity: 0.2,
-      addLine: true,
-      width: 2,
-      gradient: true,
-      activeType: "hollow",
-    },
-  },
-});
-
-// 日期范围
-const recentDaysRange = ref(7);
-
-const swiperList = ref(["https://www.youlai.tech/storage/blog/banner9.png"]);
-
-// 快捷导航列表
-const navList = reactive([
+const navList = reactive<NavItem[]>([
   {
     icon: "/static/icons/user.png",
     title: "用户管理",
@@ -222,96 +195,103 @@ const navList = reactive([
   },
 ]);
 
-// 处理搜索
-function handleSearch() {
-  uni.showToast({
-    title: "搜索功能开发中",
-    icon: "none",
-  });
-}
+const chartData = ref({});
+const chartOpts = ref({
+  padding: [20, 0, 20, 0],
+  xAxis: {
+    fontSize: 10,
+    rotateLabel: true,
+    rotateAngle: 30,
+  },
+  yAxis: {
+    disabled: true,
+  },
+  extra: {
+    area: {
+      type: "curve",
+      opacity: 0.2,
+      addLine: true,
+      width: 2,
+      gradient: true,
+      activeType: "hollow",
+    },
+  },
+});
 
-// 处理导航点击
-function handleNavClick(item: any) {
-  // 使用路由系统进行导航，这样会触发路由守卫
-  router.push({ path: item.url });
-}
+// ============================================================================
+// 数据加载
+// ============================================================================
 
-// 生成静态的访问趋势数据
-const generateStaticTrendData = (days: number) => {
-  const dates = [];
-  const ipList = [];
-  const pvList = [];
-
+function generateStaticTrendData(days: number) {
+  const dates: string[] = [];
+  const ipList: number[] = [];
+  const pvList: number[] = [];
   const today = new Date();
 
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(today.getDate() - i);
     dates.push(dayjs(date).format("MM-DD"));
-
-    // 生成模拟数据
     ipList.push(Math.floor(Math.random() * 500) + 200);
     pvList.push(Math.floor(Math.random() * 1000) + 500);
   }
 
-  return {
-    dates,
-    ipList,
-    pvList,
+  return { dates, ipList, pvList };
+}
+
+function loadVisitStatsData() {
+  visitStatsData.value = {
+    todayUvCount: 1234,
+    uvGrowthRate: 15.6,
+    totalUvCount: 45678,
+    todayPvCount: 5678,
+    pvGrowthRate: 23.4,
+    totalPvCount: 123456,
   };
-};
-
-function handleClick(e: any) {
-  console.log(e);
-}
-function onChange(e: any) {
-  console.log(e);
 }
 
-// 加载访问统计数据（使用静态数据）
-const loadVisitStatsData = async () => {
-  // 模拟异步加载
-  setTimeout(() => {
-    visitStatsData.value = {
-      todayUvCount: 1234,
-      uvGrowthRate: 15.6,
-      totalUvCount: 45678,
-      todayPvCount: 5678,
-      pvGrowthRate: 23.4,
-      totalPvCount: 123456,
-    };
-  }, 100);
-};
+function loadVisitTrendData() {
+  const data = generateStaticTrendData(recentDaysRange.value);
 
-// 加载访问趋势数据（使用静态数据）
-const loadVisitTrendData = () => {
-  // 模拟异步加载
-  setTimeout(() => {
-    const data = generateStaticTrendData(recentDaysRange.value);
-
-    const res = {
+  chartData.value = JSON.parse(
+    JSON.stringify({
       categories: data.dates,
       series: [
-        {
-          name: "访客数(UV)",
-          data: data.ipList,
-        },
-        {
-          name: "浏览量(PV)",
-          data: data.pvList,
-        },
+        { name: "访客数(UV)", data: data.ipList },
+        { name: "浏览量(PV)", data: data.pvList },
       ],
-    };
-    chartData.value = JSON.parse(JSON.stringify(res));
-  }, 100);
-};
+    })
+  );
+}
 
-//  数据范围变化
-const handleDataRangeChange = ({ value }: { value: number }) => {
-  console.log("handleDataRangeChange", value);
+// ============================================================================
+// 事件处理
+// ============================================================================
+
+function handleSearch() {
+  uni.showToast({ title: "搜索功能开发中", icon: "none" });
+}
+
+function handleNavClick(item: NavItem) {
+  router.push({ path: item.url });
+}
+
+function handleSwiperClick(e: any) {
+  console.log("Swiper click:", e);
+}
+
+function handleSwiperChange(e: any) {
+  console.log("Swiper change:", e);
+}
+
+function handleDataRangeChange({ value }: { value: number }) {
   recentDaysRange.value = value;
   loadVisitTrendData();
-};
+}
+
+// ============================================================================
+// 生命周期
+// ============================================================================
 
 onReady(() => {
   loadVisitStatsData();
@@ -326,23 +306,154 @@ onReady(() => {
   "layout": "tabbar"
 }
 </route>
+
 <style lang="scss" scoped>
-// 自定义导航栏
-.custom-navbar {
+// ============================================================================
+// 页面容器
+// ============================================================================
+
+.home-page {
+  min-height: 100%;
+  background-color: var(--color-bg-secondary);
+}
+
+// ============================================================================
+// 导航栏
+// ============================================================================
+
+.navbar {
   position: fixed;
   top: 0;
   right: 0;
   left: 0;
   z-index: 999;
-  background-color: var(--wot-color-bg);
+  background-color: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10rpx 24rpx rgba(0, 0, 0, 0.06);
+
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16rpx;
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+  }
+
+  &__title {
+    font-size: 34rpx;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+  }
+
+  &__search {
+    width: 100%;
+  }
 }
 
-.navbar-content {
-  box-sizing: border-box;
+// ============================================================================
+// 区块
+// ============================================================================
+
+.section {
+  margin: 24rpx;
+}
+
+// ============================================================================
+// 快捷导航项
+// ============================================================================
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx;
+
+  &__icon {
+    width: 72rpx;
+    height: 72rpx;
+    border-radius: 16rpx;
+  }
+
+  &__label {
+    margin-top: 12rpx;
+    font-size: 24rpx;
+    color: var(--color-text);
+  }
+}
+
+// ============================================================================
+// 数据统计网格
+// ============================================================================
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+}
+
+.stats-card {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  height: 88rpx;
-  background-color: var(--wot-color-bg);
+  padding: 32rpx;
+  background-color: var(--color-bg);
+  border-radius: 24rpx;
+
+  &__icon {
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 16rpx;
+  }
+
+  &__info {
+    margin-left: 32rpx;
+  }
+
+  &__label {
+    display: block;
+    font-size: 26rpx;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  &__value {
+    display: block;
+    margin-top: 8rpx;
+    font-size: 36rpx;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+}
+
+// ============================================================================
+// 图表
+// ============================================================================
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &__title {
+    font-size: 28rpx;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+}
+
+.chart-container {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 40rpx;
 }
 </style>

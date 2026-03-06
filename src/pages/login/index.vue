@@ -101,7 +101,7 @@
             open-type="getPhoneNumber"
             @getphonenumber="handleWechatPhoneLogin"
           >
-            <image class="btn-wechat-icon" src="/static/icons/weixin.png" mode="aspectFit" />
+            <image class="btn-wechat-icon" src="/static/images/wechat-icon.png" mode="aspectFit" />
             微信一键登录
           </button>
 
@@ -217,7 +217,7 @@
 <script lang="ts" setup>
 import { onLoad, onUnload } from "@dcloudio/uni-app";
 import { useToast } from "wot-design-uni";
-import { useUserStore } from "@/store/modules/user-store";
+import { useUserStore } from "@/store/modules/user";
 import AuthAPI from "@/api/auth";
 
 const toast = useToast();
@@ -280,7 +280,7 @@ onLoad((options: any) => {
   if (fromQuery && fromQuery !== "/pages/login/index") {
     redirect.value = fromQuery;
   }
-  // #ifndef MP-WECHAT
+  // #ifndef MP-WEIXIN
   // 非微信环境强制使用密码登录
   if (loginMode.value === "WECHAT") {
     loginMode.value = "PASSWORD";
@@ -472,7 +472,7 @@ const handleBindMobile = async () => {
     await userStore.bindMobileForWechatMiniapp({
       openid: wechatOpenid.value,
       mobile,
-      smsCode: code,
+      code,
     });
     await userStore.getInfo();
     showBindMobilePopup.value = false;

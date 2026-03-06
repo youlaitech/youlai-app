@@ -24,6 +24,7 @@ export default {
       "flex-column": "flex flex-col",
       "flex-row": "flex flex-row",
 
+      // 垂直布局并居中对齐
       "flex-col-center": "flex flex-col items-center",
     },
   ],

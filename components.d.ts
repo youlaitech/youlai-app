@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     CuDateQuery: typeof import('./src/components/cu-date-query/index.vue')['default']
     CuPicker: typeof import('./src/components/cu-picker/index.vue')['default']
+    CustomNavbar: typeof import('./src/components/custom-navbar/index.vue')['default']
     Loading1: typeof import('./src/components/qiun-loading/loading1.vue')['default']
     Loading2: typeof import('./src/components/qiun-loading/loading2.vue')['default']
     Loading3: typeof import('./src/components/qiun-loading/loading3.vue')['default']

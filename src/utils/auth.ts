@@ -1,4 +1,4 @@
-﻿import { useUserStore } from "@/store/modules/user-store";
+﻿import { useUserStore } from "@/store/modules/user";
 import { Storage } from "./storage";
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/constants";
 

@@ -15,8 +15,11 @@ interface NavigateToOptions {
        "/pages/mine/profile/index" |
        "/pages/mine/settings/index" |
        "/pages/work/config/index" |
+       "/pages/work/dept/index" |
        "/pages/work/log/index" |
+       "/pages/work/menu/index" |
        "/pages/work/notice/index" |
+       "/pages/work/permission/index" |
        "/pages/work/role/index" |
        "/pages/work/user/index" |
        "/pages/mine/settings/account/index" |

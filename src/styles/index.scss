@@ -1,4 +1,10 @@
+@use "./variables" as *;
+@use "./mixins" as *;
 @use "./theme";
+
+// ==========================================================================
+// 全局基础样式
+// ==========================================================================
 
 html,
 body,
@@ -6,9 +12,88 @@ body,
   height: 100%;
   padding: 0;
   margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+// ==========================================================================
+// 页面容器
+// ==========================================================================
 
 .page-container {
   min-height: 100%;
-  background-color: var(--wot-color-bg);
+  background-color: var(--color-bg);
+}
+
+// ==========================================================================
+// 快捷类
+// ==========================================================================
+
+// Flex 布局
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-col-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+// 文字省略
+.ellipsis {
+  @include ellipsis;
+}
+
+.ellipsis-2 {
+  @include ellipsis-lines(2);
+}
+
+// 安全区域
+.safe-area-bottom {
+  @include safe-area-bottom;
+}
+
+.safe-area-top {
+  @include safe-area-top;
+}
+
+// ==========================================================================
+// 通用组件样式
+// ==========================================================================
+
+// 空状态占位
+.empty-placeholder {
+  @include flex-center;
+  flex-direction: column;
+  padding: 100rpx 32rpx;
+  color: var(--color-text-secondary);
+
+  &__icon {
+    font-size: 80rpx;
+    margin-bottom: 24rpx;
+  }
+
+  &__text {
+    font-size: 28rpx;
+  }
+}
+
+// 加载状态
+.loading-container {
+  @include flex-center;
+  min-height: 200rpx;
 }

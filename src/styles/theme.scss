@@ -1,41 +1,130 @@
-/* 默认主题 (light) */
+// ==========================================================================
+// 主题变量系统
+// ==========================================================================
+// 遵循文档规范，提供完整的明暗主题支持
+// 使用 CSS 变量实现主题切换，支持 wot-design-uni 组件库
+
+// ==========================================================================
+// 默认主题 (light)
+// ==========================================================================
 :root,
 page {
-  /* 官方主题变量 */
-  --wot-color-theme: #4d80f0;
-  --wot-color-success: #34d19d;
-  --wot-color-warning: #f0883a;
-  --wot-color-danger: #ff4757;
+  // -----------------------------------------------------------------------
+  // 主题色
+  // -----------------------------------------------------------------------
+  --color-primary: #4d80f0;
+  --color-primary-light: #e8f0fe;
+  --color-primary-dark: #2563eb;
+  --color-success: #34d19d;
+  --color-success-light: #e6f7f1;
+  --color-warning: #f0883a;
+  --color-warning-light: #fff4e6;
+  --color-danger: #ff4757;
+  --color-danger-light: #fff1f2;
 
-  /* 自定义扩展变量 */
-  --wot-button-normal-bg: #ffffff;
-  --wot-color-bg: #ffffff;
-  --wot-color-bg-light: #f3f4f6;
+  // -----------------------------------------------------------------------
+  // 背景色
+  // -----------------------------------------------------------------------
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-tertiary: #f1f5f9;
 
-  /* 文本颜色变量 */
-  --wot-color-text: #333333;
-  --wot-color-text-secondary: #666666;
-  --wot-color-text-placeholder: #999999;
+  // -----------------------------------------------------------------------
+  // 文字颜色
+  // -----------------------------------------------------------------------
+  --color-text: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-text-placeholder: #9ca3af;
+  --color-text-disabled: #d1d5db;
 
-  /* 边框和背景变量 */
-  --wot-color-border: #e5e5e5;
+  // -----------------------------------------------------------------------
+  // 边框颜色
+  // -----------------------------------------------------------------------
+  --color-border: #e5e7eb;
+  --color-border-light: #f3f4f6;
+  --color-border-dark: #d1d5db;
+
+  // -----------------------------------------------------------------------
+  // 阴影
+  // -----------------------------------------------------------------------
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  // -----------------------------------------------------------------------
+  // wot-design-uni 组件库变量
+  // -----------------------------------------------------------------------
+  --wot-color-theme: var(--color-primary);
+  --wot-color-success: var(--color-success);
+  --wot-color-warning: var(--color-warning);
+  --wot-color-danger: var(--color-danger);
+  --wot-button-normal-bg: var(--color-bg);
+  --wot-color-bg: var(--color-bg);
+  --wot-color-bg-light: var(--color-bg-secondary);
+  --wot-color-text: var(--color-text);
+  --wot-color-text-secondary: var(--color-text-secondary);
+  --wot-color-text-placeholder: var(--color-text-placeholder);
+  --wot-color-border: var(--color-border);
 }
 
-/* 暗黑主题 (dark) */
+// ==========================================================================
+// 暗黑主题 (dark)
+// ==========================================================================
 .wot-theme-dark {
-  /* 官方主题变量 */
-  --wot-color-theme: #1a73e8;
-  --wot-color-success: #28a745;
-  --wot-color-warning: #ffc107;
-  --wot-color-danger: #ff4757;
+  // -----------------------------------------------------------------------
+  // 主题色
+  // -----------------------------------------------------------------------
+  --color-primary: #3b82f6;
+  --color-primary-light: #1e3a5f;
+  --color-primary-dark: #60a5fa;
+  --color-success: #34d399;
+  --color-success-light: #064e3b;
+  --color-warning: #fbbf24;
+  --color-warning-light: #78350f;
+  --color-danger: #f87171;
+  --color-danger-light: #7f1d1d;
 
-  /* 自定义扩展变量 */
-  --wot-color-bg: #1b1b1b;
-  --wot-color-bg-light: #2a2a2a;
-  --wot-color-text: #ffffff;
-  --wot-color-text-secondary: #cccccc;
-  --wot-color-text-placeholder: #999999;
+  // -----------------------------------------------------------------------
+  // 背景色
+  // -----------------------------------------------------------------------
+  --color-bg: #111827;
+  --color-bg-secondary: #1f2937;
+  --color-bg-tertiary: #374151;
 
-  /* 暗黑模式下的边框和背景变量 */
-  --wot-color-border: #3a3a3a;
+  // -----------------------------------------------------------------------
+  // 文字颜色
+  // -----------------------------------------------------------------------
+  --color-text: #f9fafb;
+  --color-text-secondary: #9ca3af;
+  --color-text-placeholder: #6b7280;
+  --color-text-disabled: #4b5563;
+
+  // -----------------------------------------------------------------------
+  // 边框颜色
+  // -----------------------------------------------------------------------
+  --color-border: #374151;
+  --color-border-light: #1f2937;
+  --color-border-dark: #4b5563;
+
+  // -----------------------------------------------------------------------
+  // 阴影
+  // -----------------------------------------------------------------------
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+
+  // -----------------------------------------------------------------------
+  // wot-design-uni 组件库变量
+  // -----------------------------------------------------------------------
+  --wot-color-theme: var(--color-primary);
+  --wot-color-success: var(--color-success);
+  --wot-color-warning: var(--color-warning);
+  --wot-color-danger: var(--color-danger);
+  --wot-button-normal-bg: var(--color-bg-secondary);
+  --wot-color-bg: var(--color-bg);
+  --wot-color-bg-light: var(--color-bg-secondary);
+  --wot-color-text: var(--color-text);
+  --wot-color-text-secondary: var(--color-text-secondary);
+  --wot-color-text-placeholder: var(--color-text-placeholder);
+  --wot-color-border: var(--color-border);
 }

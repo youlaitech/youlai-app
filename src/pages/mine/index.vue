@@ -1,8 +1,8 @@
 <template>
   <view class="page-container dark:text-[var(--wot-color-text)]">
     <!-- 用户信息卡片 -->
-    <view class="user-profile">
-      <view class="blur-bg"></view>
+    <view class="user-profile" :style="{ paddingTop: navbar.totalHeight.value + 'px' }">
+      <view class="blur-bg" />
 
       <view class="user-info">
         <view class="avatar-container" @click="navigateToProfile">
@@ -32,13 +32,16 @@
           </block>
         </view>
 
-        <!-- 操作按钮区域 - 放在用户信息右侧 -->
-        <view class="action-buttons">
+        <!-- 操作按钮区域 - 避开胶囊按钮 -->
+        <view
+          class="action-buttons"
+          :style="{ marginRight: navbar.menuButtonRightGap.value + 8 + 'px' }"
+        >
           <view class="action-btn" @click="navigateToSettings">
-            <wd-icon name="setting1" size="22" />
+            <wd-icon name="setting1" size="22" color="#fff" />
           </view>
           <view v-if="isLogin" class="action-btn relative" @click="navigateToSection('messages')">
-            <wd-icon name="notification" size="22" />
+            <wd-icon name="notification" size="22" color="#fff" />
             <view v-if="true" class="action-badge">2</view>
           </view>
         </view>
@@ -189,6 +192,7 @@
 import { useToast } from "wot-design-uni";
 import { useUserStore, useThemeStore } from "@/store";
 import { useRouter } from "uni-mini-router";
+import { useNavbar } from "@/composables/useNavbar";
 
 const toast = useToast();
 const userStore = useUserStore();
@@ -199,6 +203,9 @@ const isLogin = computed(() => !!userInfo.value);
 const defaultAvatar = "/static/images/default-avatar.png";
 
 const router = useRouter();
+
+// 使用导航栏 Hook（TabBar 页面）
+const navbar = useNavbar({ hasTabbar: true });
 
 // 登录
 const navigateToLoginPage = () => {
@@ -266,7 +273,6 @@ const navigateToSection = (section: string, subSection?: string) => {
 // 用户信息卡片
 .user-profile {
   position: relative;
-  padding: calc(var(--status-bar-height) + 80rpx) 30rpx 30rpx; // 顶部：状态栏高度 + 操作按钮区域(80rpx)
   overflow: hidden;
 
   .blur-bg {
@@ -284,6 +290,7 @@ const navigateToSection = (section: string, subSection?: string) => {
     z-index: 1;
     display: flex;
     align-items: center;
+    padding: 30rpx;
 
     .avatar-container {
       position: relative;
@@ -334,7 +341,6 @@ const navigateToSection = (section: string, subSection?: string) => {
       width: 70rpx;
       height: 70rpx;
       background-color: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10rpx);
       border-radius: 50%;
     }
 
@@ -385,11 +391,9 @@ const navigateToSection = (section: string, subSection?: string) => {
   font-size: 32rpx !important;
   font-weight: bold !important;
   border-radius: 40rpx !important;
-  transition: all 0.3s ease !important;
 
   &:active {
     opacity: 0.8 !important;
-    transform: scale(0.98) !important;
   }
 }
 </style>
