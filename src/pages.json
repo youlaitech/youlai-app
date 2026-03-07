@@ -14,7 +14,7 @@
       "type": "page",
       "name": "login",
       "style": {
-        "navigationStyle": "custom",
+        "navigationStyle": "custom"
       }
     },
     {
@@ -40,7 +40,7 @@
       "type": "page"
     },
     {
-      "path": "pages/mine/faq/index",
+      "path": "pages/mine/account/index",
       "type": "page"
     },
     {
@@ -141,10 +141,6 @@
       "style": {
         "navigationBarTitleText": "用户管理"
       }
-    },
-    {
-      "path": "pages/mine/settings/account/index",
-      "type": "page"
     },
     {
       "path": "pages/mine/settings/agreement/index",

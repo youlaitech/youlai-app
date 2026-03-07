@@ -9,7 +9,7 @@ interface NavigateToOptions {
        "/pages/mine/index" |
        "/pages/work/index" |
        "/pages/mine/about/index" |
-       "/pages/mine/faq/index" |
+       "/pages/mine/account/index" |
        "/pages/mine/feedback/index" |
        "/pages/mine/official/index" |
        "/pages/mine/profile/complete-profile" |
@@ -23,7 +23,6 @@ interface NavigateToOptions {
        "/pages/work/permission/index" |
        "/pages/work/role/index" |
        "/pages/work/user/index" |
-       "/pages/mine/settings/account/index" |
        "/pages/mine/settings/agreement/index" |
        "/pages/mine/settings/network/index" |
        "/pages/mine/settings/privacy/index" |

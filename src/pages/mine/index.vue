@@ -202,7 +202,7 @@ const navigateToAccount = () => {
     navigateToLoginPage();
     return;
   }
-  router.push({ path: "/pages/mine/settings/account/index" });
+  router.push({ path: "/pages/mine/account/index" });
 };
 
 const navigateToNotifications = () => {
