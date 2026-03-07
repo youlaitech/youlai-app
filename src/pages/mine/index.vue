@@ -54,7 +54,7 @@
       </view>
     </view>
 
-    <view class="section-card">
+    <view v-if="isLogin" class="section-card">
       <view class="section-header">
         <view class="section-title">
           <wd-icon name="user" size="18" :color="currentThemeColor" />

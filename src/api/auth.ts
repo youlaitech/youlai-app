@@ -6,6 +6,8 @@ const WECHAT_MINIAPP_AUTH_BASE_URL = "/api/v1/wechat/miniapp/auth";
 export interface LoginData {
   username: string;
   password: string;
+  captchaId?: string;
+  captchaCode?: string;
 }
 
 export interface LoginResult {
@@ -16,6 +18,11 @@ export interface LoginResult {
   isNewUser?: boolean;
   needBindMobile?: boolean;
   openid?: string;
+}
+
+export interface CaptchaVO {
+  captchaId: string;
+  captchaBase64: string;
 }
 
 export interface SmsLoginData {
@@ -46,6 +53,16 @@ export interface WechatMiniappBindMobileData {
 
 const AuthAPI = {
   /**
+   * 获取图形验证码
+   */
+  getCaptcha(): Promise<CaptchaVO> {
+    return publicRequest<CaptchaVO>({
+      url: `${AUTH_BASE_URL}/captcha`,
+      method: "GET",
+    });
+  },
+
+  /**
    * 账号密码登录
    */
   login(data: LoginData): Promise<LoginResult> {
@@ -58,7 +75,7 @@ const AuthAPI = {
 
   /**
    * 发送短信验证码
-   * 
+   *
    * 演示环境说明：短信服务未配置，验证码固定为 123456
    */
   sendSmsLoginCode(mobile: string): Promise<void> {
@@ -83,7 +100,7 @@ const AuthAPI = {
 
   /**
    * 微信小程序静默登录
-   * 
+   *
    * 适用场景：个人小程序
    * - 已绑定手机号的用户：直接返回 token，登录成功
    * - 未绑定手机号的用户：返回 openid，需调用绑定手机号接口
@@ -97,7 +114,7 @@ const AuthAPI = {
 
   /**
    * 微信小程序手机号快捷登录
-   * 
+   *
    * 适用场景：企业认证小程序（已开通手机号快捷登录权限）
    * 一步完成登录，无需绑定流程，自动创建新用户
    */
@@ -112,7 +129,7 @@ const AuthAPI = {
 
   /**
    * 微信小程序绑定手机号
-   * 
+   *
    * 演示环境说明：短信服务未配置，验证码固定为 123456
    */
   wechatMiniappBindMobile(data: WechatMiniappBindMobileData): Promise<LoginResult> {

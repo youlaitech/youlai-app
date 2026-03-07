@@ -11,7 +11,7 @@
       <!-- Logo -->
       <view class="login-logo">
         <image class="logo-image" src="/static/logo.png" mode="aspectFit" />
-        <text class="logo-text">YouLai Admin</text>
+        <text class="logo-text">youlai-app</text>
       </view>
 
       <!-- 登录卡片 -->
@@ -43,12 +43,31 @@
               class="input-field"
               :password="!showPassword"
               placeholder="请输入密码"
-              maxlength="50"
+              :maxlength="50"
               @confirm="handleLogin"
             />
             <view class="input-suffix" @click="showPassword = !showPassword">
               <wd-icon :name="showPassword ? 'eye-open' : 'eye-close'" size="20" color="#9ca3af" />
             </view>
+          </view>
+
+          <!-- 图形验证码（密码登录时显示） -->
+          <view v-if="loginMode === 'PASSWORD'" class="input-box">
+            <wd-icon name="shield" size="20" color="#9ca3af" />
+            <input
+              v-model="formData.captchaCode"
+              class="input-field"
+              placeholder="请输入验证码"
+              :maxlength="6"
+              @confirm="handleLogin"
+            />
+            <image
+              v-if="captchaBase64"
+              class="captcha-img"
+              :src="captchaBase64"
+              mode="aspectFit"
+              @click="fetchCaptcha"
+            />
           </view>
 
           <!-- 验证码 -->
@@ -59,7 +78,7 @@
               class="input-field"
               placeholder="请输入验证码"
               type="number"
-              maxlength="6"
+              :maxlength="6"
               @confirm="handleLogin"
             />
             <view
@@ -77,7 +96,7 @@
           </view>
 
           <!-- 登录按钮 -->
-          <button class="btn-primary" :disabled="loading || !canSubmit" @click="handleLogin">
+          <button class="btn-primary" :disabled="loading" @click="handleLogin">
             {{ loading ? "登录中..." : "登 录" }}
           </button>
 
@@ -130,13 +149,11 @@
             @click="loginMode = 'WECHAT'"
           />
         </view>
-        <!-- #endif -->
 
-        <!-- 协议 -->
         <view class="agreement">
           <wd-checkbox v-model="isAgreePolicy" shape="square" size="16px">
             <text class="agreement-text">
-              登录即代表同意
+              我已阅读并同意
               <text class="agreement-link" @click.stop="navigateToAgreement('user')">
                 《用户协议》
               </text>
@@ -147,6 +164,7 @@
             </text>
           </wd-checkbox>
         </view>
+        <!-- #endif -->
       </view>
     </view>
 
@@ -169,7 +187,7 @@
               class="input-field"
               placeholder="请输入手机号"
               type="number"
-              maxlength="11"
+              :maxlength="11"
             />
           </view>
 
@@ -180,7 +198,7 @@
               class="input-field"
               placeholder="请输入验证码"
               type="number"
-              maxlength="6"
+              :maxlength="6"
             />
             <view
               class="sms-btn"
@@ -203,6 +221,15 @@
       </view>
     </wd-popup>
 
+    <!-- 协议确认弹窗 -->
+    <wd-message-box selector="policy-box">
+      <view class="text-center text-sm text-gray-500 leading-relaxed">
+        请阅读并同意有来技术
+        <text class="text-blue-500" @click.stop="navigateToAgreement('user')">《用户协议》</text>
+        <text class="text-blue-500" @click.stop="navigateToAgreement('privacy')">《隐私政策》</text>
+      </view>
+    </wd-message-box>
+
     <wd-toast />
   </view>
 </template>
@@ -210,17 +237,18 @@
 <route lang="json">
 {
   "name": "login",
-  "style": { "navigationStyle": "custom" }
+  "style": { "navigationBarTitleText": "登录" }
 }
 </route>
 
 <script lang="ts" setup>
 import { onLoad, onUnload } from "@dcloudio/uni-app";
-import { useToast } from "wot-design-uni";
+import { useToast, useMessage } from "wot-design-uni";
 import { useUserStore } from "@/store/modules/user";
 import AuthAPI from "@/api/auth";
 
 const toast = useToast();
+const message = useMessage("policy-box");
 const userStore = useUserStore();
 
 // 状态
@@ -235,7 +263,12 @@ const formData = ref({
   username: "admin",
   password: "123456",
   code: "123456",
+  captchaCode: "",
 });
+
+// 图形验证码
+const captchaId = ref("");
+const captchaBase64 = ref("");
 
 const redirect = ref("/pages/index/index");
 
@@ -251,6 +284,20 @@ const bindMobileForm = ref({
   code: "",
 });
 
+const pendingLoginAction = ref<"FORM" | "WECHAT_PHONE" | null>(null);
+const pendingWechatPhoneCode = ref<string>("");
+
+// 获取图形验证码
+const fetchCaptcha = async () => {
+  try {
+    const res = await AuthAPI.getCaptcha();
+    captchaId.value = res.captchaId;
+    captchaBase64.value = res.captchaBase64;
+  } catch (e) {
+    console.error("获取验证码失败", e);
+  }
+};
+
 // 计算属性
 const loginModeDesc = computed(() => {
   const modeMap = {
@@ -264,7 +311,6 @@ const loginModeDesc = computed(() => {
 const isValidMobile = (mobile: string) => /^1\d{10}$/.test((mobile || "").trim());
 
 const canSubmit = computed(() => {
-  if (!isAgreePolicy.value) return false;
   if (loginMode.value === "PASSWORD") {
     return (formData.value.username || "").trim() && (formData.value.password || "").trim();
   }
@@ -286,6 +332,8 @@ onLoad((options: any) => {
     loginMode.value = "PASSWORD";
   }
   // #endif
+  // 获取图形验证码
+  fetchCaptcha();
 });
 
 onUnload(() => {
@@ -305,12 +353,42 @@ const toggleLoginMode = () => {
   formData.value.code = "";
 };
 
-const handleLogin = async () => {
-  if (loading.value || !canSubmit.value) return;
-  if (!isAgreePolicy.value) {
-    toast.error("请先同意用户协议");
+const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode: string = "") => {
+  pendingLoginAction.value = action;
+  pendingWechatPhoneCode.value = phoneCode;
+
+  message
+    .confirm({ title: "提示" })
+    .then(async () => {
+      isAgreePolicy.value = true;
+      const act = pendingLoginAction.value;
+      const code = pendingWechatPhoneCode.value;
+      pendingLoginAction.value = null;
+      pendingWechatPhoneCode.value = "";
+
+      if (act === "WECHAT_PHONE") {
+        await doWechatPhoneLogin(code);
+      } else if (act === "FORM") {
+        await doFormLogin();
+      }
+    })
+    .catch(() => {
+      pendingLoginAction.value = null;
+      pendingWechatPhoneCode.value = "";
+    });
+};
+
+async function doFormLogin() {
+  if (!canSubmit.value) {
+    if (loginMode.value === "PASSWORD") {
+      toast.error("请输入用户名和密码");
+    } else if (loginMode.value === "SMS") {
+      toast.error("请输入正确的手机号和验证码");
+    }
     return;
   }
+
+  if (loading.value) return;
 
   loading.value = true;
 
@@ -319,6 +397,8 @@ const handleLogin = async () => {
       await userStore.login({
         username: formData.value.username,
         password: formData.value.password,
+        captchaId: captchaId.value,
+        captchaCode: formData.value.captchaCode,
       });
     } else {
       await userStore.loginBySms({
@@ -332,9 +412,21 @@ const handleLogin = async () => {
     setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
   } catch (error: any) {
     toast.error(error?.message || "登录失败");
+    // 登录失败刷新验证码
+    if (loginMode.value === "PASSWORD") {
+      fetchCaptcha();
+    }
   } finally {
     loading.value = false;
   }
+}
+
+const handleLogin = async () => {
+  if (!isAgreePolicy.value) {
+    openPolicyDialog("FORM");
+    return;
+  }
+  await doFormLogin();
 };
 
 const handleSendCode = async () => {
@@ -378,14 +470,21 @@ const startSmsCountdown = (
 
 // 微信登录
 const handleWechatPhoneLogin = async (e: any) => {
+  const phoneCode = e.detail.code;
   if (!isAgreePolicy.value) {
-    toast.error("请先同意用户协议");
+    openPolicyDialog("WECHAT_PHONE", phoneCode);
     return;
   }
-
-  const phoneCode = e.detail.code;
   if (!phoneCode) {
     // 用户拒绝授权，尝试个人小程序登录
+    await handleWechatSilentLogin();
+    return;
+  }
+  await doWechatPhoneLogin(phoneCode);
+};
+
+async function doWechatPhoneLogin(phoneCode: string) {
+  if (!phoneCode) {
     await handleWechatSilentLogin();
     return;
   }
@@ -398,14 +497,13 @@ const handleWechatPhoneLogin = async (e: any) => {
     await userStore.getInfo();
     toast.success("登录成功");
     setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
-  } catch (error: any) {
-    // 企业登录失败，尝试个人小程序登录
+  } catch {
     toast.info("正在尝试其他登录方式...");
     await handleWechatSilentLogin();
   } finally {
     loading.value = false;
   }
-};
+}
 
 const handleWechatSilentLogin = async () => {
   loading.value = true;
@@ -472,7 +570,7 @@ const handleBindMobile = async () => {
     await userStore.bindMobileForWechatMiniapp({
       openid: wechatOpenid.value,
       mobile,
-      code,
+      smsCode: code,
     });
     await userStore.getInfo();
     showBindMobilePopup.value = false;
@@ -542,7 +640,7 @@ const navigateToAgreement = (type: string) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 160px 48px 0;
+  padding: 24px 48px 0;
 }
 
 // Logo
@@ -613,8 +711,11 @@ const navigateToAgreement = (type: string) => {
 
 // 表单区域
 .form-area {
-  & > view + view {
-    margin-top: 16px;
+  > view,
+  > button {
+    &:not(:first-child) {
+      margin-top: 16px;
+    }
   }
 }
 
@@ -745,6 +846,12 @@ const navigateToAgreement = (type: string) => {
   background-color: #e5e7eb;
 }
 
+.captcha-img {
+  width: 100px;
+  height: 36px;
+  border-radius: 6px;
+}
+
 :global(.dark) .sms-btn-active {
   background-color: rgba(30, 58, 138, 0.3);
 }
@@ -822,17 +929,13 @@ const navigateToAgreement = (type: string) => {
   }
 }
 
-// 协议
 .agreement {
   display: flex;
   align-items: flex-start;
+  justify-content: center;
   padding-top: 16px;
   margin-top: 24px;
   border-top: 1px solid #f3f4f6;
-}
-
-:global(.dark) .agreement {
-  border-top-color: #374151;
 }
 
 .agreement-text {
@@ -841,16 +944,8 @@ const navigateToAgreement = (type: string) => {
   color: #6b7280;
 }
 
-:global(.dark) .agreement-text {
-  color: #9ca3af;
-}
-
 .agreement-link {
   color: #2563eb;
-}
-
-:global(.dark) .agreement-link {
-  color: #60a5fa;
 }
 
 // 绑定手机号弹窗
