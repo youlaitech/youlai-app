@@ -14,7 +14,7 @@
       "type": "page",
       "name": "login",
       "style": {
-        "navigationBarTitleText": "登录"
+        "navigationStyle": "custom",
       }
     },
     {
@@ -52,6 +52,14 @@
       },
       "meta": {
         "requireAuth": true
+      }
+    },
+    {
+      "path": "pages/mine/official/index",
+      "type": "page",
+      "name": "official",
+      "style": {
+        "navigationBarTitleText": "有来技术"
       }
     },
     {

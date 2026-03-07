@@ -106,7 +106,12 @@
           </view>
 
           <!-- 登录按钮 -->
-          <button class="btn-primary" :disabled="loading" @click="handleLogin">
+          <button
+            class="btn-primary"
+            :class="{ 'btn-primary--loading': loading }"
+            :disabled="loading"
+            @click="handleLogin"
+          >
             {{ loading ? "登录中..." : "登 录" }}
           </button>
 
@@ -866,6 +871,7 @@ const handleBack = () => {
 
 // 主按钮
 .btn-primary {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -878,14 +884,44 @@ const handleBack = () => {
   border-radius: 12px;
   box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
   transition: all 0.2s;
+  overflow: hidden;
 
   &:active {
     transform: scale(0.98);
   }
 
   &:disabled {
-    box-shadow: none;
-    opacity: 0.5;
+    opacity: 0.9;
+    box-shadow: 0 8px 14px -6px rgba(59, 130, 246, 0.22);
+    transform: none;
+  }
+}
+
+.btn-primary--loading {
+  opacity: 0.92;
+}
+
+.btn-primary--loading::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.16) 30%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  transform: translateX(-100%);
+  animation: btnShimmer 1.1s ease-in-out infinite;
+}
+
+@keyframes btnShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
   }
 }
 

@@ -11,6 +11,7 @@ interface NavigateToOptions {
        "/pages/mine/about/index" |
        "/pages/mine/faq/index" |
        "/pages/mine/feedback/index" |
+       "/pages/mine/official/index" |
        "/pages/mine/profile/complete-profile" |
        "/pages/mine/profile/index" |
        "/pages/mine/settings/index" |

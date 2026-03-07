@@ -1,14 +1,6 @@
 <template>
   <view class="page-container dark:text-[var(--wot-color-text)]">
     <wd-cell-group>
-      <wd-cell v-if="isLogin" title="个人资料" icon="user" is-link @click="navigateToProfile" />
-      <wd-cell
-        v-if="isLogin"
-        title="账号和安全"
-        icon="secured"
-        is-link
-        @click="navigateToAccount"
-      />
       <wd-cell title="主题设置" icon="setting1" is-link @click="navigateToTheme" />
       <wd-cell title="用户协议" icon="user" is-link @click="navigateToUserAgreement" />
       <wd-cell title="关于我们" icon="info-circle" is-link @click="navigateToAbout" />
@@ -42,29 +34,10 @@
 
 <script lang="ts" setup>
 import { useUserStore } from "@/store";
-import { checkLogin } from "@/utils/auth";
 import { onLoad } from "@dcloudio/uni-app";
 
 const userStore = useUserStore();
 const isLogin = computed(() => !!userStore.userInfo);
-
-// 个人资料
-const navigateToProfile = () => {
-  if (checkLogin()) {
-    uni.navigateTo({
-      url: "/pages/mine/profile/index",
-    });
-  }
-};
-
-// 账号和安全
-const navigateToAccount = () => {
-  if (checkLogin()) {
-    uni.navigateTo({
-      url: "/pages/mine/settings/account/index",
-    });
-  }
-};
 
 // 主题设置
 const navigateToTheme = () => {

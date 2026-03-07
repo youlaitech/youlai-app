@@ -1,29 +1,19 @@
 <template>
   <view class="home-page">
-    <custom-navbar title="首页" fixed placeholder :showBack="false">
-      <template #right>
-        <wd-search
-          v-model="searchValue"
-          class="navbar__search"
-          hide-cancel
-          disabled
-          @click="handleSearch"
-        />
-      </template>
-    </custom-navbar>
-
     <!-- 轮播图 -->
-    <wd-swiper
-      v-model:current="current"
-      custom-class="swiper-box"
-      :list="swiperList"
-      autoplay
-      @click="handleSwiperClick"
-      @change="handleSwiperChange"
-    />
+    <view class="hero">
+      <wd-swiper
+        v-model:current="current"
+        custom-class="swiper-box"
+        :list="swiperList"
+        autoplay
+        @click="handleSwiperClick"
+        @change="handleSwiperChange"
+      />
+    </view>
 
     <!-- 快捷导航 -->
-    <view class="section">
+    <view class="section section--overlay">
       <wd-grid clickable :column="4">
         <wd-grid-item
           v-for="(item, index) in navList"
@@ -118,9 +108,10 @@
  * - 支持暗黑模式（通过 CSS 变量）
  */
 
+import { reactive, ref } from "vue";
+import { onReady } from "@dcloudio/uni-app";
 import { dayjs } from "wot-design-uni";
 import { useRouter } from "uni-mini-router";
-import CustomNavbar from "@/components/custom-navbar/index.vue";
 
 // ============================================================================
 // 类型定义
@@ -154,7 +145,6 @@ const router = useRouter();
 // ============================================================================
 
 const current = ref(0);
-const searchValue = ref("");
 const recentDaysRange = ref(7);
 
 const swiperList = ref(["https://www.youlai.tech/storage/blog/banner9.png"]);
@@ -268,10 +258,6 @@ function loadVisitTrendData() {
 // 事件处理
 // ============================================================================
 
-function handleSearch() {
-  uni.showToast({ title: "搜索功能开发中", icon: "none" });
-}
-
 function handleNavClick(item: NavItem) {
   router.push({ path: item.url });
 }
@@ -315,6 +301,39 @@ onReady(() => {
 .home-page {
   min-height: 100%;
   background-color: var(--color-bg-secondary);
+}
+
+.hero {
+  position: relative;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 120rpx;
+  background: linear-gradient(
+    to bottom,
+    rgba(245, 247, 250, 0) 0%,
+    rgba(245, 247, 250, 0.85) 60%,
+    rgba(245, 247, 250, 1) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+:deep(.swiper-box) {
+  height: 420rpx;
+  overflow: hidden;
+  border-bottom-left-radius: 32rpx;
+  border-bottom-right-radius: 32rpx;
+}
+
+:deep(.swiper-box .wd-swiper__item),
+:deep(.swiper-box image) {
+  height: 420rpx;
 }
 
 // ============================================================================
@@ -367,6 +386,16 @@ onReady(() => {
 
 .section {
   margin: 24rpx;
+}
+
+.section--overlay {
+  position: relative;
+  z-index: 2;
+  margin-top: -72rpx;
+  padding: 16rpx 8rpx;
+  background: var(--color-bg);
+  border-radius: 24rpx;
+  box-shadow: 0 16rpx 36rpx rgba(0, 0, 0, 0.08);
 }
 
 // ============================================================================

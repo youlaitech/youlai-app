@@ -1,5 +1,5 @@
 <template>
-  <view class="page-container">
+  <view class="page-container dark:text-[var(--wot-color-text)]">
     <custom-navbar
       title="我的主页"
       bg-color="transparent"
@@ -20,16 +20,25 @@
             :src="isLogin ? userInfo!.avatar : defaultAvatar"
             mode="aspectFill"
           />
+          <view v-if="genderIconName" class="gender-icon" :class="genderIconClass">
+            <wd-icon :name="genderIconName" size="12" color="#fff" />
+          </view>
         </view>
         <view class="user-details">
           <block v-if="isLogin">
             <view class="nickname">
               {{ userInfo!.nickname || "匿名用户" }}
-              <text v-if="genderLabel" class="gender-badge" :class="genderClass">
-                {{ genderLabel }}
-              </text>
             </view>
-            <view class="user-id">ID: {{ userInfo?.username || "0000000" }}</view>
+            <view class="user-meta">
+              <view class="meta-row">
+                <wd-icon name="user" size="14" color="rgba(255, 255, 255, 0.92)" />
+                <text class="meta-value">{{ userInfo?.username || "0000000" }}</text>
+              </view>
+              <view v-if="deptNameText" class="meta-row">
+                <wd-icon name="home" size="14" color="rgba(255, 255, 255, 0.92)" />
+                <text class="meta-value">{{ deptNameText }}</text>
+              </view>
+            </view>
           </block>
           <block v-else>
             <view class="login-prompt">立即登录获取更多功能</view>
@@ -45,55 +54,12 @@
         </view>
 
         <view class="header-actions">
+          <view class="action-btn relative" @click="navigateToNotifications">
+            <wd-icon name="notification" size="20" color="#fff" />
+            <view v-if="true" class="action-badge">2</view>
+          </view>
           <view class="action-btn" @click="navigateToSettings">
-            <wd-icon name="setting" size="22" color="#fff" />
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <view v-if="isLogin" class="section-card">
-      <view class="section-header">
-        <view class="section-title">
-          <wd-icon name="user" size="18" :color="currentThemeColor" />
-          <text class="title-text">资料卡片</text>
-        </view>
-      </view>
-      <view class="profile-grid">
-        <view class="profile-tile">
-          <view class="tile-icon" :style="{ backgroundColor: currentThemeColor + '15' }">
-            <wd-icon name="secured" size="20" :color="currentThemeColor" />
-          </view>
-          <view class="tile-content">
-            <text class="tile-label">角色</text>
-            <text class="tile-value">{{ roleText }}</text>
-          </view>
-        </view>
-        <view class="profile-tile">
-          <view class="tile-icon" :style="{ backgroundColor: currentThemeColor + '15' }">
-            <wd-icon name="goods" size="20" :color="currentThemeColor" />
-          </view>
-          <view class="tile-content">
-            <text class="tile-label">部门</text>
-            <text class="tile-value">{{ deptText }}</text>
-          </view>
-        </view>
-        <view class="profile-tile">
-          <view class="tile-icon" :style="{ backgroundColor: currentThemeColor + '15' }">
-            <wd-icon name="phone" size="20" :color="currentThemeColor" />
-          </view>
-          <view class="tile-content">
-            <text class="tile-label">手机</text>
-            <text class="tile-value">{{ mobileText }}</text>
-          </view>
-        </view>
-        <view class="profile-tile">
-          <view class="tile-icon" :style="{ backgroundColor: currentThemeColor + '15' }">
-            <wd-icon name="mail" size="20" :color="currentThemeColor" />
-          </view>
-          <view class="tile-content">
-            <text class="tile-label">邮箱</text>
-            <text class="tile-value">{{ emailText }}</text>
+            <wd-icon name="setting" size="20" color="#fff" />
           </view>
         </view>
       </view>
@@ -102,30 +68,20 @@
     <view class="section-card">
       <view class="section-header">
         <view class="section-title">
-          <wd-icon name="setting" size="18" :color="currentThemeColor" />
-          <text class="title-text">系统设置</text>
+          <wd-icon name="user" size="18" :color="currentThemeColor" />
+          <text class="title-text">个人中心</text>
         </view>
       </view>
       <view class="menu-list">
-        <view class="menu-item" @click="navigateToUserAgreement">
-          <wd-icon name="note" size="20" color="#666" />
-          <text class="menu-text">用户协议</text>
+        <view class="menu-item" @click="navigateToProfile">
+          <wd-icon name="user" size="20" color="#666" />
+          <text class="menu-text">个人资料</text>
           <wd-icon name="arrow-right" size="16" color="#ccc" />
         </view>
-        <view class="menu-item" @click="navigateToAbout">
-          <wd-icon name="info-circle" size="20" color="#666" />
-          <text class="menu-text">关于我们</text>
+        <view class="menu-item" @click="navigateToAccount">
+          <wd-icon name="secured" size="20" color="#666" />
+          <text class="menu-text">账号和安全</text>
           <wd-icon name="arrow-right" size="16" color="#ccc" />
-        </view>
-        <view class="menu-item" @click="navigateToNetworkTest">
-          <wd-icon name="wifi" size="20" color="#666" />
-          <text class="menu-text">网络测试</text>
-          <wd-icon name="arrow-right" size="16" color="#ccc" />
-        </view>
-        <view class="menu-item" @click="handleClearCache">
-          <wd-icon name="delete" size="20" color="#666" />
-          <text class="menu-text">清空缓存</text>
-          <text class="menu-value">{{ cacheSize }}</text>
         </view>
       </view>
     </view>
@@ -138,11 +94,6 @@
         </view>
       </view>
       <view class="menu-list">
-        <view class="menu-item" @click="navigateToFAQ">
-          <wd-icon name="question-circle" size="20" color="#666" />
-          <text class="menu-text">常见问题</text>
-          <wd-icon name="arrow-right" size="16" color="#ccc" />
-        </view>
         <view class="menu-item" @click="handleQuestionFeedback">
           <wd-icon name="edit" size="20" color="#666" />
           <text class="menu-text">问题反馈</text>
@@ -151,22 +102,20 @@
       </view>
     </view>
 
-    <!-- 退出登录按钮 -->
-    <view v-if="isLogin" class="logout-section">
-      <view class="logout-btn" @click="handleLogout">
-        <text class="logout-text">退出登录</text>
+    <view class="section-card official-section">
+      <view class="official-card" @click="navigateToOfficialAccount">
+        <image class="official-avatar" src="/static/logo.png" mode="aspectFill" />
+        <view class="official-body">
+          <view class="official-title">有来技术</view>
+          <view class="official-desc">技术干货 · 开源社区 · 交流群</view>
+        </view>
+        <view class="official-action">
+          <wd-icon name="arrow-right" size="18" color="#9ca3af" />
+        </view>
       </view>
     </view>
 
     <wd-toast />
-
-    <wd-loading
-      v-if="clearing"
-      v-model="clearing"
-      text="正在清理..."
-      mask
-      custom-class="loading-center"
-    />
   </view>
 </template>
 
@@ -180,12 +129,10 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { useToast } from "wot-design-uni";
 import { useUserStore, useThemeStore } from "@/store";
 import { useRouter } from "uni-mini-router";
 import { useNavbar } from "@/composables/useNavbar";
 
-const toast = useToast();
 const userStore = useUserStore();
 const themeStore = useThemeStore();
 const currentThemeColor = computed(() => themeStore.themeVars.colorTheme);
@@ -205,63 +152,32 @@ const router = useRouter();
 // 使用导航栏 Hook（TabBar 页面）
 const navbar = useNavbar({ hasTabbar: true });
 
-const roleText = computed(() => {
-  if (!userInfo.value) return "-";
-  return userInfo.value.roleName || userInfo.value.roles?.join("、") || "-";
-});
-
-const deptText = computed(() => userInfo.value?.deptName || "-");
-const mobileText = computed(() => userInfo.value?.mobile || "-");
-const emailText = computed(() => userInfo.value?.email || "-");
-
 const genderValue = computed(() => (userInfo.value as any)?.gender);
-const genderLabel = computed(() => {
-  if (genderValue.value === 1) return "♂";
-  if (genderValue.value === 2) return "♀";
+const normalizedGender = computed(() => {
+  const v = genderValue.value;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+});
+
+const deptNameText = computed(() => {
+  if (!isLogin.value) return "";
+  return (userInfo.value as any)?.deptName || "";
+});
+
+const genderIconName = computed(() => {
+  if (!isLogin.value) return "";
+  if (normalizedGender.value === 1) return "gender-male";
+  if (normalizedGender.value === 2) return "gender-female";
   return "";
 });
-const genderClass = computed(() => {
-  if (genderValue.value === 1) return "gender-badge--male";
-  if (genderValue.value === 2) return "gender-badge--female";
+
+const genderIconClass = computed(() => {
+  if (normalizedGender.value === 1) return "gender-icon--male";
+  if (normalizedGender.value === 2) return "gender-icon--female";
   return "";
 });
 
-const clearing = ref(false);
-const cacheSize = ref<any>("-");
-
-const formatSize = (size: number) => {
-  if (size < 1024) {
-    return size + "B";
-  } else if (size < 1024 * 1024) {
-    return (size / 1024).toFixed(2) + "KB";
-  } else {
-    return (size / 1024 / 1024).toFixed(2) + "MB";
-  }
-};
-
-const getCacheSize = async () => {
-  try {
-    // #ifdef MP-WEIXIN
-    const res = await uni.getStorageInfo();
-    cacheSize.value = formatSize(res.currentSize);
-    // #endif
-    // #ifdef H5
-    cacheSize.value = formatSize(
-      Object.keys(localStorage).reduce((size, key) => size + localStorage[key].length, 0)
-    );
-    // #endif
-    if (!cacheSize.value) {
-      cacheSize.value = "0B";
-    }
-  } catch (error) {
-    console.error("获取缓存大小失败:", error);
-    cacheSize.value = "-";
-  }
-};
-
-onLoad(() => {
-  getCacheSize();
-});
+onLoad(() => {});
 
 // 登录
 const navigateToLoginPage = () => {
@@ -269,20 +185,6 @@ const navigateToLoginPage = () => {
   const currentPage = pages[pages.length - 1];
   const currentPagePath = `/${currentPage.route}`;
   router.push({ path: "/pages/login/index", query: { redirect: currentPagePath } });
-};
-
-// 退出登录
-const handleLogout = () => {
-  uni.showModal({
-    title: "提示",
-    content: "确认退出登录吗？",
-    success: function (res) {
-      if (res.confirm) {
-        userStore.logout();
-        toast.show("已退出登录");
-      }
-    },
-  });
 };
 
 // 个人信息
@@ -294,14 +196,20 @@ const navigateToProfile = () => {
   router.push({ path: "/pages/mine/profile/index" });
 };
 
-// 常见问题
-const navigateToFAQ = () => {
-  router.push({ path: "/pages/mine/faq/index" });
+// 账号和安全
+const navigateToAccount = () => {
+  if (!isLogin.value) {
+    navigateToLoginPage();
+    return;
+  }
+  router.push({ path: "/pages/mine/settings/account/index" });
 };
 
-// 关于我们
-const navigateToAbout = () => {
-  router.push({ path: "/pages/mine/about/index" });
+const navigateToNotifications = () => {
+  uni.showToast({
+    title: "功能开发中",
+    icon: "none",
+  });
 };
 
 // 设置
@@ -309,40 +217,19 @@ const navigateToSettings = () => {
   router.push({ path: "/pages/mine/settings/index" });
 };
 
-const navigateToUserAgreement = () => {
-  router.push({ path: "/pages/mine/settings/agreement/index" });
-};
-
-const navigateToNetworkTest = () => {
-  router.push({ path: "/pages/mine/settings/network/index" });
-};
-
 // 问题反馈
 const handleQuestionFeedback = () => {
   router.push({ path: "/pages/mine/feedback/index" });
 };
 
-const handleClearCache = async () => {
-  if (clearing.value) return;
-
-  try {
-    clearing.value = true;
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    await uni.clearStorage();
-    await getCacheSize();
-    toast.show("清理成功");
-  } catch {
-    toast.show("清理失败");
-  } finally {
-    clearing.value = false;
-  }
+// 有来技术公众号
+const navigateToOfficialAccount = () => {
+  router.push({ path: "/pages/mine/official/index" });
 };
 </script>
 
 <style lang="scss" scoped>
-.page-container {
-  background: #f5f7fa;
-}
+// page-container 使用全局样式，支持暗黑模式
 
 // 用户信息卡片
 .user-profile {
@@ -355,7 +242,7 @@ const handleClearCache = async () => {
     right: 0;
     left: 0;
     z-index: 0;
-    height: 380rpx;
+    height: 460rpx;
     border-bottom-right-radius: 48rpx;
     border-bottom-left-radius: 48rpx;
   }
@@ -365,18 +252,40 @@ const handleClearCache = async () => {
     z-index: 1;
     display: flex;
     align-items: center;
-    padding: 32rpx 32rpx 40rpx;
+    padding: 48rpx 32rpx 56rpx;
     padding-right: 140rpx;
 
     .avatar-container {
       position: relative;
 
       .avatar {
-        width: 128rpx;
-        height: 128rpx;
+        width: 144rpx;
+        height: 144rpx;
         border: 4rpx solid rgba(255, 255, 255, 0.9);
         border-radius: 50%;
         box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+      }
+
+      .gender-icon {
+        position: absolute;
+        right: 8rpx;
+        bottom: 8rpx;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28rpx;
+        height: 28rpx;
+        border: 2rpx solid rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.18);
+      }
+
+      .gender-icon--male {
+        background-color: #409eff;
+      }
+
+      .gender-icon--female {
+        background-color: #ff6384;
       }
     }
 
@@ -386,38 +295,31 @@ const handleClearCache = async () => {
 
       .nickname {
         margin-bottom: 10rpx;
-        font-size: 36rpx;
+        font-size: 40rpx;
         font-weight: 700;
         color: #fff;
-
-        .gender-badge {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          min-width: 36rpx;
-          height: 36rpx;
-          padding: 0 12rpx;
-          margin-left: 12rpx;
-          font-size: 22rpx;
-          font-weight: 700;
-          line-height: 36rpx;
-          color: #fff;
-          background-color: rgba(255, 255, 255, 0.25);
-          border-radius: 999px;
-        }
-
-        .gender-badge--male {
-          background-color: rgba(64, 158, 255, 0.5);
-        }
-
-        .gender-badge--female {
-          background-color: rgba(255, 99, 132, 0.5);
-        }
       }
 
-      .user-id {
-        font-size: 24rpx;
+      .user-meta {
+        margin-top: 4rpx;
+        display: flex;
+        flex-direction: column;
+        gap: 6rpx;
         color: rgba(255, 255, 255, 0.85);
+      }
+
+      .meta-row {
+        display: flex;
+        align-items: center;
+        gap: 8rpx;
+        font-size: 24rpx;
+        line-height: 1.2;
+      }
+
+      .meta-value {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .login-prompt {
@@ -432,6 +334,7 @@ const handleClearCache = async () => {
       top: 50%;
       right: 32rpx;
       display: flex;
+      gap: 20rpx;
       transform: translateY(-50%);
     }
 
@@ -439,8 +342,8 @@ const handleClearCache = async () => {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 72rpx;
-      height: 72rpx;
+      width: 64rpx;
+      height: 64rpx;
       background-color: rgba(255, 255, 255, 0.28);
       backdrop-filter: blur(8px);
       border-radius: 50%;
@@ -494,62 +397,6 @@ const handleClearCache = async () => {
   color: #1f2937;
 }
 
-// 资料卡片网格
-.profile-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20rpx;
-}
-
-.profile-tile {
-  display: flex;
-  align-items: center;
-  padding: 20rpx;
-  background: #f9fafb;
-  border-radius: 14rpx;
-  transition: background 0.2s;
-
-  &:active {
-    background: #f3f4f6;
-  }
-}
-
-.tile-icon {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 48rpx;
-  height: 48rpx;
-  margin-right: 16rpx;
-  border-radius: 12rpx;
-}
-
-.tile-content {
-  flex: 1;
-  overflow: hidden;
-}
-
-.tile-label {
-  display: block;
-  margin-bottom: 6rpx;
-  overflow: hidden;
-  font-size: 22rpx;
-  color: #9ca3af;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tile-value {
-  display: block;
-  overflow: hidden;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #1f2937;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 // 菜单列表
 .menu-list {
   display: flex;
@@ -586,6 +433,54 @@ const handleClearCache = async () => {
 .menu-value {
   font-size: 26rpx;
   color: #9ca3af;
+}
+
+.official-section {
+  margin-top: 16rpx;
+}
+
+.official-card {
+  display: flex;
+  align-items: center;
+  padding: 32rpx 28rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.official-avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 24rpx;
+}
+
+.official-body {
+  flex: 1;
+  min-width: 0;
+  margin-left: 28rpx;
+}
+
+.official-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.official-desc {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #9ca3af;
+  letter-spacing: 1rpx;
+}
+
+.official-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56rpx;
+  height: 56rpx;
+  background: #f3f4f6;
+  border-radius: 50%;
 }
 
 // 退出登录

@@ -158,7 +158,7 @@ const AuthAPI = {
   logout(): Promise<any> {
     return request<any>({
       url: `${AUTH_BASE_URL}/logout`,
-      method: "POST",
+      method: "DELETE",
     });
   },
 
