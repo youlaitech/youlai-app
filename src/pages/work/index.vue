@@ -1,14 +1,13 @@
 <template>
   <view class="work">
-    <template v-for="(item, index) in gridList" :key="index">
+    <template v-for="(item, index) in visibleGridList" :key="index">
       <wd-card :title="item.title">
         <wd-grid clickable :column="4">
           <wd-grid-item
             v-for="(child, childIndex) in item.children"
             :key="childIndex"
-            :v-has-perm="child.prem"
             use-slot
-            @click="handleNavClick(child)"
+            @itemclick="handleNavClick(child)"
           >
             <view class="p-2">
               <image class="w-72rpx h-72rpx rounded-8rpx" :src="child.icon" />
@@ -23,10 +22,22 @@
 
 <script lang="ts" setup>
 import { useRouter } from "uni-mini-router";
+import { useUserStore } from "@/store";
 
 const router = useRouter();
+const userStore = useUserStore();
 
-const gridList = reactive([
+// 用户权限列表
+const userPerms = computed(() => userStore.userInfo?.perms || []);
+
+// 检查是否有权限
+const hasPermission = (perm: string) => {
+  if (!perm) return true; // 无权限要求则显示
+  return userPerms.value.includes(perm) || userPerms.value.includes("*:*:*");
+};
+
+// 菜单配置（预设布局）
+const gridList = [
   {
     title: "系统管理",
     children: [
@@ -34,26 +45,25 @@ const gridList = reactive([
         icon: "/static/icons/user.png",
         title: "用户管理",
         url: "/pages/work/user/index",
-        prem: "sys:user:query",
+        perm: "sys:user:list",
       },
       {
         icon: "/static/icons/role.png",
         title: "角色管理",
         url: "/pages/work/role/index",
-        prem: "sys:role:query",
+        perm: "sys:role:list",
       },
-
       {
         icon: "/static/icons/notice.png",
         title: "通知公告",
         url: "/pages/work/notice/index",
-        prem: "sys:notice:query",
+        perm: "sys:notice:list",
       },
       {
         icon: "/static/icons/setting.png",
         title: "系统配置",
         url: "/pages/work/config/index",
-        prem: "sys:config:query",
+        perm: "sys:config:list",
       },
     ],
   },
@@ -64,15 +74,29 @@ const gridList = reactive([
         icon: "/static/icons/log.png",
         title: "系统日志",
         url: "/pages/work/log/index",
-        prem: "sys:log:query",
+        perm: "sys:log:list",
       },
     ],
   },
-]);
+];
+
+// 根据权限过滤后的菜单列表
+const visibleGridList = computed(() => {
+  return gridList
+    .map((group) => ({
+      ...group,
+      children: group.children.filter((item) => hasPermission(item.perm)),
+    }))
+    .filter((group) => group.children.length > 0);
+});
 
 // 处理导航点击
 function handleNavClick(item: any) {
-  router.push({ path: item.url });
+  try {
+    router.push({ path: item.url });
+  } catch (e) {
+    console.error("[work] router.push failed:", e, item);
+  }
 }
 </script>
 

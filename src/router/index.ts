@@ -1,6 +1,7 @@
 ﻿import { pages, subPackages } from "virtual:uni-pages";
-import { isLoggedIn } from "@/utils/auth";
+import { getAccessToken, isLoggedIn } from "@/utils/auth";
 import { createRouter } from "uni-mini-router";
+import { useUserStore } from "@/store";
 
 // 生成路由配置
 function generateRoutes() {
@@ -31,7 +32,7 @@ const router = createRouter({
 });
 
 // 全局前置守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   if (to.meta && to.meta.requireAuth && !isLoggedIn()) {
     const redirectPath = (to.path || "/pages/index/index") as string;
     // 先取消本次导航，避免在异步对话框中遗漏 next 导致报错
@@ -50,9 +51,31 @@ router.beforeEach((to, from, next) => {
         }
       },
     });
-  } else {
-    next();
+    return;
   }
+
+  if (to.meta && to.meta.requireAuth) {
+    const token = getAccessToken();
+    const userStore = useUserStore();
+
+    if (!token) {
+      next(false);
+      router.push({ path: "/pages/login/index" });
+      return;
+    }
+
+    if (!userStore.userInfo) {
+      try {
+        await userStore.getInfo();
+      } catch {
+        next(false);
+        userStore.logout();
+        return;
+      }
+    }
+  }
+
+  next();
 });
 
 router.afterEach((to, from) => {

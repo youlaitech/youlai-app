@@ -129,13 +129,12 @@
         <!-- #ifdef MP-WEIXIN -->
         <!-- 微信登录区域 -->
         <view v-else class="form-area">
-          <!-- 企业一键登录 -->
           <button
             class="btn-wechat"
             open-type="getPhoneNumber"
             @getphonenumber="handleWechatPhoneLogin"
           >
-            <image class="btn-wechat-icon" src="/static/images/wechat-icon.png" mode="aspectFit" />
+            <image class="btn-wechat-icon" src="/static/icons/weixin.png" mode="aspectFit" />
             微信一键登录
           </button>
 

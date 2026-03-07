@@ -8,6 +8,8 @@ export {}
 declare global {
   const CommonUtil: typeof import('wot-design-uni')['CommonUtil']
   const EffectScope: typeof import('vue')['EffectScope']
+  const PERM_ALL: typeof import('../utils/permission')['PERM_ALL']
+  const ROLE_ROOT: typeof import('../utils/permission')['ROLE_ROOT']
   const Storage: typeof import('../utils/storage')['Storage']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const applyThemeOnPageShow: typeof import('../utils/theme')['applyThemeOnPageShow']
@@ -18,6 +20,7 @@ declare global {
   const clearTokens: typeof import('../utils/auth')['clearTokens']
   const colorColumns: typeof import('../composables/types/theme')['colorColumns']
   const computed: typeof import('vue')['computed']
+  const config: typeof import('../api/config')['default']
   const createApp: typeof import('vue')['createApp']
   const createPinia: typeof import('pinia')['createPinia']
   const createRouter: typeof import('uni-mini-router')['createRouter']
@@ -27,6 +30,7 @@ declare global {
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
   const defineStore: typeof import('pinia')['defineStore']
+  const dept: typeof import('../api/dept')['default']
   const effectScope: typeof import('vue')['effectScope']
   const file: typeof import('../api/file')['default']
   const getAccessToken: typeof import('../utils/auth')['getAccessToken']
@@ -38,6 +42,10 @@ declare global {
   const getUserInfo: typeof import('../utils/storage')['getUserInfo']
   const guessSerializerType: typeof import('@uni-helper/uni-use')['guessSerializerType']
   const h: typeof import('vue')['h']
+  const hasAllPermissions: typeof import('../utils/permission')['hasAllPermissions']
+  const hasAllRoles: typeof import('../utils/permission')['hasAllRoles']
+  const hasPermission: typeof import('../utils/permission')['hasPermission']
+  const hasRole: typeof import('../utils/permission')['hasRole']
   const initTheme: typeof import('../composables/types/theme')['initTheme']
   const inject: typeof import('vue')['inject']
   const isLoggedIn: typeof import('../utils/auth')['isLoggedIn']
@@ -45,6 +53,7 @@ declare global {
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
+  const log: typeof import('../api/log')['default']
   const mapActions: typeof import('pinia')['mapActions']
   const mapGetters: typeof import('pinia')['mapGetters']
   const mapState: typeof import('pinia')['mapState']
@@ -52,6 +61,7 @@ declare global {
   const mapWritableState: typeof import('pinia')['mapWritableState']
   const markRaw: typeof import('vue')['markRaw']
   const nextTick: typeof import('vue')['nextTick']
+  const notice: typeof import('../api/notice')['default']
   const onActivated: typeof import('vue')['onActivated']
   const onAddToFavorites: typeof import('@dcloudio/uni-app')['onAddToFavorites']
   const onBackPress: typeof import('@dcloudio/uni-app')['onBackPress']
@@ -101,6 +111,7 @@ declare global {
   const requireLogin: typeof import('../utils/auth')['requireLogin']
   const resetTheme: typeof import('../composables/types/theme')['resetTheme']
   const resolveComponent: typeof import('vue')['resolveComponent']
+  const role: typeof import('../api/role')['default']
   const setAccessToken: typeof import('../utils/auth')['setAccessToken']
   const setActivePinia: typeof import('pinia')['setActivePinia']
   const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
@@ -209,6 +220,7 @@ declare module 'vue' {
     readonly clearAll: UnwrapRef<typeof import('../utils/storage')['clearAll']>
     readonly clearTokens: UnwrapRef<typeof import('../utils/auth')['clearTokens']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
+    readonly config: UnwrapRef<typeof import('../api/config')['default']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
     readonly createRouter: UnwrapRef<typeof import('uni-mini-router')['createRouter']>
@@ -217,6 +229,7 @@ declare module 'vue' {
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
+    readonly dept: UnwrapRef<typeof import('../api/dept')['default']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly file: UnwrapRef<typeof import('../api/file')['default']>
     readonly getAccessToken: UnwrapRef<typeof import('../utils/auth')['getAccessToken']>
@@ -227,12 +240,17 @@ declare module 'vue' {
     readonly getToken: UnwrapRef<typeof import('../utils/storage')['getToken']>
     readonly getUserInfo: UnwrapRef<typeof import('../utils/storage')['getUserInfo']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
+    readonly hasAllPermissions: UnwrapRef<typeof import('../utils/permission')['hasAllPermissions']>
+    readonly hasAllRoles: UnwrapRef<typeof import('../utils/permission')['hasAllRoles']>
+    readonly hasPermission: UnwrapRef<typeof import('../utils/permission')['hasPermission']>
+    readonly hasRole: UnwrapRef<typeof import('../utils/permission')['hasRole']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly isLoggedIn: UnwrapRef<typeof import('../utils/auth')['isLoggedIn']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
+    readonly log: UnwrapRef<typeof import('../api/log')['default']>
     readonly mapActions: UnwrapRef<typeof import('pinia')['mapActions']>
     readonly mapGetters: UnwrapRef<typeof import('pinia')['mapGetters']>
     readonly mapState: UnwrapRef<typeof import('pinia')['mapState']>
@@ -240,6 +258,7 @@ declare module 'vue' {
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
+    readonly notice: UnwrapRef<typeof import('../api/notice')['default']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onAddToFavorites: UnwrapRef<typeof import('@dcloudio/uni-app')['onAddToFavorites']>
     readonly onBackPress: UnwrapRef<typeof import('@dcloudio/uni-app')['onBackPress']>
@@ -286,6 +305,7 @@ declare module 'vue' {
     readonly request: UnwrapRef<typeof import('../utils/request')['default']>
     readonly requireLogin: UnwrapRef<typeof import('../utils/auth')['requireLogin']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly role: UnwrapRef<typeof import('../api/role')['default']>
     readonly setAccessToken: UnwrapRef<typeof import('../utils/auth')['setAccessToken']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>

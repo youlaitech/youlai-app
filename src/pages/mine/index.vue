@@ -17,7 +17,7 @@
         <view class="avatar-container" @click="navigateToProfile">
           <image
             class="avatar"
-            :src="isLogin ? userInfo!.avatar : defaultAvatar"
+            :src="isLogin && userInfo?.avatar ? userInfo.avatar : defaultAvatar"
             mode="aspectFill"
           />
           <view v-if="genderIconName" class="gender-icon" :class="genderIconClass">
@@ -27,12 +27,12 @@
         <view class="user-details">
           <block v-if="isLogin">
             <view class="nickname">
-              {{ userInfo!.nickname || "匿名用户" }}
+              {{ userInfo?.nickname || "匿名用户" }}
             </view>
             <view class="user-meta">
               <view class="meta-row">
                 <wd-icon name="user" size="14" color="rgba(255, 255, 255, 0.92)" />
-                <text class="meta-value">{{ userInfo?.username || "0000000" }}</text>
+                <text class="meta-value">{{ userInfo?.username || "未设置" }}</text>
               </view>
               <view v-if="deptNameText" class="meta-row">
                 <wd-icon name="home" size="14" color="rgba(255, 255, 255, 0.92)" />
@@ -56,16 +56,31 @@
         <view class="header-actions">
           <view class="action-btn relative" @click="navigateToNotifications">
             <wd-icon name="notification" size="20" color="#fff" />
-            <view v-if="true" class="action-badge">2</view>
+            <view v-if="isLogin && notificationCount > 0" class="action-badge">
+              {{ notificationCount }}
+            </view>
           </view>
-          <view class="action-btn" @click="navigateToSettings">
+          <view class="action-btn" @click="navigateToTheme">
             <wd-icon name="setting" size="20" color="#fff" />
           </view>
         </view>
       </view>
     </view>
 
-    <view class="section-card">
+    <!-- 公众号胶囊卡片 -->
+    <view class="official-capsule" @click="navigateToOfficialAccount">
+      <image class="official-avatar" src="/static/logo.png" mode="aspectFill" />
+      <view class="official-body">
+        <view class="official-title">有来技术</view>
+        <view class="official-desc">技术干货 · 开源社区 · 交流群</view>
+      </view>
+      <view class="official-action">
+        <wd-icon name="arrow-right" size="18" color="#9ca3af" />
+      </view>
+    </view>
+
+    <!-- 个人中心 -->
+    <view v-if="isLogin" class="section-card">
       <view class="section-header">
         <view class="section-title">
           <wd-icon name="user" size="18" :color="currentThemeColor" />
@@ -86,34 +101,78 @@
       </view>
     </view>
 
+    <!-- 设置 -->
     <view class="section-card">
       <view class="section-header">
         <view class="section-title">
-          <wd-icon name="help-circle" size="18" :color="currentThemeColor" />
-          <text class="title-text">帮助与支持</text>
+          <wd-icon name="setting1" size="18" :color="currentThemeColor" />
+          <text class="title-text">设置</text>
         </view>
       </view>
       <view class="menu-list">
-        <view class="menu-item" @click="handleQuestionFeedback">
-          <wd-icon name="edit" size="20" color="#666" />
-          <text class="menu-text">问题反馈</text>
+        <view class="menu-item" @click="navigateToTheme">
+          <wd-icon name="setting1" size="20" color="#666" />
+          <text class="menu-text">主题设置</text>
+          <wd-icon name="arrow-right" size="16" color="#ccc" />
+        </view>
+        <view class="menu-item" @click="navigateToUserAgreement">
+          <wd-icon name="user" size="20" color="#666" />
+          <text class="menu-text">用户协议</text>
+          <wd-icon name="arrow-right" size="16" color="#ccc" />
+        </view>
+        <view class="menu-item" @click="navigateToPrivacy">
+          <wd-icon name="secured" size="20" color="#666" />
+          <text class="menu-text">隐私政策</text>
+          <wd-icon name="arrow-right" size="16" color="#ccc" />
+        </view>
+        <view class="menu-item" @click="navigateToAbout">
+          <wd-icon name="info-circle" size="20" color="#666" />
+          <text class="menu-text">关于我们</text>
           <wd-icon name="arrow-right" size="16" color="#ccc" />
         </view>
       </view>
     </view>
 
-    <view class="section-card official-section">
-      <view class="official-card" @click="navigateToOfficialAccount">
-        <image class="official-avatar" src="/static/logo.png" mode="aspectFill" />
-        <view class="official-body">
-          <view class="official-title">有来技术</view>
-          <view class="official-desc">技术干货 · 开源社区 · 交流群</view>
+    <!-- 系统工具 -->
+    <view class="section-card">
+      <view class="section-header">
+        <view class="section-title">
+          <wd-icon name="tools" size="18" :color="currentThemeColor" />
+          <text class="title-text">系统工具</text>
         </view>
-        <view class="official-action">
-          <wd-icon name="arrow-right" size="18" color="#9ca3af" />
+      </view>
+      <view class="menu-list">
+        <view class="menu-item" @click="navigateToNetworkTest">
+          <wd-icon name="wifi" size="20" color="#666" />
+          <text class="menu-text">网络测试</text>
+          <wd-icon name="arrow-right" size="16" color="#ccc" />
+        </view>
+        <view class="menu-item" @click="handleClearCache">
+          <wd-icon name="delete1" size="20" color="#666" />
+          <text class="menu-text">清空缓存</text>
+          <text class="menu-value">{{ cacheSize }}</text>
+          <wd-icon name="arrow-right" size="16" color="#ccc" />
         </view>
       </view>
     </view>
+
+    <!-- 退出登录 -->
+    <view v-if="isLogin" class="logout-section">
+      <wd-button custom-class="logout-btn" plain @click="handleLogout">退出登录</wd-button>
+    </view>
+
+    <!-- 底部版本号 -->
+    <view class="footer-version">
+      <text>v{{ appVersion }}</text>
+    </view>
+
+    <wd-loading
+      v-if="clearing"
+      v-model="clearing"
+      text="正在清理..."
+      mask
+      custom-class="loading-center"
+    />
 
     <wd-toast />
   </view>
@@ -132,13 +191,16 @@ import { onLoad } from "@dcloudio/uni-app";
 import { useUserStore, useThemeStore } from "@/store";
 import { useRouter } from "uni-mini-router";
 import { useNavbar } from "@/composables/useNavbar";
+import { getAccessToken } from "@/utils/auth";
 
 const userStore = useUserStore();
 const themeStore = useThemeStore();
 const currentThemeColor = computed(() => themeStore.themeVars.colorTheme);
 const userInfo = computed(() => userStore.userInfo);
-const isLogin = computed(() => !!userInfo.value);
 const defaultAvatar = "/static/images/default-avatar.png";
+
+const hasToken = computed(() => !!getAccessToken());
+const isLogin = computed(() => hasToken.value);
 
 const headerBackground = computed(() => {
   const color = currentThemeColor.value || "#4d80f0";
@@ -148,6 +210,11 @@ const headerBackground = computed(() => {
 });
 
 const router = useRouter();
+
+const notificationCount = computed(() => 0);
+
+// 版本号
+const appVersion = ref("1.0.0");
 
 // 使用导航栏 Hook（TabBar 页面）
 const navbar = useNavbar({ hasTabbar: true });
@@ -177,7 +244,22 @@ const genderIconClass = computed(() => {
   return "";
 });
 
-onLoad(() => {});
+onLoad(async () => {
+  const token = getAccessToken();
+  if (token && !userStore.userInfo) {
+    try {
+      await userStore.getInfo();
+    } catch {
+      // ignore
+    }
+  }
+
+  getCacheSize();
+
+  // #ifdef MP-WEIXIN
+  appVersion.value = uni.getAccountInfoSync().miniProgram.version || "1.0.0";
+  // #endif
+});
 
 // 登录
 const navigateToLoginPage = () => {
@@ -206,20 +288,128 @@ const navigateToAccount = () => {
 };
 
 const navigateToNotifications = () => {
+  if (!isLogin.value) {
+    navigateToLoginPage();
+    return;
+  }
   uni.showToast({
     title: "功能开发中",
     icon: "none",
   });
 };
 
-// 设置
-const navigateToSettings = () => {
-  router.push({ path: "/pages/mine/settings/index" });
+// 主题设置
+const navigateToTheme = () => {
+  router.push({ path: "/pages/mine/settings/theme/index" });
 };
 
-// 问题反馈
-const handleQuestionFeedback = () => {
-  router.push({ path: "/pages/mine/feedback/index" });
+// 用户协议
+const navigateToUserAgreement = () => {
+  router.push({ path: "/pages/mine/settings/agreement/index" });
+};
+
+// 隐私政策
+const navigateToPrivacy = () => {
+  router.push({ path: "/pages/mine/settings/privacy/index" });
+};
+
+// 关于我们
+const navigateToAbout = () => {
+  router.push({ path: "/pages/mine/about/index" });
+};
+
+// 网络测试
+const navigateToNetworkTest = () => {
+  router.push({ path: "/pages/mine/settings/network/index" });
+};
+
+const clearing = ref(false);
+const cacheSize = ref<any>("计算中...");
+
+const formatSize = (size: number) => {
+  if (size < 1024) {
+    return size + "B";
+  } else if (size < 1024 * 1024) {
+    return (size / 1024).toFixed(2) + "KB";
+  } else {
+    return (size / 1024 / 1024).toFixed(2) + "MB";
+  }
+};
+
+const getCacheSize = async () => {
+  try {
+    // #ifdef MP-WEIXIN
+    const res = await uni.getStorageInfo();
+    cacheSize.value = formatSize(res.currentSize);
+    // #endif
+    // #ifdef H5
+    cacheSize.value = formatSize(
+      Object.keys(localStorage).reduce((size, key) => size + localStorage[key].length, 0)
+    );
+    // #endif
+    if (!cacheSize.value) {
+      cacheSize.value = "0B";
+    }
+  } catch (error) {
+    console.error("获取缓存大小失败:", error);
+    cacheSize.value = "获取失败";
+  }
+};
+
+const handleClearCache = async () => {
+  if (cacheSize.value === "获取失败") {
+    uni.showToast({
+      title: "获取缓存信息失败，请稍后重试",
+      icon: "none",
+      duration: 2000,
+    });
+    return;
+  }
+  if (cacheSize.value === "0B") {
+    uni.showToast({
+      title: "暂无缓存需要清理",
+      icon: "none",
+      duration: 2000,
+    });
+    return;
+  }
+  if (clearing.value) {
+    return;
+  }
+
+  try {
+    clearing.value = true;
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await uni.clearStorage();
+    await getCacheSize();
+    uni.showToast({
+      title: "清理成功",
+      icon: "success",
+    });
+  } catch {
+    uni.showToast({
+      title: "清理失败",
+      icon: "error",
+    });
+  } finally {
+    clearing.value = false;
+  }
+};
+
+const handleLogout = () => {
+  uni.showModal({
+    title: "提示",
+    content: "确定要退出登录吗？",
+    success: function (res) {
+      if (res.confirm) {
+        userStore.logout();
+        uni.showToast({
+          title: "已退出登录",
+          icon: "success",
+        });
+      }
+    },
+  });
 };
 
 // 有来技术公众号
@@ -435,52 +625,57 @@ const navigateToOfficialAccount = () => {
   color: #9ca3af;
 }
 
-.official-section {
-  margin-top: 16rpx;
-}
-
-.official-card {
+// 公众号入口（简洁卡片风格）
+.official-capsule {
   display: flex;
   align-items: center;
-  padding: 32rpx 28rpx;
+  margin: -24rpx 28rpx 24rpx;
+  padding: 20rpx 24rpx;
   background: #fff;
   border-radius: 20rpx;
-  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
 .official-avatar {
-  width: 100rpx;
-  height: 100rpx;
-  border-radius: 24rpx;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 16rpx;
 }
 
 .official-body {
   flex: 1;
   min-width: 0;
-  margin-left: 28rpx;
+  margin-left: 18rpx;
 }
 
 .official-title {
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: 600;
-  color: #1f2937;
+  color: #374151;
 }
 
 .official-desc {
-  margin-top: 12rpx;
-  font-size: 24rpx;
+  margin-top: 4rpx;
+  font-size: 22rpx;
   color: #9ca3af;
-  letter-spacing: 1rpx;
 }
 
 .official-action {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56rpx;
-  height: 56rpx;
-  background: #f3f4f6;
-  border-radius: 50%;
+  padding-left: 8rpx;
+}
+
+// 底部版本号
+.footer-version {
+  padding: 40rpx 0 60rpx;
+  text-align: center;
+
+  text {
+    font-size: 24rpx;
+    color: #9ca3af;
+  }
 }
 
 // 退出登录

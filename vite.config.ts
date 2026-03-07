@@ -10,6 +10,7 @@ import { WotResolver } from "@uni-helper/vite-plugin-uni-components/resolvers";
 export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => {
   const UnoCss = await import("unocss/vite").then((i) => i.default);
   const env = loadEnv(mode, process.cwd());
+  const isProd = mode === "production";
 
   return {
     server: {
@@ -27,7 +28,14 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
     build: {
       target: "es6",
       cssTarget: "chrome61",
+      // 微信小程序单文件上传限制 2MB，生产构建关闭 sourcemap 并尽量减少调试输出
+      sourcemap: false,
     },
+    esbuild: isProd
+      ? {
+          drop: ["console", "debugger"],
+        }
+      : undefined,
     optimizeDeps: {
       include: ["wot-design-uni"],
       exclude: ["vue-demi"],

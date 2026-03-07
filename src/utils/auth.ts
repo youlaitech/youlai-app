@@ -65,11 +65,10 @@ export function clearTokens(): void {
  * @returns 返回用户是否已登录
  */
 export function checkLogin(silent: boolean = false): boolean {
-  const userStore = useUserStore();
   const accessToken = getAccessToken();
 
-  // 检查 token 和用户信息是否都存在
-  const isLoggedIn = !!(accessToken && userStore.userInfo);
+  // 检查 token 是否存在
+  const isLoggedIn = !!accessToken;
 
   if (!isLoggedIn && !silent) {
     try {
@@ -119,7 +118,7 @@ export function checkLogin(silent: boolean = false): boolean {
  * @returns 返回用户是否已登录
  */
 export function isLoggedIn(): boolean {
-  return checkLogin(true);
+  return !!getAccessToken();
 }
 
 /**
