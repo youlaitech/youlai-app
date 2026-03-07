@@ -6,8 +6,18 @@
       <view class="bg-circle bg-circle-2" />
     </view>
 
+    <view class="login-nav" :style="{ paddingTop: `${statusBarHeight}px` }">
+      <view class="login-nav__bar" :style="{ height: `${navBarHeight}px` }">
+        <view class="login-nav__action" hover-class="login-nav__action--active" @click="handleBack">
+          <text class="login-nav__back-icon">‹</text>
+        </view>
+        <view class="login-nav__title" />
+        <view class="login-nav__placeholder" />
+      </view>
+    </view>
+
     <!-- 主内容 -->
-    <view class="login-main">
+    <view class="login-main" :style="{ paddingTop: `${statusBarHeight + navBarHeight + 4}px` }">
       <!-- Logo -->
       <view class="login-logo">
         <image class="logo-image" src="/static/logo.png" mode="aspectFit" />
@@ -237,15 +247,18 @@
 <route lang="json">
 {
   "name": "login",
-  "style": { "navigationBarTitleText": "登录" }
+  "style": { "navigationStyle": "custom", "navigationBarTitleText": "" }
 }
 </route>
 
 <script lang="ts" setup>
-import { onLoad, onUnload } from "@dcloudio/uni-app";
+import { onLoad, onShow, onUnload } from "@dcloudio/uni-app";
 import { useToast, useMessage } from "wot-design-uni";
 import { useUserStore } from "@/store/modules/user";
 import AuthAPI from "@/api/auth";
+
+const statusBarHeight = ref(20);
+const navBarHeight = ref(44);
 
 const toast = useToast();
 const message = useMessage("policy-box");
@@ -269,6 +282,7 @@ const formData = ref({
 // 图形验证码
 const captchaId = ref("");
 const captchaBase64 = ref("");
+const captchaLoading = ref(false);
 
 const redirect = ref("/pages/index/index");
 
@@ -289,12 +303,17 @@ const pendingWechatPhoneCode = ref<string>("");
 
 // 获取图形验证码
 const fetchCaptcha = async () => {
+  if (captchaLoading.value) return;
   try {
+    captchaLoading.value = true;
+    captchaBase64.value = "";
     const res = await AuthAPI.getCaptcha();
     captchaId.value = res.captchaId;
     captchaBase64.value = res.captchaBase64;
   } catch (e) {
     console.error("获取验证码失败", e);
+  } finally {
+    captchaLoading.value = false;
   }
 };
 
@@ -326,6 +345,18 @@ onLoad((options: any) => {
   if (fromQuery && fromQuery !== "/pages/login/index") {
     redirect.value = fromQuery;
   }
+
+  uni.setNavigationBarTitle({ title: "" });
+
+  const systemInfo = uni.getSystemInfoSync();
+  statusBarHeight.value = systemInfo.statusBarHeight || 20;
+  navBarHeight.value = 44;
+
+  // #ifdef MP-WEIXIN
+  const menuButton = uni.getMenuButtonBoundingClientRect();
+  navBarHeight.value = menuButton.height + (menuButton.top - statusBarHeight.value) * 2;
+  // #endif
+
   // #ifndef MP-WEIXIN
   // 非微信环境强制使用密码登录
   if (loginMode.value === "WECHAT") {
@@ -334,6 +365,10 @@ onLoad((options: any) => {
   // #endif
   // 获取图形验证码
   fetchCaptcha();
+});
+
+onShow(() => {
+  uni.setNavigationBarTitle({ title: "" });
 });
 
 onUnload(() => {
@@ -346,11 +381,16 @@ const toggleLoginMode = () => {
   if (loginMode.value === "PASSWORD") {
     loginMode.value = "SMS";
     formData.value.username = "18812345678";
+    formData.value.password = "";
+    formData.value.code = "";
   } else {
     loginMode.value = "PASSWORD";
     formData.value.username = "admin";
+    formData.value.password = "123456";
+    formData.value.code = "";
+    formData.value.captchaCode = "";
+    fetchCaptcha();
   }
-  formData.value.code = "";
 };
 
 const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode: string = "") => {
@@ -589,11 +629,21 @@ const navigateToAgreement = (type: string) => {
     type === "user" ? "/pages/mine/settings/agreement/index" : "/pages/mine/settings/privacy/index";
   uni.navigateTo({ url });
 };
+
+const handleBack = () => {
+  const pages = getCurrentPages();
+  if (pages.length > 1) {
+    uni.navigateBack();
+    return;
+  }
+  uni.reLaunch({ url: "/pages/index/index" });
+};
 </script>
 
 <style lang="scss" scoped>
 // 页面容器
 .login-page {
+  position: relative;
   min-height: 100vh;
   background: linear-gradient(135deg, #eff6ff 0%, #fff 50%, #dbeafe 100%);
 }
@@ -633,6 +683,65 @@ const navigateToAgreement = (type: string) => {
   background-color: rgba(59, 130, 246, 0.15);
 }
 
+.login-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 11;
+  padding-right: 16px;
+  padding-left: 16px;
+}
+
+.login-nav__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-nav__action,
+.login-nav__placeholder {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72rpx;
+  height: 72rpx;
+  transform: translateY(-50%);
+}
+
+.login-nav__action {
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+}
+
+.login-nav__action--active {
+  opacity: 0.8;
+}
+
+.login-nav__placeholder {
+  right: 0;
+}
+
+.login-nav__back-icon {
+  margin-top: -4rpx;
+  font-size: 44rpx;
+  font-weight: 500;
+  line-height: 1;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.login-nav__title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.92);
+  letter-spacing: 0.08em;
+}
+
 // 主内容
 .login-main {
   position: relative;
@@ -640,7 +749,8 @@ const navigateToAgreement = (type: string) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 48px 0;
+  padding-right: 48px;
+  padding-left: 48px;
 }
 
 // Logo
@@ -648,7 +758,8 @@ const navigateToAgreement = (type: string) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 48px;
+  margin-top: 8px;
+  margin-bottom: 36px;
 }
 
 .logo-image {
@@ -921,8 +1032,8 @@ const navigateToAgreement = (type: string) => {
 }
 
 .wechat-icon-img {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
 
   &:active {
     transform: scale(0.95);
