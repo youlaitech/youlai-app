@@ -1,8 +1,17 @@
 <template>
   <view class="page-container">
+    <custom-navbar
+      title="我的主页"
+      bg-color="transparent"
+      title-color="#fff"
+      icon-color="#fff"
+      :show-back="false"
+      :placeholder="false"
+    />
+
     <!-- 用户信息卡片 -->
-    <view class="user-profile" :style="{ paddingTop: navbar.statusBarHeight.value + 'px' }">
-      <view class="blur-bg" />
+    <view class="user-profile" :style="{ paddingTop: navbar.totalHeight.value + 'px' }">
+      <view class="blur-bg" :style="{ background: headerBackground }" />
 
       <view class="user-info">
         <view class="avatar-container" @click="navigateToProfile">
@@ -35,20 +44,9 @@
           </block>
         </view>
 
-        <!-- 操作按钮区域 - 避开胶囊按钮 -->
-        <view
-          class="action-buttons"
-          :style="{
-            right: navbar.menuButtonRightGap.value + 8 + 'px',
-            top: actionButtonsTop,
-          }"
-        >
+        <view class="header-actions">
           <view class="action-btn" @click="navigateToSettings">
             <wd-icon name="setting" size="22" color="#fff" />
-          </view>
-          <view v-if="isLogin" class="action-btn relative" @click="navigateToSection('messages')">
-            <wd-icon name="notification" size="22" color="#fff" />
-            <view v-if="true" class="action-badge">2</view>
           </view>
         </view>
       </view>
@@ -97,41 +95,6 @@
             <text class="tile-label">邮箱</text>
             <text class="tile-value">{{ emailText }}</text>
           </view>
-        </view>
-      </view>
-    </view>
-
-    <view class="section-card">
-      <view class="section-header">
-        <view class="section-title">
-          <wd-icon name="setting" size="18" :color="currentThemeColor" />
-          <text class="title-text">快捷入口</text>
-        </view>
-      </view>
-      <view class="quick-grid">
-        <view class="quick-item" @click="navigateToProfile">
-          <view class="quick-icon" :style="{ backgroundColor: currentThemeColor + '15' }">
-            <wd-icon name="user" size="24" :color="currentThemeColor" />
-          </view>
-          <text class="quick-text">个人资料</text>
-        </view>
-        <view v-if="isLogin" class="quick-item" @click="navigateToAccount">
-          <view class="quick-icon" :style="{ backgroundColor: currentThemeColor + '15' }">
-            <wd-icon name="secured" size="24" :color="currentThemeColor" />
-          </view>
-          <text class="quick-text">账号安全</text>
-        </view>
-        <view class="quick-item" @click="navigateToTheme">
-          <view class="quick-icon" :style="{ backgroundColor: currentThemeColor + '15' }">
-            <wd-icon name="color" size="24" :color="currentThemeColor" />
-          </view>
-          <text class="quick-text">主题设置</text>
-        </view>
-        <view class="quick-item" @click="navigateToSettings">
-          <view class="quick-icon" :style="{ backgroundColor: currentThemeColor + '15' }">
-            <wd-icon name="setting" size="24" :color="currentThemeColor" />
-          </view>
-          <text class="quick-text">更多设置</text>
         </view>
       </view>
     </view>
@@ -230,20 +193,17 @@ const userInfo = computed(() => userStore.userInfo);
 const isLogin = computed(() => !!userInfo.value);
 const defaultAvatar = "/static/images/default-avatar.png";
 
+const headerBackground = computed(() => {
+  const color = currentThemeColor.value || "#4d80f0";
+  const colorWithAlpha = color.length === 7 ? `${color}E6` : color;
+  const colorWithAlpha2 = color.length === 7 ? `${color}CC` : color;
+  return `linear-gradient(135deg, ${colorWithAlpha} 0%, ${colorWithAlpha2} 100%)`;
+});
+
 const router = useRouter();
 
 // 使用导航栏 Hook（TabBar 页面）
 const navbar = useNavbar({ hasTabbar: true });
-
-const navContentHeight = computed(() => {
-  const height = navbar.totalHeight.value - navbar.statusBarHeight.value;
-  return `${height > 0 ? height : 0}px`;
-});
-
-const actionButtonsTop = computed(() => {
-  const navHeight = navbar.totalHeight.value - navbar.statusBarHeight.value;
-  return `${navbar.statusBarHeight.value + navHeight / 2}px`;
-});
 
 const roleText = computed(() => {
   if (!userInfo.value) return "-";
@@ -349,18 +309,6 @@ const navigateToSettings = () => {
   router.push({ path: "/pages/mine/settings/index" });
 };
 
-const navigateToAccount = () => {
-  if (!isLogin.value) {
-    navigateToLoginPage();
-    return;
-  }
-  router.push({ path: "/pages/mine/settings/account/index" });
-};
-
-const navigateToTheme = () => {
-  router.push({ path: "/pages/mine/settings/theme/index" });
-};
-
 const navigateToUserAgreement = () => {
   router.push({ path: "/pages/mine/settings/agreement/index" });
 };
@@ -389,21 +337,10 @@ const handleClearCache = async () => {
     clearing.value = false;
   }
 };
-
-// 导航到各个板块
-const navigateToSection = (section: string, subSection?: string) => {
-  console.log(`导航到: ${section}${subSection ? ` - ${subSection}` : ""}`);
-  // 这里可以根据需要实现具体的导航逻辑
-  uni.showToast({
-    title: "功能开发中",
-    icon: "none",
-  });
-};
 </script>
 
 <style lang="scss" scoped>
 .page-container {
-  min-height: 100vh;
   background: #f5f7fa;
 }
 
@@ -418,8 +355,9 @@ const navigateToSection = (section: string, subSection?: string) => {
     right: 0;
     left: 0;
     z-index: 0;
-    height: 320rpx;
-    background: linear-gradient(135deg, var(--wot-color-theme, #165dff) 0%, #667eea 100%);
+    height: 380rpx;
+    border-bottom-right-radius: 48rpx;
+    border-bottom-left-radius: 48rpx;
   }
 
   .user-info {
@@ -427,9 +365,8 @@ const navigateToSection = (section: string, subSection?: string) => {
     z-index: 1;
     display: flex;
     align-items: center;
-    min-height: v-bind(navContentHeight);
     padding: 32rpx 32rpx 40rpx;
-    padding-right: 200rpx;
+    padding-right: 140rpx;
 
     .avatar-container {
       position: relative;
@@ -490,12 +427,11 @@ const navigateToSection = (section: string, subSection?: string) => {
       }
     }
 
-    // 操作按钮区域
-    .action-buttons {
+    .header-actions {
       position: absolute;
-      right: 0;
+      top: 50%;
+      right: 32rpx;
       display: flex;
-      gap: 16rpx;
       transform: translateY(-50%);
     }
 
@@ -536,6 +472,10 @@ const navigateToSection = (section: string, subSection?: string) => {
   background: #fff;
   border-radius: 20rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.section-card:first-of-type {
+  margin-top: -20rpx;
 }
 
 .section-header {
@@ -608,40 +548,6 @@ const navigateToSection = (section: string, subSection?: string) => {
   color: #1f2937;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-// 快捷入口网格
-.quick-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16rpx;
-}
-
-.quick-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20rpx 8rpx;
-  transition: opacity 0.2s;
-
-  &:active {
-    opacity: 0.7;
-  }
-}
-
-.quick-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64rpx;
-  height: 64rpx;
-  margin-bottom: 12rpx;
-  border-radius: 16rpx;
-}
-
-.quick-text {
-  font-size: 24rpx;
-  color: #374151;
 }
 
 // 菜单列表
