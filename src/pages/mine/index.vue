@@ -1,169 +1,167 @@
 <template>
-  <view class="page-container dark:text-[var(--wot-color-text)]">
-    <custom-navbar
-      title="我的主页"
-      bg-color="transparent"
-      title-color="#fff"
-      icon-color="#fff"
-      :show-back="false"
-      :placeholder="false"
-    />
+  <view class="page-container page-container--gradient dark:text-[var(--wot-color-text)]">
+    <view class="mine-hero" :style="{ paddingTop: `${navbar.totalHeight.value}px` }">
+      <!-- 蓝色背景 -->
+      <view class="mine-hero__bg" :style="{ background: headerBackground }" />
 
-    <!-- 用户信息卡片 -->
-    <view class="user-profile" :style="{ paddingTop: navbar.totalHeight.value + 'px' }">
-      <view class="blur-bg" :style="{ background: headerBackground }" />
+      <custom-navbar
+        bg-color="transparent"
+        title-color="#fff"
+        icon-color="#fff"
+        :show-back="false"
+        :placeholder="false"
+      >
+        <template #center>
+          <text class="mine-navbar__title">个人中心</text>
+        </template>
+      </custom-navbar>
 
-      <view class="user-info">
-        <view class="avatar-container" @click="navigateToProfile">
+      <view class="mine-hero__content">
+        <view class="profile-card">
+          <view class="profile-card__header">
+            <view class="profile-card__left" @click="isLogin ? openProfile() : navigateToLogin()">
+              <image
+                class="profile-card__avatar"
+                :src="isLogin && userInfo?.avatar ? userInfo.avatar : defaultAvatar"
+                mode="aspectFill"
+              />
+              <view v-if="isLogin" class="profile-card__online-dot" />
+              <view v-if="genderIconName" class="profile-card__gender" :class="genderIconClass">
+                <wd-icon :name="genderIconName" size="12" color="#fff" />
+              </view>
+            </view>
+
+            <view class="profile-card__main" @click="isLogin ? openProfile() : navigateToLogin()">
+              <view class="profile-card__top">
+                <text class="profile-card__name">
+                  {{ isLogin ? userInfo?.nickname || "匿名用户" : "欢迎使用" }}
+                </text>
+              </view>
+
+              <view v-if="isLogin" class="profile-card__tags">
+                <view class="profile-tag">
+                  <wd-icon name="user" size="12" color="rgba(255, 255, 255, 0.92)" />
+                  <text>{{ isLogin ? userInfo?.username || "未设置账号" : "快捷登录" }}</text>
+                </view>
+                <view class="profile-tag">
+                  <wd-icon
+                    :name="isLogin && deptNameText ? 'home' : 'secured'"
+                    size="12"
+                    color="rgba(255, 255, 255, 0.92)"
+                  />
+                  <text>{{ isLogin && deptNameText ? deptNameText : "安全可靠" }}</text>
+                </view>
+              </view>
+
+              <text v-else class="profile-card__hint">登录使用更多功能</text>
+            </view>
+
+            <view v-if="isLogin" class="profile-card__actions">
+              <view class="profile-card__action-btn" @click.stop="openNotifications">
+                <wd-icon name="notification" size="16" color="#fff" />
+                <view v-if="notificationCount > 0" class="profile-card__notify-badge">
+                  {{ notificationCount }}
+                </view>
+              </view>
+              <view class="profile-card__action-btn" @click.stop="openThemeSettings">
+                <wd-icon name="setting1" size="16" color="#fff" />
+              </view>
+            </view>
+
+            <view v-if="!isLogin" class="profile-card__action" @click.stop="navigateToLogin()">
+              <wd-button custom-class="profile-card__button" size="small" type="primary">
+                立即登录
+              </wd-button>
+            </view>
+          </view>
+        </view>
+
+        <!-- 官方社区推广区域 -->
+        <view class="community-card" @click="openOfficialAccount">
           <image
-            class="avatar"
-            :src="isLogin && userInfo?.avatar ? userInfo.avatar : defaultAvatar"
+            class="community-card__bg"
+            src="/static/images/official-bg.png"
             mode="aspectFill"
           />
-          <view v-if="genderIconName" class="gender-icon" :class="genderIconClass">
-            <wd-icon :name="genderIconName" size="12" color="#fff" />
+          <view class="community-card__mask" />
+          <view class="community-card__sparkle" />
+          <view class="community-card__logo">
+            <image src="/static/logo.png" mode="aspectFit" class="w-full h-full" />
+          </view>
+          <view class="community-card__body">
+            <view class="community-card__title-row">
+              <text class="community-card__title">关注有来技术</text>
+              <wd-tag type="success" plain custom-class="community-card__tag">官方社区</wd-tag>
+            </view>
+            <text class="community-card__desc">开源更新、实战内容、交流群入口，统一在这里查看</text>
+          </view>
+          <view class="community-card__arrow">
+            <wd-icon name="arrow-right" size="16" color="#64748b" />
           </view>
         </view>
-        <view class="user-details">
-          <block v-if="isLogin">
-            <view class="nickname">
-              {{ userInfo?.nickname || "匿名用户" }}
-            </view>
-            <view class="user-meta">
-              <view class="meta-row">
-                <wd-icon name="user" size="14" color="rgba(255, 255, 255, 0.92)" />
-                <text class="meta-value">{{ userInfo?.username || "未设置" }}</text>
-              </view>
-              <view v-if="deptNameText" class="meta-row">
-                <wd-icon name="home" size="14" color="rgba(255, 255, 255, 0.92)" />
-                <text class="meta-value">{{ deptNameText }}</text>
-              </view>
-            </view>
-          </block>
-          <block v-else>
-            <view class="login-prompt">立即登录获取更多功能</view>
-            <wd-button
-              custom-class="btn-login"
-              size="small"
-              type="primary"
-              @click="navigateToLoginPage"
-            >
-              登录/注册
-            </wd-button>
-          </block>
-        </view>
 
-        <view class="header-actions">
-          <view class="action-btn relative" @click="navigateToNotifications">
-            <wd-icon name="notification" size="20" color="#fff" />
-            <view v-if="isLogin && notificationCount > 0" class="action-badge">
-              {{ notificationCount }}
+        <view v-if="quickCards.length" class="quick-cards">
+          <view
+            v-for="item in quickCards"
+            :key="item.title"
+            class="quick-card"
+            @click="item.action"
+          >
+            <view class="quick-card__icon" :style="{ background: item.tint }">
+              <wd-icon :name="item.icon" size="28" :color="item.iconColor || '#1e293b'" />
+            </view>
+            <view class="quick-card__body">
+              <text class="quick-card__title">{{ item.title }}</text>
+              <text class="quick-card__desc">{{ item.desc }}</text>
             </view>
           </view>
-          <view class="action-btn" @click="navigateToTheme">
-            <wd-icon name="setting" size="20" color="#fff" />
+        </view>
+      </view>
+    </view>
+
+    <view class="mine-body">
+      <view class="section-card">
+        <text class="section-title">系统工具</text>
+        <view class="menu-list menu-list--flat">
+          <view
+            v-for="item in settingsItems"
+            :key="item.title"
+            class="menu-row"
+            @click="item.action"
+          >
+            <view class="menu-row__icon" :style="{ background: item.tint }">
+              <wd-icon :name="item.icon" size="18" :color="item.iconColor || '#1e293b'" />
+            </view>
+            <view class="menu-row__main">
+              <text class="menu-row__title">{{ item.title }}</text>
+              <text class="menu-row__desc">{{ item.desc }}</text>
+            </view>
+            <text v-if="item.value" class="menu-row__value">{{ item.value }}</text>
+            <wd-icon name="arrow-right" size="16" color="#94a3b8" />
           </view>
         </view>
       </view>
-    </view>
 
-    <!-- 公众号胶囊卡片 -->
-    <view class="official-capsule" @click="navigateToOfficialAccount">
-      <image class="official-avatar" src="/static/logo.png" mode="aspectFill" />
-      <view class="official-body">
-        <view class="official-title">有来技术</view>
-        <view class="official-desc">技术干货 · 开源社区 · 交流群</view>
+      <view class="section-card">
+        <text class="section-title">帮助与支持</text>
+        <view class="menu-list menu-list--flat">
+          <view v-for="item in helpItems" :key="item.title" class="menu-row" @click="item.action">
+            <view class="menu-row__icon" :style="{ background: item.tint }">
+              <wd-icon :name="item.icon" size="18" :color="item.iconColor || '#1e293b'" />
+            </view>
+            <view class="menu-row__main">
+              <text class="menu-row__title">{{ item.title }}</text>
+              <text class="menu-row__desc">{{ item.desc }}</text>
+            </view>
+            <text v-if="item.value" class="menu-row__value">{{ item.value }}</text>
+            <wd-icon name="arrow-right" size="16" color="#94a3b8" />
+          </view>
+        </view>
       </view>
-      <view class="official-action">
-        <wd-icon name="arrow-right" size="18" color="#9ca3af" />
-      </view>
-    </view>
 
-    <!-- 个人中心 -->
-    <view v-if="isLogin" class="section-card">
-      <view class="section-header">
-        <view class="section-title">
-          <wd-icon name="user" size="18" :color="currentThemeColor" />
-          <text class="title-text">个人中心</text>
-        </view>
+      <view v-if="isLogin" class="logout-section">
+        <wd-button custom-class="logout-btn" plain @click="handleLogout">退出登录</wd-button>
       </view>
-      <view class="menu-list">
-        <view class="menu-item" @click="navigateToProfile">
-          <wd-icon name="user" size="20" color="#666" />
-          <text class="menu-text">个人资料</text>
-          <wd-icon name="arrow-right" size="16" color="#ccc" />
-        </view>
-        <view class="menu-item" @click="navigateToAccount">
-          <wd-icon name="secured" size="20" color="#666" />
-          <text class="menu-text">账号和安全</text>
-          <wd-icon name="arrow-right" size="16" color="#ccc" />
-        </view>
-      </view>
-    </view>
-
-    <!-- 设置 -->
-    <view class="section-card">
-      <view class="section-header">
-        <view class="section-title">
-          <wd-icon name="setting1" size="18" :color="currentThemeColor" />
-          <text class="title-text">设置</text>
-        </view>
-      </view>
-      <view class="menu-list">
-        <view class="menu-item" @click="navigateToTheme">
-          <wd-icon name="setting1" size="20" color="#666" />
-          <text class="menu-text">主题设置</text>
-          <wd-icon name="arrow-right" size="16" color="#ccc" />
-        </view>
-        <view class="menu-item" @click="navigateToUserAgreement">
-          <wd-icon name="user" size="20" color="#666" />
-          <text class="menu-text">用户协议</text>
-          <wd-icon name="arrow-right" size="16" color="#ccc" />
-        </view>
-        <view class="menu-item" @click="navigateToPrivacy">
-          <wd-icon name="secured" size="20" color="#666" />
-          <text class="menu-text">隐私政策</text>
-          <wd-icon name="arrow-right" size="16" color="#ccc" />
-        </view>
-        <view class="menu-item" @click="navigateToAbout">
-          <wd-icon name="info-circle" size="20" color="#666" />
-          <text class="menu-text">关于我们</text>
-          <wd-icon name="arrow-right" size="16" color="#ccc" />
-        </view>
-      </view>
-    </view>
-
-    <!-- 系统工具 -->
-    <view class="section-card">
-      <view class="section-header">
-        <view class="section-title">
-          <wd-icon name="tools" size="18" :color="currentThemeColor" />
-          <text class="title-text">系统工具</text>
-        </view>
-      </view>
-      <view class="menu-list">
-        <view class="menu-item" @click="navigateToNetworkTest">
-          <wd-icon name="wifi" size="20" color="#666" />
-          <text class="menu-text">网络测试</text>
-          <wd-icon name="arrow-right" size="16" color="#ccc" />
-        </view>
-        <view class="menu-item" @click="handleClearCache">
-          <wd-icon name="delete1" size="20" color="#666" />
-          <text class="menu-text">清空缓存</text>
-          <text class="menu-value">{{ cacheSize }}</text>
-          <wd-icon name="arrow-right" size="16" color="#ccc" />
-        </view>
-      </view>
-    </view>
-
-    <!-- 退出登录 -->
-    <view v-if="isLogin" class="logout-section">
-      <wd-button custom-class="logout-btn" plain @click="handleLogout">退出登录</wd-button>
-    </view>
-
-    <!-- 底部版本号 -->
-    <view class="footer-version">
-      <text>v{{ appVersion }}</text>
     </view>
 
     <wd-loading
@@ -173,7 +171,6 @@
       mask
       custom-class="loading-center"
     />
-
     <wd-toast />
   </view>
 </template>
@@ -187,7 +184,8 @@
 </route>
 
 <script lang="ts" setup>
-import { onLoad } from "@dcloudio/uni-app";
+import { computed, ref } from "vue";
+import { onLoad, onShow } from "@dcloudio/uni-app";
 import { useUserStore, useThemeStore } from "@/store";
 import { useRouter } from "uni-mini-router";
 import { useNavbar } from "@/composables/useNavbar";
@@ -199,8 +197,8 @@ const currentThemeColor = computed(() => themeStore.themeVars.colorTheme);
 const userInfo = computed(() => userStore.userInfo);
 const defaultAvatar = "/static/images/default-avatar.png";
 
-const hasToken = computed(() => !!getAccessToken());
-const isLogin = computed(() => hasToken.value);
+const hasAccessToken = ref(!!getAccessToken());
+const isLogin = computed(() => hasAccessToken.value);
 
 const headerBackground = computed(() => {
   const color = currentThemeColor.value || "#4d80f0";
@@ -210,14 +208,14 @@ const headerBackground = computed(() => {
 });
 
 const router = useRouter();
-
 const notificationCount = computed(() => 0);
-
-// 版本号
 const appVersion = ref("1.0.0");
-
-// 使用导航栏 Hook（TabBar 页面）
 const navbar = useNavbar({ hasTabbar: true });
+
+const hasUserProfile = computed(() => {
+  const info = userInfo.value as any;
+  return !!(info && (info.id || info.userId || info.username || info.nickname));
+});
 
 const genderValue = computed(() => (userInfo.value as any)?.gender);
 const normalizedGender = computed(() => {
@@ -244,25 +242,41 @@ const genderIconClass = computed(() => {
   return "";
 });
 
-onLoad(async () => {
-  const token = getAccessToken();
-  if (token && !userStore.userInfo) {
-    try {
-      await userStore.getInfo();
-    } catch {
-      // ignore
-    }
+const syncAuthState = () => {
+  hasAccessToken.value = !!getAccessToken();
+};
+
+const fetchUserInfoIfNeeded = async () => {
+  if (!hasAccessToken.value || hasUserProfile.value) return;
+  try {
+    await userStore.getInfo();
+  } catch {
+    // ignore
   }
+};
 
-  getCacheSize();
-
+const syncMiniProgramVersion = () => {
   // #ifdef MP-WEIXIN
   appVersion.value = uni.getAccountInfoSync().miniProgram.version || "1.0.0";
   // #endif
+};
+
+onLoad(async () => {
+  syncAuthState();
+  await fetchUserInfoIfNeeded();
+  await fetchCacheSize();
+  syncMiniProgramVersion();
+});
+
+onShow(async () => {
+  syncAuthState();
+  await fetchUserInfoIfNeeded();
+  await fetchCacheSize();
+  syncMiniProgramVersion();
 });
 
 // 登录
-const navigateToLoginPage = () => {
+const navigateToLogin = () => {
   const pages = getCurrentPages();
   const currentPage = pages[pages.length - 1];
   const currentPagePath = `/${currentPage.route}`;
@@ -270,26 +284,26 @@ const navigateToLoginPage = () => {
 };
 
 // 个人信息
-const navigateToProfile = () => {
+const openProfile = () => {
   if (!isLogin.value) {
-    navigateToLoginPage();
+    navigateToLogin();
     return;
   }
   router.push({ path: "/pages/mine/profile/index" });
 };
 
 // 账号和安全
-const navigateToAccount = () => {
+const openAccount = () => {
   if (!isLogin.value) {
-    navigateToLoginPage();
+    navigateToLogin();
     return;
   }
   router.push({ path: "/pages/mine/account/index" });
 };
 
-const navigateToNotifications = () => {
+const openNotifications = () => {
   if (!isLogin.value) {
-    navigateToLoginPage();
+    navigateToLogin();
     return;
   }
   uni.showToast({
@@ -299,34 +313,28 @@ const navigateToNotifications = () => {
 };
 
 // 主题设置
-const navigateToTheme = () => {
+const openThemeSettings = () => {
   router.push({ path: "/pages/mine/settings/theme/index" });
 };
 
 // 用户协议
-const navigateToUserAgreement = () => {
+const openUserAgreement = () => {
   router.push({ path: "/pages/mine/settings/agreement/index" });
 };
 
-// 隐私政策
-const navigateToPrivacy = () => {
-  router.push({ path: "/pages/mine/settings/privacy/index" });
-};
-
-// 关于我们
-const navigateToAbout = () => {
-  router.push({ path: "/pages/mine/about/index" });
-};
-
 // 网络测试
-const navigateToNetworkTest = () => {
+const openNetworkTest = () => {
   router.push({ path: "/pages/mine/settings/network/index" });
+};
+
+const openAbout = () => {
+  router.push({ path: "/pages/mine/about/index" });
 };
 
 const clearing = ref(false);
 const cacheSize = ref<any>("计算中...");
 
-const formatSize = (size: number) => {
+const formatBytes = (size: number) => {
   if (size < 1024) {
     return size + "B";
   } else if (size < 1024 * 1024) {
@@ -336,14 +344,14 @@ const formatSize = (size: number) => {
   }
 };
 
-const getCacheSize = async () => {
+const fetchCacheSize = async () => {
   try {
     // #ifdef MP-WEIXIN
     const res = await uni.getStorageInfo();
-    cacheSize.value = formatSize(res.currentSize);
+    cacheSize.value = formatBytes(res.currentSize);
     // #endif
     // #ifdef H5
-    cacheSize.value = formatSize(
+    cacheSize.value = formatBytes(
       Object.keys(localStorage).reduce((size, key) => size + localStorage[key].length, 0)
     );
     // #endif
@@ -381,7 +389,7 @@ const handleClearCache = async () => {
     clearing.value = true;
     await new Promise((resolve) => setTimeout(resolve, 1500));
     await uni.clearStorage();
-    await getCacheSize();
+    await fetchCacheSize();
     uni.showToast({
       title: "清理成功",
       icon: "success",
@@ -413,310 +421,626 @@ const handleLogout = () => {
 };
 
 // 有来技术公众号
-const navigateToOfficialAccount = () => {
-  router.push({ path: "/pages/mine/official/index" });
+const openOfficialAccount = () => {
+  uni.navigateTo({
+    url: "/pages/mine/official/index",
+  });
 };
+
+type ActionItem = {
+  title: string;
+  desc?: string;
+  icon: string;
+  tint: string;
+  iconColor?: string;
+  value?: string;
+  action: () => void;
+};
+
+const quickCards = computed<ActionItem[]>(() => {
+  const items: ActionItem[] = [
+    {
+      title: "我的资料",
+      desc: "修改个人信息",
+      icon: "user",
+      tint: "#dbeafe",
+      iconColor: "#1e40af",
+      action: openProfile,
+    },
+    {
+      title: "账号安全",
+      desc: "修改密码 / 账号绑定",
+      icon: "secured",
+      tint: "#d1fae5",
+      iconColor: "#065f46",
+      action: openAccount,
+    },
+  ];
+
+  if (isLogin.value) {
+    return items;
+  }
+
+  return [];
+});
+
+const settingsItems = computed<ActionItem[]>(() => [
+  {
+    title: "网络检测",
+    desc: "检测接口连通性",
+    icon: "chart-trending-o",
+    tint: "#fed7aa",
+    iconColor: "#c2410c",
+    action: openNetworkTest,
+  },
+  {
+    title: "清理缓存",
+    desc: "显示当前缓存大小",
+    icon: "delete-thin",
+    tint: "#fecdd3",
+    iconColor: "#be123c",
+    value: cacheSize.value,
+    action: handleClearCache,
+  },
+]);
+
+const helpItems = computed<ActionItem[]>(() => [
+  {
+    title: "用户协议",
+    desc: "了解产品使用规则",
+    icon: "document",
+    tint: "#d1fae5",
+    iconColor: "#065f46",
+    action: openUserAgreement,
+  },
+  {
+    title: "关于系统",
+    desc: "产品介绍与联系方式",
+    icon: "info-circle",
+    tint: "#ccfbf1",
+    iconColor: "#0f766e",
+    value: `v${appVersion.value}`,
+    action: openAbout,
+  },
+]);
 </script>
 
 <style lang="scss" scoped>
-// page-container 使用全局样式，支持暗黑模式
-
-// 用户信息卡片
-.user-profile {
+// ...
+.mine-hero {
   position: relative;
-  overflow: hidden;
-
-  .blur-bg {
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    z-index: 0;
-    height: 460rpx;
-    border-bottom-right-radius: 48rpx;
-    border-bottom-left-radius: 48rpx;
-  }
-
-  .user-info {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    padding: 48rpx 32rpx 56rpx;
-    padding-right: 140rpx;
-
-    .avatar-container {
-      position: relative;
-
-      .avatar {
-        width: 144rpx;
-        height: 144rpx;
-        border: 4rpx solid rgba(255, 255, 255, 0.9);
-        border-radius: 50%;
-        box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
-      }
-
-      .gender-icon {
-        position: absolute;
-        right: 8rpx;
-        bottom: 8rpx;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 28rpx;
-        height: 28rpx;
-        border: 2rpx solid rgba(255, 255, 255, 0.9);
-        border-radius: 50%;
-        box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.18);
-      }
-
-      .gender-icon--male {
-        background-color: #409eff;
-      }
-
-      .gender-icon--female {
-        background-color: #ff6384;
-      }
-    }
-
-    .user-details {
-      flex: 1;
-      margin-left: 28rpx;
-
-      .nickname {
-        margin-bottom: 10rpx;
-        font-size: 40rpx;
-        font-weight: 700;
-        color: #fff;
-      }
-
-      .user-meta {
-        margin-top: 4rpx;
-        display: flex;
-        flex-direction: column;
-        gap: 6rpx;
-        color: rgba(255, 255, 255, 0.85);
-      }
-
-      .meta-row {
-        display: flex;
-        align-items: center;
-        gap: 8rpx;
-        font-size: 24rpx;
-        line-height: 1.2;
-      }
-
-      .meta-value {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .login-prompt {
-        margin-bottom: 16rpx;
-        font-size: 28rpx;
-        color: #fff;
-      }
-    }
-
-    .header-actions {
-      position: absolute;
-      top: 50%;
-      right: 32rpx;
-      display: flex;
-      gap: 20rpx;
-      transform: translateY(-50%);
-    }
-
-    .action-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 64rpx;
-      height: 64rpx;
-      background-color: rgba(255, 255, 255, 0.28);
-      backdrop-filter: blur(8px);
-      border-radius: 50%;
-    }
-
-    .action-badge {
-      position: absolute;
-      top: -6rpx;
-      right: -6rpx;
-      z-index: 3;
-      min-width: 32rpx;
-      height: 32rpx;
-      padding: 0 6rpx;
-      font-size: 20rpx;
-      line-height: 32rpx;
-      color: #fff;
-      text-align: center;
-      background-color: #ff4757;
-      border: 2rpx solid #fff;
-      border-radius: 16rpx;
-    }
-  }
+  overflow: visible;
+  padding-bottom: 24rpx;
 }
 
-// 通用卡片样式
+.mine-hero__bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 320rpx;
+  left: 0;
+  pointer-events: none;
+}
+
+.mine-hero__content,
+.profile-card,
+.profile-card__top,
+.profile-card__tags,
+.menu-row {
+  display: flex;
+}
+
+.mine-hero__content {
+  position: relative;
+  z-index: 1;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 20rpx 28rpx 0;
+}
+
+.mine-navbar__title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 2rpx;
+}
+
+.profile-card__status,
+.profile-tag,
+.profile-card__gender {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-card {
+  position: relative;
+  padding: 28rpx 28rpx;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.12) 100%);
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
+  border-radius: 28rpx;
+  box-shadow:
+    0 8rpx 32rpx rgba(0, 0, 0, 0.08),
+    0 2rpx 8rpx rgba(0, 0, 0, 0.04),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+}
+
+.profile-card::before {
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200rpx;
+  height: 200rpx;
+  content: "";
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.profile-card__header {
+  display: flex;
+  align-items: center;
+  gap: 28rpx;
+  width: 100%;
+}
+
+.profile-card__left {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-card__avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border: 3rpx solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.profile-card__gender {
+  position: absolute;
+  right: -4rpx;
+  bottom: 2rpx;
+  width: 36rpx;
+  height: 36rpx;
+  border: 2rpx solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+}
+
+.profile-card__online-dot {
+  position: absolute;
+  right: 6rpx;
+  bottom: 6rpx;
+  width: 18rpx;
+  height: 18rpx;
+  background: #22c55e;
+  border: 3rpx solid rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  box-shadow: 0 4rpx 12rpx rgba(15, 23, 42, 0.12);
+}
+
+.profile-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  flex-shrink: 0;
+  margin-left: auto;
+  margin-right: -10rpx;
+}
+
+.profile-card__action-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52rpx;
+  height: 52rpx;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1rpx solid rgba(255, 255, 255, 0.22);
+  border-radius: 999rpx;
+  backdrop-filter: blur(10px);
+}
+
+.profile-card__notify-badge {
+  position: absolute;
+  top: -8rpx;
+  right: -6rpx;
+  min-width: 30rpx;
+  height: 30rpx;
+  padding: 0 8rpx;
+  font-size: 18rpx;
+  color: #fff;
+  background: #ef4444;
+  border: 2rpx solid rgba(255, 255, 255, 0.95);
+  border-radius: 999rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gender-icon--male {
+  background: #60a5fa;
+}
+
+.gender-icon--female {
+  background: #fb7185;
+}
+
+.profile-card__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-card__top {
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 18rpx;
+}
+
+.profile-card__name {
+  flex: 1;
+  min-width: 0;
+  font-size: 38rpx;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.98);
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+.profile-card__status {
+  flex-shrink: 0;
+  padding: 8rpx 16rpx;
+  font-size: 20rpx;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  border-radius: 20rpx;
+}
+
+.profile-card__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.profile-card__hint {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.profile-card__tags {
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.profile-card__action {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.profile-tag {
+  gap: 8rpx;
+  padding: 8rpx 14rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  border-radius: 12rpx;
+}
+
+.quick-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+  margin-top: 24rpx;
+  margin-bottom: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.community-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 36rpx;
+  background: transparent;
+  border-radius: 32rpx;
+  box-shadow: 0 10rpx 30rpx rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.community-card__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  pointer-events: none;
+}
+
+.community-card__mask {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(255, 255, 255, 0.34) 55%,
+    rgba(255, 255, 255, 0.58) 100%
+  );
+}
+
+.community-card__sparkle {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 30%, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 52%),
+    radial-gradient(circle at 72% 20%, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0) 58%),
+    radial-gradient(circle at 60% 78%, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0) 60%);
+  opacity: 0.55;
+}
+
+.community-card__logo {
+  position: relative;
+  z-index: 2;
+  width: 84rpx;
+  height: 84rpx;
+  padding: 10rpx;
+  box-sizing: border-box;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1rpx solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 6rpx 18rpx rgba(15, 23, 42, 0.06);
+}
+
+.community-card__body {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-width: 0;
+}
+
+.community-card__arrow {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44rpx;
+  height: 44rpx;
+  background: rgba(255, 255, 255, 0.68);
+  border-radius: 999rpx;
+}
+
+.community-card__title-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.community-card__title {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--wot-color-text, #2f3a4a);
+  letter-spacing: 0.2px;
+}
+
+:deep(.community-card__tag) {
+  margin-top: 14rpx;
+}
+
+.community-card__desc {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: var(--wot-color-text-secondary, #64748b);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .section-card {
   padding: 28rpx;
-  margin: 24rpx 28rpx;
-  background: #fff;
-  border-radius: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  background: var(--wot-color-white, #fff);
+  border-radius: 32rpx;
+  box-shadow: 0 10rpx 30rpx rgba(15, 23, 42, 0.05);
 }
 
-.section-card:first-of-type {
-  margin-top: -20rpx;
-}
-
-.section-header {
-  margin-bottom: 24rpx;
+.section-card + .section-card {
+  margin-top: 24rpx;
 }
 
 .section-title {
-  display: flex;
-  gap: 12rpx;
-  align-items: center;
-}
-
-.title-text {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-// 菜单列表
-.menu-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2rpx;
-  overflow: hidden;
-  background: #f9fafb;
-  border-radius: 14rpx;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  padding: 28rpx 24rpx;
-  background: #fff;
-  transition: background 0.2s;
-
-  &:active {
-    background: #f9fafb;
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1rpx solid #f3f4f6;
-  }
-}
-
-.menu-text {
-  flex: 1;
-  margin-left: 20rpx;
-  font-size: 28rpx;
-  color: #374151;
-}
-
-.menu-value {
+  display: block;
   font-size: 26rpx;
-  color: #9ca3af;
+  font-weight: 600;
+  color: var(--wot-color-text, #2f3a4a);
+  margin-bottom: 18rpx;
 }
 
-// 公众号入口（简洁卡片风格）
-.official-capsule {
+.quick-card {
   display: flex;
   align-items: center;
-  margin: -24rpx 28rpx 24rpx;
-  padding: 20rpx 24rpx;
-  background: #fff;
-  border-radius: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  gap: 20rpx;
+  padding: 28rpx 24rpx;
+  background: var(--wot-color-white, #fff);
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
+  transition: all 0.2s ease;
 }
 
-.official-avatar {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 16rpx;
+.quick-card:active {
+  transform: scale(0.96);
+  box-shadow: 0 4rpx 12rpx rgba(15, 23, 42, 0.06);
 }
 
-.official-body {
+.quick-card__icon {
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-card__body {
   flex: 1;
   min-width: 0;
-  margin-left: 18rpx;
 }
 
-.official-title {
+.quick-card__title {
+  display: block;
   font-size: 28rpx;
-  font-weight: 600;
-  color: #374151;
-}
-
-.official-desc {
-  margin-top: 4rpx;
-  font-size: 22rpx;
-  color: #9ca3af;
-}
-
-.official-action {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-left: 8rpx;
-}
-
-// 底部版本号
-.footer-version {
-  padding: 40rpx 0 60rpx;
-  text-align: center;
-
-  text {
-    font-size: 24rpx;
-    color: #9ca3af;
-  }
-}
-
-// 退出登录
-.logout-section {
-  padding: 40rpx 28rpx 80rpx;
-}
-
-.logout-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 88rpx;
-  background: #fff;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-  transition: opacity 0.2s;
-
-  &:active {
-    opacity: 0.8;
-  }
-}
-
-.logout-text {
-  font-size: 30rpx;
   font-weight: 500;
-  color: #ef4444;
+  color: var(--wot-color-text, #2f3a4a);
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-// 加载遮罩
+.quick-card__desc {
+  display: block;
+  font-size: 22rpx;
+  color: var(--wot-color-text-secondary, #64748b);
+  line-height: 1.6;
+  margin-top: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 22rpx;
+}
+
+.mine-body {
+  position: relative;
+  z-index: 0;
+  margin-top: 0;
+  background: var(--wot-color-bg, #f8fafc);
+  border-top-left-radius: 48rpx;
+  border-top-right-radius: 48rpx;
+  padding: 0 28rpx calc(env(safe-area-inset-bottom) + 40rpx);
+}
+
+.menu-list {
+  margin-top: 24rpx;
+  padding: 0 28rpx;
+  background: var(--wot-color-white, #fff);
+  border-radius: 32rpx;
+  box-shadow: 0 16rpx 40rpx rgba(15, 23, 42, 0.05);
+  overflow: hidden;
+}
+
+.menu-list--flat {
+  margin-top: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.menu-row {
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx 20rpx;
+  background: transparent;
+}
+
+.menu-row + .menu-row {
+  border-top: 1rpx solid rgba(148, 163, 184, 0.14);
+}
+
+.menu-row__icon {
+  width: 76rpx;
+  height: 76rpx;
+  flex-shrink: 0;
+}
+
+.menu-row__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-row__title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: var(--wot-color-text, #2f3a4a);
+}
+
+.menu-row__desc {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--wot-color-text-secondary, #64748b);
+}
+
+.menu-row__value {
+  margin-left: 12rpx;
+  font-size: 22rpx;
+  color: #94a3b8;
+}
+
+.logout-section {
+  padding: 36rpx 32rpx 0;
+}
+
+:deep(.profile-card__button) {
+  flex-shrink: 0;
+  min-width: 156rpx;
+  height: 72rpx !important;
+  padding: 0 24rpx !important;
+  font-size: 24rpx !important;
+  font-weight: 600;
+  border: 0 !important;
+  border-radius: 999rpx !important;
+}
+
+:deep(.logout-btn) {
+  width: 100%;
+  height: 88rpx !important;
+  font-size: 28rpx !important;
+  color: #ef4444 !important;
+  background: var(--wot-color-white, #fff) !important;
+  border: 1rpx solid rgba(239, 68, 68, 0.18) !important;
+  border-radius: 24rpx !important;
+  box-shadow: 0 12rpx 30rpx rgba(239, 68, 68, 0.08);
+}
+
 :deep(.loading-center) {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 12rpx;
-}
-
-// 登录按钮样式
-:deep(.btn-login) {
-  font-size: 24rpx !important;
-  border-radius: 20rpx !important;
+  background: rgba(15, 23, 42, 0.72);
+  border-radius: 24rpx;
 }
 </style>

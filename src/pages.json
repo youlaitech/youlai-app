@@ -45,6 +45,17 @@
       "type": "page"
     },
     {
+      "path": "pages/mine/feedback/index",
+      "type": "page",
+      "name": "feedback",
+      "style": {
+        "navigationBarTitleText": "意见反馈"
+      },
+      "meta": {
+        "requireAuth": true
+      }
+    },
+    {
       "path": "pages/mine/official/index",
       "type": "page",
       "name": "official",
@@ -59,6 +70,14 @@
     {
       "path": "pages/mine/profile/index",
       "type": "page"
+    },
+    {
+      "path": "pages/mine/settings/index",
+      "type": "page",
+      "name": "settings",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
     },
     {
       "path": "pages/work/config/index",

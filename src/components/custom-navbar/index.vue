@@ -30,6 +30,7 @@
       </view>
 
       <view class="custom-navbar__right" :style="{ width: rightWidth + 'px' }">
+        <view class="custom-navbar__capsule-space" :style="{ width: capsuleSpaceWidth + 'px' }" />
         <slot name="right" />
       </view>
     </view>
@@ -91,6 +92,18 @@ const menuButtonWidth = computed(() => navbar.menuButtonWidth.value);
 const menuButtonRightGap = computed(() => navbar.menuButtonRightGap.value);
 const menuButtonLeft = computed(() => navbar.menuButtonLeft.value);
 
+const capsuleSpaceWidth = computed(() => {
+  let width = 0;
+  // #ifdef MP-WEIXIN
+  if (menuButtonWidth.value > 0) {
+    width = menuButtonWidth.value + menuButtonRightGap.value;
+  }
+  // #endif
+  return width;
+});
+
+const rightContentWidth = computed(() => 96);
+
 const leftWidth = computed(() => {
   let width = 80;
   // #ifdef MP-WEIXIN
@@ -102,9 +115,7 @@ const leftWidth = computed(() => {
 const rightWidth = computed(() => {
   let width = 80;
   // #ifdef MP-WEIXIN
-  if (menuButtonWidth.value > 0) {
-    width = menuButtonWidth.value + menuButtonRightGap.value * 2;
-  }
+  width = capsuleSpaceWidth.value + rightContentWidth.value;
   // #endif
   return width;
 });
@@ -208,5 +219,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+}
+
+.custom-navbar__capsule-space {
+  flex: 0 0 auto;
+  height: 1px;
 }
 </style>

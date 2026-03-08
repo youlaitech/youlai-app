@@ -1,43 +1,54 @@
 <template>
-  <view class="page-container dark:text-[var(--wot-color-text)]">
-    <wd-card v-if="userProfile" custom-style="margin-top: 20rpx">
-      <wd-cell-group border>
-        <wd-cell class="avatar-cell" title="头像" center is-link>
-          <view class="avatar">
-            <view v-if="!userProfile.avatar" class="img" @click="avatarUpload">
-              <wd-icon name="fill-camera" custom-class="img-icon" />
-            </view>
-            <wd-img
-              v-if="userProfile.avatar"
-              round
-              width="80px"
-              height="80px"
-              :src="userProfile.avatar"
-              mode="aspectFit"
-              custom-class="profile-img"
-              @click="avatarUpload"
+  <view class="page-container page-container--auto dark:text-[var(--wot-color-text)]">
+    <view class="profile-content">
+      <view class="pt-20rpx">
+        <wd-card v-if="userProfile">
+          <wd-cell-group border>
+            <wd-cell class="avatar-cell" title="头像" center is-link>
+              <view class="avatar">
+                <view v-if="!userProfile.avatar" class="img" @click="handleAvatarUpload">
+                  <wd-icon name="fill-camera" custom-class="img-icon" />
+                </view>
+                <wd-img
+                  v-if="userProfile.avatar"
+                  round
+                  width="80px"
+                  height="80px"
+                  :src="userProfile.avatar"
+                  mode="aspectFit"
+                  custom-class="profile-img"
+                  @click="handleAvatarUpload"
+                />
+              </view>
+            </wd-cell>
+            <wd-cell title="昵称" :value="userProfile.nickname" is-link @click="openDialog()" />
+            <wd-cell
+              title="性别"
+              :value="userProfile.gender === 1 ? '男' : userProfile.gender === 2 ? '女' : '未知'"
+              is-link
+              @click="openDialog()"
             />
-          </view>
-        </wd-cell>
-        <wd-cell title="昵称" :value="userProfile.nickname" is-link @click="handleOpenDialog()" />
-        <wd-cell
-          title="性别"
-          :value="userProfile.gender === 1 ? '男' : userProfile.gender === 2 ? '女' : '未知'"
-          is-link
-          @click="handleOpenDialog()"
-        />
-        <wd-cell title="用户名" :value="userProfile.username" />
-        <wd-cell title="部门" :value="userProfile.deptName" />
-        <wd-cell title="角色" :value="userProfile.roleNames" />
-        <wd-cell title="创建日期" :value="userProfile.createTime" />
-      </wd-cell-group>
-    </wd-card>
+            <wd-cell title="用户名" :value="userProfile.username" />
+            <wd-cell title="部门" :value="userProfile.deptName" />
+            <wd-cell title="角色" :value="userProfile.roleNames" />
+            <view class="profile-last-cell-wrap">
+              <wd-cell title="创建日期" :value="userProfile.createTime" />
+            </view>
+          </wd-cell-group>
+        </wd-card>
+      </view>
+    </view>
 
     <!--头像裁剪-->
-    <wd-img-cropper v-model="avatarShow" :img-src="originalSrc" @confirm="handleAvatarConfirm" />
+    <wd-img-cropper
+      v-if="avatarShow"
+      v-model="avatarShow"
+      :img-src="originalSrc"
+      @confirm="handleAvatarConfirm"
+    />
 
     <!--用户信息编辑弹出框-->
-    <wd-popup v-model="dialog.visible" position="bottom">
+    <wd-popup v-if="dialogState.visible" v-model="dialogState.visible" position="bottom">
       <wd-form ref="userProfileFormRef" :model="userProfileForm" custom-class="edit-form">
         <wd-cell-group border>
           <wd-input
@@ -77,7 +88,7 @@ const loadUserProfile = async () => {
 };
 
 // 头像选择
-function avatarUpload() {
+function handleAvatarUpload() {
   uni.chooseImage({
     count: 1,
     success: (res) => {
@@ -107,7 +118,7 @@ const rules = reactive({
   gender: [{ required: true, message: "请选择性别" }],
 });
 
-const dialog = reactive({
+const dialogState = reactive({
   visible: false,
 });
 
@@ -118,8 +129,8 @@ const userProfileFormRef = ref();
  * 打开弹窗
  * @param type 弹窗类型 ACCOUNT: 账号资料 PASSWORD: 修改密码 MOBILE: 绑定手机 EMAIL: 绑定邮箱
  */
-const handleOpenDialog = () => {
-  dialog.visible = true;
+const openDialog = () => {
+  dialogState.visible = true;
   // 初始化表单数据
   userProfileForm.nickname = userProfile.value?.nickname;
   userProfileForm.gender = userProfile.value?.gender;
@@ -131,7 +142,7 @@ function handleSubmit() {
     if (valid) {
       UserAPI.updateProfile(userProfileForm).then(() => {
         uni.showToast({ title: "账号资料修改成功", icon: "none" });
-        dialog.visible = false;
+        dialogState.visible = false;
         loadUserProfile();
       });
     }
@@ -143,8 +154,8 @@ onLoad(() => {
   if (!checkLogin()) return;
 
   // #ifdef H5
-  document.addEventListener("touchstart", touchstartListener, { passive: false });
-  document.addEventListener("touchmove", touchmoveListener, { passive: false });
+  document.addEventListener("touchstart", handleTouchStart, { passive: false });
+  document.addEventListener("touchmove", handleTouchMove, { passive: false });
   // #endif
   loadUserProfile();
 });
@@ -157,26 +168,24 @@ onMounted(() => {
 // 页面销毁前移除事件监听
 onBeforeUnmount(() => {
   // #ifdef H5
-  document.removeEventListener("touchstart", touchstartListener);
-  document.removeEventListener("touchmove", touchmoveListener);
+  document.removeEventListener("touchstart", handleTouchStart);
+  document.removeEventListener("touchmove", handleTouchMove);
   // #endif
 });
 // 禁用浏览器双指缩放，使头像裁剪时双指缩放能够起作用
-function touchstartListener(event: TouchEvent) {
+function handleTouchStart(event: TouchEvent) {
   if (event.touches.length > 1) {
     event.preventDefault();
   }
 }
 // 禁用浏览器下拉刷新，使头像裁剪时能够移动图片
-function touchmoveListener(event: TouchEvent) {
+function handleTouchMove(event: TouchEvent) {
   event.preventDefault();
-}
-
-function handleBack() {
-  uni.navigateBack();
 }
 </script>
 <style lang="scss" scoped>
+
+
 .avatar-cell {
   :deep(.wd-cell__body) {
     align-items: center;
