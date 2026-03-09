@@ -147,7 +147,7 @@ const showCustomColorInput = ref(false);
 
 // 当前选中的主题色
 const currentThemeColor = computed(() => {
-  return themeVars.value.colorTheme || themeColorOptions[0].primary;
+  return themeVars.colorTheme || themeColorOptions[0].primary;
 });
 
 // 选择预设颜色

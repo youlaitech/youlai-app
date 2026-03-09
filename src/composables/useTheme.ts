@@ -36,7 +36,7 @@ export function useTheme() {
     theme: computed(() => store.theme),
     isDark: computed(() => store.isDark),
     currentThemeColor: computed(() => store.currentThemeColor),
-    themeVars: computed(() => store.themeVars),
+    themeVars: store.themeVars,
 
     themeColorOptions,
 
