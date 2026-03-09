@@ -16,7 +16,7 @@
     <view class="section section--overlay">
       <wd-grid clickable :column="4">
         <wd-grid-item
-          v-for="(item, index) in navList"
+          v-for="(item, index) in quickNavList"
           :key="index"
           use-slot
           @click="handleNavClick(item)"
@@ -32,9 +32,10 @@
     <!-- 通知公告 -->
     <view class="section">
       <wd-notice-bar
-        text="vue-uniapp-template 是一个基于 Vue3 + UniApp 的前端模板项目，提供了一套完整的前端解决方案，包括登录、权限、字典、接口请求、状态管理、页面布局、组件封装等功能。"
+        :text="noticeText"
         color="#34D19D"
         type="info"
+        @click="handleNoticeClick"
       >
         <template #prefix>
           <wd-tag color="#FAA21E" bg-color="#FAA21E" plain custom-style="margin-right: 10rpx">
@@ -46,22 +47,38 @@
 
     <!-- 数据统计 -->
     <view class="section">
-      <view class="stats-grid">
-        <view class="stats-card">
-          <image class="stats-card__icon" src="/static/icons/visitor.png" />
-          <view class="stats-card__info">
-            <text class="stats-card__label">访客数</text>
-            <text class="stats-card__value">{{ visitStatsData.todayUvCount }}</text>
+      <wd-card>
+        <template #title>
+          <view class="overview-header">
+            <text class="overview-header__title">今日数据概览</text>
+            <view class="overview-header__more" @click="handleOverviewMore">查看更多</view>
+          </view>
+        </template>
+
+        <view class="overview-grid">
+          <view class="overview-item">
+            <image class="overview-item__icon" src="/static/icons/visitor.png" />
+            <view class="overview-item__info">
+              <text class="overview-item__label">访客数</text>
+              <text class="overview-item__value">{{ visitStatsData.todayUvCount }}</text>
+            </view>
+          </view>
+          <view class="overview-item">
+            <image class="overview-item__icon" src="/static/icons/browser.png" />
+            <view class="overview-item__info">
+              <text class="overview-item__label">浏览量</text>
+              <text class="overview-item__value">{{ visitStatsData.todayPvCount }}</text>
+            </view>
+          </view>
+          <view class="overview-item" v-if="appVersion">
+            <image class="overview-item__icon" src="/static/icons/setting.png" />
+            <view class="overview-item__info">
+              <text class="overview-item__label">版本</text>
+              <text class="overview-item__value">{{ appVersion }}</text>
+            </view>
           </view>
         </view>
-        <view class="stats-card">
-          <image class="stats-card__icon" src="/static/icons/browser.png" />
-          <view class="stats-card__info">
-            <text class="stats-card__label">浏览量</text>
-            <text class="stats-card__value">{{ visitStatsData.todayPvCount }}</text>
-          </view>
-        </view>
-      </view>
+      </wd-card>
     </view>
 
     <!-- 访问趋势图表 -->
@@ -108,29 +125,26 @@
  * - 支持暗黑模式（通过 CSS 变量）
  */
 
-import { reactive, ref } from "vue";
+import { computed, ref } from "vue";
 import { onReady } from "@dcloudio/uni-app";
 import { dayjs } from "wot-design-uni";
 import { useRouter } from "uni-mini-router";
+import { useUserStore } from "@/store";
+import { workMenuConfig } from "@/constants/work-menu";
+import LogAPI, { type VisitStatsVO as ApiVisitStatsVO, type VisitTrendVO } from "@/api/log";
+import NoticeAPI, { type NoticePageVO } from "@/api/notice";
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
-interface VisitStatsVO {
-  todayUvCount: number;
-  uvGrowthRate: number;
-  totalUvCount: number;
-  todayPvCount: number;
-  pvGrowthRate: number;
-  totalPvCount: number;
-}
+type VisitStatsVO = ApiVisitStatsVO;
 
 interface NavItem {
   icon: string;
   title: string;
   url: string;
-  prem: string;
+  perm: string;
 }
 
 // ============================================================================
@@ -138,6 +152,7 @@ interface NavItem {
 // ============================================================================
 
 const router = useRouter();
+const userStore = useUserStore();
 // custom-navbar 组件内部已处理导航栏高度与胶囊避让
 
 // ============================================================================
@@ -150,40 +165,52 @@ const recentDaysRange = ref(7);
 const swiperList = ref(["https://www.youlai.tech/storage/blog/banner9.png"]);
 
 const visitStatsData = ref<VisitStatsVO>({
-  todayUvCount: 1234,
-  uvGrowthRate: 15.6,
-  totalUvCount: 45678,
-  todayPvCount: 5678,
-  pvGrowthRate: 23.4,
-  totalPvCount: 123456,
+  todayUvCount: 0,
+  uvGrowthRate: 0,
+  totalUvCount: 0,
+  todayPvCount: 0,
+  pvGrowthRate: 0,
+  totalPvCount: 0,
 });
 
-const navList = reactive<NavItem[]>([
-  {
-    icon: "/static/icons/user.png",
-    title: "用户管理",
-    url: "/pages/work/user/index",
-    prem: "sys:user:query",
-  },
-  {
-    icon: "/static/icons/role.png",
-    title: "角色管理",
-    url: "/pages/work/role/index",
-    prem: "sys:role:query",
-  },
-  {
-    icon: "/static/icons/notice.png",
-    title: "通知公告",
-    url: "/pages/work/notice/index",
-    prem: "sys:notice:query",
-  },
-  {
-    icon: "/static/icons/setting.png",
-    title: "系统配置",
-    url: "/pages/work/config/index",
-    prem: "sys:config:query",
-  },
-]);
+const appVersion = ref<string>("");
+
+const noticeList = ref<NoticePageVO[]>([]);
+const noticeText = computed(() => {
+  if (!noticeList.value.length) {
+    return "暂无通知";
+  }
+  const titles = noticeList.value
+    .map((n: NoticePageVO) => n.title)
+    .filter(Boolean)
+    .slice(0, 2) as string[];
+  return titles.length ? titles.join("    ") : "暂无通知";
+});
+
+// 用户权限列表
+const userPerms = computed(() => userStore.userInfo?.perms || []);
+
+// 检查是否有权限
+const hasPermission = (perm: string) => {
+  if (!perm) return true;
+  return userPerms.value.includes(perm) || userPerms.value.includes("*:*:*");
+};
+
+// 快捷入口：按权限过滤后取前 4 个
+const quickNavList = computed(() => {
+  const result: { icon: string; title: string; url: string; perm: string }[] = [];
+  for (const group of workMenuConfig) {
+    for (const item of group.children) {
+      if (hasPermission(item.perm)) {
+        result.push(item);
+      }
+      if (result.length >= 4) {
+        return result;
+      }
+    }
+  }
+  return result;
+});
 
 const chartData = ref({});
 const chartOpts = ref({
@@ -212,46 +239,53 @@ const chartOpts = ref({
 // 数据加载
 // ============================================================================
 
-function generateStaticTrendData(days: number) {
-  const dates: string[] = [];
-  const ipList: number[] = [];
-  const pvList: number[] = [];
-  const today = new Date();
-
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - i);
-    dates.push(dayjs(date).format("MM-DD"));
-    ipList.push(Math.floor(Math.random() * 500) + 200);
-    pvList.push(Math.floor(Math.random() * 1000) + 500);
+function loadAppVersion() {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const p: any = (globalThis as any).plus;
+    if (p?.runtime?.version) {
+      appVersion.value = `v${p.runtime.version}`;
+    }
+  } catch {
+    appVersion.value = "";
   }
-
-  return { dates, ipList, pvList };
 }
 
-function loadVisitStatsData() {
-  visitStatsData.value = {
-    todayUvCount: 1234,
-    uvGrowthRate: 15.6,
-    totalUvCount: 45678,
-    todayPvCount: 5678,
-    pvGrowthRate: 23.4,
-    totalPvCount: 123456,
-  };
+async function loadNoticeData() {
+  try {
+    const { list } = await NoticeAPI.getMyNoticePage({ pageNum: 1, pageSize: 2 });
+    noticeList.value = list || [];
+  } catch {
+    noticeList.value = [];
+  }
 }
 
-function loadVisitTrendData() {
-  const data = generateStaticTrendData(recentDaysRange.value);
+async function loadVisitStatsData() {
+  try {
+    visitStatsData.value = await LogAPI.getVisitStats();
+  } catch {
+    // ignore
+  }
+}
 
-  chartData.value = JSON.parse(
-    JSON.stringify({
-      categories: data.dates,
-      series: [
-        { name: "访客数(UV)", data: data.ipList },
-        { name: "浏览量(PV)", data: data.pvList },
-      ],
-    })
-  );
+async function loadVisitTrendData() {
+  const endDate = dayjs().format("YYYY-MM-DD");
+  const startDate = dayjs().subtract(recentDaysRange.value - 1, "day").format("YYYY-MM-DD");
+
+  try {
+    const data: VisitTrendVO = await LogAPI.getVisitTrend({ startDate, endDate });
+    chartData.value = JSON.parse(
+      JSON.stringify({
+        categories: (data.dates || []).map((d) => dayjs(d).format("MM-DD")),
+        series: [
+          { name: "访客数(UV)", data: data.uvList || [] },
+          { name: "浏览量(PV)", data: data.pvList || [] },
+        ],
+      })
+    );
+  } catch {
+    chartData.value = { categories: [], series: [] };
+  }
 }
 
 // ============================================================================
@@ -260,6 +294,14 @@ function loadVisitTrendData() {
 
 function handleNavClick(item: NavItem) {
   router.push({ path: item.url });
+}
+
+function handleNoticeClick() {
+  router.push({ path: "/pages/work/notice/index" });
+}
+
+function handleOverviewMore() {
+  router.push({ path: "/pages/work/log/index" });
 }
 
 function handleSwiperClick(e: any) {
@@ -280,6 +322,8 @@ function handleDataRangeChange({ value }: { value: number }) {
 // ============================================================================
 
 onReady(() => {
+  loadAppVersion();
+  loadNoticeData();
   loadVisitStatsData();
   loadVisitTrendData();
 });

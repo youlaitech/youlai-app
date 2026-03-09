@@ -23,6 +23,7 @@
 <script lang="ts" setup>
 import { useRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
+import { workMenuConfig } from "@/constants/work-menu";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -36,53 +37,9 @@ const hasPermission = (perm: string) => {
   return userPerms.value.includes(perm) || userPerms.value.includes("*:*:*");
 };
 
-// 菜单配置（预设布局）
-const gridList = [
-  {
-    title: "系统管理",
-    children: [
-      {
-        icon: "/static/icons/user.png",
-        title: "用户管理",
-        url: "/pages/work/user/index",
-        perm: "sys:user:list",
-      },
-      {
-        icon: "/static/icons/role.png",
-        title: "角色管理",
-        url: "/pages/work/role/index",
-        perm: "sys:role:list",
-      },
-      {
-        icon: "/static/icons/notice.png",
-        title: "通知公告",
-        url: "/pages/work/notice/index",
-        perm: "sys:notice:list",
-      },
-      {
-        icon: "/static/icons/setting.png",
-        title: "系统配置",
-        url: "/pages/work/config/index",
-        perm: "sys:config:list",
-      },
-    ],
-  },
-  {
-    title: "系统监控",
-    children: [
-      {
-        icon: "/static/icons/log.png",
-        title: "系统日志",
-        url: "/pages/work/log/index",
-        perm: "sys:log:list",
-      },
-    ],
-  },
-];
-
 // 根据权限过滤后的菜单列表
 const visibleGridList = computed(() => {
-  return gridList
+  return workMenuConfig
     .map((group) => ({
       ...group,
       children: group.children.filter((item) => hasPermission(item.perm)),
