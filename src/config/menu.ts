@@ -14,7 +14,7 @@ export interface WorkMenuGroup {
   children: WorkMenuItem[];
 }
 
-export const workMenuConfig: WorkMenuGroup[] = [
+export const menuConfig: WorkMenuGroup[] = [
   {
     title: "系统管理",
     children: [

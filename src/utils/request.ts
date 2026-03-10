@@ -1,4 +1,21 @@
-﻿import { getAccessToken } from "./auth";
+﻿import { getAccessToken, clearTokens } from "./auth";
+
+/**
+ * 请求错误类
+ */
+export class RequestError extends Error {
+  /** HTTP 状态码 */
+  statusCode: number;
+  /** 业务错误码 */
+  code: number;
+
+  constructor(message: string, statusCode: number, code?: number) {
+    super(message);
+    this.name = "RequestError";
+    this.statusCode = statusCode;
+    this.code = code ?? statusCode;
+  }
+}
 
 // 请求配置
 interface RequestOptions<T = any> {
@@ -8,27 +25,25 @@ interface RequestOptions<T = any> {
   header?: Record<string, string>;
   timeout?: number;
   responseType?: "text" | "arraybuffer";
-  skipAuth?: boolean; // 标记是否跳过认证
+  /** 是否跳过错误提示（如 Toast） */
+  skipErrorToast?: boolean;
 }
 
-// 请求函数
+/**
+ * 请求函数
+ * - 有 token 则自动添加 Authorization 头
+ * - 无 token 则直接发送请求，由后端判断是否需要认证
+ * - 401 时清除 token 并跳转登录页
+ */
 function request<T = any>(options: RequestOptions): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     // 构建请求头
     const header = Object.assign({}, options.header || {});
 
-    // 检查是否需要添加认证令牌
-    if (!options.skipAuth) {
-      const token = getAccessToken();
-      if (token) {
-        header["Authorization"] = `Bearer ${token}`;
-      } else {
-        // 需要认证但没有令牌，跳转到登录页
-        uni.navigateTo({
-          url: "/pages/login/index",
-        });
-        return reject(new Error("请先登录"));
-      }
+    // 有 token 则添加认证头，无 token 则不添加（由后端判断）
+    const token = getAccessToken();
+    if (token) {
+      header["Authorization"] = `Bearer ${token}`;
     }
 
     // 根据平台决定URL前缀
@@ -57,38 +72,36 @@ function request<T = any>(options: RequestOptions): Promise<T> {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data.data);
         }
-        // 未授权错误
+        // 未授权错误：清除 token 并跳转登录页
         else if (res.statusCode === 401) {
-          // 如果需要认证且未授权，跳转到登录页
-          if (!options.skipAuth) {
-            uni.navigateTo({
-              url: "/pages/login/index",
-            });
-          }
-          reject(new Error(serverMsg || "未授权，请重新登录"));
+          clearTokens();
+          uni.navigateTo({
+            url: "/pages/login/index",
+          });
+          reject(new RequestError(serverMsg || "未授权，请重新登录", 401));
         }
         // 其他错误
         else {
-          const errorMsg = serverMsg || `请求失败: ${res.statusCode}`;
-          reject(new Error(errorMsg));
+          const errorCode = res?.data?.code || res.statusCode;
+          reject(
+            new RequestError(serverMsg || `请求失败: ${res.statusCode}`, res.statusCode, errorCode)
+          );
         }
       },
       fail: (err) => {
-        reject(new Error(err.errMsg || "网络请求失败"));
+        reject(new RequestError(err.errMsg || "网络请求失败", 0));
       },
     });
   });
 }
 
 /**
- * 无需认证的请求
- * @param options 请求配置
+ * 无需认证的请求（兼容旧调用）
+ *
+ * 说明：当前 request 实现不会在“无 token”时阻断请求，认证与否由后端决定。
  */
 export function publicRequest<T = any>(options: RequestOptions): Promise<T> {
-  return request<T>({
-    ...options,
-    skipAuth: true,
-  });
+  return request<T>(options);
 }
 
 export default request;

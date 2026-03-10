@@ -10,6 +10,7 @@ declare global {
   const EffectScope: typeof import('vue')['EffectScope']
   const PERM_ALL: typeof import('../utils/permission')['PERM_ALL']
   const ROLE_ROOT: typeof import('../utils/permission')['ROLE_ROOT']
+  const RequestError: typeof import('../utils/request')['RequestError']
   const Storage: typeof import('../utils/storage')['Storage']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const applyThemeOnPageShow: typeof import('../utils/theme')['applyThemeOnPageShow']
@@ -204,6 +205,9 @@ declare global {
   // @ts-ignore
   export type { Component, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+  // @ts-ignore
+  export type { RequestError } from '../utils/request'
+  import('../utils/request')
 }
 
 // for vue template auto import
@@ -213,6 +217,7 @@ declare module 'vue' {
   interface ComponentCustomProperties {
     readonly CommonUtil: UnwrapRef<typeof import('wot-design-uni')['CommonUtil']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly RequestError: UnwrapRef<typeof import('../utils/request')['RequestError']>
     readonly Storage: UnwrapRef<typeof import('../utils/storage')['Storage']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly auth: UnwrapRef<typeof import('../api/auth')['default']>

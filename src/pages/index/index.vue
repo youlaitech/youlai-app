@@ -31,59 +31,59 @@
 
     <!-- 通知公告 -->
     <view class="section">
-      <wd-notice-bar
-        :text="noticeText"
-        color="#34D19D"
-        type="info"
-        @click="handleNoticeClick"
-      >
-        <template #prefix>
-          <wd-tag color="#FAA21E" bg-color="#FAA21E" plain custom-style="margin-right: 10rpx">
-            通知公告
-          </wd-tag>
-        </template>
-      </wd-notice-bar>
+      <view class="notice-bar" @click="handleNoticeClick">
+        <view class="notice-bar__icon">
+          <wd-icon name="check-outline" size="32rpx" color="#34D19D" />
+        </view>
+        <view class="notice-bar__content">
+          <text class="notice-bar__text">{{ noticeText || "暂无通知公告" }}</text>
+        </view>
+      </view>
     </view>
 
     <!-- 数据统计 -->
     <view class="section">
-      <wd-card>
-        <template #title>
-          <view class="overview-header">
-            <text class="overview-header__title">今日数据概览</text>
-            <view class="overview-header__more" @click="handleOverviewMore">查看更多</view>
+      <view class="stat-grid">
+        <view class="stat-card stat-card--green">
+          <view class="stat-card__bg">
+            <view class="stat-card__icon stat-card__icon--user"></view>
           </view>
-        </template>
-
-        <view class="overview-grid">
-          <view class="overview-item">
-            <image class="overview-item__icon" src="/static/icons/visitor.png" />
-            <view class="overview-item__info">
-              <text class="overview-item__label">访客数</text>
-              <text class="overview-item__value">{{ visitStatsData.todayUvCount }}</text>
-            </view>
+          <view class="stat-card__head">
+            <text class="stat-card__label">访客数</text>
+            <view class="stat-card__dot stat-card__dot--green"></view>
           </view>
-          <view class="overview-item">
-            <image class="overview-item__icon" src="/static/icons/browser.png" />
-            <view class="overview-item__info">
-              <text class="overview-item__label">浏览量</text>
-              <text class="overview-item__value">{{ visitStatsData.todayPvCount }}</text>
-            </view>
-          </view>
-          <view class="overview-item" v-if="appVersion">
-            <image class="overview-item__icon" src="/static/icons/setting.png" />
-            <view class="overview-item__info">
-              <text class="overview-item__label">版本</text>
-              <text class="overview-item__value">{{ appVersion }}</text>
-            </view>
-          </view>
+          <text class="stat-card__num stat-card__num--green">
+            {{ visitStatsData.todayUvCount }}
+          </text>
         </view>
-      </wd-card>
+        <view class="stat-card stat-card--blue">
+          <view class="stat-card__bg">
+            <view class="stat-card__icon stat-card__icon--eye"></view>
+          </view>
+          <view class="stat-card__head">
+            <text class="stat-card__label">浏览量</text>
+            <view class="stat-card__dot stat-card__dot--blue"></view>
+          </view>
+          <text class="stat-card__num stat-card__num--blue">
+            {{ visitStatsData.todayPvCount }}
+          </text>
+        </view>
+        <view v-if="appVersion" class="stat-card stat-card--orange stat-card--full">
+          <view class="stat-card__bg">
+            <view class="stat-card__icon stat-card__icon--gear"></view>
+          </view>
+          <view class="stat-card__head">
+            <text class="stat-card__label">应用版本</text>
+            <view class="stat-card__dot stat-card__dot--orange"></view>
+          </view>
+          <text class="stat-card__num stat-card__num--orange">{{ appVersion }}</text>
+        </view>
+      </view>
     </view>
 
     <!-- 访问趋势图表 -->
     <view class="section">
-      <wd-card>
+      <wd-card custom-class="chart-card">
         <template #title>
           <view class="chart-header">
             <text class="chart-header__title">访问趋势</text>
@@ -130,7 +130,8 @@ import { onReady } from "@dcloudio/uni-app";
 import { dayjs } from "wot-design-uni";
 import { useRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
-import { workMenuConfig } from "@/constants/work-menu";
+import { menuConfig } from "@/config/menu";
+import { checkLogin, isLoggedIn } from "@/utils/auth";
 import LogAPI, { type VisitStatsVO as ApiVisitStatsVO, type VisitTrendVO } from "@/api/log";
 import NoticeAPI, { type NoticePageVO } from "@/api/notice";
 
@@ -190,16 +191,36 @@ const noticeText = computed(() => {
 // 用户权限列表
 const userPerms = computed(() => userStore.userInfo?.perms || []);
 
+// 是否已登录
+const isLogged = computed(() => isLoggedIn());
+
 // 检查是否有权限
 const hasPermission = (perm: string) => {
   if (!perm) return true;
   return userPerms.value.includes(perm) || userPerms.value.includes("*:*:*");
 };
 
-// 快捷入口：按权限过滤后取前 4 个
-const quickNavList = computed(() => {
+// 默认菜单（未登录时显示）
+const defaultNavList = computed(() => {
   const result: { icon: string; title: string; url: string; perm: string }[] = [];
-  for (const group of workMenuConfig) {
+  for (const group of menuConfig) {
+    for (const item of group.children) {
+      result.push(item);
+      if (result.length >= 4) {
+        return result;
+      }
+    }
+  }
+  return result;
+});
+
+// 快捷入口：已登录按权限过滤，未登录显示默认菜单
+const quickNavList = computed(() => {
+  if (!isLogged.value) {
+    return defaultNavList.value;
+  }
+  const result: { icon: string; title: string; url: string; perm: string }[] = [];
+  for (const group of menuConfig) {
     for (const item of group.children) {
       if (hasPermission(item.perm)) {
         result.push(item);
@@ -252,6 +273,11 @@ function loadAppVersion() {
 }
 
 async function loadNoticeData() {
+  // 未登录时不调用通知接口
+  if (!isLogged.value) {
+    noticeList.value = [];
+    return;
+  }
   try {
     const { list } = await NoticeAPI.getMyNoticePage({ pageNum: 1, pageSize: 2 });
     noticeList.value = list || [];
@@ -293,15 +319,15 @@ async function loadVisitTrendData() {
 // ============================================================================
 
 function handleNavClick(item: NavItem) {
+  // 未登录时先检查登录状态并跳转登录页
+  if (!checkLogin()) {
+    return;
+  }
   router.push({ path: item.url });
 }
 
 function handleNoticeClick() {
   router.push({ path: "/pages/work/notice/index" });
-}
-
-function handleOverviewMore() {
-  router.push({ path: "/pages/work/log/index" });
 }
 
 function handleSwiperClick(e: any) {
@@ -435,8 +461,8 @@ onReady(() => {
 .section--overlay {
   position: relative;
   z-index: 2;
-  margin-top: -72rpx;
-  padding: 16rpx 8rpx;
+  margin-top: -140rpx;
+  padding: 18rpx 8rpx;
   background: var(--color-bg);
   border-radius: 24rpx;
   box-shadow: 0 16rpx 36rpx rgba(0, 0, 0, 0.08);
@@ -466,45 +492,202 @@ onReady(() => {
 }
 
 // ============================================================================
-// 数据统计网格
+// 通知栏
 // ============================================================================
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24rpx;
-}
-
-.stats-card {
+.notice-bar {
   display: flex;
   align-items: center;
-  padding: 32rpx;
-  background-color: var(--color-bg);
-  border-radius: 24rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx 24rpx 24rpx 20rpx;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
 
   &__icon {
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 16rpx;
+    flex-shrink: 0;
+    width: 48rpx;
+    height: 48rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(52, 209, 157, 0.1);
+    border-radius: 12rpx;
+    margin-right: 16rpx;
   }
 
-  &__info {
-    margin-left: 32rpx;
+  &__content {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  &__text {
+    font-size: 26rpx;
+    color: #333;
+    font-weight: 500;
+    display: -webkit-box;
+    line-clamp: 1;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// ============================================================================
+// 统计卡片（简洁大气风格）
+// ============================================================================
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+
+  // 背景图标容器
+  &__bg {
+    position: absolute;
+    right: 12rpx;
+    bottom: 12rpx;
+    width: 70rpx;
+    height: 70rpx;
+    opacity: 0.08;
+    pointer-events: none;
+  }
+
+  // SVG 装饰图形
+  &__icon {
+    width: 100%;
+    height: 100%;
+
+    // 用户组图标 - 访客数
+    &--user {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='%232ab789'%3E%3Ccircle cx='24' cy='16' r='8'/%3E%3Ccircle cx='10' cy='20' r='6'/%3E%3Ccircle cx='38' cy='20' r='6'/%3E%3Cpath d='M24 28c-8 0-14 4-14 8v6h28v-6c0-4-6-8-14-8z'/%3E%3Cpath d='M10 28c-4 0-8 2-8 5v5h8v-5c0-2 1-4 3-5-1 0-2 0-3 0z'/%3E%3Cpath d='M38 28c4 0 8 2 8 5v5h-8v-5c0-2-1-4-3-5 1 0 2 0 3 0z'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    // 图表图标 - 浏览量
+    &--eye {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='%233a8ee6'%3E%3Crect x='4' y='24' width='8' height='20' rx='2'/%3E%3Crect x='16' y='14' width='8' height='30' rx='2'/%3E%3Crect x='28' y='20' width='8' height='24' rx='2'/%3E%3Crect x='40' y='8' width='8' height='36' rx='2'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    // 盾牌徽章图标 - 版本
+    &--gear {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='%23e8a838'%3E%3Cpath d='M24 4L8 10v12c0 11 8 18 16 22 8-4 16-11 16-22V10L24 4z'/%3E%3Cpath d='M20 24l4 4 8-8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+  }
+
+  // 彩色卡片变体
+  &--green {
+    background: linear-gradient(135deg, #f0fdf9 0%, #fff 100%);
+  }
+
+  &--blue {
+    background: linear-gradient(135deg, #f0f7ff 0%, #fff 100%);
+  }
+
+  &--orange {
+    background: linear-gradient(135deg, #fffbf0 0%, #fff 100%);
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16rpx;
+    position: relative;
+    z-index: 1;
   }
 
   &__label {
-    display: block;
-    font-size: 26rpx;
+    font-size: 24rpx;
+    color: #999;
     font-weight: 500;
-    color: var(--color-text);
   }
 
-  &__value {
-    display: block;
-    margin-top: 8rpx;
-    font-size: 36rpx;
-    font-weight: 600;
-    color: var(--color-text);
+  &__dot {
+    width: 12rpx;
+    height: 12rpx;
+    border-radius: 50%;
+
+    &--green {
+      background: #34d19d;
+      box-shadow: 0 0 10rpx rgba(52, 209, 157, 0.4);
+    }
+
+    &--blue {
+      background: #409eff;
+      box-shadow: 0 0 10rpx rgba(64, 158, 255, 0.4);
+    }
+
+    &--orange {
+      background: #faa21e;
+      box-shadow: 0 0 12rpx rgba(250, 162, 30, 0.4);
+    }
+  }
+
+  &__num {
+    font-size: 48rpx;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -1rpx;
+    position: relative;
+    z-index: 1;
+
+    &--green {
+      color: #2ab789;
+      text-shadow: 0 4rpx 12rpx rgba(42, 183, 137, 0.3);
+    }
+
+    &--blue {
+      color: #3a8ee6;
+      text-shadow: 0 4rpx 12rpx rgba(58, 142, 230, 0.3);
+    }
+
+    &--orange {
+      color: #e8a838;
+      text-shadow: 0 4rpx 12rpx rgba(232, 168, 56, 0.3);
+    }
+  }
+
+  &--full {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20rpx 20rpx;
+
+    .stat-card__head {
+      margin-bottom: 0;
+    }
+
+    .stat-card__num {
+      font-size: 28rpx;
+      letter-spacing: 0;
+    }
+
+    .stat-card__bg {
+      width: 50rpx;
+      height: 50rpx;
+      right: 16rpx;
+      bottom: 50%;
+      transform: translateY(50%);
+    }
   }
 }
 
@@ -528,5 +711,18 @@ onReady(() => {
   width: 100%;
   height: 300px;
   margin-bottom: 40rpx;
+}
+
+:deep(.chart-card) {
+  margin: 0 !important;
+}
+
+:deep(.chart-card .wd-card) {
+  margin: 0 !important;
+  border-radius: 16rpx;
+}
+
+:deep(.chart-card .wd-card__body) {
+  padding: 24rpx !important;
 }
 </style>

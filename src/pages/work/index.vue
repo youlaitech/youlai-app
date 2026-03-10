@@ -23,7 +23,7 @@
 <script lang="ts" setup>
 import { useRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
-import { workMenuConfig } from "@/constants/work-menu";
+import { menuConfig } from "@/config/menu";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -39,7 +39,7 @@ const hasPermission = (perm: string) => {
 
 // 根据权限过滤后的菜单列表
 const visibleGridList = computed(() => {
-  return workMenuConfig
+  return menuConfig
     .map((group) => ({
       ...group,
       children: group.children.filter((item) => hasPermission(item.perm)),
