@@ -1,5 +1,5 @@
 <template>
-  <view class="page-container page-container--gradient dark:text-[var(--wot-color-text)]">
+  <view class="page dark:text-[var(--wot-color-text)]">
     <view class="mine-hero" :style="{ paddingTop: `${navbar.totalHeight.value}px` }">
       <!-- 蓝色背景 -->
       <view class="mine-hero__bg" :style="{ background: headerBackground }" />
@@ -509,8 +509,8 @@ const helpItems = computed<ActionItem[]>(() => [
 // ...
 .mine-hero {
   position: relative;
-  overflow: visible;
   padding-bottom: 24rpx;
+  overflow: visible;
 }
 
 .mine-hero__bg {
@@ -558,13 +558,13 @@ const helpItems = computed<ActionItem[]>(() => [
   padding: 28rpx 28rpx;
   overflow: hidden;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.12) 100%);
+  backdrop-filter: blur(20px);
   border: 1rpx solid rgba(255, 255, 255, 0.35);
   border-radius: 28rpx;
   box-shadow:
     0 8rpx 32rpx rgba(0, 0, 0, 0.08),
     0 2rpx 8rpx rgba(0, 0, 0, 0.04),
     inset 0 1rpx 0 rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(20px);
 }
 
 .profile-card::before {
@@ -573,16 +573,16 @@ const helpItems = computed<ActionItem[]>(() => [
   right: -20%;
   width: 200rpx;
   height: 200rpx;
+  pointer-events: none;
   content: "";
   background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, transparent 70%);
   border-radius: 50%;
-  pointer-events: none;
 }
 
 .profile-card__header {
   display: flex;
-  align-items: center;
   gap: 28rpx;
+  align-items: center;
   width: 100%;
 }
 
@@ -592,11 +592,11 @@ const helpItems = computed<ActionItem[]>(() => [
 }
 
 .profile-card__avatar {
+  flex-shrink: 0;
   width: 120rpx;
   height: 120rpx;
   border: 3rpx solid rgba(255, 255, 255, 0.9);
   border-radius: 50%;
-  flex-shrink: 0;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
 }
 
@@ -625,11 +625,11 @@ const helpItems = computed<ActionItem[]>(() => [
 
 .profile-card__actions {
   display: flex;
-  align-items: center;
-  gap: 10rpx;
   flex-shrink: 0;
-  margin-left: auto;
+  gap: 10rpx;
+  align-items: center;
   margin-right: -10rpx;
+  margin-left: auto;
 }
 
 .profile-card__action-btn {
@@ -640,15 +640,18 @@ const helpItems = computed<ActionItem[]>(() => [
   width: 52rpx;
   height: 52rpx;
   background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
   border: 1rpx solid rgba(255, 255, 255, 0.22);
   border-radius: 999rpx;
-  backdrop-filter: blur(10px);
 }
 
 .profile-card__notify-badge {
   position: absolute;
   top: -8rpx;
   right: -6rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 30rpx;
   height: 30rpx;
   padding: 0 8rpx;
@@ -657,9 +660,6 @@ const helpItems = computed<ActionItem[]>(() => [
   background: #ef4444;
   border: 2rpx solid rgba(255, 255, 255, 0.95);
   border-radius: 999rpx;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .gender-icon--male {
@@ -676,8 +676,8 @@ const helpItems = computed<ActionItem[]>(() => [
 }
 
 .profile-card__top {
-  align-items: center;
   gap: 16rpx;
+  align-items: center;
   margin-bottom: 18rpx;
 }
 
@@ -703,14 +703,14 @@ const helpItems = computed<ActionItem[]>(() => [
 
 .profile-card__desc {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
   margin-top: 12rpx;
+  overflow: hidden;
   font-size: 24rpx;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.84);
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .profile-card__hint {
@@ -741,25 +741,25 @@ const helpItems = computed<ActionItem[]>(() => [
 }
 
 .quick-cards {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20rpx;
   margin-top: 24rpx;
   margin-bottom: 0;
-  position: relative;
-  z-index: 2;
 }
 
 .community-card {
   position: relative;
   display: flex;
-  align-items: center;
   gap: 24rpx;
+  align-items: center;
   padding: 36rpx;
+  overflow: hidden;
   background: transparent;
   border-radius: 32rpx;
   box-shadow: 0 10rpx 30rpx rgba(15, 23, 42, 0.06);
-  overflow: hidden;
 }
 
 .community-card__bg {
@@ -768,8 +768,8 @@ const helpItems = computed<ActionItem[]>(() => [
   z-index: 0;
   width: 100%;
   height: 100%;
-  opacity: 1;
   pointer-events: none;
+  opacity: 1;
 }
 
 .community-card__mask {
@@ -799,13 +799,13 @@ const helpItems = computed<ActionItem[]>(() => [
 .community-card__logo {
   position: relative;
   z-index: 2;
+  box-sizing: border-box;
   width: 84rpx;
   height: 84rpx;
   padding: 10rpx;
-  box-sizing: border-box;
-  border-radius: 20rpx;
   background: rgba(255, 255, 255, 0.96);
   border: 1rpx solid rgba(148, 163, 184, 0.22);
+  border-radius: 20rpx;
   box-shadow: 0 6rpx 18rpx rgba(15, 23, 42, 0.06);
 }
 
@@ -830,8 +830,8 @@ const helpItems = computed<ActionItem[]>(() => [
 
 .community-card__title-row {
   display: flex;
-  align-items: center;
   gap: 16rpx;
+  align-items: center;
 }
 
 .community-card__title {
@@ -849,15 +849,15 @@ const helpItems = computed<ActionItem[]>(() => [
 
 .community-card__desc {
   display: block;
-  margin-top: 10rpx;
-  font-size: 24rpx;
-  color: var(--wot-color-text-secondary, #64748b);
-  line-height: 1.55;
   display: -webkit-box;
+  margin-top: 10rpx;
+  overflow: hidden;
+  font-size: 24rpx;
+  line-height: 1.55;
+  color: var(--wot-color-text-secondary, #64748b);
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .section-card {
@@ -873,16 +873,16 @@ const helpItems = computed<ActionItem[]>(() => [
 
 .section-title {
   display: block;
+  margin-bottom: 18rpx;
   font-size: 26rpx;
   font-weight: 600;
   color: var(--wot-color-text, #2f3a4a);
-  margin-bottom: 18rpx;
 }
 
 .quick-card {
   display: flex;
-  align-items: center;
   gap: 20rpx;
+  align-items: center;
   padding: 28rpx 24rpx;
   background: var(--wot-color-white, #fff);
   border-radius: 24rpx;
@@ -891,17 +891,17 @@ const helpItems = computed<ActionItem[]>(() => [
 }
 
 .quick-card:active {
-  transform: scale(0.96);
   box-shadow: 0 4rpx 12rpx rgba(15, 23, 42, 0.06);
+  transform: scale(0.96);
 }
 
 .quick-card__icon {
-  width: 84rpx;
-  height: 84rpx;
-  border-radius: 22rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 22rpx;
 }
 
 .quick-card__body {
@@ -911,22 +911,22 @@ const helpItems = computed<ActionItem[]>(() => [
 
 .quick-card__title {
   display: block;
+  overflow: hidden;
   font-size: 28rpx;
   font-weight: 500;
-  color: var(--wot-color-text, #2f3a4a);
   line-height: 1.35;
-  overflow: hidden;
+  color: var(--wot-color-text, #2f3a4a);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .quick-card__desc {
   display: block;
-  font-size: 22rpx;
-  color: var(--wot-color-text-secondary, #64748b);
-  line-height: 1.6;
   margin-top: 8rpx;
   overflow: hidden;
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: var(--wot-color-text-secondary, #64748b);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -943,33 +943,33 @@ const helpItems = computed<ActionItem[]>(() => [
 .mine-body {
   position: relative;
   z-index: 0;
+  padding: 0 28rpx calc(env(safe-area-inset-bottom) + 40rpx);
   margin-top: 0;
   background: var(--wot-color-bg, #f8fafc);
   border-top-left-radius: 48rpx;
   border-top-right-radius: 48rpx;
-  padding: 0 28rpx calc(env(safe-area-inset-bottom) + 40rpx);
 }
 
 .menu-list {
-  margin-top: 24rpx;
   padding: 0 28rpx;
+  margin-top: 24rpx;
+  overflow: hidden;
   background: var(--wot-color-white, #fff);
   border-radius: 32rpx;
   box-shadow: 0 16rpx 40rpx rgba(15, 23, 42, 0.05);
-  overflow: hidden;
 }
 
 .menu-list--flat {
-  margin-top: 0;
   padding: 0;
+  margin-top: 0;
   background: transparent;
   border-radius: 0;
   box-shadow: none;
 }
 
 .menu-row {
-  align-items: center;
   gap: 20rpx;
+  align-items: center;
   padding: 24rpx 20rpx;
   background: transparent;
 }
@@ -979,9 +979,9 @@ const helpItems = computed<ActionItem[]>(() => [
 }
 
 .menu-row__icon {
+  flex-shrink: 0;
   width: 76rpx;
   height: 76rpx;
-  flex-shrink: 0;
 }
 
 .menu-row__main {

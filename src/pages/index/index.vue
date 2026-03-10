@@ -1,6 +1,6 @@
 <template>
   <view class="home-page">
-    <!-- 轮播图 -->
+    <!-- 轮播�?-->
     <view class="hero">
       <wd-swiper
         v-model:current="current"
@@ -30,13 +30,19 @@
     </view>
 
     <!-- 通知公告 -->
-    <view class="section">
+    <view v-if="noticeList.length" class="section">
       <view class="notice-bar" @click="handleNoticeClick">
         <view class="notice-bar__icon">
           <wd-icon name="check-outline" size="32rpx" color="#34D19D" />
         </view>
         <view class="notice-bar__content">
-          <text class="notice-bar__text">{{ noticeText || "暂无通知公告" }}</text>
+          <view v-if="isNoticeScrolling" class="notice-bar__marquee">
+            <view class="notice-bar__marquee-inner">
+              <text class="notice-bar__text">{{ noticeText }}</text>
+              <text class="notice-bar__text notice-bar__text--gap">{{ noticeText }}</text>
+            </view>
+          </view>
+          <text v-else class="notice-bar__text">{{ noticeText }}</text>
         </view>
       </view>
     </view>
@@ -49,7 +55,7 @@
             <view class="stat-card__icon stat-card__icon--user"></view>
           </view>
           <view class="stat-card__head">
-            <text class="stat-card__label">访客数</text>
+            <text class="stat-card__label">访客�?/text>
             <view class="stat-card__dot stat-card__dot--green"></view>
           </view>
           <text class="stat-card__num stat-card__num--green">
@@ -61,7 +67,7 @@
             <view class="stat-card__icon stat-card__icon--eye"></view>
           </view>
           <view class="stat-card__head">
-            <text class="stat-card__label">浏览量</text>
+            <text class="stat-card__label">浏览�?/text>
             <view class="stat-card__dot stat-card__dot--blue"></view>
           </view>
           <text class="stat-card__num stat-card__num--blue">
@@ -93,8 +99,8 @@
               inline
               @change="handleDataRangeChange"
             >
-              <wd-radio :value="7">近7天</wd-radio>
-              <wd-radio :value="15">近15天</wd-radio>
+              <wd-radio :value="7">�?�?/wd-radio>
+              <wd-radio :value="15">�?5�?/wd-radio>
             </wd-radio-group>
           </view>
         </template>
@@ -111,19 +117,15 @@
 /**
  * 首页
  *
- * 功能说明：
- * - 自定义导航栏（搜索框）
- * - 轮播图展示
- * - 快捷导航入口
+ * 功能说明�? * - 自定义导航栏（搜索框�? * - 轮播图展�? * - 快捷导航入口
  * - 通知公告
  * - 数据统计
  * - 访问趋势图表
  *
  * 技术要点：
- * - 使用 useNavbar 处理自定义导航栏高度和胶囊避让;
+ * - 使用 useNavbar 处理自定义导航栏高度和胶囊避�?
  * - 使用 BEM 命名规范组织 CSS
- * - 支持暗黑模式（通过 CSS 变量）
- */
+ * - 支持暗黑模式（通过 CSS 变量�? */
 
 import { computed, ref } from "vue";
 import { onReady } from "@dcloudio/uni-app";
@@ -154,11 +156,9 @@ interface NavItem {
 
 const router = useRouter();
 const userStore = useUserStore();
-// custom-navbar 组件内部已处理导航栏高度与胶囊避让
-
+// custom-navbar 组件内部已处理导航栏高度与胶囊避�?
 // ============================================================================
-// 响应式数据
-// ============================================================================
+// 响应式数�?// ============================================================================
 
 const current = ref(0);
 const recentDaysRange = ref(7);
@@ -178,21 +178,19 @@ const appVersion = ref<string>("");
 
 const noticeList = ref<NoticePageVO[]>([]);
 const noticeText = computed(() => {
-  if (!noticeList.value.length) {
-    return "暂无通知";
-  }
   const titles = noticeList.value
     .map((n: NoticePageVO) => n.title)
     .filter(Boolean)
-    .slice(0, 2) as string[];
-  return titles.length ? titles.join("    ") : "暂无通知";
+    .slice(0, 5) as string[];
+  return titles.length ? titles.join("    ") : "";
 });
+
+const isNoticeScrolling = computed(() => noticeList.value.length > 1);
 
 // 用户权限列表
 const userPerms = computed(() => userStore.userInfo?.perms || []);
 
-// 是否已登录
-const isLogged = computed(() => isLoggedIn());
+// 是否已登�?const isLogged = computed(() => isLoggedIn());
 
 // 检查是否有权限
 const hasPermission = (perm: string) => {
@@ -214,8 +212,7 @@ const defaultNavList = computed(() => {
   return result;
 });
 
-// 快捷入口：已登录按权限过滤，未登录显示默认菜单
-const quickNavList = computed(() => {
+// 快捷入口：已登录按权限过滤，未登录显示默认菜�?const quickNavList = computed(() => {
   if (!isLogged.value) {
     return defaultNavList.value;
   }
@@ -262,7 +259,6 @@ const chartOpts = ref({
 
 function loadAppVersion() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const p: any = (globalThis as any).plus;
     if (p?.runtime?.version) {
       appVersion.value = `v${p.runtime.version}`;
@@ -279,7 +275,7 @@ async function loadNoticeData() {
     return;
   }
   try {
-    const { list } = await NoticeAPI.getMyNoticePage({ pageNum: 1, pageSize: 2 });
+    const { list } = await NoticeAPI.getMyNoticePage({ pageNum: 1, pageSize: 5 });
     noticeList.value = list || [];
   } catch {
     noticeList.value = [];
@@ -296,7 +292,9 @@ async function loadVisitStatsData() {
 
 async function loadVisitTrendData() {
   const endDate = dayjs().format("YYYY-MM-DD");
-  const startDate = dayjs().subtract(recentDaysRange.value - 1, "day").format("YYYY-MM-DD");
+  const startDate = dayjs()
+    .subtract(recentDaysRange.value - 1, "day")
+    .format("YYYY-MM-DD");
 
   try {
     const data: VisitTrendVO = await LogAPI.getVisitTrend({ startDate, endDate });
@@ -304,8 +302,8 @@ async function loadVisitTrendData() {
       JSON.stringify({
         categories: (data.dates || []).map((d) => dayjs(d).format("MM-DD")),
         series: [
-          { name: "访客数(UV)", data: data.uvList || [] },
-          { name: "浏览量(PV)", data: data.pvList || [] },
+          { name: "访客�?UV)", data: data.uvList || [] },
+          { name: "浏览�?PV)", data: data.pvList || [] },
         ],
       })
     );
@@ -319,8 +317,7 @@ async function loadVisitTrendData() {
 // ============================================================================
 
 function handleNavClick(item: NavItem) {
-  // 未登录时先检查登录状态并跳转登录页
-  if (!checkLogin()) {
+  // 未登录时先检查登录状态并跳转登录�?  if (!checkLogin()) {
     return;
   }
   router.push({ path: item.url });
@@ -376,29 +373,28 @@ onReady(() => {
 .hero {
   position: relative;
 }
-
 .hero::after {
-  content: "";
   position: absolute;
-  left: 0;
   right: 0;
   bottom: 0;
+  left: 0;
+  z-index: 1;
   height: 120rpx;
+  pointer-events: none;
+  content: "";
   background: linear-gradient(
     to bottom,
     rgba(245, 247, 250, 0) 0%,
     rgba(245, 247, 250, 0.85) 60%,
     rgba(245, 247, 250, 1) 100%
   );
-  pointer-events: none;
-  z-index: 1;
 }
 
 :deep(.swiper-box) {
   height: 420rpx;
   overflow: hidden;
-  border-bottom-left-radius: 32rpx;
   border-bottom-right-radius: 32rpx;
+  border-bottom-left-radius: 32rpx;
 }
 
 :deep(.swiper-box .wd-swiper__item),
@@ -407,8 +403,7 @@ onReady(() => {
 }
 
 // ============================================================================
-// 导航栏
-// ============================================================================
+// 导航�?// ============================================================================
 
 .navbar {
   position: fixed;
@@ -461,16 +456,15 @@ onReady(() => {
 .section--overlay {
   position: relative;
   z-index: 2;
-  margin-top: -140rpx;
   padding: 18rpx 8rpx;
+  margin-top: -140rpx;
   background: var(--color-bg);
   border-radius: 24rpx;
   box-shadow: 0 16rpx 36rpx rgba(0, 0, 0, 0.08);
 }
 
 // ============================================================================
-// 快捷导航项
-// ============================================================================
+// 快捷导航�?// ============================================================================
 
 .nav-item {
   display: flex;
@@ -492,28 +486,27 @@ onReady(() => {
 }
 
 // ============================================================================
-// 通知栏
-// ============================================================================
+// 通知�?// ============================================================================
 
 .notice-bar {
   display: flex;
   align-items: center;
-  background: #fff;
-  border-radius: 16rpx;
   padding: 24rpx 24rpx 24rpx 20rpx;
+  background: #fff;
   border: 1rpx solid rgba(0, 0, 0, 0.04);
+  border-radius: 16rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
 
   &__icon {
-    flex-shrink: 0;
-    width: 48rpx;
-    height: 48rpx;
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
+    width: 48rpx;
+    height: 48rpx;
+    margin-right: 16rpx;
     background: rgba(52, 209, 157, 0.1);
     border-radius: 12rpx;
-    margin-right: 16rpx;
   }
 
   &__content {
@@ -523,13 +516,34 @@ onReady(() => {
 
   &__text {
     font-size: 26rpx;
-    color: #333;
     font-weight: 500;
-    display: -webkit-box;
-    line-clamp: 1;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
+    color: #333;
+    white-space: nowrap;
+  }
+
+  &__text--gap {
+    padding-left: 48rpx;
+  }
+
+  &__marquee {
+    width: 100%;
     overflow: hidden;
+  }
+
+  &__marquee-inner {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    animation: notice-marquee 14s linear infinite;
+  }
+}
+
+@keyframes notice-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }
 
@@ -544,55 +558,49 @@ onReady(() => {
 }
 
 .stat-card {
-  background: #fff;
-  border-radius: 16rpx;
-  padding: 24rpx 20rpx;
+  position: relative;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  position: relative;
+  padding: 24rpx 20rpx;
   overflow: hidden;
+  background: #fff;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
 
-  // 背景图标容器
   &__bg {
     position: absolute;
     right: 12rpx;
     bottom: 12rpx;
     width: 70rpx;
     height: 70rpx;
-    opacity: 0.08;
     pointer-events: none;
+    opacity: 0.08;
   }
 
-  // SVG 装饰图形
   &__icon {
     width: 100%;
     height: 100%;
 
-    // 用户组图标 - 访客数
     &--user {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='%232ab789'%3E%3Ccircle cx='24' cy='16' r='8'/%3E%3Ccircle cx='10' cy='20' r='6'/%3E%3Ccircle cx='38' cy='20' r='6'/%3E%3Cpath d='M24 28c-8 0-14 4-14 8v6h28v-6c0-4-6-8-14-8z'/%3E%3Cpath d='M10 28c-4 0-8 2-8 5v5h8v-5c0-2 1-4 3-5-1 0-2 0-3 0z'/%3E%3Cpath d='M38 28c4 0 8 2 8 5v5h-8v-5c0-2-1-4-3-5 1 0 2 0 3 0z'/%3E%3C/svg%3E");
-      background-size: contain;
+      background-image: url("/static/icons/visitor.svg");
       background-repeat: no-repeat;
+      background-size: contain;
     }
 
-    // 图表图标 - 浏览量
     &--eye {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='%233a8ee6'%3E%3Crect x='4' y='24' width='8' height='20' rx='2'/%3E%3Crect x='16' y='14' width='8' height='30' rx='2'/%3E%3Crect x='28' y='20' width='8' height='24' rx='2'/%3E%3Crect x='40' y='8' width='8' height='36' rx='2'/%3E%3C/svg%3E");
-      background-size: contain;
+      background-image: url("/static/icons/browser.svg");
       background-repeat: no-repeat;
+      background-size: contain;
     }
 
-    // 盾牌徽章图标 - 版本
     &--gear {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='%23e8a838'%3E%3Cpath d='M24 4L8 10v12c0 11 8 18 16 22 8-4 16-11 16-22V10L24 4z'/%3E%3Cpath d='M20 24l4 4 8-8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-size: contain;
+      background-image: url("/static/icons/setting.svg");
       background-repeat: no-repeat;
+      background-size: contain;
     }
   }
 
-  // 彩色卡片变体
   &--green {
     background: linear-gradient(135deg, #f0fdf9 0%, #fff 100%);
   }
@@ -606,18 +614,18 @@ onReady(() => {
   }
 
   &__head {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16rpx;
-    position: relative;
-    z-index: 1;
   }
 
   &__label {
     font-size: 24rpx;
-    color: #999;
     font-weight: 500;
+    color: #999;
   }
 
   &__dot {
@@ -642,12 +650,12 @@ onReady(() => {
   }
 
   &__num {
+    position: relative;
+    z-index: 1;
     font-size: 48rpx;
     font-weight: 700;
     line-height: 1;
     letter-spacing: -1rpx;
-    position: relative;
-    z-index: 1;
 
     &--green {
       color: #2ab789;
@@ -666,8 +674,8 @@ onReady(() => {
   }
 
   &--full {
-    grid-column: 1 / -1;
     flex-direction: row;
+    grid-column: 1 / -1;
     align-items: center;
     justify-content: space-between;
     padding: 20rpx 20rpx;
@@ -682,10 +690,10 @@ onReady(() => {
     }
 
     .stat-card__bg {
-      width: 50rpx;
-      height: 50rpx;
       right: 16rpx;
       bottom: 50%;
+      width: 50rpx;
+      height: 50rpx;
       transform: translateY(50%);
     }
   }

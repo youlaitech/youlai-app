@@ -1,5 +1,5 @@
 <template>
-  <view class="page-container dark:text-[var(--wot-color-text)]">
+  <view class="page dark:text-[var(--wot-color-text)]">
     <view class="page-content">
       <view class="header">
         <image class="logo" src="/static/logo.png" mode="aspectFill" />
@@ -45,8 +45,8 @@
 
 .header {
   display: flex;
-  align-items: center;
   gap: 20rpx;
+  align-items: center;
   padding: 28rpx;
   background: #fff;
   border-radius: 20rpx;
@@ -77,8 +77,8 @@
 }
 
 .group-tip {
-  margin-top: 20rpx;
   padding: 20rpx;
+  margin-top: 20rpx;
   font-size: 26rpx;
   line-height: 1.6;
   color: #374151;
@@ -87,8 +87,8 @@
 }
 
 .qr-card {
-  margin-top: 24rpx;
   padding: 28rpx;
+  margin-top: 24rpx;
   background: #fff;
   border-radius: 20rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
@@ -101,8 +101,8 @@
 
 .qr-tip {
   margin-top: 20rpx;
-  text-align: center;
   font-size: 26rpx;
   color: #6b7280;
+  text-align: center;
 }
 </style>

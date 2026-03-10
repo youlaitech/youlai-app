@@ -1,5 +1,5 @@
 <template>
-  <view class="page-container page-container--auto dark:text-[var(--wot-color-text)]">
+  <view class="page page--auto dark:text-[var(--wot-color-text)]">
     <view class="profile-content">
       <view class="pt-20rpx">
         <wd-card v-if="userProfile">
@@ -184,8 +184,6 @@ function handleTouchMove(event: TouchEvent) {
 }
 </script>
 <style lang="scss" scoped>
-
-
 .avatar-cell {
   :deep(.wd-cell__body) {
     align-items: center;

@@ -9,14 +9,14 @@
     <view class="login-nav" :style="{ paddingTop: `${statusBarHeight}px` }">
       <view class="login-nav__bar" :style="{ height: `${navBarHeight}px` }">
         <view class="login-nav__action" hover-class="login-nav__action--active" @click="handleBack">
-          <text class="login-nav__back-icon">‹</text>
+          <text class="login-nav__back-icon">�?/text>
         </view>
         <view class="login-nav__title" />
         <view class="login-nav__placeholder" />
       </view>
     </view>
 
-    <!-- 主内容 -->
+    <!-- 主内�?-->
     <view class="login-main" :style="{ paddingTop: `${statusBarHeight + navBarHeight + 4}px` }">
       <!-- Logo -->
       <view class="login-logo">
@@ -34,7 +34,7 @@
 
         <!-- 表单区域 -->
         <view v-if="loginMode !== 'WECHAT'" class="form-area">
-          <!-- 用户名/手机号 -->
+          <!-- 用户�?手机�?-->
           <view class="input-box">
             <wd-icon name="person" size="20" color="#9ca3af" />
             <input
@@ -52,7 +52,7 @@
               v-model="formData.password"
               class="input-field"
               :password="!showPassword"
-              placeholder="请输入密码"
+              placeholder="请输入密�?
               :maxlength="50"
               @confirm="handleLogin"
             />
@@ -80,7 +80,7 @@
             />
           </view>
 
-          <!-- 验证码 -->
+          <!-- 验证�?-->
           <view v-else class="input-box">
             <wd-icon name="shield" size="20" color="#9ca3af" />
             <input
@@ -96,7 +96,7 @@
               :class="smsCountdown > 0 ? 'sms-btn-disabled' : 'sms-btn-active'"
               @click="handleSendCode"
             >
-              {{ smsCountdown > 0 ? `${smsCountdown}s` : "获取验证码" }}
+              {{ smsCountdown > 0 ? `${smsCountdown}s` : "获取验证�? }}
             </view>
           </view>
 
@@ -112,16 +112,16 @@
             :disabled="loading"
             @click="handleLogin"
           >
-            {{ loading ? "登录中..." : "登 录" }}
+            {{ loading ? "登录�?.." : "�?�? }}
           </button>
 
           <!-- 切换登录方式 -->
           <view class="switch-mode" @click="toggleLoginMode">
             <text class="switch-text">
-              {{ loginMode === "PASSWORD" ? "忘记密码？" : "记得密码？" }}
+              {{ loginMode === "PASSWORD" ? "忘记密码�? : "记得密码�? }}
             </text>
             <text class="switch-link">
-              {{ loginMode === "PASSWORD" ? "验证码登录" : "密码登录" }}
+              {{ loginMode === "PASSWORD" ? "验证码登�? : "密码登录" }}
             </text>
           </view>
         </view>
@@ -135,8 +135,7 @@
             @getphonenumber="handleWechatPhoneLogin"
           >
             <image class="btn-wechat-icon" src="/static/icons/weixin.png" mode="aspectFit" />
-            微信一键登录
-          </button>
+            微信一键登�?          </button>
 
           <!-- 其他登录方式 -->
           <view class="switch-mode" @click="loginMode = 'PASSWORD'">
@@ -147,7 +146,7 @@
         <!-- #endif -->
 
         <!-- #ifdef MP-WEIXIN -->
-        <!-- 分割线 -->
+        <!-- 分割�?-->
         <view v-if="loginMode !== 'WECHAT'" class="divider">
           <view class="divider-line" />
           <text class="divider-text">其他登录方式</text>
@@ -167,14 +166,10 @@
         <view class="agreement">
           <wd-checkbox v-model="isAgreePolicy" shape="square" size="16px">
             <text class="agreement-text">
-              我已阅读并同意
-              <text class="agreement-link" @click.stop="navigateToAgreement('user')">
-                《用户协议》
-              </text>
-              与
-              <text class="agreement-link" @click.stop="navigateToAgreement('privacy')">
-                《隐私政策》
-              </text>
+              我已阅读并同�?              <text class="agreement-link" @click.stop="navigateToAgreement('user')">
+                《用户协议�?              </text>
+              �?              <text class="agreement-link" @click.stop="navigateToAgreement('privacy')">
+                《隐私政策�?              </text>
             </text>
           </wd-checkbox>
         </view>
@@ -182,7 +177,7 @@
       </view>
     </view>
 
-    <!-- 绑定手机号弹窗 -->
+    <!-- 绑定手机号弹�?-->
     <wd-popup
       v-model="showBindMobilePopup"
       position="bottom"
@@ -191,7 +186,7 @@
       @close="resetBindForm"
     >
       <view class="bind-popup">
-        <text class="bind-title">绑定手机号</text>
+        <text class="bind-title">绑定手机�?/text>
 
         <view class="form-area">
           <view class="input-box">
@@ -219,7 +214,7 @@
               :class="bindSmsCountdown > 0 ? 'sms-btn-disabled' : 'sms-btn-active'"
               @click="handleSendBindCode"
             >
-              {{ bindSmsCountdown > 0 ? `${bindSmsCountdown}s` : "获取验证码" }}
+              {{ bindSmsCountdown > 0 ? `${bindSmsCountdown}s` : "获取验证�? }}
             </view>
           </view>
 
@@ -229,7 +224,7 @@
           </view>
 
           <button class="btn-bind" :disabled="bindLoading" @click="handleBindMobile">
-            {{ bindLoading ? "绑定中..." : "确认绑定" }}
+            {{ bindLoading ? "绑定�?.." : "确认绑定" }}
           </button>
         </view>
       </view>
@@ -238,9 +233,8 @@
     <!-- 协议确认弹窗 -->
     <wd-message-box selector="policy-box">
       <view class="text-center text-sm text-gray-500 leading-relaxed">
-        请阅读并同意有来技术
-        <text class="text-blue-500" @click.stop="navigateToAgreement('user')">《用户协议》</text>
-        <text class="text-blue-500" @click.stop="navigateToAgreement('privacy')">《隐私政策》</text>
+        请阅读并同意有来技�?        <text class="text-blue-500" @click.stop="navigateToAgreement('user')">《用户协议�?/text>
+        <text class="text-blue-500" @click.stop="navigateToAgreement('privacy')">《隐私政策�?/text>
       </view>
     </wd-message-box>
 
@@ -268,8 +262,7 @@ const toast = useToast();
 const message = useMessage("policy-box");
 const userStore = useUserStore();
 
-// 状态
-const loading = ref(false);
+// 状�?const loading = ref(false);
 const showPassword = ref(false);
 const isAgreePolicy = ref(false);
 const loginMode = ref<"PASSWORD" | "SMS" | "WECHAT">("PASSWORD");
@@ -283,15 +276,13 @@ const formData = ref({
   captchaCode: "",
 });
 
-// 图形验证码
-const captchaId = ref("");
+// 图形验证�?const captchaId = ref("");
 const captchaBase64 = ref("");
 const captchaLoading = ref(false);
 
 const redirect = ref("/pages/index/index");
 
-// 绑定手机号相关
-const showBindMobilePopup = ref(false);
+// 绑定手机号相�?const showBindMobilePopup = ref(false);
 const bindLoading = ref(false);
 const bindSmsCountdown = ref(0);
 const bindSmsTimer = ref<ReturnType<typeof setInterval> | null>(null);
@@ -305,8 +296,7 @@ const bindMobileForm = ref({
 const pendingLoginAction = ref<"FORM" | "WECHAT_PHONE" | null>(null);
 const pendingWechatPhoneCode = ref<string>("");
 
-// 获取图形验证码
-const fetchCaptcha = async () => {
+// 获取图形验证�?const fetchCaptcha = async () => {
   if (captchaLoading.value) return;
   try {
     captchaLoading.value = true;
@@ -315,17 +305,16 @@ const fetchCaptcha = async () => {
     captchaId.value = res.captchaId;
     captchaBase64.value = res.captchaBase64;
   } catch (e) {
-    console.error("获取验证码失败", e);
+    console.error("获取验证码失�?, e);
   } finally {
     captchaLoading.value = false;
   }
 };
 
-// 计算属性
-const loginModeDesc = computed(() => {
+// 计算属�?const loginModeDesc = computed(() => {
   const modeMap = {
     PASSWORD: "使用账号密码登录",
-    SMS: "使用手机验证码登录",
+    SMS: "使用手机验证码登�?,
     WECHAT: "使用微信快捷登录",
   };
   return modeMap[loginMode.value];
@@ -362,13 +351,11 @@ onLoad((options: any) => {
   // #endif
 
   // #ifndef MP-WEIXIN
-  // 非微信环境强制使用密码登录
-  if (loginMode.value === "WECHAT") {
+  // 非微信环境强制使用密码登�?  if (loginMode.value === "WECHAT") {
     loginMode.value = "PASSWORD";
   }
   // #endif
-  // 获取图形验证码
-  fetchCaptcha();
+  // 获取图形验证�?  fetchCaptcha();
 });
 
 onShow(() => {
@@ -425,9 +412,9 @@ const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode: string = "
 async function doFormLogin() {
   if (!canSubmit.value) {
     if (loginMode.value === "PASSWORD") {
-      toast.error("请输入用户名和密码");
+      toast.error("请输入用户名和密�?);
     } else if (loginMode.value === "SMS") {
-      toast.error("请输入正确的手机号和验证码");
+      toast.error("请输入正确的手机号和验证�?);
     }
     return;
   }
@@ -456,8 +443,7 @@ async function doFormLogin() {
     setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
   } catch (error: any) {
     toast.error(error?.message || "登录失败");
-    // 登录失败刷新验证码
-    if (loginMode.value === "PASSWORD") {
+    // 登录失败刷新验证�?    if (loginMode.value === "PASSWORD") {
       fetchCaptcha();
     }
   } finally {
@@ -481,16 +467,16 @@ const handleSendCode = async () => {
     return;
   }
   if (!isValidMobile(mobile)) {
-    toast.error("请输入正确的手机号");
+    toast.error("请输入正确的手机�?);
     return;
   }
 
   try {
     await AuthAPI.sendSmsLoginCode(mobile);
-    toast.success("验证码已发送");
+    toast.success("验证码已发�?);
     startSmsCountdown(smsCountdown, smsTimer);
   } catch (error: any) {
-    toast.error(error?.message || "发送失败");
+    toast.error(error?.message || "发送失�?);
   }
 };
 
@@ -574,16 +560,16 @@ const handleSendBindCode = async () => {
   if (bindSmsCountdown.value > 0) return;
   const mobile = bindMobileForm.value.mobile.trim();
   if (!isValidMobile(mobile)) {
-    toast.error("请输入正确的手机号");
+    toast.error("请输入正确的手机�?);
     return;
   }
 
   try {
     await AuthAPI.sendSmsLoginCode(mobile);
-    toast.success("验证码已发送");
+    toast.success("验证码已发�?);
     startSmsCountdown(bindSmsCountdown, bindSmsTimer);
   } catch (error: any) {
-    toast.error(error?.message || "发送失败");
+    toast.error(error?.message || "发送失�?);
   }
 };
 
@@ -600,7 +586,7 @@ const handleBindMobile = async () => {
   if (bindLoading.value) return;
   const { mobile, code } = bindMobileForm.value;
   if (!isValidMobile(mobile)) {
-    toast.error("请输入正确的手机号");
+    toast.error("请输入正确的手机�?);
     return;
   }
   if (!code.trim()) {
@@ -746,8 +732,7 @@ const handleBack = () => {
   letter-spacing: 0.08em;
 }
 
-// 主内容
-.login-main {
+// 主内�?.login-main {
   position: relative;
   z-index: 10;
   display: flex;
@@ -834,8 +819,7 @@ const handleBack = () => {
   }
 }
 
-// 输入框容器
-.input-box {
+// 输入框容�?.input-box {
   display: flex;
   align-items: center;
   height: 48px;
@@ -868,8 +852,7 @@ const handleBack = () => {
   padding: 8px;
 }
 
-// 主按钮
-.btn-primary {
+// 主按�?.btn-primary {
   position: relative;
   display: flex;
   align-items: center;
@@ -967,8 +950,7 @@ const handleBack = () => {
   }
 }
 
-// 验证码按钮
-.sms-btn {
+// 验证码按�?.sms-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1035,8 +1017,7 @@ const handleBack = () => {
   border-bottom-color: #60a5fa;
 }
 
-// 分割线
-.divider {
+// 分割�?.divider {
   display: flex;
   align-items: center;
   margin-top: 24px;
@@ -1094,8 +1075,7 @@ const handleBack = () => {
   color: #2563eb;
 }
 
-// 绑定手机号弹窗
-.bind-popup {
+// 绑定手机号弹�?.bind-popup {
   padding: 24px;
 }
 

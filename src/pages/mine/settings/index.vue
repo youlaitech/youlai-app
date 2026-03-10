@@ -1,5 +1,5 @@
 <template>
-  <view class="page-container dark:text-[var(--wot-color-text)]">
+  <view class="page dark:text-[var(--wot-color-text)]">
     <wd-cell-group>
       <wd-cell title="主题设置" icon="setting1" is-link @click="navigateToTheme" />
       <wd-cell title="用户协议" icon="user" is-link @click="navigateToUserAgreement" />

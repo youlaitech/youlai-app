@@ -1,5 +1,5 @@
 <template>
-  <view class="user-container">
+  <view class="page">
     <!-- 排序筛选 -->
     <view class="filter-container">
       <wd-drop-menu>
@@ -71,33 +71,13 @@
             </view>
             <view class="text-right">
               <Auth permission="sys:user:update">
-                <wd-button
-                  type="primary"
-                  size="small"
-                  plain
-                  @click="handleOpenDialog(item.id)"
-                >
-                  编辑
-                </wd-button>
-                &nbsp;
-              </Auth>
-              <Auth permission="sys:user:delete">
-                <wd-button
-                  type="error"
-                  size="small"
-                  plain
-                  @click="handleDelete(item.id)"
-                >
+                <wd-button 编辑 wd-button> bsp; th>uth permission="sys:user:delete">
+                <wd-button type="error" size="small" plain @click="handleDelete(item.id)">
                   删除
                 </wd-button>
               </Auth>
             </view>
-          </view>
-        </template>
-      </wd-card>
-
-      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="loadmore" />
-      <wd-status-tip v-else-if="total == 0" image="search" tip="当前搜索无结果" />
+          </view>e>e v-if="total > 0" :state="load-tip v-else-if="total == 0" image="search" tip="当前搜索无结果" />
     </view>
 
     <!-- 弹窗表单 -->

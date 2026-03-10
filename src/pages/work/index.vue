@@ -61,7 +61,7 @@ function handleNavClick(item: any) {
 {
   "name": "work",
   "style": {
-    "navigationBarTitleText": "工作台"
+    "navigationBarTitleText": "工作�?
   },
   "layout": "tabbar"
 }

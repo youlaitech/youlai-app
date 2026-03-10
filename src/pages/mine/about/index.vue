@@ -1,5 +1,5 @@
 <template>
-  <view class="page-container dark:text-[var(--wot-color-text)]">
+  <view class="page dark:text-[var(--wot-color-text)]">
     <wd-card>
       <view class="about-header">
         <wd-img

@@ -1,5 +1,5 @@
 <template>
-  <view class="work">
+  <view class="page">
     <!-- 筛选 -->
     <wd-drop-menu close-on-click-modal class="mb-20rpx mr-20rpx ml-20rpx">
       <wd-drop-menu-item ref="dropMenu" title="筛选" icon="filter" icon-size="18px">

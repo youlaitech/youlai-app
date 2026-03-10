@@ -132,7 +132,8 @@
       "type": "page",
       "name": "user",
       "style": {
-        "navigationBarTitleText": "用户管理"
+        "navigationBarTitleText": "用户管理",
+        "backgroundColor": "#f1f5f9"
       }
     },
     {
