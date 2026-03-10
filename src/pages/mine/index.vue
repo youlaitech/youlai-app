@@ -198,7 +198,7 @@ const userInfo = computed(() => userStore.userInfo);
 const defaultAvatar = "/static/images/default-avatar.png";
 
 const hasAccessToken = ref(!!getAccessToken());
-const isLogin = computed(() => hasAccessToken.value);
+const isLogin = computed(() => !!getAccessToken());
 
 const headerBackground = computed(() => {
   const color = currentThemeColor.value || "#4d80f0";
@@ -517,8 +517,8 @@ const helpItems = computed<ActionItem[]>(() => [
   position: absolute;
   top: 0;
   right: 0;
-  bottom: 320rpx;
   left: 0;
+  height: 520rpx;
   pointer-events: none;
 }
 

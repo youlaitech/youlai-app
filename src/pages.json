@@ -42,7 +42,11 @@
     },
     {
       "path": "pages/mine/account/index",
-      "type": "page"
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "账号安全",
+        "backgroundColor": "#f1f5f9"
+      }
     },
     {
       "path": "pages/mine/feedback/index",

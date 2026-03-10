@@ -1,34 +1,40 @@
 <template>
-  <view class="page dark:text-[var(--wot-color-text)]">
+  <view class="page page--full account-page dark:text-[var(--wot-color-text)] py-2">
     <wd-card>
       <wd-cell-group border>
         <wd-cell
+          icon="secured"
           title="账户密码"
-          label="定期修改密码有助于保护账户安全"
           value="修改"
           is-link
           @click="handleOpenDialog(DialogType.PASSWORD)"
         />
         <wd-cell
+          icon="mobile"
           title="绑定手机"
-          :value="userProfile?.mobile"
+          :value="userProfile?.mobile || '未绑定手机号'"
           is-link
           @click="handleOpenDialog(DialogType.MOBILE)"
         />
         <wd-cell
+          icon="mail"
           title="绑定邮箱"
           :value="userProfile?.email ? userProfile.email : '未绑定邮箱'"
           is-link
           @click="handleOpenDialog(DialogType.EMAIL)"
         />
         <!-- #ifdef MP-WEIXIN -->
-        <wd-cell title="微信" value="解绑" is-link @click="handleUnbindWechat" />
+        <wd-cell icon="wechat" title="微信" value="解绑" is-link @click="handleUnbindWechat" />
         <!-- #endif -->
       </wd-cell-group>
     </wd-card>
 
     <!--用户信息编辑弹出框-->
-    <wd-popup v-model="dialog.visible" position="bottom">
+    <wd-popup
+      v-model="dialog.visible"
+      position="bottom"
+      custom-style="border-top-left-radius: 24rpx; border-top-right-radius: 24rpx;"
+    >
       <wd-form
         v-if="dialog.type === DialogType.PASSWORD"
         ref="passwordChangeFormRef"
@@ -155,6 +161,7 @@
   </view>
 </template>
 <script setup lang="ts">
+import { onMounted, onUnmounted, reactive, ref } from "vue";
 import UserAPI, {
   PasswordChangeForm,
   MobileBindingForm,
@@ -340,5 +347,17 @@ function handleSubmit() {
 onMounted(() => {
   loadUserProfile();
 });
+
+onUnmounted(() => {
+  if (mobileTimer.value) {
+    clearInterval(mobileTimer.value);
+    mobileTimer.value = null;
+  }
+  if (emailTimer.value) {
+    clearInterval(emailTimer.value as unknown as number);
+    emailTimer.value = null;
+  }
+});
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+</style>

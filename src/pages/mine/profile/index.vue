@@ -1,5 +1,5 @@
 <template>
-  <view class="page page--auto dark:text-[var(--wot-color-text)]">
+  <view class="page page--full dark:text-[var(--wot-color-text)]">
     <view class="profile-content">
       <view class="pt-20rpx">
         <wd-card v-if="userProfile">

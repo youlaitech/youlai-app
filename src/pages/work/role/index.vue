@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="role">
     <!-- 筛选 -->
     <wd-drop-menu>
       <wd-drop-menu-item ref="filterDropMenu" icon="filter" icon-size="18px" title="筛选">

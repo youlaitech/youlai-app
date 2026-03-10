@@ -1,83 +1,118 @@
 <template>
-  <view class="page">
-    <!-- 排序筛选 -->
-    <view class="filter-container">
-      <wd-drop-menu>
-        <wd-drop-menu-item
-          v-model="sortValue"
-          :options="sortOptions"
-          title="排序"
-          icon="unfold-more"
-          @change="handleSortChange"
+  <view class="page page--full page--padding">
+    <!-- 搜索筛选 -->
+    <view class="filter">
+      <view class="filter__search">
+        <wd-search
+          v-model="queryParams.keywords"
+          placeholder="搜索用户名/手机号"
+          hide-cancel
+          @search="handleQuery"
         />
-        <wd-drop-menu-item ref="filterDropMenu" title="筛选" icon="filter">
-          <view>
-            <wd-input
-              v-model="queryParams.keywords"
-              label="关键字"
-              placeholder="用户名/昵称/手机号"
-            />
-
-            <cu-date-query v-model="queryParams.createTime" label="创建时间" />
-
-            <view class="flex-between py-2">
-              <wd-button type="info" @click="handleResetQuery">重置</wd-button>
-              <wd-button @click="handleQuery">查询</wd-button>
-            </view>
-          </view>
-        </wd-drop-menu-item>
-      </wd-drop-menu>
+      </view>
+      <view class="filter__bar">
+        <view class="filter__item" @click="sortSheetVisible = true">
+          <text class="filter__text">排序</text>
+          <wd-icon name="arrow-down" size="14" color="#64748b" />
+        </view>
+        <view class="filter__divider" />
+        <view class="filter__item" @click="filterVisible = true">
+          <text class="filter__text">筛选</text>
+          <wd-icon name="filter" size="14" color="#64748b" />
+        </view>
+      </view>
     </view>
 
+    <wd-action-sheet
+      v-model="sortSheetVisible"
+      :actions="sortActions"
+      cancel-text="取消"
+      @select="handleSortSelect"
+    />
+
+    <wd-popup
+      v-model="filterVisible"
+      position="bottom"
+      custom-style="border-top-left-radius: 24rpx; border-top-right-radius: 24rpx;"
+    >
+      <view class="filter-panel">
+        <wd-input v-model="queryParams.keywords" label="关键字" placeholder="用户名/昵称/手机号" />
+        <cu-date-query v-model="queryParams.createTime" label="创建时间" />
+        <view class="filter-panel__footer">
+          <wd-button type="info" @click="handleResetQuery">重置</wd-button>
+          <wd-button type="primary" @click="handleQuery">查询</wd-button>
+        </view>
+      </view>
+    </wd-popup>
+
     <!-- 数据列表 -->
-    <view class="data-container">
-      <wd-card v-for="item in pageData" :key="item.id">
-        <template #title>
-          <view class="flex-between">
-            <view class="flex-center">
-              <wd-img :width="50" :height="50" round :src="item.avatar" />
-              <view class="ml-2">
-                <view class="font-bold">
-                  {{ item.nickname }}
-                  <wd-icon v-if="item.gender == 1" name="gender-male" class="color-#4D80F0" />
-                  <wd-icon
-                    v-else-if="item.gender == 2"
-                    name="gender-female"
-                    class="color-#FA4350"
-                  />
+    <view class="list">
+      <view v-for="item in pageData" :key="item.id" class="list__card">
+        <wd-card>
+          <template #title>
+            <view class="flex-between">
+              <view class="flex-center">
+                <wd-img :width="50" :height="50" round :src="item.avatar" />
+                <view class="ml-2">
+                  <view class="font-bold">
+                    {{ item.nickname }}
+                    <wd-icon v-if="item.gender == 1" name="gender-male" class="color-#4D80F0" />
+                    <wd-icon
+                      v-else-if="item.gender == 2"
+                      name="gender-female"
+                      class="color-#FA4350"
+                    />
+                  </view>
+                  <view class="mt-1"><wd-text :text="item.deptName" size="12px" /></view>
                 </view>
-                <view class="mt-1"><wd-text :text="item.deptName" size="12px" /></view>
+              </view>
+              <view>
+                <wd-tag v-if="item.status === 1" type="success" plain>正常</wd-tag>
+                <wd-tag v-else-if="item.status === 0" plain>禁用</wd-tag>
               </view>
             </view>
-            <view>
-              <wd-tag v-if="item.status === 1" type="success" plain>正常</wd-tag>
-              <wd-tag v-else-if="item.status === 0" plain>禁用</wd-tag>
-            </view>
-          </view>
-        </template>
+          </template>
 
-        <wd-cell-group>
-          <wd-cell title="用户名" :value="item.username" icon="user" />
-          <wd-cell title="角色" :value="item.roleNames" icon="usergroup" />
-          <wd-cell title="手机号码" :value="item.mobile" icon="mobile" />
-          <wd-cell title="邮箱" :value="item.email" icon="mail" />
-        </wd-cell-group>
+          <wd-cell-group>
+            <wd-cell title="用户名" :value="item.username" icon="user" />
+            <wd-cell title="角色" :value="item.roleNames" icon="usergroup" />
+            <wd-cell title="手机号码" :value="item.mobile" icon="mobile" />
+            <wd-cell title="邮箱" :value="item.email" icon="mail" />
+          </wd-cell-group>
 
-        <template #footer>
-          <view class="flex-between">
-            <view class="text-left">
-              <wd-text text="创建时间：" size="small" class="font-bold" />
-              <wd-text :text="item.createTime" size="small" />
-            </view>
-            <view class="text-right">
-              <Auth permission="sys:user:update">
-                <wd-button 编辑 wd-button> bsp; th>uth permission="sys:user:delete">
-                <wd-button type="error" size="small" plain @click="handleDelete(item.id)">
+          <template #footer>
+            <view class="flex-between">
+              <view class="text-left">
+                <wd-text text="创建时间：" size="small" class="font-bold" />
+                <wd-text :text="item.createTime" size="small" />
+              </view>
+              <view class="text-right">
+                <wd-button
+                  v-if="hasPermission('sys:user:update')"
+                  type="primary"
+                  size="small"
+                  plain
+                  @click="handleOpenDialog(item.id)"
+                >
+                  编辑
+                </wd-button>
+                <wd-button
+                  v-if="hasPermission('sys:user:delete')"
+                  type="error"
+                  size="small"
+                  plain
+                  @click="handleDelete(item.id)"
+                >
                   删除
                 </wd-button>
-              </Auth>
+              </view>
             </view>
-          </view>e>e v-if="total > 0" :state="load-tip v-else-if="total == 0" image="search" tip="当前搜索无结果" />
+          </template>
+        </wd-card>
+      </view>
+
+      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="loadmore" />
+      <wd-status-tip v-else-if="total == 0" image="search" tip="当前搜索无结果" />
     </view>
 
     <!-- 弹窗表单 -->
@@ -111,14 +146,13 @@
     </wd-popup>
 
     <!-- 悬浮操作按钮 -->
-    <Auth permission="sys:user:create">
-      <wd-fab
-        position="left-bottom"
-        :expandable="false"
-        custom-style="z-index: 9"
-        @click="handleOpenDialog"
-      />
-    </Auth>
+    <wd-fab
+      v-if="hasPermission('sys:user:create')"
+      position="left-bottom"
+      :expandable="false"
+      custom-style="z-index: 9"
+      @click="handleOpenDialog"
+    />
 
     <wd-message-box />
   </view>
@@ -134,11 +168,14 @@ import { useMessage } from "wot-design-uni";
 import UserAPI, { type UserPageQuery, UserPageVO, UserForm } from "@/api/user";
 import RoleAPI from "@/api/role";
 import DeptAPI from "@/api/dept";
+import { hasPermission } from "@/utils/permission";
 
 const message = useMessage();
 const loadMoreState = ref<LoadMoreState>("loading");
-const filterDropMenu = ref();
 const userFormRef = ref();
+
+const sortSheetVisible = ref(false);
+const filterVisible = ref(false);
 
 const sortValue = ref(0);
 const sortOptions = ref<Record<string, any>[]>([
@@ -147,9 +184,14 @@ const sortOptions = ref<Record<string, any>[]>([
   { label: "最近更新", value: 2 },
 ]);
 
+const sortActions = computed(() =>
+  sortOptions.value.map((item) => ({ name: item.label, value: item.value }))
+);
+
 let queryParams: UserPageQuery = {
   pageNum: 1,
   pageSize: 10,
+  keywords: "",
 };
 
 const total = ref(0);
@@ -232,11 +274,16 @@ const handleSortChange = (event: { value: string | number }) => {
   handleQuery();
 };
 
+const handleSortSelect = (action: { name: string; value: string | number }) => {
+  sortValue.value = Number(action.value);
+  handleSortChange({ value: action.value });
+};
+
 /**
  * 查询
  */
 const handleQuery = () => {
-  filterDropMenu.value?.close();
+  filterVisible.value = false;
   queryParams.pageNum = 1;
   loadmore();
 };
@@ -248,6 +295,7 @@ const handleResetQuery = () => {
   queryParams = {
     pageNum: 1,
     pageSize: 10,
+    keywords: "",
   };
   handleQuery();
 };
@@ -371,13 +419,17 @@ export default {
 {
   "name": "user",
   "style": {
-    "navigationBarTitleText": "用户管理"
+    "navigationBarTitleText": "用户管理",
+    "backgroundColor": "#f1f5f9"
   }
 }
 </route>
 
 <style lang="scss" scoped>
 .user-container {
+  min-height: 100vh;
+  background: #f1f5f9;
+
   :deep(.wd-cell__wrapper) {
     padding: 4rpx 0;
   }
@@ -390,19 +442,6 @@ export default {
   :deep(.wd-fab__trigger) {
     width: 80rpx !important;
     height: 80rpx !important;
-  }
-
-  .filter-container {
-    padding: 10rpx;
-    background: #fff;
-  }
-
-  .data-container {
-    margin-top: 20rpx;
-  }
-
-  .popup-footer {
-    margin: 30rpx;
   }
 }
 </style>

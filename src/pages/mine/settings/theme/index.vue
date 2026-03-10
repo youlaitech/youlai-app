@@ -1,5 +1,5 @@
 <template>
-  <view class="page dark:text-[var(--wot-color-text)]">
+  <view class="page-container dark:text-[var(--wot-color-text)]">
     <!-- 暗黑模式设置 -->
     <wd-card custom-class="mx-30rpx my-20rpx">
       <template #header>

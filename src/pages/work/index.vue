@@ -21,6 +21,7 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from "vue";
 import { useRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
 import { menuConfig } from "@/config/menu";
@@ -61,7 +62,7 @@ function handleNavClick(item: any) {
 {
   "name": "work",
   "style": {
-    "navigationBarTitleText": "工作�?
+    "navigationBarTitleText": "工作台"
   },
   "layout": "tabbar"
 }

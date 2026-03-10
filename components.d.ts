@@ -7,7 +7,6 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    Auth: typeof import('./src/components/Auth/index.vue')['default']
     CuDateQuery: typeof import('./src/components/cu-date-query/index.vue')['default']
     CuPicker: typeof import('./src/components/cu-picker/index.vue')['default']
     CustomNavbar: typeof import('./src/components/custom-navbar/index.vue')['default']

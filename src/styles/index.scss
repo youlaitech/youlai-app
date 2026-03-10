@@ -45,14 +45,10 @@ body,
 // ==========================================================================
 
 .filter {
-  padding: 16rpx 0;
-
   &__search {
     overflow: hidden;
     background: #fff;
-    border: 1px solid #e2e8f0;
     border-radius: 12rpx;
-    box-shadow: 0 2rpx 12rpx rgba(15, 23, 42, 0.04);
 
     :deep(.wd-search) {
       background: transparent;
@@ -65,9 +61,7 @@ body,
     height: 88rpx;
     margin-top: 12rpx;
     background: #fff;
-    border: 1px solid #e2e8f0;
     border-radius: 12rpx;
-    box-shadow: 0 2rpx 12rpx rgba(15, 23, 42, 0.04);
   }
 
   &__item {
@@ -75,7 +69,6 @@ body,
     flex: 1;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
   }
 
   &__text {
@@ -120,6 +113,44 @@ body,
     :deep(.wd-card__body) {
       padding: 0 !important;
     }
+  }
+
+  &__meta {
+    padding: 8rpx 24rpx 4rpx;
+  }
+
+  &__meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 72rpx;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  &__meta-row:last-child {
+    border-bottom: 0;
+  }
+
+  &__meta-left {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 12rpx;
+  }
+
+  &__meta-label {
+    font-size: 26rpx;
+    color: #64748b;
+  }
+
+  &__meta-value {
+    max-width: 58%;
+    overflow: hidden;
+    font-size: 26rpx;
+    color: #0f172a;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
