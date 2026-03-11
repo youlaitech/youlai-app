@@ -42,11 +42,7 @@
     },
     {
       "path": "pages/mine/account/index",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "账号安全",
-        "backgroundColor": "#f1f5f9"
-      }
+      "type": "page"
     },
     {
       "path": "pages/mine/feedback/index",
@@ -167,6 +163,10 @@
       "style": {
         "navigationBarTitleText": "主题设置"
       }
+    },
+    {
+      "path": "pages/work/user/detail/index",
+      "type": "page"
     }
   ],
   "globalStyle": {

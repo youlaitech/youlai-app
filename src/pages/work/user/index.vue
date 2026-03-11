@@ -1,5 +1,5 @@
 <template>
-  <view class="page page--full page--padding">
+  <view class="page page--padding">
     <!-- 搜索筛选 -->
     <view class="filter">
       <view class="filter__search">
@@ -10,44 +10,44 @@
           @search="handleQuery"
         />
       </view>
-      <view class="filter__bar">
-        <view class="filter__item" @click="sortSheetVisible = true">
-          <text class="filter__text">排序</text>
-          <wd-icon name="arrow-down" size="14" color="#64748b" />
+      <view class="filter__bar" @click="closeOutside">
+        <view class="filter__half">
+          <wd-drop-menu>
+            <wd-drop-menu-item
+              v-model="sortValue"
+              title="排序"
+              :options="sortOptions"
+              @change="handleSortChange"
+            />
+          </wd-drop-menu>
         </view>
+
         <view class="filter__divider" />
-        <view class="filter__item" @click="filterVisible = true">
-          <text class="filter__text">筛选</text>
-          <wd-icon name="filter" size="14" color="#64748b" />
+
+        <view class="filter__half">
+          <wd-drop-menu>
+            <wd-drop-menu-item title="筛选" @open="handleFilterOpen">
+              <view class="filter-panel">
+                <wd-input
+                  v-model="queryParams.keywords"
+                  label="关键字"
+                  placeholder="用户名/昵称/手机号"
+                />
+                <cu-date-query v-model="queryParams.createTime" label="创建时间" />
+                <view class="filter-panel__footer">
+                  <wd-button type="info" @click="handleResetQuery">重置</wd-button>
+                  <wd-button type="primary" @click="handleFilterQuery">查询</wd-button>
+                </view>
+              </view>
+            </wd-drop-menu-item>
+          </wd-drop-menu>
         </view>
       </view>
     </view>
 
-    <wd-action-sheet
-      v-model="sortSheetVisible"
-      :actions="sortActions"
-      cancel-text="取消"
-      @select="handleSortSelect"
-    />
-
-    <wd-popup
-      v-model="filterVisible"
-      position="bottom"
-      custom-style="border-top-left-radius: 24rpx; border-top-right-radius: 24rpx;"
-    >
-      <view class="filter-panel">
-        <wd-input v-model="queryParams.keywords" label="关键字" placeholder="用户名/昵称/手机号" />
-        <cu-date-query v-model="queryParams.createTime" label="创建时间" />
-        <view class="filter-panel__footer">
-          <wd-button type="info" @click="handleResetQuery">重置</wd-button>
-          <wd-button type="primary" @click="handleQuery">查询</wd-button>
-        </view>
-      </view>
-    </wd-popup>
-
     <!-- 数据列表 -->
     <view class="list">
-      <view v-for="item in pageData" :key="item.id" class="list__card">
+      <view v-for="item in pageData" :key="item.id" class="list__card" @click="goToDetail(item.id)">
         <wd-card>
           <template #title>
             <view class="flex-between">
@@ -81,31 +81,9 @@
           </wd-cell-group>
 
           <template #footer>
-            <view class="flex-between">
-              <view class="text-left">
-                <wd-text text="创建时间：" size="small" class="font-bold" />
-                <wd-text :text="item.createTime" size="small" />
-              </view>
-              <view class="text-right">
-                <wd-button
-                  v-if="hasPermission('sys:user:update')"
-                  type="primary"
-                  size="small"
-                  plain
-                  @click="handleOpenDialog(item.id)"
-                >
-                  编辑
-                </wd-button>
-                <wd-button
-                  v-if="hasPermission('sys:user:delete')"
-                  type="error"
-                  size="small"
-                  plain
-                  @click="handleDelete(item.id)"
-                >
-                  删除
-                </wd-button>
-              </view>
+            <view class="list__footer">
+              <wd-text text="创建时间：" size="small" class="font-bold" />
+              <wd-text :text="item.createTime" size="small" />
             </view>
           </template>
         </wd-card>
@@ -163,7 +141,7 @@ import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useMessage } from "wot-design-uni";
+import { useMessage, useQueue } from "wot-design-uni";
 
 import UserAPI, { type UserPageQuery, UserPageVO, UserForm } from "@/api/user";
 import RoleAPI from "@/api/role";
@@ -171,11 +149,9 @@ import DeptAPI from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
 
 const message = useMessage();
+const { closeOutside } = useQueue();
 const loadMoreState = ref<LoadMoreState>("loading");
 const userFormRef = ref();
-
-const sortSheetVisible = ref(false);
-const filterVisible = ref(false);
 
 const sortValue = ref(0);
 const sortOptions = ref<Record<string, any>[]>([
@@ -184,15 +160,11 @@ const sortOptions = ref<Record<string, any>[]>([
   { label: "最近更新", value: 2 },
 ]);
 
-const sortActions = computed(() =>
-  sortOptions.value.map((item) => ({ name: item.label, value: item.value }))
-);
-
-let queryParams: UserPageQuery = {
+const queryParams = reactive<UserPageQuery>({
   pageNum: 1,
   pageSize: 10,
   keywords: "",
-};
+});
 
 const total = ref(0);
 const pageData = ref<UserPageVO[]>([]);
@@ -259,12 +231,12 @@ const rules: FormRules = {
 /**
  * 排序改变
  */
-const handleSortChange = (event: { value: string | number }) => {
-  const value = Number(event.value);
-  if (value === 1) {
+const handleSortChange = ({ value }: { value: string | number }) => {
+  const num = Number(value);
+  if (num === 1) {
     queryParams.field = "create_time";
     queryParams.direction = "desc";
-  } else if (value === 2) {
+  } else if (num === 2) {
     queryParams.field = "update_time";
     queryParams.direction = "desc";
   } else {
@@ -274,30 +246,39 @@ const handleSortChange = (event: { value: string | number }) => {
   handleQuery();
 };
 
-const handleSortSelect = (action: { name: string; value: string | number }) => {
-  sortValue.value = Number(action.value);
-  handleSortChange({ value: action.value });
+/**
+ * 筛选面板打开
+ */
+const handleFilterOpen = () => {
+  // 筛选面板打开时的回调
 };
 
 /**
  * 查询
  */
 const handleQuery = () => {
-  filterVisible.value = false;
   queryParams.pageNum = 1;
   loadmore();
 };
 
 /**
- * 重置查询
+ * 筛选查询
+ */
+const handleFilterQuery = () => {
+  closeOutside();
+  handleQuery();
+};
+
+/**
+ * 重置筛选
  */
 const handleResetQuery = () => {
-  queryParams = {
-    pageNum: 1,
-    pageSize: 10,
-    keywords: "",
-  };
-  handleQuery();
+  queryParams.keywords = "";
+  queryParams.createTime = undefined;
+  queryParams.field = "";
+  queryParams.direction = "";
+  sortValue.value = 0;
+  handleFilterQuery();
 };
 
 /**
@@ -371,22 +352,12 @@ function hancleCloseDialog() {
 }
 
 /**
- * 删除
- *
- * @param id  用户id
+ * 跳转详情页
  */
-function handleDelete(id: number) {
-  message
-    .confirm({
-      msg: "确认删除用户吗？",
-      title: "提示",
-    })
-    .then(() => {
-      UserAPI.deleteByIds(id + "").then(() => {
-        message.show("删除成功");
-        handleQuery();
-      });
-    });
+function goToDetail(id: number) {
+  uni.navigateTo({
+    url: `/pages/work/user/detail/index?id=${id}`,
+  });
 }
 
 /**

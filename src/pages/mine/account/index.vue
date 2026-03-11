@@ -1,5 +1,5 @@
 <template>
-  <view class="page page--full account-page dark:text-[var(--wot-color-text)] py-2">
+  <view class="page account-page dark:text-[var(--wot-color-text)] py-2">
     <wd-card>
       <wd-cell-group border>
         <wd-cell

@@ -1,5 +1,5 @@
 <template>
-  <view class="home-page">
+  <view class="page">
     <!-- 轮播图 -->
     <view class="hero">
       <wd-swiper
@@ -19,7 +19,7 @@
           v-for="(item, index) in quickNavList"
           :key="index"
           use-slot
-          @click="handleNavClick(item)"
+          @itemclick="handleNavClick(item)"
         >
           <view class="nav-item">
             <image class="nav-item__icon" :src="item.icon" />
@@ -371,13 +371,8 @@ onReady(() => {
 
 <style lang="scss" scoped>
 // ============================================================================
-// 页面容器
+// 轮播图
 // ============================================================================
-
-.home-page {
-  min-height: 100%;
-  background-color: var(--color-bg-secondary);
-}
 
 .hero {
   position: relative;
