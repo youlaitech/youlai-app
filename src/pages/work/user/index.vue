@@ -47,7 +47,7 @@
       <wd-card
         v-for="item in pageData"
         :key="item.id"
-        custom-class="list-card"
+        custom-class="item-card"
         @click="openUserDialog(item.id)"
       >
         <!-- 主信息行 -->
@@ -127,13 +127,21 @@
               required
             />
             <wd-input v-model="formData.nickname" label="昵称" required />
+            <wd-col-picker
+              v-model="deptSelected"
+              label="部门"
+              :columns="deptColumns"
+              :column-change="handleDeptColumnChange"
+              required
+              :display-format="displayDeptFormat"
+              @confirm="handleDeptConfirm"
+            />
             <wd-select-picker
               v-model="formData.roleIds"
               label="角色"
               :columns="roleOptions"
               required
             />
-            <CuPicker v-model="formData.deptId" v-model:data="deptOptions" label="部门" required />
             <wd-input v-model="formData.mobile" label="手机号" />
             <wd-input v-model="formData.email" label="邮箱" />
             <wd-cell title="状态">
@@ -151,12 +159,15 @@
     <!-- 浮动新增按钮 -->
     <wd-fab
       v-if="hasPermission('sys:user:create') && !dialog.visible"
-      type="primary"
       position="right-bottom"
       :expandable="false"
-      custom-class="fab--small"
-      @click="openUserDialog()"
-    />
+    >
+      <template #trigger>
+        <wd-button custom-class="fab-btn" type="primary" round @click="openUserDialog()">
+          <wd-icon name="add" />
+        </wd-button>
+      </template>
+    </wd-fab>
   </view>
 </template>
 
@@ -164,13 +175,13 @@
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useMessage, useQueue } from "wot-design-uni";
+import { useQueue, useToast } from "wot-design-uni";
 import UserAPI, { type UserPageQuery, UserPageVO, UserForm } from "@/api/user";
 import RoleAPI from "@/api/role";
 import DeptAPI from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
 
-const message = useMessage();
+const toast = useToast();
 const { closeOutside } = useQueue();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
@@ -202,6 +213,47 @@ const initialFormData: UserForm = {
 const formData = reactive<UserForm>({ ...initialFormData });
 const roleOptions = ref<Record<string, any>[]>([]);
 const deptOptions = ref<OptionType[]>([]);
+
+// 部门多列选择器数据
+const deptSelected = ref<(string | number)[]>([]);
+const deptColumns = ref<Record<string, any>[]>([]);
+
+// 格式化部门展示
+const displayDeptFormat = (selectedItems: Record<string, any>[]) => {
+  return selectedItems.map((item) => item.label).join("/");
+};
+
+// 查找部门在树中的完整路径
+function findDeptPath(data: any[], targetId: string, path: string[] = []): string[] | null {
+  for (const item of data) {
+    const currentPath = [...path, item.value];
+    if (item.value === targetId) {
+      return currentPath;
+    }
+    if (item.children && item.children.length > 0) {
+      const found = findDeptPath(item.children, targetId, currentPath);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+// 部门列变化（动态加载子部门）
+const handleDeptColumnChange = ({ selectedItem, resolve, finish }: any) => {
+  const children = selectedItem.children;
+  if (children && children.length > 0) {
+    resolve(children);
+  } else {
+    finish();
+  }
+};
+
+// 部门确认选择
+const handleDeptConfirm = ({ value, selectedItems }: any) => {
+  deptSelected.value = value;
+  // 取最后一个选中的部门ID
+  formData.deptId = value[value.length - 1];
+};
 
 const rules: FormRules = {
   username: [{ required: true, message: "请输入用户名" }],
@@ -244,7 +296,7 @@ function applyUserFilter() {
 // 重置筛选并刷新
 function resetUserFilter() {
   queryParams.keywords = "";
-  queryParams.createTime = undefined;
+  delete queryParams.createTime;
   queryParams.field = "";
   queryParams.direction = "";
   sortValue.value = 0;
@@ -272,13 +324,41 @@ function fetchUserList() {
 async function openUserDialog(id?: number) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
+  deptSelected.value = [];
   dialog.visible = true;
   roleOptions.value = await RoleAPI.getOptions();
-  deptOptions.value = await DeptAPI.getOptions();
+  const deptData = await DeptAPI.getOptions();
+  deptOptions.value = deptData;
+
   if (id) {
     formData.id = id;
     const data = await UserAPI.getFormData(id);
     Object.assign(formData, data, { id });
+    // 编辑时回显部门选择（需要完整路径和预加载所有层级数据）
+    if (data.deptId) {
+      const path = findDeptPath(deptData, String(data.deptId));
+      if (path) {
+        deptSelected.value = path;
+        // 预加载所有层级的 columns
+        const columns: any[] = [deptData];
+        let currentLevel = deptData;
+        for (let i = 0; i < path.length - 1; i++) {
+          const found = currentLevel.find((item: any) => item.value === path[i]);
+          if (found && found.children) {
+            columns.push(found.children);
+            currentLevel = found.children;
+          }
+        }
+        deptColumns.value = columns;
+      } else {
+        deptSelected.value = [String(data.deptId)];
+        deptColumns.value = [deptData];
+      }
+    } else {
+      deptColumns.value = [deptData];
+    }
+  } else {
+    deptColumns.value = [deptData];
   }
 }
 
@@ -290,7 +370,7 @@ function submitUserForm() {
     const action = formData.id ? UserAPI.update(formData.id, formData) : UserAPI.add(formData);
     action
       .then(() => {
-        message.show(formData.id ? "修改成功" : "添加成功");
+        toast.success("操作成功");
         closeUserDialog();
         loadUserList();
       })
@@ -328,14 +408,14 @@ function showUserActions(item: UserPageVO) {
       });
       if (confirm) {
         await UserAPI.deleteByIds(String(item.id));
-        message.show("删除成功");
+        toast.success("删除成功");
         loadUserList();
       }
     };
   }
 
   if (actions.length === 0) {
-    message.show("暂无操作权限");
+    toast.warning("暂无操作权限");
     return;
   }
 
@@ -356,7 +436,9 @@ onReachBottom(() => {
   }
 });
 
-onLoad(() => loadUserList());
+onLoad(() => {
+  loadUserList();
+});
 </script>
 
 <script lang="ts">
@@ -371,5 +453,3 @@ export default { options: { styleIsolation: "shared" } };
   }
 }
 </route>
-
-<style lang="scss" scoped></style>

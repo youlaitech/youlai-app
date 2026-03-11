@@ -75,12 +75,9 @@ body,
 // 列表卡片
 // ==========================================================================
 
-.list-card {
-  margin-bottom: 12rpx;
-
-  :deep(.wd-card) {
-    margin: 0 !important;
-  }
+.item-card.wd-card {
+  margin: 0 !important;
+  margin-bottom: 12rpx !important;
 }
 
 // ==========================================================================
@@ -92,7 +89,7 @@ body,
   gap: 16rpx;
   margin-top: 24rpx;
 
-  :deep(.wd-button) {
+  .wd-button {
     flex: 1;
   }
 }
@@ -101,16 +98,11 @@ body,
 // 浮动按钮
 // ==========================================================================
 
-.fab--small {
+.wd-button.fab-btn {
+  box-sizing: border-box !important;
   width: 80rpx !important;
+  min-width: 80rpx !important;
   height: 80rpx !important;
-
-  :deep(.wd-fab__trigger) {
-    width: 80rpx !important;
-    height: 80rpx !important;
-  }
-
-  :deep(.wd-fab__icon) {
-    font-size: 36rpx !important;
-  }
+  padding: 0 !important;
+  border-radius: 40rpx !important;
 }
