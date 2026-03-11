@@ -1,72 +1,72 @@
 <template>
-  <view class="page page--padding">
-    <!-- 搜索栏 -->
-    <view class="filter">
-      <view class="filter__search">
-        <wd-search
-          v-model="queryParams.keywords"
-          placeholder="搜索用户名/手机号"
-          hide-cancel
-          custom-style="border: 1rpx solid rgba(148, 163, 184, 0.24); border-radius: 8rpx;"
-          @search="handleSearch"
-        />
+  <view class="page page--padding page--pt">
+    <view>
+      <wd-search
+        v-model="queryParams.keywords"
+        placeholder="搜索用户名/手机号"
+        hide-cancel
+        @search="handleSearch"
+      />
+    </view>
+
+    <!-- 排序筛选：搜索框→筛选 12rpx -->
+    <view class="filter-bar" @click="closeOutside">
+      <view class="flex-1">
+        <wd-drop-menu>
+          <wd-drop-menu-item
+            v-model="sortValue"
+            title="排序"
+            :options="sortOptions"
+            @change="handleSortChange"
+          />
+        </wd-drop-menu>
       </view>
-      <view class="filter__bar flex items-center" @click="closeOutside">
-        <view class="filter__half flex-1 flex justify-center">
-          <view class="w-full flex justify-center">
-            <wd-drop-menu>
-              <wd-drop-menu-item
-                v-model="sortValue"
-                title="排序"
-                :options="sortOptions"
-                @change="handleSortChange"
+      <wd-divider vertical />
+      <view class="flex-1">
+        <wd-drop-menu>
+          <wd-drop-menu-item title="筛选" @open="handleFilterOpen">
+            <view class="p-4">
+              <wd-input
+                v-model="queryParams.keywords"
+                label="关键字"
+                placeholder="用户名/昵称/手机号"
               />
-            </wd-drop-menu>
-          </view>
-        </view>
-        <view class="filter__divider self-stretch" />
-        <view class="filter__half flex-1 flex justify-center">
-          <view class="w-full flex justify-center">
-            <wd-drop-menu>
-              <wd-drop-menu-item title="筛选" @open="handleFilterOpen">
-                <view class="p-4">
-                  <wd-input
-                    v-model="queryParams.keywords"
-                    label="关键字"
-                    placeholder="用户名/昵称/手机号"
-                  />
-                  <cu-date-query v-model="queryParams.createTime" label="创建时间" />
-                  <view class="flex gap-2 mt-4">
-                    <wd-button type="info" block @click="resetUserFilter">重置</wd-button>
-                    <wd-button type="primary" block @click="applyUserFilter">查询</wd-button>
-                  </view>
-                </view>
-              </wd-drop-menu-item>
-            </wd-drop-menu>
-          </view>
-        </view>
+              <cu-date-query v-model="queryParams.createTime" label="创建时间" />
+              <view class="popup-actions">
+                <wd-button type="info" plain @click="resetUserFilter">重置</wd-button>
+                <wd-button type="primary" @click="applyUserFilter">查询</wd-button>
+              </view>
+            </view>
+          </wd-drop-menu-item>
+        </wd-drop-menu>
       </view>
     </view>
 
-    <!-- 用户列表 -->
-    <view class="list">
-      <view
+    <!-- 用户列表：筛选→列表 16rpx -->
+    <view class="mt-16rpx">
+      <wd-card
         v-for="item in pageData"
         :key="item.id"
-        class="user-card"
+        custom-class="list-card"
         @click="openUserDialog(item.id)"
       >
         <!-- 主信息行 -->
-        <view class="user-card__header">
+        <view class="flex-start">
           <wd-img :src="item.avatar" width="80rpx" height="80rpx" round />
-          <view class="flex-1 ml-2">
-            <view class="flex items-center">
+          <view class="flex-1 ml-16rpx">
+            <view class="flex-start mt-12rpx">
               <text class="font-bold text-32rpx">{{ item.nickname }}</text>
-              <wd-icon v-if="item.gender === 1" name="gender-male" class="color-#4D80F0 ml-1" />
+              <wd-icon
+                v-if="item.gender === 1"
+                name="gender-male"
+                color="var(--color-primary)"
+                class="ml-8rpx"
+              />
               <wd-icon
                 v-else-if="item.gender === 2"
                 name="gender-female"
-                class="color-#FA4350 ml-1"
+                color="var(--color-danger)"
+                class="ml-8rpx"
               />
             </view>
             <text class="text-24rpx color-text-secondary">
@@ -79,33 +79,29 @@
         </view>
 
         <!-- 辅助信息行 -->
-        <view class="user-card__contact">
-          <view v-if="item.mobile" class="user-card__meta-item">
-            <wd-icon name="mobile" size="16" class="user-card__meta-icon" />
-            <text class="user-card__meta-text">{{ item.mobile }}</text>
+        <view class="flex gap-24rpx mt-12rpx">
+          <view v-if="item.mobile" class="flex-start min-w-0">
+            <wd-icon name="mobile" size="16" class="color-text-secondary" />
+            <text class="ml-8rpx text-24rpx color-text-secondary truncate">{{ item.mobile }}</text>
           </view>
-          <view v-if="item.email" class="user-card__meta-item">
-            <wd-icon name="mail" size="16" class="user-card__meta-icon" />
-            <text class="user-card__meta-text">{{ item.email }}</text>
+          <view v-if="item.email" class="flex-start min-w-0">
+            <wd-icon name="mail" size="16" class="color-text-secondary" />
+            <text class="ml-8rpx text-24rpx color-text-secondary truncate">{{ item.email }}</text>
           </view>
         </view>
 
         <!-- 元信息行 -->
-        <view class="user-card__footer">
-          <view class="user-card__meta-item user-card__meta-item--time">
-            <text class="user-card__meta-text user-card__meta-text--time">
-              {{ item.createTime }}
-            </text>
-          </view>
+        <view class="flex-between mt-16rpx">
+          <text class="text-24rpx color-text-placeholder">{{ item.createTime }}</text>
           <view
-            class="user-card__more"
-            hover-class="user-card__more--active"
+            class="w-88rpx h-88rpx flex-center rounded-full"
+            hover-class="bg-[var(--color-text-placeholder)]/16"
             @click.stop="showUserActions(item)"
           >
-            <wd-icon name="more" size="18" />
+            <wd-icon name="more" size="18" class="color-text-secondary" />
           </view>
         </view>
-      </view>
+      </wd-card>
 
       <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="fetchUserList" />
       <wd-status-tip v-else-if="total === 0" image="search" tip="暂无数据" />
@@ -145,21 +141,20 @@
             </wd-cell>
           </wd-cell-group>
         </wd-form>
-        <view class="flex gap-2 mt-4">
-          <wd-button block @click="closeUserDialog">取消</wd-button>
-          <wd-button type="primary" block :loading="submitting" @click="submitUserForm">
-            保存
-          </wd-button>
+        <view class="popup-actions">
+          <wd-button type="info" plain @click="closeUserDialog">取消</wd-button>
+          <wd-button type="primary" :loading="submitting" @click="submitUserForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
     <wd-fab
-      v-if="hasPermission('sys:user:create')"
+      v-if="hasPermission('sys:user:create') && !dialog.visible"
       type="primary"
       position="right-bottom"
       :expandable="false"
+      custom-class="fab--small"
       @click="openUserDialog()"
     />
   </view>
@@ -228,23 +223,23 @@ const handleSortChange = ({ value }: { value: string | number }) => {
     queryParams.field = "";
     queryParams.direction = "";
   }
-  refreshUserList();
+  loadUserList();
 };
 
 const handleFilterOpen = () => {};
 
 // 搜索触发
-const handleSearch = () => refreshUserList();
+const handleSearch = () => loadUserList();
 
-// 刷新列表
-function refreshUserList() {
+// 加载列表
+function loadUserList() {
   queryParams.pageNum = 1;
   fetchUserList();
 }
 // 应用筛选并刷新
 function applyUserFilter() {
   closeOutside();
-  refreshUserList();
+  loadUserList();
 }
 // 重置筛选并刷新
 function resetUserFilter() {
@@ -275,12 +270,15 @@ function fetchUserList() {
 
 // 打开弹窗（新增/编辑）
 async function openUserDialog(id?: number) {
+  formRef.value?.reset();
+  Object.assign(formData, initialFormData);
   dialog.visible = true;
   roleOptions.value = await RoleAPI.getOptions();
   deptOptions.value = await DeptAPI.getOptions();
   if (id) {
+    formData.id = id;
     const data = await UserAPI.getFormData(id);
-    Object.assign(formData, data);
+    Object.assign(formData, data, { id });
   }
 }
 
@@ -294,7 +292,7 @@ function submitUserForm() {
       .then(() => {
         message.show(formData.id ? "修改成功" : "添加成功");
         closeUserDialog();
-        refreshUserList();
+        loadUserList();
       })
       .finally(() => {
         submitting.value = false;
@@ -331,7 +329,7 @@ function showUserActions(item: UserPageVO) {
       if (confirm) {
         await UserAPI.deleteByIds(String(item.id));
         message.show("删除成功");
-        refreshUserList();
+        loadUserList();
       }
     };
   }
@@ -358,7 +356,7 @@ onReachBottom(() => {
   }
 });
 
-onLoad(() => refreshUserList());
+onLoad(() => loadUserList());
 </script>
 
 <script lang="ts">
@@ -369,67 +367,9 @@ export default { options: { styleIsolation: "shared" } };
 {
   "name": "user",
   "style": {
-    "navigationBarTitleText": "用户管理",
-    "backgroundColor": "#f1f5f9"
+    "navigationBarTitleText": "用户管理"
   }
 }
 </route>
 
-<style lang="scss" scoped>
-.user-card {
-  padding: 24rpx;
-  margin-bottom: 24rpx;
-  background-color: var(--color-bg);
-  border: 1rpx solid var(--color-border-light, rgba(0, 0, 0, 0.04));
-  border-radius: 16rpx;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.06);
-}
-.user-card__header {
-  display: flex;
-  align-items: center;
-}
-.user-card__contact {
-  display: flex;
-  gap: 24rpx;
-  margin-top: 16rpx;
-}
-.user-card__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 16rpx;
-}
-.user-card__meta-item {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-.user-card__meta-item--time {
-  color: var(--color-text-placeholder);
-}
-.user-card__meta-icon {
-  flex: 0 0 auto;
-  color: var(--color-text-secondary);
-}
-.user-card__meta-text {
-  margin-left: 8rpx;
-  overflow: hidden;
-  font-size: 24rpx;
-  color: var(--color-text-secondary);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.user-card__meta-text--time {
-  margin-left: 0;
-  color: var(--color-text-placeholder);
-}
-.user-card__more {
-  padding: 16rpx;
-  margin: -16rpx;
-  color: var(--color-text-secondary);
-  border-radius: 999rpx;
-}
-.user-card__more--active {
-  background: rgba(148, 163, 184, 0.16);
-}
-</style>
+<style lang="scss" scoped></style>

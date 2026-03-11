@@ -11,7 +11,15 @@ body,
   padding: 0;
   margin: 0;
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    "Helvetica Neue",
+    Helvetica,
+    sans-serif;
   font-size: 28rpx;
   line-height: 1.5;
   color: var(--color-text);
@@ -26,7 +34,7 @@ body,
 
 .page {
   min-height: 100vh;
-  background-color: var(--color-bg-tertiary, #f1f5f9);
+  background-color: var(--color-bg-page, var(--color-bg-secondary));
 }
 
 .page--auto {
@@ -34,190 +42,75 @@ body,
 }
 
 .page--padding {
-  padding: 0 24rpx;
+  padding: 0 32rpx;
+}
+
+.page--pt {
+  padding-top: 16rpx;
 }
 
 // ==========================================================================
-// 筛选区域
+// 筛选栏
 // ==========================================================================
 
-.filter {
-  &__search {
-    overflow: hidden;
-    border-radius: 12rpx;
-  }
+.filter-bar {
+  display: flex;
+  align-items: center;
+  height: 72rpx;
+  margin-top: 12rpx;
+  overflow: hidden;
+  background: var(--color-bg);
+  border-radius: 12rpx;
 
-  &__bar {
-    display: flex;
-    align-items: center;
-    height: 72rpx;
-    margin-top: 16rpx;
-    overflow: hidden;
-    background: #fff;
-    border-radius: 12rpx;
-
-    :deep(.wd-drop-menu) {
-      flex: 1;
-    }
-
-    :deep(.wd-drop-menu-item) {
-      flex: 1;
-    }
-  }
-
-  &__half {
-    display: flex;
+  :deep(.wd-drop-menu) {
     flex: 1;
-    min-width: 0;
-
-    :deep(.wd-drop-menu) {
-      width: 100%;
-      height: 100%;
-    }
-
-    :deep(.wd-drop-menu__menu) {
-      width: 100%;
-      height: 100%;
-    }
-
-    :deep(.wd-drop-menu__item) {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      padding: 0;
-      box-sizing: border-box;
-    }
   }
 
-  &__btn {
-    display: flex;
+  :deep(.wd-drop-menu-item) {
     flex: 1;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    font-size: 26rpx;
-    color: #475569;
-    cursor: pointer;
-    transition: background 0.2s;
-
-    &:active {
-      background: #f8fafc;
-    }
-
-    .wd-icon {
-      margin-left: 4rpx;
-    }
-  }
-
-  &__divider {
-    width: 1px;
-    height: 32rpx;
-    background: #e2e8f0;
   }
 }
 
 // ==========================================================================
-// 列表区域
+// 列表卡片
 // ==========================================================================
 
-.list {
-  margin-top: 16rpx;
+.list-card {
+  margin-bottom: 12rpx;
 
-  &__card {
-    margin-bottom: 16rpx;
-    overflow: hidden;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12rpx;
-    box-shadow: 0 2rpx 12rpx rgba(15, 23, 42, 0.04);
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    :deep(.wd-card) {
-      margin: 0 !important;
-      background: transparent;
-      border: none;
-      box-shadow: none;
-    }
-
-    :deep(.wd-card__body) {
-      padding: 0 !important;
-    }
-  }
-
-  &__meta {
-    padding: 8rpx 24rpx 4rpx;
-  }
-
-  &__meta-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 72rpx;
-    border-bottom: 1px solid #f1f5f9;
-  }
-
-  &__meta-row:last-child {
-    border-bottom: 0;
-  }
-
-  &__meta-left {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    gap: 12rpx;
-  }
-
-  &__meta-label {
-    font-size: 26rpx;
-    color: #64748b;
-  }
-
-  &__meta-value {
-    max-width: 58%;
-    overflow: hidden;
-    font-size: 26rpx;
-    color: #0f172a;
-    text-align: right;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__footer {
-    display: flex;
-    align-items: center;
-    padding: 16rpx 24rpx;
-    color: #64748b;
-    font-size: 24rpx;
+  :deep(.wd-card) {
+    margin: 0 !important;
   }
 }
 
 // ==========================================================================
-// 筛选面板
+// 弹窗/面板底部按钮
 // ==========================================================================
 
-.filter-panel {
-  padding: 24rpx;
+.popup-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 24rpx;
 
-  &__footer {
-    display: flex;
-    gap: 24rpx;
-    margin-top: 24rpx;
-
-    :deep(.wd-button) {
-      flex: 1;
-    }
+  :deep(.wd-button) {
+    flex: 1;
   }
 }
 
 // ==========================================================================
-// 弹窗底部
+// 浮动按钮
 // ==========================================================================
 
-.popup-footer {
-  padding: 30rpx;
+.fab--small {
+  width: 80rpx !important;
+  height: 80rpx !important;
+
+  :deep(.wd-fab__trigger) {
+    width: 80rpx !important;
+    height: 80rpx !important;
+  }
+
+  :deep(.wd-fab__icon) {
+    font-size: 36rpx !important;
+  }
 }

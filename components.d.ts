@@ -28,6 +28,7 @@ declare module 'vue' {
     WdCollapse: typeof import('wot-design-uni/components/wd-collapse/wd-collapse.vue')['default']
     WdCollapseItem: typeof import('wot-design-uni/components/wd-collapse-item/wd-collapse-item.vue')['default']
     WdConfigProvider: typeof import('wot-design-uni/components/wd-config-provider/wd-config-provider.vue')['default']
+    WdDivider: typeof import('wot-design-uni/components/wd-divider/wd-divider.vue')['default']
     WdDropMenu: typeof import('wot-design-uni/components/wd-drop-menu/wd-drop-menu.vue')['default']
     WdDropMenuItem: typeof import('wot-design-uni/components/wd-drop-menu-item/wd-drop-menu-item.vue')['default']
     WdFab: typeof import('wot-design-uni/components/wd-fab/wd-fab.vue')['default']
