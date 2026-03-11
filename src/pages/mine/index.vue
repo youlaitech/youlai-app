@@ -468,7 +468,7 @@ const settingsItems = computed<ActionItem[]>(() => [
   {
     title: "网络检测",
     desc: "检测接口连通性",
-    icon: "chart-trending-o",
+    icon: "server",
     tint: "#fed7aa",
     iconColor: "#c2410c",
     action: openNetworkTest,
@@ -488,7 +488,7 @@ const helpItems = computed<ActionItem[]>(() => [
   {
     title: "用户协议",
     desc: "了解产品使用规则",
-    icon: "document",
+    icon: "secured",
     tint: "#d1fae5",
     iconColor: "#065f46",
     action: openUserAgreement,

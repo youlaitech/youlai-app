@@ -1,148 +1,175 @@
 <template>
   <view class="page page--padding">
-    <!-- 搜索筛选 -->
+    <!-- 搜索栏 -->
     <view class="filter">
       <view class="filter__search">
         <wd-search
           v-model="queryParams.keywords"
           placeholder="搜索用户名/手机号"
           hide-cancel
-          @search="handleQuery"
+          custom-style="border: 1rpx solid rgba(148, 163, 184, 0.24); border-radius: 8rpx;"
+          @search="handleSearch"
         />
       </view>
-      <view class="filter__bar" @click="closeOutside">
-        <view class="filter__half">
-          <wd-drop-menu>
-            <wd-drop-menu-item
-              v-model="sortValue"
-              title="排序"
-              :options="sortOptions"
-              @change="handleSortChange"
-            />
-          </wd-drop-menu>
+      <view class="filter__bar flex items-center" @click="closeOutside">
+        <view class="filter__half flex-1 flex justify-center">
+          <view class="w-full flex justify-center">
+            <wd-drop-menu>
+              <wd-drop-menu-item
+                v-model="sortValue"
+                title="排序"
+                :options="sortOptions"
+                @change="handleSortChange"
+              />
+            </wd-drop-menu>
+          </view>
         </view>
-
-        <view class="filter__divider" />
-
-        <view class="filter__half">
-          <wd-drop-menu>
-            <wd-drop-menu-item title="筛选" @open="handleFilterOpen">
-              <view class="filter-panel">
-                <wd-input
-                  v-model="queryParams.keywords"
-                  label="关键字"
-                  placeholder="用户名/昵称/手机号"
-                />
-                <cu-date-query v-model="queryParams.createTime" label="创建时间" />
-                <view class="filter-panel__footer">
-                  <wd-button type="info" @click="handleResetQuery">重置</wd-button>
-                  <wd-button type="primary" @click="handleFilterQuery">查询</wd-button>
+        <view class="filter__divider self-stretch" />
+        <view class="filter__half flex-1 flex justify-center">
+          <view class="w-full flex justify-center">
+            <wd-drop-menu>
+              <wd-drop-menu-item title="筛选" @open="handleFilterOpen">
+                <view class="p-4">
+                  <wd-input
+                    v-model="queryParams.keywords"
+                    label="关键字"
+                    placeholder="用户名/昵称/手机号"
+                  />
+                  <cu-date-query v-model="queryParams.createTime" label="创建时间" />
+                  <view class="flex gap-2 mt-4">
+                    <wd-button type="info" block @click="resetUserFilter">重置</wd-button>
+                    <wd-button type="primary" block @click="applyUserFilter">查询</wd-button>
+                  </view>
                 </view>
-              </view>
-            </wd-drop-menu-item>
-          </wd-drop-menu>
+              </wd-drop-menu-item>
+            </wd-drop-menu>
+          </view>
         </view>
       </view>
     </view>
 
-    <!-- 数据列表 -->
+    <!-- 用户列表 -->
     <view class="list">
-      <view v-for="item in pageData" :key="item.id" class="list__card" @click="goToDetail(item.id)">
-        <wd-card>
-          <template #title>
-            <view class="flex-between">
-              <view class="flex-center">
-                <wd-img :width="50" :height="50" round :src="item.avatar" />
-                <view class="ml-2">
-                  <view class="font-bold">
-                    {{ item.nickname }}
-                    <wd-icon v-if="item.gender == 1" name="gender-male" class="color-#4D80F0" />
-                    <wd-icon
-                      v-else-if="item.gender == 2"
-                      name="gender-female"
-                      class="color-#FA4350"
-                    />
-                  </view>
-                  <view class="mt-1"><wd-text :text="item.deptName" size="12px" /></view>
-                </view>
-              </view>
-              <view>
-                <wd-tag v-if="item.status === 1" type="success" plain>正常</wd-tag>
-                <wd-tag v-else-if="item.status === 0" plain>禁用</wd-tag>
-              </view>
+      <view
+        v-for="item in pageData"
+        :key="item.id"
+        class="user-card"
+        @click="openUserDialog(item.id)"
+      >
+        <!-- 主信息行 -->
+        <view class="user-card__header">
+          <wd-img :src="item.avatar" width="80rpx" height="80rpx" round />
+          <view class="flex-1 ml-2">
+            <view class="flex items-center">
+              <text class="font-bold text-32rpx">{{ item.nickname }}</text>
+              <wd-icon v-if="item.gender === 1" name="gender-male" class="color-#4D80F0 ml-1" />
+              <wd-icon
+                v-else-if="item.gender === 2"
+                name="gender-female"
+                class="color-#FA4350 ml-1"
+              />
             </view>
-          </template>
+            <text class="text-24rpx color-text-secondary">
+              {{ item.roleNames }} · {{ item.deptName }}
+            </text>
+          </view>
+          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" plain>
+            {{ item.status === 1 ? "正常" : "禁用" }}
+          </wd-tag>
+        </view>
 
-          <wd-cell-group>
-            <wd-cell title="用户名" :value="item.username" icon="user" />
-            <wd-cell title="角色" :value="item.roleNames" icon="usergroup" />
-            <wd-cell title="手机号码" :value="item.mobile" icon="mobile" />
-            <wd-cell title="邮箱" :value="item.email" icon="mail" />
-          </wd-cell-group>
+        <!-- 辅助信息行 -->
+        <view class="user-card__contact">
+          <view v-if="item.mobile" class="user-card__meta-item">
+            <wd-icon name="mobile" size="16" class="user-card__meta-icon" />
+            <text class="user-card__meta-text">{{ item.mobile }}</text>
+          </view>
+          <view v-if="item.email" class="user-card__meta-item">
+            <wd-icon name="mail" size="16" class="user-card__meta-icon" />
+            <text class="user-card__meta-text">{{ item.email }}</text>
+          </view>
+        </view>
 
-          <template #footer>
-            <view class="list__footer">
-              <wd-text text="创建时间：" size="small" class="font-bold" />
-              <wd-text :text="item.createTime" size="small" />
-            </view>
-          </template>
-        </wd-card>
+        <!-- 元信息行 -->
+        <view class="user-card__footer">
+          <view class="user-card__meta-item user-card__meta-item--time">
+            <text class="user-card__meta-text user-card__meta-text--time">
+              {{ item.createTime }}
+            </text>
+          </view>
+          <view
+            class="user-card__more"
+            hover-class="user-card__more--active"
+            @click.stop="showUserActions(item)"
+          >
+            <wd-icon name="more" size="18" />
+          </view>
+        </view>
       </view>
 
-      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="loadmore" />
-      <wd-status-tip v-else-if="total == 0" image="search" tip="当前搜索无结果" />
+      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="fetchUserList" />
+      <wd-status-tip v-else-if="total === 0" image="search" tip="暂无数据" />
     </view>
 
     <!-- 弹窗表单 -->
-    <wd-popup v-model="dialog.visible" position="bottom" @close="hancleCloseDialog">
-      <wd-form ref="userFormRef" :model="formData" :rules="rules">
-        <wd-cell-group border>
-          <wd-input v-model="formData.username" label="用户名" :readonly="!formData.id" required />
-          <wd-input v-model="formData.nickname" label="昵称" required />
-          <wd-select-picker
-            v-model="formData.roleIds"
-            label="角色"
-            :columns="roleOptions"
-            required
-          />
-          <CuPicker
-            v-model="formData.deptId"
-            v-model:data="deptOptions"
-            label="部门"
-            :required="true"
-          />
-          <wd-input v-model="formData.mobile" label="手机号" prop="mobile" />
-          <wd-input v-model="formData.email" label="邮箱" prop="email" />
-          <wd-cell title="状态">
-            <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" required />
-          </wd-cell>
-        </wd-cell-group>
-      </wd-form>
-      <view class="popup-footer">
-        <wd-button type="primary" block @click="handleSubmit">提交</wd-button>
+    <wd-popup
+      v-model="dialog.visible"
+      position="bottom"
+      custom-style="border-radius: 24rpx 24rpx 0 0"
+      @close="closeUserDialog"
+    >
+      <view class="p-4">
+        <view class="text-center font-bold text-32rpx mb-4">
+          {{ formData.id ? "编辑用户" : "新增用户" }}
+        </view>
+        <wd-form ref="formRef" :model="formData" :rules="rules">
+          <wd-cell-group border>
+            <wd-input
+              v-model="formData.username"
+              label="用户名"
+              :readonly="!!formData.id"
+              required
+            />
+            <wd-input v-model="formData.nickname" label="昵称" required />
+            <wd-select-picker
+              v-model="formData.roleIds"
+              label="角色"
+              :columns="roleOptions"
+              required
+            />
+            <CuPicker v-model="formData.deptId" v-model:data="deptOptions" label="部门" required />
+            <wd-input v-model="formData.mobile" label="手机号" />
+            <wd-input v-model="formData.email" label="邮箱" />
+            <wd-cell title="状态">
+              <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
+            </wd-cell>
+          </wd-cell-group>
+        </wd-form>
+        <view class="flex gap-2 mt-4">
+          <wd-button block @click="closeUserDialog">取消</wd-button>
+          <wd-button type="primary" block :loading="submitting" @click="submitUserForm">
+            保存
+          </wd-button>
+        </view>
       </view>
     </wd-popup>
 
-    <!-- 悬浮操作按钮 -->
+    <!-- 浮动新增按钮 -->
     <wd-fab
       v-if="hasPermission('sys:user:create')"
-      position="left-bottom"
+      type="primary"
+      position="right-bottom"
       :expandable="false"
-      custom-style="z-index: 9"
-      @click="handleOpenDialog"
+      @click="openUserDialog()"
     />
-
-    <wd-message-box />
   </view>
 </template>
 
 <script lang="ts" setup>
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
-
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
 import { useMessage, useQueue } from "wot-design-uni";
-
 import UserAPI, { type UserPageQuery, UserPageVO, UserForm } from "@/api/user";
 import RoleAPI from "@/api/role";
 import DeptAPI from "@/api/dept";
@@ -151,27 +178,20 @@ import { hasPermission } from "@/utils/permission";
 const message = useMessage();
 const { closeOutside } = useQueue();
 const loadMoreState = ref<LoadMoreState>("loading");
-const userFormRef = ref();
+const formRef = ref();
+const submitting = ref(false);
 
 const sortValue = ref(0);
-const sortOptions = ref<Record<string, any>[]>([
+const sortOptions = ref([
   { label: "默认排序", value: 0 },
   { label: "最近创建", value: 1 },
   { label: "最近更新", value: 2 },
 ]);
 
-const queryParams = reactive<UserPageQuery>({
-  pageNum: 1,
-  pageSize: 10,
-  keywords: "",
-});
-
+const queryParams = reactive<UserPageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const total = ref(0);
 const pageData = ref<UserPageVO[]>([]);
-
-const dialog = reactive({
-  visible: false,
-});
+const dialog = reactive({ visible: false });
 
 const initialFormData: UserForm = {
   id: undefined,
@@ -185,52 +205,17 @@ const initialFormData: UserForm = {
 };
 
 const formData = reactive<UserForm>({ ...initialFormData });
-
 const roleOptions = ref<Record<string, any>[]>([]);
 const deptOptions = ref<OptionType[]>([]);
+
 const rules: FormRules = {
   username: [{ required: true, message: "请输入用户名" }],
   nickname: [{ required: true, message: "请输入昵称" }],
   roleIds: [{ required: true, message: "请选择角色" }],
   deptId: [{ required: true, message: "请选择部门" }],
-  status: [{ required: true, message: "请选择状态" }],
-  mobile: [
-    {
-      required: false,
-      message: "手机号格式不正确",
-      validator: (value: string) => {
-        if (!value) {
-          return Promise.resolve();
-        }
-        if (!/^1[3456789]\d{9}$/.test(value)) {
-          return Promise.reject("手机号格式不正确");
-        } else {
-          return Promise.resolve();
-        }
-      },
-    },
-  ],
-  email: [
-    {
-      required: false,
-      message: "邮箱格式不正确",
-      validator: (value: string) => {
-        if (!value) {
-          return Promise.resolve();
-        }
-        if (!/^\w+([-+.].\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(value)) {
-          return Promise.reject("邮箱格式不正确");
-        } else {
-          return Promise.resolve();
-        }
-      },
-    },
-  ],
 };
 
-/**
- * 排序改变
- */
+// 排序切换
 const handleSortChange = ({ value }: { value: string | number }) => {
   const num = Number(value);
   if (num === 1) {
@@ -243,48 +228,36 @@ const handleSortChange = ({ value }: { value: string | number }) => {
     queryParams.field = "";
     queryParams.direction = "";
   }
-  handleQuery();
+  refreshUserList();
 };
 
-/**
- * 筛选面板打开
- */
-const handleFilterOpen = () => {
-  // 筛选面板打开时的回调
-};
+const handleFilterOpen = () => {};
 
-/**
- * 查询
- */
-const handleQuery = () => {
+// 搜索触发
+const handleSearch = () => refreshUserList();
+
+// 刷新列表
+function refreshUserList() {
   queryParams.pageNum = 1;
-  loadmore();
-};
-
-/**
- * 筛选查询
- */
-const handleFilterQuery = () => {
+  fetchUserList();
+}
+// 应用筛选并刷新
+function applyUserFilter() {
   closeOutside();
-  handleQuery();
-};
-
-/**
- * 重置筛选
- */
-const handleResetQuery = () => {
+  refreshUserList();
+}
+// 重置筛选并刷新
+function resetUserFilter() {
   queryParams.keywords = "";
   queryParams.createTime = undefined;
   queryParams.field = "";
   queryParams.direction = "";
   sortValue.value = 0;
-  handleFilterQuery();
-};
+  applyUserFilter();
+}
 
-/**
- * 加载更多
- */
-function loadmore() {
+// 分页加载列表
+function fetchUserList() {
   loadMoreState.value = "loading";
   UserAPI.getPage(queryParams)
     .then((data) => {
@@ -292,7 +265,7 @@ function loadmore() {
       total.value = data.total;
       queryParams.pageNum++;
     })
-    .catch((e) => {
+    .catch(() => {
       pageData.value = [];
     })
     .finally(() => {
@@ -300,90 +273,96 @@ function loadmore() {
     });
 }
 
-/**
- * 打开弹窗
- */
-async function handleOpenDialog(id?: number) {
+// 打开弹窗（新增/编辑）
+async function openUserDialog(id?: number) {
   dialog.visible = true;
   roleOptions.value = await RoleAPI.getOptions();
   deptOptions.value = await DeptAPI.getOptions();
   if (id) {
-    UserAPI.getFormData(id).then((data) => {
-      Object.assign(formData, { ...data });
-    });
+    const data = await UserAPI.getFormData(id);
+    Object.assign(formData, data);
   }
 }
 
-/**
- * 提交保存
- */
-function handleSubmit() {
-  hancleCloseDialog();
-  userFormRef.value.validate().then(({ valid }: { valid: boolean }) => {
-    if (valid) {
-      const userId = formData.id;
-      if (userId) {
-        UserAPI.update(userId, formData).then(() => {
-          message.show("修改成功");
-          hancleCloseDialog();
-          handleQuery();
-        });
-      } else {
-        UserAPI.add(formData).then(() => {
-          message.show("添加成功");
-          hancleCloseDialog();
-          handleQuery();
-        });
-      }
-    }
+// 提交表单
+function submitUserForm() {
+  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+    if (!valid) return;
+    submitting.value = true;
+    const action = formData.id ? UserAPI.update(formData.id, formData) : UserAPI.add(formData);
+    action
+      .then(() => {
+        message.show(formData.id ? "修改成功" : "添加成功");
+        closeUserDialog();
+        refreshUserList();
+      })
+      .finally(() => {
+        submitting.value = false;
+      });
   });
-}
-
-// 重置表单
-function resetForm() {
-  userFormRef.value.reset();
-  Object.assign(formData, initialFormData);
 }
 
 // 关闭弹窗
-function hancleCloseDialog() {
+function closeUserDialog() {
   dialog.visible = false;
-  resetForm();
+  formRef.value?.reset();
+  Object.assign(formData, initialFormData);
 }
 
-/**
- * 跳转详情页
- */
-function goToDetail(id: number) {
-  uni.navigateTo({
-    url: `/pages/work/user/detail/index?id=${id}`,
+// 更多操作
+function showUserActions(item: UserPageVO) {
+  const actions: string[] = [];
+  const actionMap: Record<string, () => void> = {};
+
+  // 编辑
+  if (hasPermission("sys:user:update")) {
+    actions.push("编辑");
+    actionMap["编辑"] = () => openUserDialog(item.id);
+  }
+
+  // 删除
+  if (hasPermission("sys:user:delete")) {
+    actions.push("删除");
+    actionMap["删除"] = async () => {
+      const { confirm } = await uni.showModal({
+        title: "确认删除",
+        content: `确定要删除用户「${item.nickname}」吗？`,
+      });
+      if (confirm) {
+        await UserAPI.deleteByIds(String(item.id));
+        message.show("删除成功");
+        refreshUserList();
+      }
+    };
+  }
+
+  if (actions.length === 0) {
+    message.show("暂无操作权限");
+    return;
+  }
+
+  uni.showActionSheet({
+    itemList: actions,
+    success: ({ tapIndex }) => {
+      const action = actions[tapIndex];
+      actionMap[action]?.();
+    },
   });
 }
 
-/**
- * 返回
- */
-// 触底事件
 onReachBottom(() => {
   if (queryParams.pageNum * queryParams.pageSize < total.value) {
-    loadmore();
-  } else if (queryParams.pageNum * queryParams.pageSize >= total.value) {
+    fetchUserList();
+  } else {
     loadMoreState.value = "finished";
   }
 });
 
-onLoad(() => {
-  handleQuery();
-});
+onLoad(() => refreshUserList());
 </script>
 
 <script lang="ts">
-// https://wot-design-uni.pages.dev/guide/common-problems#%E5%B0%8F%E7%A8%8B%E5%BA%8F%E6%A0%B7%E5%BC%8F%E9%9A%94%E7%A6%BB
-export default {
-  options: {
-    styleIsolation: "shared",
-  },
-};
+export default { options: { styleIsolation: "shared" } };
 </script>
 
 <route lang="json">
@@ -397,22 +376,60 @@ export default {
 </route>
 
 <style lang="scss" scoped>
-.user-container {
-  min-height: 100vh;
-  background: #f1f5f9;
-
-  :deep(.wd-cell__wrapper) {
-    padding: 4rpx 0;
-  }
-
-  :deep(.wd-cell) {
-    padding-right: 10rpx;
-    background: #f8f8f8;
-  }
-
-  :deep(.wd-fab__trigger) {
-    width: 80rpx !important;
-    height: 80rpx !important;
-  }
+.user-card {
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  background-color: var(--color-bg);
+  border: 1rpx solid var(--color-border-light, rgba(0, 0, 0, 0.04));
+  border-radius: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.06);
+}
+.user-card__header {
+  display: flex;
+  align-items: center;
+}
+.user-card__contact {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 16rpx;
+}
+.user-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16rpx;
+}
+.user-card__meta-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.user-card__meta-item--time {
+  color: var(--color-text-placeholder);
+}
+.user-card__meta-icon {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
+}
+.user-card__meta-text {
+  margin-left: 8rpx;
+  overflow: hidden;
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user-card__meta-text--time {
+  margin-left: 0;
+  color: var(--color-text-placeholder);
+}
+.user-card__more {
+  padding: 16rpx;
+  margin: -16rpx;
+  color: var(--color-text-secondary);
+  border-radius: 999rpx;
+}
+.user-card__more--active {
+  background: rgba(148, 163, 184, 0.16);
 }
 </style>

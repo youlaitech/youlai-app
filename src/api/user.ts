@@ -149,34 +149,34 @@ export default UserAPI;
 /** 登录用户信息 */
 export interface UserInfo {
   /** 用户ID */
-  userId?: number
+  userId?: number;
 
   /** 用户名 */
-  username?: string
+  username?: string;
 
   /** 昵称 */
-  nickname?: string
+  nickname?: string;
 
   /** 头像URL */
-  avatar?: string
+  avatar?: string;
 
   /** 手机号 */
-  mobile?: string
+  mobile?: string;
 
   /** 邮箱 */
-  email?: string
+  email?: string;
 
   /** 部门名称 */
-  deptName?: string
+  deptName?: string;
 
   /** 角色编码集合 */
-  roles?: string[]
+  roles?: string[];
 
   /** 权限标识集合 */
-  perms?: string[]
+  perms?: string[];
 
   /** 角色名称（前端计算字段，取 roles[0] 的中文映射） */
-  roleName?: string
+  roleName?: string;
 }
 
 /**

@@ -25,8 +25,7 @@ interface NavigateToOptions {
        "/pages/mine/settings/agreement/index" |
        "/pages/mine/settings/network/index" |
        "/pages/mine/settings/privacy/index" |
-       "/pages/mine/settings/theme/index" |
-       "/pages/work/user/detail/index";
+       "/pages/mine/settings/theme/index";
 }
 interface RedirectToOptions extends NavigateToOptions {}
 

@@ -163,10 +163,6 @@
       "style": {
         "navigationBarTitleText": "主题设置"
       }
-    },
-    {
-      "path": "pages/work/user/detail/index",
-      "type": "page"
     }
   ],
   "globalStyle": {

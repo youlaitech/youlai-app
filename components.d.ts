@@ -18,7 +18,6 @@ declare module 'vue' {
     QiunDataCharts: typeof import('./src/components/qiun-data-charts/qiun-data-charts.vue')['default']
     QiunError: typeof import('./src/components/qiun-error/qiun-error.vue')['default']
     QiunLoading: typeof import('./src/components/qiun-loading/qiun-loading.vue')['default']
-    WdActionSheet: typeof import('wot-design-uni/components/wd-action-sheet/wd-action-sheet.vue')['default']
     WdBadge: typeof import('wot-design-uni/components/wd-badge/wd-badge.vue')['default']
     WdButton: typeof import('wot-design-uni/components/wd-button/wd-button.vue')['default']
     WdCalendar: typeof import('wot-design-uni/components/wd-calendar/wd-calendar.vue')['default']
