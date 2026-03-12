@@ -1,117 +1,113 @@
 <template>
-  <view class="log">
-    <!-- 筛选 -->
-    <wd-drop-menu close-on-click-modal class="mb-24rpx">
-      <wd-drop-menu-item ref="filterDropMenu" title="筛选" icon="filter" icon-size="18px">
-        <view>
-          <wd-input
-            v-model="queryParams.keywords"
-            label="关键字"
-            type="text"
-            placeholder="请输入关键字"
-          />
+  <view class="page page--padding page--pt">
+    <view>
+      <wd-search
+        v-model="queryParams.keywords"
+        placeholder="搜索日志内容"
+        hide-cancel
+        @search="handleSearch"
+      />
+    </view>
 
-          <cu-date-query v-model="queryParams.createTime" :label="'日期选择'" />
-
-          <view class="flex-between py-2">
-            <wd-button class="w-20%" type="info" @click="handleResetQuery">重置</wd-button>
-            <wd-button class="w-70%" @click="handleQuery">查询</wd-button>
+    <!-- 日志列表 -->
+    <view class="mt-16rpx">
+      <wd-card
+        v-for="item in pageData"
+        :key="item.id"
+        custom-class="item-card"
+        @click="openLogDetail(item)"
+      >
+        <!-- 主信息行 -->
+        <view class="flex-start">
+          <view class="flex-1">
+            <view class="flex-start mt-12rpx">
+              <text class="font-bold text-32rpx">{{ item.operator }}</text>
+              <wd-tag plain size="small" class="ml-16rpx">{{ item.module }}</wd-tag>
+            </view>
+            <text class="text-24rpx color-text-secondary truncate">{{ item.content }}</text>
           </view>
         </view>
-      </wd-drop-menu-item>
-    </wd-drop-menu>
 
-    <!-- 卡片列表 -->
-    <wd-card v-for="item in pageData" :key="item.id" class="card-list">
-      <template #title>
-        {{ item.operator }}
-      </template>
-
-      <wd-cell-group>
-        <wd-cell title="模块" :value="item.module" />
-        <wd-cell title="内容" :value="item.content" />
-        <wd-cell title="IP" :value="item.ip" />
-        <wd-cell title="地区" :value="item.region" />
-      </wd-cell-group>
-
-      <template #footer>
-        <view class="flex-between">
-          <view class="text-left">
-            <wd-text text="创建时间：" size="small" class="font-bold" />
-            <wd-text :text="item.createTime" size="small" />
-          </view>
-          <view class="text-right">
-            <wd-button type="primary" size="small" plain @click="handleViewDetail(item)">
-              查看详情
-            </wd-button>
+        <!-- 辅助信息行 -->
+        <view class="flex gap-24rpx mt-12rpx">
+          <view class="flex-start min-w-0 flex-1">
+            <wd-icon name="location" size="16" class="color-text-secondary" />
+            <text class="ml-8rpx text-24rpx color-text-secondary">
+              {{ item.ip }} {{ item.region }}
+            </text>
           </view>
         </view>
-      </template>
-    </wd-card>
+
+        <!-- 元信息行 -->
+        <view class="flex-between mt-16rpx">
+          <text class="text-24rpx color-text-placeholder">{{ item.createTime }}</text>
+          <view
+            class="w-64rpx h-64rpx flex-center rounded-full"
+            hover-class="bg-[var(--color-text-placeholder)]/16"
+            @click.stop="openLogDetail(item)"
+          >
+            <wd-icon name="view" size="16" class="color-text-secondary" />
+          </view>
+        </view>
+      </wd-card>
+
+      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="fetchLogList" />
+      <wd-status-tip v-else-if="total === 0" image="search" tip="暂无数据" />
+    </view>
 
     <!-- 详情弹窗 -->
-    <wd-popup v-model="detailDialogVisible" position="bottom">
-      <wd-cell-group>
-        <wd-cell title="操作人" :value="logDetail.operator" />
-        <wd-cell title="操作时间" :value="logDetail.createTime" />
-        <wd-cell title="模块" :value="logDetail.module" />
-        <wd-cell title="内容" :value="logDetail.content" />
-        <wd-cell title="IP" :value="logDetail.ip" />
-        <wd-cell title="地区" :value="logDetail.region" />
-        <wd-cell title="浏览器" :value="logDetail.browser" />
-        <wd-cell title="终端系统" :value="logDetail.os" />
-        <wd-cell title="耗时(毫秒)" :value="logDetail.executionTime" />
-      </wd-cell-group>
+    <wd-popup
+      v-model="detailDialog.visible"
+      position="bottom"
+      custom-style="border-radius: 24rpx 24rpx 0 0"
+      @close="closeLogDetail"
+    >
+      <view class="p-4">
+        <view class="text-center font-bold text-32rpx mb-4">日志详情</view>
+        <wd-cell-group border>
+          <wd-cell title="操作人" :value="logDetail.operator" />
+          <wd-cell title="操作时间" :value="logDetail.createTime" />
+          <wd-cell title="模块" :value="logDetail.module" />
+          <wd-cell title="内容" :value="logDetail.content" />
+          <wd-cell title="IP" :value="logDetail.ip" />
+          <wd-cell title="地区" :value="logDetail.region" />
+          <wd-cell title="浏览器" :value="logDetail.browser" />
+          <wd-cell title="终端系统" :value="logDetail.os" />
+          <wd-cell title="耗时(毫秒)" :value="String(logDetail.executionTime || 0)" />
+        </wd-cell-group>
+        <view class="popup-actions">
+          <wd-button type="info" plain block @click="closeLogDetail">关闭</wd-button>
+        </view>
+      </view>
     </wd-popup>
-
-    <!-- 加载更多 -->
-    <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="loadmore" />
-    <wd-status-tip v-else-if="total == 0" image="search" tip="当前搜索无结果" />
   </view>
 </template>
+
 <script lang="ts" setup>
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
-import { DropMenuItemExpose } from "wot-design-uni/components/wd-drop-menu-item/types";
+import LogAPI, { type LogPageQuery, LogVO } from "@/api/log";
 
-import LogAPI, { LogVO, LogPageQuery } from "@/api/log";
-
-const filterDropMenu = ref<DropMenuItemExpose>();
 const loadMoreState = ref<LoadMoreState>("loading");
 
-const queryParams = reactive<LogPageQuery>({
-  pageNum: 1,
-  pageSize: 10,
-});
-
+const queryParams = reactive<LogPageQuery>({ pageNum: 1, pageSize: 10 });
 const total = ref(0);
 const pageData = ref<LogVO[]>([]);
 
 const logDetail = ref<LogVO>({});
-const detailDialogVisible = ref(false);
+const detailDialog = reactive({ visible: false });
 
-/**
- * 搜索栏
- */
-function handleQuery() {
-  filterDropMenu.value?.close();
+// 搜索触发
+const handleSearch = () => loadLogList();
+
+// 加载列表
+function loadLogList() {
   queryParams.pageNum = 1;
-  loadmore();
+  fetchLogList();
 }
 
-/**
- * 重置搜索
- */
-function handleResetQuery() {
-  queryParams.keywords = undefined;
-  queryParams.createTime = undefined;
-  handleQuery();
-}
-
-/**
- * 加载更多
- */
-function loadmore() {
+// 分页加载列表
+function fetchLogList() {
   loadMoreState.value = "loading";
   LogAPI.getPage(queryParams)
     .then((data) => {
@@ -127,28 +123,32 @@ function loadmore() {
     });
 }
 
-/**
- * 查看详情
- */
-function handleViewDetail(item: LogVO) {
-  detailDialogVisible.value = true;
+// 打开详情弹窗
+function openLogDetail(item: LogVO) {
   logDetail.value = item;
+  detailDialog.visible = true;
 }
 
-/**
- * 触底事件
- */
+// 关闭详情弹窗
+function closeLogDetail() {
+  detailDialog.visible = false;
+}
+
 onReachBottom(() => {
   if (queryParams.pageNum * queryParams.pageSize < total.value) {
-    loadmore();
-  } else if (queryParams.pageNum * queryParams.pageSize >= total.value) {
+    fetchLogList();
+  } else {
     loadMoreState.value = "finished";
   }
 });
 
 onLoad(() => {
-  handleQuery();
+  loadLogList();
 });
+</script>
+
+<script lang="ts">
+export default { options: { styleIsolation: "shared" } };
 </script>
 
 <route lang="json">
@@ -159,25 +159,3 @@ onLoad(() => {
   }
 }
 </route>
-
-<style lang="scss" scoped>
-.wd-col {
-  margin-top: 10rpx;
-}
-
-::v-deep .wd-drop-menu__item {
-  display: flex;
-  justify-content: flex-end;
-  padding: 0 50rpx;
-}
-
-.card-list {
-  :deep(.wd-cell__wrapper) {
-    padding: 4rpx 0;
-  }
-  :deep(.wd-cell) {
-    padding-right: 10rpx;
-    background: #f8f8f8;
-  }
-}
-</style>

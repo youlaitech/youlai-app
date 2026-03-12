@@ -3,7 +3,7 @@
     <view>
       <wd-search
         v-model="queryParams.keywords"
-        placeholder="搜索配置名称/键名"
+        placeholder="搜索字典名称/编码"
         hide-cancel
         @search="handleSearch"
       />
@@ -14,68 +14,73 @@
         v-for="item in pageData"
         :key="item.id"
         custom-class="item-card"
-        @click="openConfigDialog(item.id)"
+        @click="openDictItemPage(item)"
       >
-        <view class="flex-between">
-          <text class="font-bold text-32rpx">{{ item.configName }}</text>
+        <view class="flex-start">
+          <view class="flex-1">
+            <view class="flex-start">
+              <text class="font-bold text-32rpx">{{ item.name }}</text>
+            </view>
+            <text class="text-24rpx color-text-secondary">字典编码：{{ item.dictCode }}</text>
+          </view>
+          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" plain>
+            {{ item.status === 1 ? "启用" : "禁用" }}
+          </wd-tag>
+        </view>
+
+        <view class="flex-between mt-16rpx">
+          <text class="text-24rpx color-text-placeholder">{{ item.remark || "暂无备注" }}</text>
           <view
             class="w-88rpx h-88rpx flex-center rounded-full"
             hover-class="bg-[var(--color-text-placeholder)]/16"
-            @click.stop="showConfigActions(item)"
+            @click.stop="showDictActions(item)"
           >
             <wd-icon name="more" size="18" class="color-text-secondary" />
           </view>
         </view>
-
-        <view class="mt-12rpx">
-          <wd-cell-group border>
-            <wd-cell title="配置项" :value="item.configKey" ellipsis />
-            <wd-cell title="配置值" :value="item.configValue" ellipsis />
-            <wd-cell title="描述" :value="item.remark || '暂无描述'" ellipsis />
-          </wd-cell-group>
-        </view>
       </wd-card>
 
-      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="fetchConfigList" />
+      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="fetchDictTypeList" />
       <wd-status-tip v-else-if="total === 0" image="search" tip="暂无数据" />
     </view>
 
-    <!-- 弹窗表单 -->
     <wd-popup
       v-model="dialog.visible"
       position="bottom"
       custom-style="border-radius: 24rpx 24rpx 0 0"
-      @close="closeConfigDialog"
+      @close="closeDictDialog"
     >
       <view class="p-4">
         <view class="text-center font-bold text-32rpx mb-4">
-          {{ formData.id ? "编辑配置" : "新增配置" }}
+          {{ formData.id ? "编辑字典" : "新增字典" }}
         </view>
         <wd-form ref="formRef" :model="formData" :rules="rules">
           <wd-cell-group border>
-            <wd-input v-model="formData.configName" label="配置名称" required />
-            <wd-input v-model="formData.configKey" label="配置键名" required />
-            <wd-input v-model="formData.configValue" label="配置键值" required />
+            <wd-input v-model="formData.name" label="字典名称" required />
+            <wd-input v-model="formData.dictCode" label="字典编码" required />
+            <wd-cell title="状态">
+              <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
+            </wd-cell>
             <wd-textarea
               v-model="formData.remark"
-              label="描述"
-              placeholder="请输入配置描述"
+              label="备注"
+              placeholder="请输入备注"
               :maxlength="100"
               show-word-limit
             />
           </wd-cell-group>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" plain @click="closeConfigDialog">取消</wd-button>
-          <wd-button type="primary" :loading="submitting" @click="submitConfigForm">保存</wd-button>
+          <wd-button type="info" plain @click="closeDictDialog">取消</wd-button>
+          <wd-button type="primary" :loading="submitting" @click="submitDictForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
 
     <view
-      v-if="hasPermission('sys:config:create') && !dialog.visible"
+      v-if="hasPermission('sys:dict:create') && !dialog.visible"
       class="fab-add"
-      @click.stop="openConfigDialog()"
+      @click.stop="openDictDialog()"
     >
       <wd-icon name="add" size="44rpx" />
     </view>
@@ -84,52 +89,54 @@
 
 <script lang="ts" setup>
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
+import { useRouter } from "uni-mini-router";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
 import { useToast } from "wot-design-uni";
-import ConfigAPI, { type ConfigPageQuery, ConfigPageVO, ConfigForm } from "@/api/config";
+import DictAPI, {
+  type DictTypeForm,
+  type DictTypePageQuery,
+  type DictTypePageVO,
+} from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
 
+const router = useRouter();
 const toast = useToast();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
 const submitting = ref(false);
 
-const queryParams = reactive<ConfigPageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
+const queryParams = reactive<DictTypePageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const total = ref(0);
-const pageData = ref<ConfigPageVO[]>([]);
+const pageData = ref<DictTypePageVO[]>([]);
 const dialog = reactive({ visible: false });
 
-const initialFormData: ConfigForm = {
+const initialFormData: DictTypeForm = {
   id: undefined,
-  configName: undefined,
-  configKey: undefined,
-  configValue: undefined,
+  name: undefined,
+  dictCode: undefined,
+  status: 1,
   remark: undefined,
 };
 
-const formData = reactive<ConfigForm>({ ...initialFormData });
+const formData = reactive<DictTypeForm>({ ...initialFormData });
 
 const rules: FormRules = {
-  configName: [{ required: true, message: "请输入配置名称" }],
-  configKey: [{ required: true, message: "请输入配置键名" }],
-  configValue: [{ required: true, message: "请输入配置键值" }],
+  name: [{ required: true, message: "请输入字典名称" }],
+  dictCode: [{ required: true, message: "请输入字典编码" }],
 };
 
-// 搜索触发
-const handleSearch = () => loadConfigList();
+const handleSearch = () => loadDictTypeList();
 
-// 加载列表
-function loadConfigList() {
+function loadDictTypeList() {
   queryParams.pageNum = 1;
-  fetchConfigList();
+  fetchDictTypeList();
 }
 
-// 分页加载列表
-function fetchConfigList() {
+function fetchDictTypeList() {
   loadMoreState.value = "loading";
-  ConfigAPI.getPage(queryParams)
-    .then((data) => {
+  DictAPI.getPage(queryParams)
+    .then((data: any) => {
       pageData.value = data.list;
       total.value = data.total;
       queryParams.pageNum++;
@@ -142,29 +149,36 @@ function fetchConfigList() {
     });
 }
 
-// 打开弹窗（新增/编辑）
-async function openConfigDialog(id?: number) {
+function openDictItemPage(item: DictTypePageVO) {
+  if (!item.dictCode) return;
+  router.push({
+    path: "/pages/work/dict/item/index",
+    query: { dictCode: item.dictCode, title: `【${item.name}】字典数据` },
+  });
+}
+
+async function openDictDialog(id?: string) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
   dialog.visible = true;
   if (id) {
     formData.id = id;
-    const data = await ConfigAPI.getFormData(id);
+    const data = await DictAPI.getFormData(id);
     Object.assign(formData, data, { id });
   }
 }
 
-// 提交表单
-function submitConfigForm() {
+function submitDictForm() {
   formRef.value.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     submitting.value = true;
-    const action = formData.id ? ConfigAPI.update(formData.id, formData) : ConfigAPI.add(formData);
+    const id = formData.id;
+    const action = id ? DictAPI.update(id, formData) : DictAPI.create(formData);
     action
       .then(() => {
         toast.success("操作成功");
-        closeConfigDialog();
-        loadConfigList();
+        closeDictDialog();
+        loadDictTypeList();
       })
       .finally(() => {
         submitting.value = false;
@@ -172,41 +186,37 @@ function submitConfigForm() {
   });
 }
 
-// 关闭弹窗
-function closeConfigDialog() {
+function closeDictDialog() {
   dialog.visible = false;
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
 }
 
-// 更多操作
-function showConfigActions(item: ConfigPageVO) {
+function showDictActions(item: DictTypePageVO) {
   const actions: string[] = [];
   const actionMap: Record<string, () => void> = {};
 
-  if (hasPermission("sys:config:update")) {
+  actions.push("字典数据");
+  actionMap["字典数据"] = () => openDictItemPage(item);
+
+  if (hasPermission("sys:dict:update")) {
     actions.push("编辑");
-    actionMap["编辑"] = () => openConfigDialog(item.id);
+    actionMap["编辑"] = () => openDictDialog(item.id);
   }
 
-  if (hasPermission("sys:config:delete")) {
+  if (hasPermission("sys:dict:delete")) {
     actions.push("删除");
     actionMap["删除"] = async () => {
       const { confirm } = await uni.showModal({
         title: "确认删除",
-        content: `确定要删除配置「${item.configName}」吗？`,
+        content: `确定要删除字典「${item.name}」吗？`,
       });
-      if (confirm) {
-        await ConfigAPI.deleteById(item.id!);
+      if (confirm && item.id) {
+        await DictAPI.deleteByIds(String(item.id));
         toast.success("删除成功");
-        loadConfigList();
+        loadDictTypeList();
       }
     };
-  }
-
-  if (actions.length === 0) {
-    toast.warning("暂无操作权限");
-    return;
   }
 
   uni.showActionSheet({
@@ -220,14 +230,14 @@ function showConfigActions(item: ConfigPageVO) {
 
 onReachBottom(() => {
   if (queryParams.pageNum * queryParams.pageSize < total.value) {
-    fetchConfigList();
+    fetchDictTypeList();
   } else {
     loadMoreState.value = "finished";
   }
 });
 
 onLoad(() => {
-  loadConfigList();
+  loadDictTypeList();
 });
 </script>
 
@@ -237,9 +247,9 @@ export default { options: { styleIsolation: "shared" } };
 
 <route lang="json">
 {
-  "name": "config",
+  "name": "dict",
   "style": {
-    "navigationBarTitleText": "系统配置"
+    "navigationBarTitleText": "字典管理"
   }
 }
 </route>

@@ -1,309 +1,287 @@
 <template>
-  <view class="role">
-    <!-- 筛选 -->
-    <wd-drop-menu>
-      <wd-drop-menu-item ref="filterDropMenu" icon="filter" icon-size="18px" title="筛选">
-        <view>
-          <wd-input
-            v-model="queryParams.keywords"
-            label="关键字"
-            type="text"
-            placeholder="请输入关键字"
-          />
-          <view class="flex-between py-2">
-            <wd-button custom-class="w-20%" type="info" @click="handleResetQuery">重置</wd-button>
-            <wd-button custom-class="w-70%" @click="handleQuery">确定</wd-button>
+  <view class="page page--padding page--pt">
+    <view>
+      <wd-search
+        v-model="queryParams.keywords"
+        placeholder="搜索角色名称/编码"
+        hide-cancel
+        @search="handleSearch"
+      />
+    </view>
+
+    <!-- 角色列表 -->
+    <view class="mt-16rpx">
+      <wd-card
+        v-for="item in pageData"
+        :key="item.id"
+        custom-class="item-card"
+        @click="openRoleDialog(item.id)"
+      >
+        <!-- 主信息行 -->
+        <view class="flex-start">
+          <view class="flex-1">
+            <view class="flex-start mt-12rpx">
+              <text class="font-bold text-32rpx">{{ item.name }}</text>
+            </view>
+            <text class="text-24rpx color-text-secondary">{{ item.code }}</text>
+          </view>
+          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" plain>
+            {{ item.status === 1 ? "正常" : "禁用" }}
+          </wd-tag>
+        </view>
+
+        <!-- 辅助信息行 -->
+        <view class="flex gap-24rpx mt-12rpx">
+          <view class="flex-start min-w-0">
+            <wd-icon name="view" size="16" class="color-text-secondary" />
+            <text class="ml-8rpx text-24rpx color-text-secondary">{{ item.dataScopeLabel }}</text>
+          </view>
+          <view class="flex-start min-w-0">
+            <wd-icon name="sort" size="16" class="color-text-secondary" />
+            <text class="ml-8rpx text-24rpx color-text-secondary">排序: {{ item.sort }}</text>
           </view>
         </view>
-      </wd-drop-menu-item>
-    </wd-drop-menu>
-    <!-- 卡片列表 -->
-    <view class="list-container">
-      <wd-card v-for="item in dataList" :key="item.id" class="role-card">
-        <template #title>
-          <view class="flex-between">
-            <view class="flex-center">
-              <view class="ml-2">
-                <view class="font-bold">
-                  {{ item.name }}
-                </view>
-              </view>
-            </view>
-            <view>
-              <wd-tag v-if="item.status === 1" type="success" plain>正常</wd-tag>
-              <wd-tag v-else-if="item.status === 0" plain>停用</wd-tag>
-            </view>
-          </view>
-        </template>
 
-        <wd-cell-group>
-          <wd-cell title="编码" title-width="150rpx" :value="item.code" />
-          <wd-cell title="排序号" title-width="150rpx" :value="item.sort" />
-        </wd-cell-group>
-
-        <template #footer>
-          <view class="flex-between">
-            <view class="text-left">
-              <wd-text text="创建时间：" size="small" class="font-bold" />
-              <wd-text :text="item.createTime" size="small" />
-            </view>
-            <view class="flex-right">
-              <wd-button size="small" plain @click="handleAction(item)">操作</wd-button>
-            </view>
+        <!-- 元信息行 -->
+        <view class="flex-between mt-16rpx">
+          <text class="text-24rpx color-text-placeholder">{{ item.createTime }}</text>
+          <view
+            class="w-88rpx h-88rpx flex-center rounded-full"
+            hover-class="bg-[var(--color-text-placeholder)]/16"
+            @click.stop="showRoleActions(item)"
+          >
+            <wd-icon name="more" size="18" class="color-text-secondary" />
           </view>
-        </template>
+        </view>
       </wd-card>
 
-      <!-- 加载更多 -->
-      <wd-loadmore :state="loadMoreState" @reload="queryPageData" />
+      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="fetchRoleList" />
+      <wd-status-tip v-else-if="total === 0" image="search" tip="暂无数据" />
     </view>
-    <!-- 底部按钮 -->
-    <wd-fab
-      position="left-bottom"
-      :expandable="false"
-      customStyle="width: 1rem; height: 1rem; line-height: 1rem;z-index:9"
-      @click="handleOpenDialog()"
-    />
 
-    <wd-popup v-model="dialog.visible" position="bottom" custom-class="yl_popup">
-      <wd-form ref="roleFormRef" :model="formData" :rules="rules">
-        <wd-cell-group border>
-          <wd-input v-model="formData.name" label="角色名称" prop="name" />
-          <wd-input v-model="formData.code" label="角色编码" prop="code" />
-          <wd-select-picker
-            v-model="formData.dataScope"
-            type="radio"
-            label="数据权限"
-            :columns="dataScopeOptions"
-            :align-right="true"
-            prop="dataScope"
-          />
-          <wd-cell title="状态" prop="status">
-            <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
-          </wd-cell>
-          <wd-cell title="排序" prop="sort">
-            <wd-input-number v-model="formData.sort" />
-          </wd-cell>
-        </wd-cell-group>
-      </wd-form>
-      <view class="footer">
-        <wd-button type="primary" block @click="handleSubmit">提交</wd-button>
+    <!-- 弹窗表单 -->
+    <wd-popup
+      v-model="dialog.visible"
+      position="bottom"
+      custom-style="border-radius: 24rpx 24rpx 0 0"
+      @close="closeRoleDialog"
+    >
+      <view class="p-4">
+        <view class="text-center font-bold text-32rpx mb-4">
+          {{ formData.id ? "编辑角色" : "新增角色" }}
+        </view>
+        <wd-form ref="formRef" :model="formData" :rules="rules">
+          <wd-cell-group border>
+            <wd-input v-model="formData.name" label="角色名称" required />
+            <wd-input v-model="formData.code" label="角色编码" required />
+            <wd-select-picker
+              v-model="formData.dataScope"
+              label="数据权限"
+              :columns="dataScopeOptions"
+              required
+            />
+            <wd-cell title="状态">
+              <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
+            </wd-cell>
+            <wd-cell title="排序">
+              <wd-input-number v-model="formData.sort" :min="0" />
+            </wd-cell>
+          </wd-cell-group>
+        </wd-form>
+        <view class="popup-actions">
+          <wd-button type="info" plain @click="closeRoleDialog">取消</wd-button>
+          <wd-button type="primary" :loading="submitting" @click="submitRoleForm">保存</wd-button>
+        </view>
       </view>
     </wd-popup>
-    <wd-message-box />
+
+    <!-- 浮动新增按钮 -->
+    <view
+      v-if="hasPermission('sys:role:create') && !dialog.visible"
+      class="fab-add"
+      hover-class="fab-add:active"
+      @click.stop="openRoleDialog()"
+    >
+      <wd-icon name="add" size="44rpx" />
+    </view>
   </view>
 </template>
+
 <script lang="ts" setup>
-import RoleAPI, { RolePageVO, RolePageQuery, RoleForm } from "@/api/role";
-import { useUserStore } from "@/store";
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
-import { DropMenuItemExpose } from "wot-design-uni/components/wd-drop-menu-item/types";
-import { FormInstance } from "wot-design-uni/components/wd-form/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useMessage } from "wot-design-uni";
-const message = useMessage();
+import { useToast } from "wot-design-uni";
+import RoleAPI, { type RolePageQuery, RolePageVO, RoleForm } from "@/api/role";
+import { hasPermission } from "@/utils/permission";
 
+const toast = useToast();
 const loadMoreState = ref<LoadMoreState>("loading");
+const formRef = ref();
+const submitting = ref(false);
 
+const queryParams = reactive<RolePageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const total = ref(0);
+const pageData = ref<RolePageVO[]>([]);
+const dialog = reactive({ visible: false });
 
-const queryParams = reactive<RolePageQuery>({
-  pageNum: 1,
-  pageSize: 10,
-});
-
-/**
- * 搜索栏
- */
-const filterDropMenu = ref<DropMenuItemExpose>();
-
-function handleQuery() {
-  filterDropMenu.value?.close();
-  queryParams.pageNum = 1;
-  dataList.value = [];
-  queryPageData();
-}
-/**
- * 重置查询
- */
-const handleResetQuery = () => {
-  filterDropMenu.value?.close();
-  queryParams.keywords = "";
-  queryParams.pageNum = 1;
-  dataList.value = [];
-  queryPageData();
+const initialFormData: RoleForm = {
+  id: undefined,
+  name: undefined,
+  code: undefined,
+  dataScope: 1,
+  status: 1,
+  sort: 1,
 };
 
-// 角色列表数据
-const dataList = ref<RolePageVO[]>([]);
+const formData = reactive<RoleForm>({ ...initialFormData });
 
-/**
- * 查询分页数据
- */
-function queryPageData() {
+const dataScopeOptions = ref<Record<string, any>[]>([
+  { label: "全部数据", value: 1 },
+  { label: "部门及子部门数据", value: 2 },
+  { label: "本部门数据", value: 3 },
+  { label: "本人数据", value: 4 },
+  { label: "自定义部门数据", value: 5 },
+]);
+
+const rules: FormRules = {
+  name: [{ required: true, message: "请输入角色名称" }],
+  code: [{ required: true, message: "请输入角色编码" }],
+  dataScope: [{ required: true, message: "请选择数据权限" }],
+};
+
+// 搜索触发
+const handleSearch = () => loadRoleList();
+
+// 加载列表
+function loadRoleList() {
+  queryParams.pageNum = 1;
+  fetchRoleList();
+}
+
+// 分页加载列表
+function fetchRoleList() {
   loadMoreState.value = "loading";
   RoleAPI.getPage(queryParams)
     .then((data) => {
-      dataList.value?.push(...data.list);
+      pageData.value = data.list;
       total.value = data.total;
+      queryParams.pageNum++;
     })
-    .catch((e) => {
-      console.log("系统异常", e);
+    .catch(() => {
+      pageData.value = [];
     })
     .finally(() => {
       loadMoreState.value = "finished";
     });
 }
 
-/**
- * 触底事件
- */
-onReachBottom(() => {
-  if (queryParams.pageNum * queryParams.pageSize < total.value) {
-    queryParams.pageNum++;
-    queryPageData();
-  } else {
-    loadMoreState.value = "finished";
+// 打开弹窗（新增/编辑）
+async function openRoleDialog(id?: number) {
+  formRef.value?.reset();
+  Object.assign(formData, initialFormData);
+  dialog.visible = true;
+  if (id) {
+    formData.id = id;
+    const data = await RoleAPI.getFormData(id);
+    Object.assign(formData, data, { id });
   }
-});
+}
 
-// 操作按钮
-const handleAction = (item: RolePageVO) => {
-  const { roles = [], perms = [] } = useUserStore().userInfo || {};
-  const canAssignPerm = roles.includes("ROOT") || perms.includes("sys:role:assign");
-  const actions = canAssignPerm ? ["编辑", "分配权限", "删除"] : ["编辑", "删除"];
+// 提交表单
+function submitRoleForm() {
+  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+    if (!valid) return;
+    submitting.value = true;
+    const action = formData.id ? RoleAPI.update(formData.id, formData) : RoleAPI.add(formData);
+    action
+      .then(() => {
+        toast.success("操作成功");
+        closeRoleDialog();
+        loadRoleList();
+      })
+      .finally(() => {
+        submitting.value = false;
+      });
+  });
+}
+
+// 关闭弹窗
+function closeRoleDialog() {
+  dialog.visible = false;
+  formRef.value?.reset();
+  Object.assign(formData, initialFormData);
+}
+
+// 更多操作
+function showRoleActions(item: RolePageVO) {
+  const actions: string[] = [];
+  const actionMap: Record<string, () => void> = {};
+
+  // 编辑
+  if (hasPermission("sys:role:update")) {
+    actions.push("编辑");
+    actionMap["编辑"] = () => openRoleDialog(item.id);
+  }
+
+  // 分配权限
+  if (hasPermission("sys:role:assign")) {
+    actions.push("分配权限");
+    actionMap["分配权限"] = () => handleAssignPerm(item.id);
+  }
+
+  // 删除
+  if (hasPermission("sys:role:delete")) {
+    actions.push("删除");
+    actionMap["删除"] = async () => {
+      const { confirm } = await uni.showModal({
+        title: "确认删除",
+        content: `确定要删除角色「${item.name}」吗？`,
+      });
+      if (confirm) {
+        await RoleAPI.deleteByIds(String(item.id));
+        toast.success("删除成功");
+        loadRoleList();
+      }
+    };
+  }
+
+  if (actions.length === 0) {
+    toast.warning("暂无操作权限");
+    return;
+  }
+
   uni.showActionSheet({
     itemList: actions,
     success: ({ tapIndex }) => {
-      switch (actions[tapIndex]) {
-        case "编辑":
-          handleOpenDialog(item.id);
-          break;
-        case "分配权限":
-          handleAssignPerm(item.id);
-          break;
-        case "删除":
-          handleDelete(item.id);
-          break;
-      }
+      const action = actions[tapIndex];
+      actionMap[action]?.();
     },
   });
-};
-
-const dialog = reactive({
-  visible: false,
-});
-
-const dataScopeOptions = ref<Record<string, any>[]>([
-  { label: "全部数据", value: 0 },
-  { label: "部门及子部门数据", value: 1 },
-  { label: "本部门数据", value: 2 },
-  { label: "本人数据", value: 3 },
-]);
-
-const formData = reactive<RoleForm>({
-  dataScope: 0,
-  sort: 1,
-});
-
-const rules: FormRules = {
-  name: [{ required: true, message: "请输入角色名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入角色编码", trigger: "blur" }],
-  dataScope: [{ required: true, message: "请选择数据权限", trigger: "blur" }],
-  status: [{ required: true, message: "请选择状态", trigger: "change" }],
-  sort: [{ required: true, message: "请输入排序号", trigger: "change" }],
-};
-
-const roleFormRef = ref<FormInstance>();
-
-/**
- * 打开弹窗
- */
-async function handleOpenDialog(id?: number) {
-  dialog.visible = true;
-  formData.id = undefined;
-  formData.name = "";
-  formData.code = "";
-  formData.dataScope = 0;
-  formData.status = 1;
-  formData.sort = 1;
-  if (id) {
-    RoleAPI.getFormData(id).then((data) => {
-      Object.assign(formData, { ...data });
-    });
-  }
 }
 
-/**
- * 提交保存
- */
-function handleSubmit() {
-  if (roleFormRef.value) {
-    roleFormRef.value.validate().then(({ valid }) => {
-      if (valid) {
-        const roleId = formData.id;
-        if (roleId) {
-          RoleAPI.update(roleId, formData).then(() => {
-            uni.showToast({ title: "修改成功", icon: "success" });
-            dialog.visible = false;
-            queryParams.pageNum = 1;
-            handleQuery();
-          });
-        } else {
-          RoleAPI.add(formData).then(() => {
-            uni.showToast({ title: "添加成功", icon: "success" });
-            dialog.visible = false;
-            queryParams.pageNum = 1;
-            handleQuery();
-          });
-        }
-      }
-    });
-  }
-}
-
-/**
- * 删除
- *
- * @param id  用户id
- */
-function handleDelete(id: number) {
-  message
-    .confirm({
-      msg: "确认删除角色吗？",
-      title: "提示",
-    })
-    .then(() => {
-      RoleAPI.deleteByIds(id + "").then(() => {
-        uni.showToast({ title: "删除成功", icon: "success" });
-        queryParams.pageNum = 1;
-        handleQuery();
-      });
-    })
-    .catch(() => {
-      console.log("点击了取消按钮");
-    });
-}
-
+// 分配权限
 function handleAssignPerm(id: number) {
   uni.navigateTo({
     url: "/pages/work/role/assign-perm?id=" + id,
   });
 }
 
+onReachBottom(() => {
+  if (queryParams.pageNum * queryParams.pageSize < total.value) {
+    fetchRoleList();
+  } else {
+    loadMoreState.value = "finished";
+  }
+});
+
 onLoad(() => {
-  handleQuery();
+  loadRoleList();
 });
 </script>
 
 <script lang="ts">
-// https://wot-design-uni.pages.dev/guide/common-problems#%E5%B0%8F%E7%A8%8B%E5%BA%8F%E6%A0%B7%E5%BC%8F%E9%9A%94%E7%A6%BB
-export default {
-  options: {
-    styleIsolation: "shared",
-  },
-};
+export default { options: { styleIsolation: "shared" } };
 </script>
 
 <route lang="json">
@@ -314,49 +292,3 @@ export default {
   }
 }
 </route>
-
-<style lang="scss" scoped>
-.role {
-  :deep(.wd-drop-menu .wd-drop-menu__item) {
-    display: flex;
-    justify-content: flex-end;
-    padding: 0 50rpx;
-  }
-  .list-container {
-    .role-card {
-      margin-top: 20rpx;
-      :deep(.wd-cell__wrapper) {
-        padding: 4rpx 0;
-      }
-      :deep(.wd-cell) {
-        padding-right: 10rpx;
-        background: #f8f8f8;
-      }
-    }
-  }
-  :deep(.wd-cell__wrapper) {
-    padding: 4rpx 0;
-  }
-
-  :deep(.wd-cell) {
-    padding-right: 10rpx;
-    background: #f8f8f8;
-  }
-
-  :deep(.wd-fab__trigger) {
-    width: 80rpx !important;
-    height: 80rpx !important;
-  }
-  .yl_popup {
-    .footer {
-      margin: 30rpx 0;
-    }
-  }
-  :deep(.w-20per) {
-    width: 20%;
-  }
-  :deep(.w-70per) {
-    width: 70%;
-  }
-}
-</style>

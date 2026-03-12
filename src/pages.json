@@ -28,6 +28,14 @@
       "layout": "tabbar"
     },
     {
+      "path": "pages/webview/index",
+      "type": "page",
+      "name": "webview",
+      "style": {
+        "navigationBarTitleText": "网页"
+      }
+    },
+    {
       "path": "pages/work/index",
       "type": "page",
       "name": "work",
@@ -96,6 +104,14 @@
       }
     },
     {
+      "path": "pages/work/dict/index",
+      "type": "page",
+      "name": "dict",
+      "style": {
+        "navigationBarTitleText": "字典管理"
+      }
+    },
+    {
       "path": "pages/work/log/index",
       "type": "page",
       "name": "log",
@@ -112,11 +128,27 @@
       }
     },
     {
+      "path": "pages/work/monitor/index",
+      "type": "page",
+      "name": "monitor",
+      "style": {
+        "navigationBarTitleText": "应用监控"
+      }
+    },
+    {
       "path": "pages/work/notice/index",
       "type": "page",
       "name": "notice",
       "style": {
         "navigationBarTitleText": "通知公告"
+      }
+    },
+    {
+      "path": "pages/work/role/assign-perm",
+      "type": "page",
+      "name": "role-assign-perm",
+      "style": {
+        "navigationBarTitleText": "分配权限"
       }
     },
     {
@@ -161,6 +193,14 @@
       "name": "theme",
       "style": {
         "navigationBarTitleText": "主题设置"
+      }
+    },
+    {
+      "path": "pages/work/dict/item/index",
+      "type": "page",
+      "name": "dict-item",
+      "style": {
+        "navigationBarTitleText": "字典数据"
       }
     }
   ],

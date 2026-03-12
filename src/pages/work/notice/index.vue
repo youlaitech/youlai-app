@@ -1,271 +1,386 @@
 <template>
-  <view>
-    <!-- 添加搜索栏 -->
-    <wd-drop-menu close-on-click-modal class="mb-20rpx mr-20rpx ml-20rpx">
-      <wd-drop-menu-item ref="dropMenu" title="筛选" icon="filter" icon-size="18px">
-        <view>
-          <wd-input
-            v-model="queryParams.title"
-            label="关键字"
-            type="text"
-            placeholder="请输入关键字"
-          />
-
-          <view class="flex flex-row items-center mb-20rpx">
-            <wd-button class="mt-20rpx mb-20rpx" size="medium" @click="handleQuery()">
-              查询
-            </wd-button>
-            <wd-button size="medium" type="info" @click="handleReset">重置</wd-button>
-          </view>
-        </view>
-      </wd-drop-menu-item>
-    </wd-drop-menu>
-
-    <!-- 列表内容 -->
-    <view class="data-container">
-      <view v-for="(item, index) in dataList" :key="index" class="mt-20rpx">
-        <wd-card>
-          <template #title>
-            <view class="flex items-center justify-between">
-              <view class="flex-1 text-truncate">{{ item.title }}</view>
-              <wd-tag :type="getStatusType(item.publishStatus)" size="small">
-                {{ getStatusText(item.publishStatus) }}
-              </wd-tag>
-            </view>
-          </template>
-
-          <wd-cell-group>
-            <wd-cell title="通告目标类型" :value="item.targetType === 1 ? '指定' : '全体'" />
-            <wd-cell title="紧急程度">
-              <template #default>
-                <text>{{ getLevelText(item.level) }}</text>
-              </template>
-            </wd-cell>
-            <wd-cell title="发布人" :value="item.publisherName || '-'" />
-          </wd-cell-group>
-          <template #footer>
-            <view class="flex-between">
-              <view v-if="item.publishStatus === 1" class="text-left">
-                <wd-text text="发布时间：" size="small" class="font-bold" />
-                <wd-text :text="formatDate(item.publishTime)" size="small" />
-              </view>
-              <view v-else class="text-left">
-                <wd-text text="撤回时间：" size="small" class="font-bold" />
-                <wd-text :text="formatDate(item.revokeTime)" size="small" />
-              </view>
-              <view class="text-right">
-                <wd-button size="small" plain type="primary" @click="handleAction(item)">
-                  操作
-                </wd-button>
-              </view>
-            </view>
-          </template>
-        </wd-card>
-      </view>
+  <view class="page page--padding page--pt">
+    <view>
+      <wd-search
+        v-model="queryParams.title"
+        placeholder="搜索通知标题"
+        hide-cancel
+        @search="handleSearch"
+      />
     </view>
 
-    <!-- 加载更多 -->
-    <wd-loadmore custom-class="loadmore" :state="loadState" />
+    <!-- 通知列表 -->
+    <view class="mt-16rpx">
+      <wd-card
+        v-for="item in pageData"
+        :key="item.id"
+        custom-class="item-card"
+        @click="openNoticeDetail(item)"
+      >
+        <!-- 主信息行 -->
+        <view class="flex-start">
+          <view class="flex-1">
+            <view class="flex-start mt-12rpx">
+              <text class="font-bold text-32rpx">{{ item.title }}</text>
+            </view>
+            <text class="text-24rpx color-text-secondary">
+              {{ item.publisherName || "系统管理员" }}
+            </text>
+          </view>
+          <wd-tag :type="getStatusType(item.publishStatus)" plain>
+            {{ getStatusText(item.publishStatus) }}
+          </wd-tag>
+        </view>
+
+        <!-- 辅助信息行 -->
+        <view class="flex gap-24rpx mt-12rpx">
+          <view class="flex-start min-w-0">
+            <wd-icon name="user" size="16" class="color-text-secondary" />
+            <text class="ml-8rpx text-24rpx color-text-secondary">
+              {{ item.targetType === 1 ? "全体" : "指定用户" }}
+            </text>
+          </view>
+          <view class="flex-start min-w-0">
+            <wd-icon name="warning" size="16" class="color-text-secondary" />
+            <text class="ml-8rpx text-24rpx color-text-secondary">
+              {{ getLevelText(item.level) }}
+            </text>
+          </view>
+        </view>
+
+        <!-- 元信息行 -->
+        <view class="flex-between mt-16rpx">
+          <text class="text-24rpx color-text-placeholder">{{ formatTime(item) }}</text>
+          <view
+            class="w-64rpx h-64rpx flex-center rounded-full"
+            hover-class="bg-[var(--color-text-placeholder)]/16"
+            @click.stop="showNoticeActions(item)"
+          >
+            <wd-icon name="more" size="16" class="color-text-secondary" />
+          </view>
+        </view>
+      </wd-card>
+
+      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="fetchNoticeList" />
+      <wd-status-tip v-else-if="total === 0" image="search" tip="暂无数据" />
+    </view>
+
+    <!-- 详情弹窗 -->
+    <wd-popup
+      v-model="detailDialog.visible"
+      position="bottom"
+      custom-style="border-radius: 24rpx 24rpx 0 0"
+      @close="closeNoticeDetail"
+    >
+      <view class="p-4">
+        <view class="text-center font-bold text-32rpx mb-4">通知详情</view>
+        <wd-cell-group border>
+          <wd-cell title="标题" :value="noticeDetail.title" />
+          <wd-cell title="发布状态">
+            <template #default>
+              <wd-tag :type="getStatusType(noticeDetail.publishStatus)" size="small">
+                {{ getStatusText(noticeDetail.publishStatus) }}
+              </wd-tag>
+            </template>
+          </wd-cell>
+          <wd-cell title="发布人" :value="noticeDetail.publisherName" />
+          <wd-cell title="发布时间" :value="String(noticeDetail.publishTime || '-')" />
+        </wd-cell-group>
+        <view class="mt-4 p-4 bg-[var(--color-bg-secondary)] rounded-lg">
+          <rich-text :nodes="noticeDetail.content" class="text-28rpx" />
+        </view>
+        <view class="popup-actions">
+          <wd-button type="info" plain block @click="closeNoticeDetail">关闭</wd-button>
+        </view>
+      </view>
+    </wd-popup>
+
+    <!-- 新增/编辑弹窗 -->
+    <wd-popup
+      v-model="formDialog.visible"
+      position="bottom"
+      custom-style="border-radius: 24rpx 24rpx 0 0"
+      @close="closeNoticeForm"
+    >
+      <view class="p-4">
+        <view class="text-center font-bold text-32rpx mb-4">
+          {{ formData.id ? "编辑通知" : "新增通知" }}
+        </view>
+        <wd-form ref="formRef" :model="formData" :rules="formRules">
+          <wd-cell-group border>
+            <wd-input v-model="formData.title" label="标题" required placeholder="请输入通知标题" />
+            <wd-cell title="优先级">
+              <wd-radio-group v-model="formData.level" shape="button">
+                <wd-radio value="L">低</wd-radio>
+                <wd-radio value="M">中</wd-radio>
+                <wd-radio value="H">高</wd-radio>
+              </wd-radio-group>
+            </wd-cell>
+            <wd-cell title="目标类型">
+              <wd-radio-group v-model="formData.targetType" shape="button">
+                <wd-radio :value="1">全体</wd-radio>
+                <wd-radio :value="2">指定用户</wd-radio>
+              </wd-radio-group>
+            </wd-cell>
+            <wd-textarea
+              v-model="formData.content"
+              label="内容"
+              placeholder="请输入通知内容"
+              :maxlength="500"
+              show-word-limit
+            />
+          </wd-cell-group>
+        </wd-form>
+        <view class="popup-actions">
+          <wd-button type="info" plain @click="closeNoticeForm">取消</wd-button>
+          <wd-button type="primary" :loading="submitting" @click="submitNoticeForm">保存</wd-button>
+        </view>
+      </view>
+    </wd-popup>
+
+    <view
+      v-if="hasPermission('sys:notice:create') && !formDialog.visible && !detailDialog.visible"
+      class="fab-add"
+      @click.stop="openNoticeForm()"
+    >
+      <wd-icon name="add" size="44rpx" />
+    </view>
   </view>
 </template>
 
 <script lang="ts" setup>
+import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
-import { DropMenuItemExpose } from "wot-design-uni/components/wd-drop-menu-item/types";
-import NoticeAPI, { NoticePageQuery, NoticePageVO } from "@/api/notice";
-const loadState = ref<LoadMoreState>("finished");
-const dataList = ref<NoticePageVO[]>([]);
+import { FormRules } from "wot-design-uni/components/wd-form/types";
+import { useToast } from "wot-design-uni";
+import NoticeAPI, {
+  type NoticePageQuery,
+  NoticePageVO,
+  NoticeDetailVO,
+  NoticeForm,
+} from "@/api/notice";
+import { hasPermission } from "@/utils/permission";
+
+const toast = useToast();
+const loadMoreState = ref<LoadMoreState>("loading");
+const formRef = ref();
+const submitting = ref(false);
+
+const queryParams = reactive<NoticePageQuery>({ pageNum: 1, pageSize: 10 });
 const total = ref(0);
+const pageData = ref<NoticePageVO[]>([]);
 
-// 修改查询参数
-const queryParams = ref<NoticePageQuery>({
-  pageNum: 1,
-  pageSize: 10,
-  title: "",
-});
+const noticeDetail = ref<NoticeDetailVO>({});
+const detailDialog = reactive({ visible: false });
 
-// 添加搜索处理函数
-const dropMenu = ref<DropMenuItemExpose>();
-const handleQuery = () => {
-  queryParams.value.pageNum = 1;
-  loadMore();
-  dropMenu.value?.close();
+const formDialog = reactive({ visible: false });
+const initialFormData: NoticeForm = {
+  id: undefined,
+  title: undefined,
+  content: undefined,
+  type: undefined,
+  level: "M",
+  targetType: 1,
+  targetUserIds: undefined,
 };
+const formData = reactive<NoticeForm>({ ...initialFormData });
 
-// 重置
-const handleReset = () => {
-  queryParams.value = { pageNum: 1, pageSize: 10 };
-  dropMenu.value?.close();
-  loadMore();
+const formRules: FormRules = {
+  title: [{ required: true, message: "请输入通知标题" }],
 };
 
 // 获取状态样式
 const getStatusType = (
-  status: number | undefined
+  status?: number
 ): "default" | "primary" | "danger" | "warning" | "success" => {
-  if (!status) return "default";
-  const statusMap: Record<number, "default" | "primary" | "danger" | "warning" | "success"> = {
+  const map: Record<number, "default" | "primary" | "danger" | "warning" | "success"> = {
     0: "primary",
     1: "success",
     [-1]: "warning",
   };
-  return statusMap[status] || "default";
+  return status !== undefined ? map[status] || "default" : "default";
 };
 
 // 获取状态文本
-const getStatusText = (status: number | undefined): string => {
-  if (status !== 0 && !status) return "-";
-  const statusMap: Record<number, string> = {
-    0: "未发布",
-    1: "已发布",
-    [-1]: "已撤回",
-  };
-  return statusMap[status] || "未知";
+const getStatusText = (status?: number): string => {
+  const map: Record<number, string> = { 0: "未发布", 1: "已发布", [-1]: "已撤回" };
+  return status !== undefined ? map[status] || "未知" : "-";
 };
 
 // 获取级别文本
-const getLevelText = (level: string | number | undefined): string => {
-  if (!level) return "-";
-  const levelMap: Record<string, string> = {
-    L: "低",
-    M: "中",
-    H: "高",
+const getLevelText = (level?: string | number): string => {
+  const map: Record<string, string> = { L: "低", M: "中", H: "高" };
+  return level ? map[String(level)] || String(level) : "-";
+};
+
+// 格式化时间
+const formatTime = (item: NoticePageVO): string => {
+  if (item.publishStatus === 1 && item.publishTime) {
+    return String(item.publishTime);
+  }
+  if (item.publishStatus === -1 && item.revokeTime) {
+    return String(item.revokeTime);
+  }
+  return "-";
+};
+
+// 搜索触发
+const handleSearch = () => loadNoticeList();
+
+// 加载列表
+function loadNoticeList() {
+  queryParams.pageNum = 1;
+  fetchNoticeList();
+}
+
+// 分页加载列表
+function fetchNoticeList() {
+  loadMoreState.value = "loading";
+  NoticeAPI.getPage(queryParams)
+    .then((data) => {
+      pageData.value = data.list;
+      total.value = data.total;
+      queryParams.pageNum++;
+    })
+    .catch(() => {
+      pageData.value = [];
+    })
+    .finally(() => {
+      loadMoreState.value = "finished";
+    });
+}
+
+// 打开详情弹窗
+async function openNoticeDetail(item: NoticePageVO) {
+  const detail = await NoticeAPI.getDetail(item.id);
+  noticeDetail.value = detail;
+  detailDialog.visible = true;
+}
+
+// 关闭详情弹窗
+function closeNoticeDetail() {
+  detailDialog.visible = false;
+}
+
+// 打开表单弹窗
+async function openNoticeForm(id?: number) {
+  formRef.value?.reset();
+  Object.assign(formData, initialFormData);
+  formDialog.visible = true;
+  if (id) {
+    formData.id = id;
+    const data = await NoticeAPI.getFormData(id);
+    Object.assign(formData, data, { id });
+  }
+}
+
+// 关闭表单弹窗
+function closeNoticeForm() {
+  formDialog.visible = false;
+  formRef.value?.reset();
+  Object.assign(formData, initialFormData);
+}
+
+// 提交表单
+function submitNoticeForm() {
+  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+    if (!valid) return;
+    submitting.value = true;
+    const id = formData.id;
+    const action = id ? NoticeAPI.update(id, formData) : NoticeAPI.add(formData);
+    action
+      .then(() => {
+        toast.success("操作成功");
+        closeNoticeForm();
+        loadNoticeList();
+      })
+      .finally(() => {
+        submitting.value = false;
+      });
+  });
+}
+
+// 更多操作
+function showNoticeActions(item: NoticePageVO) {
+  const actions: string[] = ["查看"];
+  const actionMap: Record<string, () => void> = {
+    查看: () => openNoticeDetail(item),
   };
-  return levelMap[String(level)] || String(level);
-};
 
-// 格式化日期
-const formatDate = (date: Date | undefined): string => {
-  return date ? date.toString() : "-";
-};
-
-// 加载更多
-const loadMore = async () => {
-  if (loadState.value === "loading") return;
-
-  loadState.value = "loading";
-  const { list, total: totalCount } = await NoticeAPI.getPage(queryParams.value);
-
-  if (queryParams.value.pageNum === 1) {
-    dataList.value = list;
+  if (item.publishStatus !== 1) {
+    if (hasPermission("sys:notice:update")) {
+      actions.push("编辑");
+      actionMap["编辑"] = () => openNoticeForm(Number(item.id));
+    }
+    if (hasPermission("sys:notice:delete")) {
+      actions.push("删除");
+      actionMap["删除"] = async () => {
+        const { confirm } = await uni.showModal({
+          title: "确认删除",
+          content: `确定要删除通知「${item.title}」吗？`,
+        });
+        if (confirm) {
+          await NoticeAPI.deleteByIds(item.id);
+          toast.success("删除成功");
+          loadNoticeList();
+        }
+      };
+    }
+    if (hasPermission("sys:notice:publish")) {
+      actions.push("发布");
+      actionMap["发布"] = async () => {
+        const { confirm } = await uni.showModal({
+          title: "确认发布",
+          content: `确定要发布通知「${item.title}」吗？`,
+        });
+        if (confirm) {
+          await NoticeAPI.publish(Number(item.id));
+          toast.success("发布成功");
+          loadNoticeList();
+        }
+      };
+    }
   } else {
-    dataList.value = [...dataList.value, ...list];
+    if (hasPermission("sys:notice:revoke")) {
+      actions.push("撤回");
+      actionMap["撤回"] = async () => {
+        const { confirm } = await uni.showModal({
+          title: "确认撤回",
+          content: `确定要撤回通知「${item.title}」吗？`,
+        });
+        if (confirm) {
+          await NoticeAPI.revoke(Number(item.id));
+          toast.success("撤回成功");
+          loadNoticeList();
+        }
+      };
+    }
   }
 
-  total.value = totalCount;
-  queryParams.value.pageNum++;
-
-  loadState.value = dataList.value.length >= total.value ? "finished" : "loading";
-};
-
-// 查看详情
-const handleView = (notice: NoticePageVO) => {
-  uni.navigateTo({
-    url: `/pages/work/notice/detail?id=${notice.id}`,
-  });
-};
-
-// 操作按钮
-const handleAction = (notice: NoticePageVO) => {
-  const actions = notice.publishStatus !== 1 ? ["查看", "删除", "发布"] : ["查看", "撤回"];
   uni.showActionSheet({
     itemList: actions,
     success: ({ tapIndex }) => {
-      switch (actions[tapIndex]) {
-        case "查看":
-          handleView(notice);
-          break;
-        case "删除":
-          handleDelete(notice);
-          break;
-        case "发布":
-          handlePublish(notice);
-          break;
-        case "撤回":
-          handleRevoke(notice);
-          break;
-      }
+      const action = actions[tapIndex];
+      actionMap[action]?.();
     },
   });
-};
-
-// 删除
-const handleDelete = (notice: NoticePageVO) => {
-  uni.showModal({
-    title: "提示",
-    content: "确定要删除该通知吗？",
-    success: async (res) => {
-      if (res.confirm) {
-        try {
-          await NoticeAPI.deleteByIds(notice.id);
-          uni.showToast({ title: "删除成功", icon: "success" });
-          // 重新加载第一页
-          queryParams.value.pageNum = 1;
-          loadMore();
-        } catch (error) {
-          uni.showToast({ title: "删除失败" + error, icon: "none" });
-        }
-      }
-    },
-  });
-};
-
-// 发布
-const handlePublish = (notice: NoticePageVO) => {
-  uni.showModal({
-    title: "提示",
-    content: "确定要发布该通知吗？",
-    success: async (res) => {
-      if (res.confirm) {
-        try {
-          await NoticeAPI.publish(Number(notice.id));
-          uni.showToast({ title: "发布成功", icon: "success" });
-          // 重新加载第一页
-          queryParams.value.pageNum = 1;
-          loadMore();
-        } catch (error) {
-          uni.showToast({ title: "发布失败" + error, icon: "none" });
-        }
-      }
-    },
-  });
-};
-
-// 撤回
-const handleRevoke = (notice: NoticePageVO) => {
-  uni.showModal({
-    title: "提示",
-    content: "确定要撤回该通知吗？",
-    success: async (res) => {
-      if (res.confirm) {
-        try {
-          await NoticeAPI.revoke(Number(notice.id));
-          uni.showToast({
-            title: "撤回成功",
-            icon: "success",
-          });
-          // 刷新列表
-          queryParams.value.pageNum = 1;
-          loadMore();
-        } catch (error) {
-          uni.showToast({
-            title: "撤回失败" + error,
-            icon: "error",
-          });
-        }
-      }
-    },
-  });
-};
+}
 
 onReachBottom(() => {
-  if (loadState.value === "loading" || loadState.value === "finished") return;
-  loadMore();
+  if (queryParams.pageNum * queryParams.pageSize < total.value) {
+    fetchNoticeList();
+  } else {
+    loadMoreState.value = "finished";
+  }
 });
 
 onLoad(() => {
-  loadMore();
+  loadNoticeList();
 });
+</script>
+
+<script lang="ts">
+export default { options: { styleIsolation: "shared" } };
 </script>
 
 <route lang="json">
@@ -276,30 +391,3 @@ onLoad(() => {
   }
 }
 </route>
-
-<style lang="scss" scoped>
-.data-container {
-  :deep(.wd-cell__wrapper) {
-    padding: 4rpx 0;
-  }
-
-  :deep(.wd-cell) {
-    padding-right: 10rpx;
-    background: #f8f8f8;
-  }
-
-  :deep(.wd-fab__trigger) {
-    width: 80rpx !important;
-    height: 80rpx !important;
-  }
-
-  .filter-container {
-    padding: 10rpx;
-    background: #fff;
-  }
-
-  .data-container {
-    margin-top: 20rpx;
-  }
-}
-</style>

@@ -46,6 +46,7 @@ body,
 }
 
 .page--pt {
+  box-sizing: border-box;
   padding-top: 16rpx;
 }
 
@@ -95,14 +96,28 @@ body,
 }
 
 // ==========================================================================
-// 浮动按钮
+// 浮动新增按钮
 // ==========================================================================
 
-.wd-button.fab-btn {
-  box-sizing: border-box !important;
-  width: 80rpx !important;
-  min-width: 80rpx !important;
-  height: 80rpx !important;
-  padding: 0 !important;
-  border-radius: 40rpx !important;
+.fab-add {
+  position: fixed;
+  right: 32rpx;
+  bottom: 120rpx;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  background: var(--color-primary);
+  border-radius: 50%;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  .wd-icon {
+    color: #fff;
+  }
 }

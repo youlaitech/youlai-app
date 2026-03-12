@@ -32,6 +32,7 @@ declare global {
   const defineComponent: typeof import('vue')['defineComponent']
   const defineStore: typeof import('pinia')['defineStore']
   const dept: typeof import('../api/dept')['default']
+  const dict: typeof import('../api/dict')['default']
   const effectScope: typeof import('vue')['effectScope']
   const file: typeof import('../api/file')['default']
   const getAccessToken: typeof import('../utils/auth')['getAccessToken']
@@ -61,6 +62,7 @@ declare global {
   const mapStores: typeof import('pinia')['mapStores']
   const mapWritableState: typeof import('pinia')['mapWritableState']
   const markRaw: typeof import('vue')['markRaw']
+  const menu: typeof import('../api/menu')['default']
   const nextTick: typeof import('vue')['nextTick']
   const notice: typeof import('../api/notice')['default']
   const onActivated: typeof import('vue')['onActivated']
@@ -235,6 +237,7 @@ declare module 'vue' {
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
     readonly dept: UnwrapRef<typeof import('../api/dept')['default']>
+    readonly dict: UnwrapRef<typeof import('../api/dict')['default']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly file: UnwrapRef<typeof import('../api/file')['default']>
     readonly getAccessToken: UnwrapRef<typeof import('../utils/auth')['getAccessToken']>
@@ -262,6 +265,7 @@ declare module 'vue' {
     readonly mapStores: UnwrapRef<typeof import('pinia')['mapStores']>
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
+    readonly menu: UnwrapRef<typeof import('../api/menu')['default']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly notice: UnwrapRef<typeof import('../api/notice')['default']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>

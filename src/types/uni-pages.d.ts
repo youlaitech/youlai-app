@@ -7,6 +7,7 @@ interface NavigateToOptions {
   url: "/pages/index/index" |
        "/pages/login/index" |
        "/pages/mine/index" |
+       "/pages/webview/index" |
        "/pages/work/index" |
        "/pages/mine/about/index" |
        "/pages/mine/account/index" |
@@ -17,15 +18,19 @@ interface NavigateToOptions {
        "/pages/mine/settings/index" |
        "/pages/work/config/index" |
        "/pages/work/dept/index" |
+       "/pages/work/dict/index" |
        "/pages/work/log/index" |
        "/pages/work/menu/index" |
+       "/pages/work/monitor/index" |
        "/pages/work/notice/index" |
+       "/pages/work/role/assign-perm" |
        "/pages/work/role/index" |
        "/pages/work/user/index" |
        "/pages/mine/settings/agreement/index" |
        "/pages/mine/settings/network/index" |
        "/pages/mine/settings/privacy/index" |
-       "/pages/mine/settings/theme/index";
+       "/pages/mine/settings/theme/index" |
+       "/pages/work/dict/item/index";
 }
 interface RedirectToOptions extends NavigateToOptions {}
 

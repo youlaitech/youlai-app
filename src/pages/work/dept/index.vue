@@ -1,363 +1,345 @@
 <template>
-  <view class="dept-page">
-    <!-- 搜索栏 -->
-    <view class="search-bar">
+  <view class="page page--padding page--pt">
+    <view>
       <wd-search
-        v-model="searchText"
+        v-model="queryParams.keywords"
         placeholder="搜索部门名称"
         hide-cancel
         @search="handleSearch"
       />
     </view>
 
-    <!-- 部门列表 -->
-    <scroll-view class="dept-list" scroll-y>
-      <view v-if="filteredDeptList.length > 0" class="dept-tree">
-        <template v-for="dept in filteredDeptList" :key="dept.id">
-          <dept-item
-            :dept="dept"
-            :level="0"
-            @click="handleDeptClick"
-          />
+    <!-- 部门树形列表 -->
+    <view class="mt-16rpx">
+      <CustomTree
+        :data="treeData"
+        :default-expand-all="true"
+        :show-action="true"
+        @action="handleNodeAction"
+      >
+        <!-- 自定义节点内容：ID + 名称 + 状态 -->
+        <template #content="{ node }">
+          <view class="flex-1 flex items-center gap-16rpx">
+            <text class="w-120rpx text-24rpx color-text-secondary">{{ node.id }}</text>
+            <text class="flex-1 truncate">{{ node.name }}</text>
+            <wd-tag :type="node.status === 1 ? 'success' : 'danger'" size="small">
+              {{ node.status === 1 ? "正常" : "禁用" }}
+            </wd-tag>
+          </view>
         </template>
-      </view>
+      </CustomTree>
 
-      <!-- 空状态 -->
-      <view v-else class="empty-state">
-        <wd-icon name="folder-open" size="48" color="#d1d5db" />
-        <text class="empty-state__text">暂无部门数据</text>
-      </view>
-    </scroll-view>
+      <wd-status-tip v-if="deptList.length === 0" image="search" tip="暂无数据" />
+    </view>
 
-    <!-- 底部操作栏 -->
-    <view class="action-bar">
-      <wd-button type="primary" block @click="handleAddDept">
-        <wd-icon name="add" size="16" color="#fff" />
-        <text>新增部门</text>
-      </wd-button>
+    <!-- 弹窗表单 -->
+    <wd-popup
+      v-model="dialog.visible"
+      position="bottom"
+      custom-style="border-radius: 24rpx 24rpx 0 0"
+      @close="closeDeptDialog"
+    >
+      <view class="p-4">
+        <view class="text-center font-bold text-32rpx mb-4">
+          {{ formData.id ? "编辑部门" : "新增部门" }}
+        </view>
+        <wd-form ref="formRef" :model="formData" :rules="rules">
+          <wd-cell-group border>
+            <wd-col-picker
+              v-model="parentSelected"
+              label="上级部门"
+              :columns="parentColumns"
+              :column-change="handleParentColumnChange"
+              required
+              :display-format="displayParentFormat"
+              @confirm="handleParentConfirm"
+            />
+            <wd-input v-model="formData.name" label="部门名称" required />
+            <wd-input v-model="formData.code" label="部门编号" required />
+            <wd-cell title="排序">
+              <wd-input-number v-model="formData.sort" :min="0" />
+            </wd-cell>
+            <wd-cell title="状态">
+              <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
+            </wd-cell>
+          </wd-cell-group>
+        </wd-form>
+        <view class="popup-actions">
+          <wd-button type="info" plain @click="closeDeptDialog">取消</wd-button>
+          <wd-button type="primary" :loading="submitting" @click="submitDeptForm">保存</wd-button>
+        </view>
+      </view>
+    </wd-popup>
+
+    <!-- 浮动新增按钮 -->
+    <view
+      v-if="hasPermission('sys:dept:create') && !dialog.visible"
+      class="fab-add"
+      hover-class="fab-add:active"
+      @click.stop="openDeptDialog()"
+    >
+      <wd-icon name="add" size="44rpx" />
     </view>
   </view>
 </template>
 
-<script setup lang="ts">
-/**
- * 部门管理页面
- *
- * 功能说明：
- * - 展示部门树形结构
- * - 支持搜索部门
- * - 新增/编辑/删除部门
- *
- * 技术要点：
- * - 使用 BEM 命名规范
- * - 支持暗黑模式
- * - 使用 CSS 变量
- * - 递归组件实现树形结构
- */
+<script lang="ts" setup>
+import { onLoad } from "@dcloudio/uni-app";
+import { FormRules } from "wot-design-uni/components/wd-form/types";
+import { useToast } from "wot-design-uni";
+import DeptAPI, { type DeptQuery, DeptVO, DeptForm } from "@/api/dept";
+import { hasPermission } from "@/utils/permission";
+import CustomTree from "@/components/custom-tree/index.vue";
 
-// ============================================================================
-// 类型定义
-// ============================================================================
+const toast = useToast();
+const formRef = ref();
+const submitting = ref(false);
 
-interface DeptNode {
-  id: string
-  label: string
-  userCount?: number
-  children?: DeptNode[]
+const queryParams = reactive<DeptQuery>({ keywords: "" });
+const deptList = ref<DeptVO[]>([]);
+const dialog = reactive({ visible: false });
+
+const initialFormData: DeptForm = {
+  id: undefined,
+  parentId: 0,
+  name: undefined,
+  code: undefined,
+  sort: 1,
+  status: 1,
+};
+
+const formData = reactive<DeptForm>({ ...initialFormData });
+
+// 转换为树组件数据格式
+const treeData = computed(() => deptList.value.map((dept) => transformDeptToTree(dept)));
+
+function transformDeptToTree(dept: DeptVO): any {
+  return {
+    value: String(dept.id),
+    label: dept.name,
+    id: dept.id,
+    name: dept.name,
+    status: dept.status,
+    children: dept.children?.map((child) => transformDeptToTree(child)) || [],
+  };
 }
 
-// ============================================================================
-// 子组件 - 部门项（支持递归）
-// ============================================================================
+// 上级部门选择器
+const parentSelected = ref<(string | number)[]>([]);
+const parentColumns = ref<OptionType[][]>([]);
+const parentOptions = ref<OptionType[]>([]);
 
-const DeptItem = defineComponent({
-  name: "DeptItem",
-  props: {
-    dept: { type: Object as PropType<DeptNode>, required: true },
-    level: { type: Number, default: 0 },
-  },
-  emits: ["click"],
-  setup(props, { emit }) {
-    const isExpanded = ref(false)
-    const hasChildren = computed(() => props.dept.children && props.dept.children.length > 0)
+// 格式化上级部门展示
+const displayParentFormat = (selectedItems: OptionType[]) => {
+  if (!selectedItems || selectedItems.length === 0) return "";
+  return selectedItems
+    .map((item) => item?.label)
+    .filter((label) => !!label)
+    .join("/");
+};
 
-    function toggleExpand() {
-      if (hasChildren.value) {
-        isExpanded.value = !isExpanded.value
-      }
+// 查找部门在树中的完整路径
+function findDeptPath(data: OptionType[], targetId: string, path: string[] = []): string[] | null {
+  for (const item of data) {
+    const currentPath = [...path, String(item.value)];
+    if (String(item.value) === targetId) {
+      return currentPath;
     }
-
-    function handleClick() {
-      emit("click", props.dept)
+    if (item.children && item.children.length > 0) {
+      const found = findDeptPath(item.children, targetId, currentPath);
+      if (found) return found;
     }
+  }
+  return null;
+}
 
-    return {
-      isExpanded,
-      hasChildren,
-      toggleExpand,
-      handleClick,
-    }
-  },
-  template: `
-    <view class="dept-node">
-      <view
-        class="dept-node__item"
-        :class="{ 'dept-node__item--has-children': hasChildren }"
-        :style="{ paddingLeft: level * 32 + 16 + 'rpx' }"
-      >
-        <view class="dept-node__expand" @click="toggleExpand">
-          <wd-icon
-            v-if="hasChildren"
-            name="arrow-right"
-            size="14"
-            class="dept-node__arrow"
-            :class="{ 'dept-node__arrow--expanded': isExpanded }"
-          />
-        </view>
-        <view class="dept-node__content" @click="handleClick">
-          <wd-icon
-            name="folder"
-            size="18"
-            :color="hasChildren ? 'var(--color-primary)' : 'var(--color-text-secondary)'"
-          />
-          <text class="dept-node__name">{{ dept.label }}</text>
-        </view>
-        <view class="dept-node__meta" @click="handleClick">
-          <text class="dept-node__count">{{ dept.userCount || 0 }} 人</text>
-          <wd-icon name="arrow-right" size="14" color="var(--color-text-secondary)" />
-        </view>
-      </view>
+// 上级部门列变化
+const handleParentColumnChange = ({ selectedItem, resolve, finish }: any) => {
+  if (String(selectedItem?.value) === "0") {
+    finish();
+    return;
+  }
+  const children = selectedItem.children;
+  if (children && children.length > 0) {
+    resolve(children);
+  } else {
+    finish();
+  }
+};
 
-      <!-- 子节点 -->
-      <view v-if="hasChildren && isExpanded" class="dept-node__children">
-        <DeptItem
-          v-for="child in dept.children"
-          :key="child.id"
-          :dept="child"
-          :level="level + 1"
-          @click="$emit('click', $event)"
-        />
-      </view>
-    </view>
-  `,
-})
+// 上级部门确认选择
+const handleParentConfirm = ({ value }: any) => {
+  parentSelected.value = value;
+  formData.parentId = Number(value[value.length - 1]) || 0;
+};
 
-// ============================================================================
-// 响应式数据
-// ============================================================================
+const rules: FormRules = {
+  name: [{ required: true, message: "请输入部门名称" }],
+  code: [{ required: true, message: "请输入部门编号" }],
+  parentId: [{ required: true, message: "请选择上级部门" }],
+};
 
-const searchText = ref("")
+// 搜索触发
+const handleSearch = () => loadDeptList();
 
-// 部门树形数据（示例数据）
-const deptList = ref<DeptNode[]>([
-  {
-    id: "1",
-    label: "有来技术",
-    userCount: 128,
-    children: [
-      {
-        id: "1-1",
-        label: "研发中心",
-        userCount: 45,
-        children: [
-          { id: "1-1-1", label: "前端组", userCount: 15 },
-          { id: "1-1-2", label: "后端组", userCount: 18 },
-          { id: "1-1-3", label: "测试组", userCount: 12 },
-        ],
-      },
-      {
-        id: "1-2",
-        label: "产品中心",
-        userCount: 20,
-        children: [
-          { id: "1-2-1", label: "产品组", userCount: 12 },
-          { id: "1-2-2", label: "设计组", userCount: 8 },
-        ],
-      },
-      {
-        id: "1-3",
-        label: "运营中心",
-        userCount: 35,
-      },
-      {
-        id: "1-4",
-        label: "行政中心",
-        userCount: 28,
-      },
-    ],
-  },
-])
+// 加载列表
+function loadDeptList() {
+  console.log("loadDeptList called");
+  DeptAPI.getList(queryParams)
+    .then((data) => {
+      console.log("deptList data:", data);
+      deptList.value = data;
+      console.log("treeData:", treeData.value);
+    })
+    .catch((err) => {
+      console.error("loadDeptList error:", err);
+    });
+}
 
-// 过滤后的部门列表
-const filteredDeptList = computed(() => {
-  if (!searchText.value) return deptList.value
+// 处理节点操作按钮点击
+function handleNodeAction(node: any) {
+  const dept: DeptVO = {
+    id: node.id,
+    name: node.label,
+    status: node.status,
+    children: node.children,
+  } as DeptVO;
 
-  function filterDepts(depts: DeptNode[]): DeptNode[] {
-    return depts.reduce<DeptNode[]>((acc, dept) => {
-      const matched = dept.label.toLowerCase().includes(searchText.value.toLowerCase())
-      const filteredChildren = dept.children ? filterDepts(dept.children) : []
+  const actions: string[] = [];
+  const actionMap: Record<string, () => void> = {};
 
-      if (matched || filteredChildren.length > 0) {
-        acc.push({
-          ...dept,
-          children: filteredChildren.length > 0 ? filteredChildren : dept.children,
-        })
-      }
-      return acc
-    }, [])
+  if (hasPermission("sys:dept:create")) {
+    actions.push("新增子部门");
+    actionMap["新增子部门"] = () => handleAddChild(dept);
   }
 
-  return filterDepts(deptList.value)
-})
+  if (hasPermission("sys:dept:update")) {
+    actions.push("编辑");
+    actionMap["编辑"] = () => openDeptDialog(dept);
+  }
 
-// ============================================================================
-// 事件处理
-// ============================================================================
+  if (hasPermission("sys:dept:delete")) {
+    actions.push("删除");
+    actionMap["删除"] = async () => {
+      const { confirm } = await uni.showModal({
+        title: "确认删除",
+        content: `确定要删除部门「${dept.name}」吗？`,
+      });
+      if (confirm) {
+        await DeptAPI.deleteByIds(String(dept.id));
+        toast.success("删除成功");
+        loadDeptList();
+      }
+    };
+  }
 
-/** 搜索 */
-function handleSearch() {
-  uni.showToast({ title: `搜索: ${searchText.value}`, icon: "none" })
+  if (actions.length === 0) {
+    toast.warning("暂无操作权限");
+    return;
+  }
+
+  uni.showActionSheet({
+    itemList: actions,
+    success: ({ tapIndex }) => {
+      const action = actions[tapIndex];
+      actionMap[action]?.();
+    },
+  });
 }
 
-/** 部门点击 */
-function handleDeptClick(dept: DeptNode) {
-  uni.showToast({ title: `点击: ${dept.label}`, icon: "none" })
+// 打开弹窗（新增/编辑）
+async function openDeptDialog(dept?: DeptVO) {
+  formRef.value?.reset();
+  Object.assign(formData, initialFormData);
+  parentSelected.value = [];
+  dialog.visible = true;
+
+  const data = await DeptAPI.getOptions();
+  parentOptions.value = data;
+  const firstColumn: OptionType[] = [{ value: "0", label: "顶级部门" }, ...data];
+  parentColumns.value = [firstColumn];
+
+  if (dept) {
+    formData.id = dept.id;
+    const form = await DeptAPI.getFormData(dept.id!);
+    Object.assign(formData, form, { id: dept.id });
+
+    if (form.parentId && form.parentId !== 0) {
+      const path = findDeptPath(data, String(form.parentId));
+      if (path) {
+        parentSelected.value = path;
+        const columns: OptionType[][] = [firstColumn];
+        let currentLevel = data;
+        for (let i = 0; i < path.length - 1; i++) {
+          const found = currentLevel.find((item) => String(item.value) === path[i]);
+          if (found && found.children) {
+            columns.push(found.children);
+            currentLevel = found.children;
+          }
+        }
+        parentColumns.value = columns;
+      } else {
+        parentSelected.value = [String(form.parentId)];
+      }
+    }
+  }
 }
 
-/** 新增部门 */
-function handleAddDept() {
-  uni.showToast({ title: "新增部门", icon: "none" })
+// 新增子部门
+function handleAddChild(dept: DeptVO) {
+  openDeptDialog({ id: undefined, parentId: dept.id } as DeptVO);
+  formData.parentId = dept.id!;
+  parentSelected.value = [String(dept.id)];
 }
+
+// 提交表单
+function submitDeptForm() {
+  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+    if (!valid) return;
+    submitting.value = true;
+    const action = formData.id ? DeptAPI.update(formData.id, formData) : DeptAPI.add(formData);
+    action
+      .then(() => {
+        toast.success("操作成功");
+        closeDeptDialog();
+        loadDeptList();
+      })
+      .finally(() => {
+        submitting.value = false;
+      });
+  });
+}
+
+// 关闭弹窗
+function closeDeptDialog() {
+  dialog.visible = false;
+  formRef.value?.reset();
+  Object.assign(formData, initialFormData);
+}
+
+onLoad(() => {
+  console.log("onLoad triggered");
+  loadDeptList();
+});
+</script>
+
+<script lang="ts">
+export default { options: { styleIsolation: "shared" } };
 </script>
 
 <route lang="json">
 {
   "name": "dept",
-  "style": { "navigationBarTitleText": "部门管理" }
+  "style": {
+    "navigationBarTitleText": "部门管理"
+  }
 }
 </route>
 
 <style lang="scss" scoped>
-// ============================================================================
-// 页面容器
-// ============================================================================
-
-.dept-page {
+.popup-actions {
   display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: var(--color-bg-secondary);
-}
-
-// ============================================================================
-// 搜索栏
-// ============================================================================
-
-.search-bar {
-  padding: 16rpx 24rpx;
-  background-color: var(--color-bg);
-}
-
-// ============================================================================
-// 部门列表
-// ============================================================================
-
-.dept-list {
-  flex: 1;
-}
-
-.dept-tree {
-  background-color: var(--color-bg);
-}
-
-// ============================================================================
-// 部门节点（递归组件样式）
-// ============================================================================
-
-.dept-node {
-  &__item {
-    display: flex;
-    align-items: center;
-    height: 96rpx;
-    border-bottom: 2rpx solid var(--color-border-light);
-
-    &:active {
-      background-color: var(--color-bg-secondary);
-    }
-  }
-
-  &__expand {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48rpx;
-    height: 48rpx;
-  }
-
-  &__arrow {
-    color: var(--color-text-secondary);
-    transition: transform 0.2s ease;
-
-    &--expanded {
-      transform: rotate(90deg);
-    }
-  }
-
-  &__content {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    gap: 16rpx;
-  }
-
-  &__name {
-    font-size: 28rpx;
-    color: var(--color-text);
-  }
-
-  &__meta {
-    display: flex;
-    align-items: center;
-    gap: 8rpx;
-    padding-right: 24rpx;
-  }
-
-  &__count {
-    font-size: 24rpx;
-    color: var(--color-text-secondary);
-  }
-
-  &__children {
-    background-color: var(--color-bg-secondary);
-  }
-}
-
-// ============================================================================
-// 空状态
-// ============================================================================
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 100rpx 0;
-
-  &__text {
-    margin-top: 24rpx;
-    font-size: 28rpx;
-    color: var(--color-text-secondary);
-  }
-}
-
-// ============================================================================
-// 底部操作栏
-// ============================================================================
-
-.action-bar {
-  padding: 24rpx;
-  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
-  background-color: var(--color-bg);
-  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.05);
+  gap: 24rpx;
+  margin-top: 32rpx;
 }
 </style>

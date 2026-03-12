@@ -45,9 +45,7 @@
     <view class="section">
       <view class="stat-grid">
         <view class="stat-card stat-card--green">
-          <view class="stat-card__bg">
-            <view class="stat-card__icon stat-card__icon--user"></view>
-          </view>
+          <image class="stat-card__bg" src="/static/icons/visitor.svg" mode="aspectFit" />
           <view class="stat-card__head">
             <text class="stat-card__label">访客数</text>
             <view class="stat-card__dot stat-card__dot--green"></view>
@@ -57,9 +55,7 @@
           </text>
         </view>
         <view class="stat-card stat-card--blue">
-          <view class="stat-card__bg">
-            <view class="stat-card__icon stat-card__icon--eye"></view>
-          </view>
+          <image class="stat-card__bg" src="/static/icons/browser.svg" mode="aspectFit" />
           <view class="stat-card__head">
             <text class="stat-card__label">浏览量</text>
             <view class="stat-card__dot stat-card__dot--blue"></view>
@@ -69,9 +65,6 @@
           </text>
         </view>
         <view v-if="appVersion" class="stat-card stat-card--orange stat-card--full">
-          <view class="stat-card__bg">
-            <view class="stat-card__icon stat-card__icon--gear"></view>
-          </view>
           <view class="stat-card__head">
             <text class="stat-card__label">应用版本</text>
             <view class="stat-card__dot stat-card__dot--orange"></view>
@@ -108,23 +101,6 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 首页
- *
- * 功能说明：
- * - 自定义导航栏（搜索框）
- * - 轮播图展示
- * - 快捷导航入口
- * - 通知公告
- * - 数据统计
- * - 访问趋势图表
- *
- * 技术要点：
- * - 使用 useNavbar 处理自定义导航栏高度和胶囊避让;
- * - 使用 BEM 命名规范组织 CSS
- * - 支持暗黑模式（通过 CSS 变量）
- */
-
 import { computed, ref } from "vue";
 import { onReady } from "@dcloudio/uni-app";
 import { dayjs } from "wot-design-uni";
@@ -264,7 +240,6 @@ const chartOpts = ref({
 
 function loadAppVersion() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const p: any = (globalThis as any).plus;
     if (p?.runtime?.version) {
       appVersion.value = `v${p.runtime.version}`;
@@ -298,7 +273,9 @@ async function loadVisitStatsData() {
 
 async function loadVisitTrendData() {
   const endDate = dayjs().format("YYYY-MM-DD");
-  const startDate = dayjs().subtract(recentDaysRange.value - 1, "day").format("YYYY-MM-DD");
+  const startDate = dayjs()
+    .subtract(recentDaysRange.value - 1, "day")
+    .format("YYYY-MM-DD");
 
   try {
     const data: VisitTrendVO = await LogAPI.getVisitTrend({ startDate, endDate });
@@ -328,6 +305,22 @@ function handleNavClick(item: NavItem) {
   }
   // 已登录但访问受限时，仍做一次登录校验（防 token 过期）
   if (!checkLogin()) return;
+
+  // 外部链接处理
+  if (item.url.startsWith("http://") || item.url.startsWith("https://")) {
+    const isH5 = typeof window !== "undefined";
+    if (isH5) {
+      uni.navigateTo({ url: `/pages/webview/index?url=${encodeURIComponent(item.url)}` });
+    } else {
+      try {
+        const p = (globalThis as any).plus;
+        p?.runtime?.openURL(item.url);
+      } catch {
+        uni.navigateTo({ url: `/pages/webview/index?url=${encodeURIComponent(item.url)}` });
+      }
+    }
+    return;
+  }
 
   router.push({ path: item.url });
 }
@@ -370,46 +363,38 @@ onReady(() => {
 </route>
 
 <style lang="scss" scoped>
-// ============================================================================
-// 轮播图
-// ============================================================================
-
 .hero {
   position: relative;
 }
 
 .hero::after {
-  content: "";
   position: absolute;
-  left: 0;
   right: 0;
   bottom: 0;
+  left: 0;
+  z-index: 1;
   height: 120rpx;
+  pointer-events: none;
+  content: "";
   background: linear-gradient(
     to bottom,
     rgba(245, 247, 250, 0) 0%,
     rgba(245, 247, 250, 0.85) 60%,
     rgba(245, 247, 250, 1) 100%
   );
-  pointer-events: none;
-  z-index: 1;
 }
 
 :deep(.swiper-box) {
   height: 420rpx;
   overflow: hidden;
-  border-bottom-left-radius: 32rpx;
   border-bottom-right-radius: 32rpx;
+  border-bottom-left-radius: 32rpx;
 }
 
 :deep(.swiper-box .wd-swiper__item),
 :deep(.swiper-box image) {
   height: 420rpx;
 }
-
-// ============================================================================
-// 导航栏
-// ============================================================================
 
 .navbar {
   position: fixed;
@@ -451,10 +436,6 @@ onReady(() => {
   }
 }
 
-// ============================================================================
-// 区块
-// ============================================================================
-
 .section {
   margin: 24rpx;
 }
@@ -462,16 +443,12 @@ onReady(() => {
 .section--overlay {
   position: relative;
   z-index: 2;
-  margin-top: -140rpx;
   padding: 18rpx 8rpx;
+  margin-top: -140rpx;
   background: var(--color-bg);
   border-radius: 24rpx;
   box-shadow: 0 16rpx 36rpx rgba(0, 0, 0, 0.08);
 }
-
-// ============================================================================
-// 快捷导航项
-// ============================================================================
 
 .nav-item {
   display: flex;
@@ -492,29 +469,25 @@ onReady(() => {
   }
 }
 
-// ============================================================================
-// 通知栏
-// ============================================================================
-
 .notice-bar {
   display: flex;
   align-items: center;
-  background: #fff;
-  border-radius: 16rpx;
   padding: 24rpx 24rpx 24rpx 20rpx;
+  background: #fff;
   border: 1rpx solid rgba(0, 0, 0, 0.04);
+  border-radius: 16rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
 
   &__icon {
-    flex-shrink: 0;
-    width: 48rpx;
-    height: 48rpx;
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
+    width: 48rpx;
+    height: 48rpx;
+    margin-right: 16rpx;
     background: rgba(52, 209, 157, 0.1);
     border-radius: 12rpx;
-    margin-right: 16rpx;
   }
 
   &__content {
@@ -523,20 +496,16 @@ onReady(() => {
   }
 
   &__text {
-    font-size: 26rpx;
-    color: #333;
-    font-weight: 500;
     display: -webkit-box;
-    line-clamp: 1;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
     overflow: hidden;
+    font-size: 26rpx;
+    font-weight: 500;
+    color: #333;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
   }
 }
-
-// ============================================================================
-// 统计卡片（简洁大气风格）
-// ============================================================================
 
 .stat-grid {
   display: grid;
@@ -545,55 +514,16 @@ onReady(() => {
 }
 
 .stat-card {
-  background: #fff;
-  border-radius: 16rpx;
-  padding: 24rpx 20rpx;
+  position: relative;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  position: relative;
+  padding: 24rpx 20rpx;
   overflow: hidden;
+  background: #fff;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
 
-  // 背景图标容器
-  &__bg {
-    position: absolute;
-    right: 12rpx;
-    bottom: 12rpx;
-    width: 70rpx;
-    height: 70rpx;
-    opacity: 0.08;
-    pointer-events: none;
-  }
-
-  // SVG 装饰图形
-  &__icon {
-    width: 100%;
-    height: 100%;
-
-    // 用户组图标 - 访客数
-    &--user {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='%232ab789'%3E%3Ccircle cx='24' cy='16' r='8'/%3E%3Ccircle cx='10' cy='20' r='6'/%3E%3Ccircle cx='38' cy='20' r='6'/%3E%3Cpath d='M24 28c-8 0-14 4-14 8v6h28v-6c0-4-6-8-14-8z'/%3E%3Cpath d='M10 28c-4 0-8 2-8 5v5h8v-5c0-2 1-4 3-5-1 0-2 0-3 0z'/%3E%3Cpath d='M38 28c4 0 8 2 8 5v5h-8v-5c0-2-1-4-3-5 1 0 2 0 3 0z'/%3E%3C/svg%3E");
-      background-size: contain;
-      background-repeat: no-repeat;
-    }
-
-    // 图表图标 - 浏览量
-    &--eye {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='%233a8ee6'%3E%3Crect x='4' y='24' width='8' height='20' rx='2'/%3E%3Crect x='16' y='14' width='8' height='30' rx='2'/%3E%3Crect x='28' y='20' width='8' height='24' rx='2'/%3E%3Crect x='40' y='8' width='8' height='36' rx='2'/%3E%3C/svg%3E");
-      background-size: contain;
-      background-repeat: no-repeat;
-    }
-
-    // 盾牌徽章图标 - 版本
-    &--gear {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='%23e8a838'%3E%3Cpath d='M24 4L8 10v12c0 11 8 18 16 22 8-4 16-11 16-22V10L24 4z'/%3E%3Cpath d='M20 24l4 4 8-8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-size: contain;
-      background-repeat: no-repeat;
-    }
-  }
-
-  // 彩色卡片变体
   &--green {
     background: linear-gradient(135deg, #f0fdf9 0%, #fff 100%);
   }
@@ -606,19 +536,28 @@ onReady(() => {
     background: linear-gradient(135deg, #fffbf0 0%, #fff 100%);
   }
 
+  &__bg {
+    position: absolute;
+    right: -10rpx;
+    bottom: -10rpx;
+    width: 100rpx;
+    height: 100rpx;
+    opacity: 0.15;
+  }
+
   &__head {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16rpx;
-    position: relative;
-    z-index: 1;
   }
 
   &__label {
     font-size: 24rpx;
-    color: #999;
     font-weight: 500;
+    color: #999;
   }
 
   &__dot {
@@ -643,12 +582,12 @@ onReady(() => {
   }
 
   &__num {
+    position: relative;
+    z-index: 1;
     font-size: 48rpx;
     font-weight: 700;
     line-height: 1;
     letter-spacing: -1rpx;
-    position: relative;
-    z-index: 1;
 
     &--green {
       color: #2ab789;
@@ -667,8 +606,8 @@ onReady(() => {
   }
 
   &--full {
-    grid-column: 1 / -1;
     flex-direction: row;
+    grid-column: 1 / -1;
     align-items: center;
     justify-content: space-between;
     padding: 20rpx 20rpx;
@@ -681,20 +620,8 @@ onReady(() => {
       font-size: 28rpx;
       letter-spacing: 0;
     }
-
-    .stat-card__bg {
-      width: 50rpx;
-      height: 50rpx;
-      right: 16rpx;
-      bottom: 50%;
-      transform: translateY(50%);
-    }
   }
 }
-
-// ============================================================================
-// 图表
-// ============================================================================
 
 .chart-header {
   display: flex;

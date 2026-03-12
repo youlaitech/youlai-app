@@ -157,17 +157,14 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <wd-fab
+    <view
       v-if="hasPermission('sys:user:create') && !dialog.visible"
-      position="right-bottom"
-      :expandable="false"
+      class="fab-add"
+      hover-class="fab-add:active"
+      @click.stop="openUserDialog()"
     >
-      <template #trigger>
-        <wd-button custom-class="fab-btn" type="primary" round @click="openUserDialog()">
-          <wd-icon name="add" />
-        </wd-button>
-      </template>
-    </wd-fab>
+      <wd-icon name="add" size="44rpx" />
+    </view>
   </view>
 </template>
 
@@ -216,7 +213,7 @@ const deptOptions = ref<OptionType[]>([]);
 
 // 部门多列选择器数据
 const deptSelected = ref<(string | number)[]>([]);
-const deptColumns = ref<Record<string, any>[]>([]);
+const deptColumns = ref<Record<string, any>[][]>([]);
 
 // 格式化部门展示
 const displayDeptFormat = (selectedItems: Record<string, any>[]) => {

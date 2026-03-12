@@ -4,7 +4,7 @@
     :custom-class="`page-wraper ${theme}`"
     :theme="theme"
     :style="{
-      '--status-bar-height': statusBarHeight + 'px',
+                      '--status-bar-height': statusBarHeight + 'px',
     }"
   >
     <slot />
@@ -51,6 +51,17 @@ function handleTabbarChange({ value }: { value: string }) {
   router.pushTab({ name: value });
 }
 
+// 监听路由变化更新 tabbar 激活状态
+watch(
+  () => route.name,
+  (name) => {
+    if (name && name !== activeTabbar.value.name) {
+      setTabbarItemActive(name);
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   const systemInfo = uni.getSystemInfoSync();
   statusBarHeight.value = systemInfo.statusBarHeight || 0;
@@ -58,11 +69,6 @@ onMounted(() => {
   // #ifdef APP-PLUS
   uni.hideTabBar();
   // #endif
-  nextTick(() => {
-    if (route.name && route.name !== activeTabbar.value.name) {
-      setTabbarItemActive(route.name);
-    }
-  });
 });
 </script>
 

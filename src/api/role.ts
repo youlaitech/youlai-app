@@ -28,7 +28,7 @@ const RoleAPI = {
    */
   getRoleMenuIds(roleId: number) {
     return request<number[]>({
-      url: `${ROLE_BASE_URL}/${roleId}/menuIds`,
+      url: `${ROLE_BASE_URL}/${roleId}/menu-ids`,
       method: "GET",
     });
   },
@@ -116,6 +116,10 @@ export interface RolePageVO {
   sort?: number;
   /** 角色状态 */
   status?: number;
+  /** 数据权限(1-所有数据 2-部门及子部门数据 3-本部门数据 4-本人数据 5-自定义部门数据) */
+  dataScope?: number;
+  /** 数据权限标签 */
+  dataScopeLabel?: string;
   /** 创建时间 */
   createTime?: string;
   /** 修改时间 */

@@ -55,6 +55,7 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
       }),
       Components({
         resolvers: [WotResolver()],
+        dirs: ["src/components"],
       }),
 
       AutoImport({

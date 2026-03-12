@@ -25,12 +25,16 @@ import { computed } from "vue";
 import { useRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
 import { menuConfig } from "@/config/menu";
+import { checkLogin, isLoggedIn } from "@/utils/auth";
 
 const router = useRouter();
 const userStore = useUserStore();
 
 // 用户权限列表
 const userPerms = computed(() => userStore.userInfo?.perms || []);
+
+// 是否已登录
+const isLogged = computed(() => isLoggedIn());
 
 // 检查是否有权限
 const hasPermission = (perm: string) => {
@@ -50,7 +54,23 @@ const visibleGridList = computed(() => {
 
 // 处理导航点击
 function handleNavClick(item: any) {
+  // 未登录时跳转登录页
+  if (!isLogged.value) {
+    uni.navigateTo({ url: "/pages/login/index" });
+    return;
+  }
+  // 已登录但访问受限时，仍做一次登录校验（防 token 过期）
+  if (!checkLogin()) return;
+
   try {
+    if (
+      typeof item?.url === "string" &&
+      (item.url.startsWith("http://") || item.url.startsWith("https://"))
+    ) {
+      uni.navigateTo({ url: `/pages/webview/index?url=${encodeURIComponent(item.url)}` });
+      return;
+    }
+
     router.push({ path: item.url });
   } catch (e) {
     console.error("[work] router.push failed:", e, item);
