@@ -143,6 +143,20 @@ const UserAPI = {
       method: "DELETE",
     });
   },
+
+  /**
+   * 重置用户密码
+   *
+   * @param userId 用户ID
+   * @param password 新密码
+   */
+  resetPassword(userId: number | string, password: string) {
+    return request({
+      url: `${USER_BASE_URL}/${userId}/password/reset`,
+      method: "PUT",
+      data: { password },
+    });
+  },
 };
 export default UserAPI;
 

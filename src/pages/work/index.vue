@@ -1,5 +1,5 @@
 <template>
-  <view class="work">
+  <view class="page page--padding page--tabbar">
     <template v-for="(item, index) in visibleGridList" :key="index">
       <wd-card :title="item.title">
         <wd-grid clickable :column="4">
@@ -87,15 +87,3 @@ function handleNavClick(item: any) {
   "layout": "tabbar"
 }
 </route>
-
-<style lang="scss" scoped>
-/* stylelint-disable selector-type-no-unknown */
-page {
-  background: #f8f8f8;
-}
-/* stylelint-enable selector-type-no-unknown */
-
-.work {
-  padding: 40rpx 0;
-}
-</style>

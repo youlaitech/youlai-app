@@ -12,6 +12,9 @@ interface ImportMetaEnv {
   /** API服务器URL */
   readonly VITE_APP_API_URL: string;
 
+  /** 应用版本号 */
+  readonly VITE_APP_VERSION: string;
+
   /**
    * WebSocket 端点
    */

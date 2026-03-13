@@ -1,98 +1,343 @@
 <template>
-  <view class="page dark:text-[var(--wot-color-text)]">
+  <view class="page page--padding">
     <wd-card>
-      <view class="about-header">
+      <view class="flex items-center p-20rpx">
         <wd-img
           width="120rpx"
           height="120rpx"
           src="/static/logo.png"
           mode="aspectFit"
-          class="about-logo"
+          class="mr-16rpx"
         />
-        <view class="about-meta">
-          <text class="app-title">vue-uniapp-template</text>
+        <view class="flex-1">
+          <text class="app-title">youlai-app</text>
           <text class="app-version">版本 {{ version }}</text>
         </view>
       </view>
-    </wd-card>
 
-    <!-- 公司信息区域 -->
-    <wd-card custom-style="margin-top: 20rpx">
-      <view class="company-section">
-        <view class="section-title">
-          <wd-icon name="company" size="18" />
-          <text>有来开源组织</text>
-        </view>
-        <text class="section-subtitle">专注于快速构建和高效开发的应用解决方案</text>
+      <view class="px-20rpx pb-20rpx">
+        <text class="intro-title">项目介绍</text>
+        <text class="intro-desc">
+          一个基于 uni-app + Vue 3 + TypeScript 的移动端模板，内置主题系统与 wot-design-uni
+          组件库。同时提供管理端与多后端版本（Java / Gin / Nest / Django / ThinkPHP /
+          ASP.NET），并包含多租户实现。
+        </text>
       </view>
     </wd-card>
 
-    <!-- 项目列表 -->
-    <wd-card title="优质项目" custom-style="margin-top: 20rpx">
-      <wd-cell-group border>
-        <wd-cell title="vue3-element-admin" icon="desktop">
-          <view slot="label" class="project-desc">
-            基于 Vue3 + Vite7 + TypeScript5 + Element-Plus + Pinia 构建的中后台管理模板
-          </view>
-        </wd-cell>
+    <wd-card title="仓库" custom-style="margin-top: 20rpx">
+      <wd-collapse v-model="collapseActive" accordion>
+        <wd-collapse-item title="Web 前端" name="web">
+          <wd-cell-group border>
+            <wd-cell
+              title="vue3-element-admin"
+              icon="desktop"
+              title-width="200px"
+              value="简介"
+              clickable
+              @click="openProjectIntro('vue3-element-admin')"
+            />
+            <wd-cell
+              title="vue3-element-admin-js"
+              icon="desktop"
+              title-width="200px"
+              value="简介"
+              clickable
+              @click="openProjectIntro('vue3-element-admin-js')"
+            />
+            <wd-cell
+              title="vue3-element-template"
+              icon="desktop"
+              title-width="200px"
+              value="简介"
+              clickable
+              @click="openProjectIntro('vue3-element-template')"
+            />
+          </wd-cell-group>
+        </wd-collapse-item>
 
-        <wd-cell title="vue-uniapp-template" icon="mobile">
-          <view slot="label" class="project-desc">
-            基于 uni-app + Vue 3 + TypeScript，集成多种工具的移动端应用模板
-          </view>
-        </wd-cell>
+        <wd-collapse-item title="移动端" name="mobile">
+          <wd-cell-group border>
+            <wd-cell
+              title="youlai-app"
+              icon="mobile"
+              title-width="200px"
+              value="简介"
+              clickable
+              @click="openProjectIntro('youlai-app')"
+            />
+          </wd-cell-group>
+        </wd-collapse-item>
 
-        <wd-cell title="youlai-boot" icon="server">
-          <view slot="label" class="project-desc">
-            基于 Spring Boot 3 + Vue 3 构建的前后端分离单体权限管理系统
-          </view>
-        </wd-cell>
-      </wd-cell-group>
+        <wd-collapse-item title="后端（6 种技术栈）" name="backend">
+          <wd-cell-group border>
+            <wd-cell
+              title="youlai-boot"
+              icon="server"
+              title-width="200px"
+              value="简介"
+              clickable
+              @click="openProjectIntro('youlai-boot')"
+            />
+            <wd-cell
+              title="youlai-gin"
+              icon="server"
+              title-width="200px"
+              value="简介"
+              clickable
+              @click="openProjectIntro('youlai-gin')"
+            />
+            <wd-cell
+              title="youlai-nest"
+              icon="server"
+              title-width="200px"
+              value="简介"
+              clickable
+              @click="openProjectIntro('youlai-nest')"
+            />
+            <wd-cell
+              title="youlai-django"
+              icon="server"
+              title-width="200px"
+              value="简介"
+              clickable
+              @click="openProjectIntro('youlai-django')"
+            />
+            <wd-cell
+              title="youlai-think"
+              icon="server"
+              title-width="200px"
+              value="简介"
+              clickable
+              @click="openProjectIntro('youlai-think')"
+            />
+            <wd-cell
+              title="youlai-aspnet"
+              icon="server"
+              title-width="200px"
+              value="简介"
+              clickable
+              @click="openProjectIntro('youlai-aspnet')"
+            />
+          </wd-cell-group>
+        </wd-collapse-item>
+
+        <wd-collapse-item title="多租户" name="tenant">
+          <wd-cell-group border>
+            <wd-cell
+              title="youlai-boot-tenant"
+              icon="server"
+              title-width="200px"
+              value="简介"
+              clickable
+              @click="openProjectIntro('youlai-boot-tenant')"
+            />
+          </wd-cell-group>
+        </wd-collapse-item>
+      </wd-collapse>
     </wd-card>
 
-    <!-- 联系方式 -->
     <wd-card title="联系我们" custom-style="margin-top: 20rpx">
       <wd-cell-group border>
-        <wd-cell title="官方网站" value="www.youlai.tech" icon="link" />
-        <wd-cell title="GitHub" value="github.com/youlaitech" icon="github" />
-        <wd-cell title="联系邮箱" value="youlaitech@163.com" icon="mail" />
+        <wd-cell
+          title="官方网站"
+          value="www.youlai.tech"
+          icon="link"
+          clickable
+          @click="openUrl('https://www.youlai.tech')"
+        />
+        <wd-cell
+          title="GitHub"
+          value="github.com/youlaitech"
+          icon="github"
+          clickable
+          @click="openUrl('https://github.com/youlaitech')"
+        />
+        <wd-cell
+          title="联系邮箱"
+          value="youlaitech@163.com"
+          icon="mail"
+          clickable
+          @click="copyText('youlaitech@163.com')"
+        />
       </wd-cell-group>
     </wd-card>
 
-    <!-- 底部版权信息 -->
-    <view class="about-footer">
-      <text class="copyright">Copyright © {{ getYear() }} 有来开源组织</text>
-      <text class="copyright copyright-sub">All Rights Reserved</text>
+    <view class="py-32rpx text-center">
+      <text class="copyright">Copyright {{ getYear() }} 有来开源组织</text>
+      <text class="copyright mt-8rpx">All Rights Reserved</text>
     </view>
+
+    <wd-popup v-model="introPopupVisible" position="bottom">
+      <view class="p-24rpx">
+        <view class="text-32rpx font-700">{{ currentProject?.title }}</view>
+        <view v-if="currentProject?.stack" class="mt-12rpx text-26rpx text-secondary">
+          技术栈：{{ currentProject.stack }}
+        </view>
+        <view v-if="currentProject?.summary" class="mt-12rpx text-26rpx text-secondary">
+          {{ currentProject.summary }}
+        </view>
+        <view class="mt-20rpx">
+          <wd-button type="primary" block @click="goCurrentProjectRepo">去仓库</wd-button>
+        </view>
+      </view>
+    </wd-popup>
   </view>
 </template>
 
 <script lang="ts" setup>
-const version = ref("1.0.0");
+const version = ref(import.meta.env.VITE_APP_VERSION);
+const collapseActive = ref<string[]>(["web"]);
+
+type ProjectIntroKey =
+  | "vue3-element-admin"
+  | "vue3-element-admin-js"
+  | "vue3-element-template"
+  | "youlai-app"
+  | "youlai-boot"
+  | "youlai-gin"
+  | "youlai-nest"
+  | "youlai-django"
+  | "youlai-think"
+  | "youlai-aspnet"
+  | "youlai-boot-tenant";
+
+type ProjectIntroItem = {
+  title: string;
+  stack: string;
+  summary: string;
+  repoUrl: string;
+};
+
+const projectIntros: Record<ProjectIntroKey, ProjectIntroItem> = {
+  "vue3-element-admin": {
+    title: "vue3-element-admin",
+    stack: "Vue 3.5 + Vite 7 + TypeScript + Element Plus",
+    summary:
+      "极简开箱即用的企业级后台管理模板，内置用户/角色/菜单/部门等基础模块，支持动态路由与按钮/数据权限，并提供暗黑模式、国际化与代码生成等能力。",
+    repoUrl: "https://github.com/youlaitech/vue3-element-admin",
+  },
+  "vue3-element-admin-js": {
+    title: "vue3-element-admin-js",
+    stack: "Vue 3.5 + Vite 6 + JavaScript + Element Plus",
+    summary:
+      "vue3-element-admin 的 JavaScript 版本，保留核心后台能力与权限体系，适合更轻量的快速开发场景，并支持 Mock 与线上接口文档联调。",
+    repoUrl: "https://github.com/youlaitech/vue3-element-admin-js",
+  },
+  "vue3-element-template": {
+    title: "vue3-element-template",
+    stack: "Vue 3.5 + Vite 6 + TypeScript 5 + Element Plus + Pinia",
+    summary:
+      "从 vue3-element-admin 抽离出的精简中后台模板，预置工程化规范与常用业务基座，专注高频功能与更低的二次开发成本。",
+    repoUrl: "https://github.com/youlaitech/vue3-element-template",
+  },
+  "youlai-app": {
+    title: "youlai-app",
+    stack: "uni-app + Vue 3 + TypeScript + UnoCSS + wot-design-uni",
+    summary:
+      "跨平台移动端模板，内置代码规范与工程化工具链，适配 H5 与微信小程序等多端场景，并提供可复用的基础/业务组件体系。",
+    repoUrl: "https://github.com/youlaitech/youlai-app",
+  },
+  "youlai-boot": {
+    title: "youlai-boot",
+    stack: "JDK 17 + Spring Boot 4 + Spring Security + JWT + Redis + MySQL",
+    summary:
+      "配套 vue3-element-admin 的 Java 后端实现，提供 RBAC 权限体系与用户/角色/菜单等核心模块，支持令牌续期与多端会话治理，并内置代码生成能力。",
+    repoUrl: "https://github.com/youlaitech/youlai-boot",
+  },
+  "youlai-gin": {
+    title: "youlai-gin",
+    stack: "Go 1.21+ + Gin + GORM + JWT + Redis + MySQL",
+    summary:
+      "配套 vue3-element-admin 的 Go/Gin 后端实现，轻量高性能，提供 RBAC 权限模型与常用系统模块，支持 JWT 与 Redis 会话管理。",
+    repoUrl: "https://github.com/youlaitech/youlai-gin",
+  },
+  "youlai-nest": {
+    title: "youlai-nest",
+    stack: "Node.js 20+ + NestJS 11 + TypeScript + TypeORM + JWT + Redis + MySQL",
+    summary:
+      "配套 vue3-element-admin 的 Node.js 后端实现，基于 NestJS 的企业级架构，支持 JWT 与 Redis Token 两种会话模式，并提供完整的 RBAC 权限与核心系统模块。",
+    repoUrl: "https://github.com/youlaitech/youlai-nest",
+  },
+  "youlai-django": {
+    title: "youlai-django",
+    stack: "Python 3.12+ + Django 6 + DRF + SimpleJWT + Redis + MySQL",
+    summary:
+      "配套 vue3-element-admin 的 Python 后端实现，基于 DRF 构建，提供 RBAC 权限模型与核心系统模块，采用 JWT 认证并结合 Redis 管理会话。",
+    repoUrl: "https://github.com/youlaitech/youlai-django",
+  },
+  "youlai-think": {
+    title: "youlai-think",
+    stack: "PHP 8 + ThinkPHP 8 + JWT + Redis + MySQL",
+    summary:
+      "配套 vue3-element-admin 的 PHP 后端实现，上手成本低，提供 RBAC 权限体系与常用系统模块，支持 JWT 与 Redis 会话双模式。",
+    repoUrl: "https://github.com/youlaitech/youlai-think",
+  },
+  "youlai-aspnet": {
+    title: "youlai-aspnet",
+    stack: ".NET 8 + ASP.NET Core 8 + JWT + Redis + MySQL",
+    summary:
+      "配套 vue3-element-admin 的 .NET 后端实现，性能与生态同步升级，提供 RBAC 权限治理与核心系统模块，并支持 JWT 与 Redis 会话模式。",
+    repoUrl: "https://github.com/youlaitech/youlai-aspnet",
+  },
+  "youlai-boot-tenant": {
+    title: "youlai-boot-tenant",
+    stack: "JDK 17 + Spring Boot 3 + Spring Security + MyBatis-Plus + JWT + Redis + MySQL",
+    summary:
+      "youlai-boot 的多租户版本，基于单库多租户方案实现租户隔离，提供精细化 RBAC 权限控制，适合 SaaS 场景的快速落地。",
+    repoUrl: "https://github.com/youlaitech/youlai-boot-tenant",
+  },
+};
+
+const introPopupVisible = ref(false);
+const currentProjectKey = ref<ProjectIntroKey>("vue3-element-admin");
+const currentProject = computed(() => projectIntros[currentProjectKey.value]);
+
+const openProjectIntro = (key: ProjectIntroKey) => {
+  currentProjectKey.value = key;
+  introPopupVisible.value = true;
+};
+
+const goCurrentProjectRepo = () => {
+  if (!currentProject.value) return;
+  openUrl(currentProject.value.repoUrl);
+};
 const getYear = () => {
   return new Date().getFullYear();
 };
 
+const openUrl = (url: string) => {
+  // #ifdef H5
+  window.open(url, "_blank");
+  // #endif
+
+  // #ifndef H5
+  uni.setClipboardData({ data: url });
+  // #endif
+};
+
+const copyText = (text: string) => {
+  uni.setClipboardData({ data: text });
+};
+
 onMounted(() => {
   // #ifdef MP-WEIXIN
-  version.value = uni.getSystemInfoSync().appVersion;
+  const appVersion = uni.getSystemInfoSync().appVersion;
+  if (appVersion) {
+    version.value = appVersion;
+  }
   // #endif
 });
 </script>
 
 <style lang="scss" scoped>
-.about-header {
-  display: flex;
-  align-items: center;
-  padding: 20rpx;
-}
-
-.about-logo {
-  margin-right: 16rpx;
-}
-
-.about-meta {
-  flex: 1;
+.page {
+  :deep(.wd-cell__title) {
+    max-width: 360rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .app-title {
@@ -103,12 +348,23 @@ onMounted(() => {
 }
 
 .app-version {
+  display: block;
   font-size: 24rpx;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
-.company-section {
-  padding: 24rpx;
+.intro-title {
+  display: block;
+  margin-bottom: 8rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.intro-desc {
+  display: block;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
 }
 
 .section-title {
@@ -127,27 +383,12 @@ onMounted(() => {
   display: block;
   padding-left: 32rpx;
   font-size: 24rpx;
-  color: #6b7280;
-}
-
-.project-desc {
-  margin-top: 8rpx;
-  font-size: 24rpx;
-  color: #6b7280;
-}
-
-.about-footer {
-  padding: 32rpx 0;
-  text-align: center;
+  color: var(--color-text-secondary);
 }
 
 .copyright {
   display: block;
   font-size: 24rpx;
-  color: #9ca3af;
-}
-
-.copyright-sub {
-  margin-top: 8rpx;
+  color: var(--color-text-placeholder);
 }
 </style>

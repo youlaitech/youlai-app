@@ -1,5 +1,5 @@
 <template>
-  <view class="page page--padding page--pt">
+  <view class="page page--padding">
     <view>
       <wd-search
         v-model="queryParams.keywords"
@@ -389,6 +389,12 @@ function showUserActions(item: UserPageVO) {
   const actions: string[] = [];
   const actionMap: Record<string, () => void> = {};
 
+  // 重置密码
+  if (hasPermission("sys:user:reset-password")) {
+    actions.push("重置密码");
+    actionMap["重置密码"] = () => handleResetPassword(item);
+  }
+
   // 编辑
   if (hasPermission("sys:user:update")) {
     actions.push("编辑");
@@ -423,6 +429,28 @@ function showUserActions(item: UserPageVO) {
       actionMap[action]?.();
     },
   });
+}
+
+// 重置密码
+async function handleResetPassword(item: UserPageVO) {
+  const { confirm, content: password } = await uni.showModal({
+    title: "重置密码",
+    editable: true,
+    placeholderText: `请输入用户「${item.username}」的新密码`,
+  });
+  if (!confirm || !password) return;
+
+  if (password.length < 6) {
+    toast.error("密码至少需要6位字符");
+    return;
+  }
+
+  try {
+    await UserAPI.resetPassword(item.id, password);
+    toast.success("密码重置成功");
+  } catch (error) {
+    // API 已处理错误提示
+  }
 }
 
 onReachBottom(() => {

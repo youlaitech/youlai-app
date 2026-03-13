@@ -1,16 +1,8 @@
 <template>
-  <wd-config-provider
-    :theme-vars="themeVars"
-    :custom-class="`page-wraper ${theme}`"
-    :theme="theme"
-    :style="{
-                      '--status-bar-height': statusBarHeight + 'px',
-    }"
-  >
+  <wd-config-provider :theme-vars="themeVars" :custom-class="theme" :theme="theme">
     <slot />
     <wd-tabbar
       :model-value="activeTabbar.name"
-      placeholder
       bordered
       safe-area-inset-bottom
       fixed
@@ -43,9 +35,6 @@ const themeStore = useThemeStore();
 const { themeVars, theme } = storeToRefs(themeStore);
 const { activeTabbar, getTabbarItemValue, setTabbarItemActive, tabbarList } = useTabbar();
 
-// 获取系统状态栏高度
-const statusBarHeight = ref(0);
-
 function handleTabbarChange({ value }: { value: string }) {
   setTabbarItemActive(value);
   router.pushTab({ name: value });
@@ -63,9 +52,6 @@ watch(
 );
 
 onMounted(() => {
-  const systemInfo = uni.getSystemInfoSync();
-  statusBarHeight.value = systemInfo.statusBarHeight || 0;
-
   // #ifdef APP-PLUS
   uni.hideTabBar();
   // #endif
@@ -81,15 +67,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-.page-wraper {
-  box-sizing: border-box;
-
-  // 页面最小高度 = 视窗高度 - 状态栏高度
-  // --window-top: uni-app提供的状态栏高度CSS变量(包含状态栏+导航栏)
-  min-height: calc(100vh - var(--window-top));
-
-  background: var(--wot-color-bg);
-}
-</style>

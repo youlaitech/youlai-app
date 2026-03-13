@@ -4,6 +4,9 @@ import AutoImport from "unplugin-auto-import/vite";
 import UniLayouts from "@uni-helper/vite-plugin-uni-layouts";
 import UniPages from "@uni-helper/vite-plugin-uni-pages";
 
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import Components from "@uni-helper/vite-plugin-uni-components";
 import { WotResolver } from "@uni-helper/vite-plugin-uni-components/resolvers";
 
@@ -12,7 +15,14 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
   const env = loadEnv(mode, process.cwd());
   const isProd = mode === "production";
 
+  const pkg = JSON.parse(readFileSync(resolve(process.cwd(), "package.json"), "utf-8")) as {
+    version?: string;
+  };
+
   return {
+    define: {
+      "import.meta.env.VITE_APP_VERSION": JSON.stringify(pkg.version ?? ""),
+    },
     server: {
       host: "0.0.0.0",
       port: +env.VITE_APP_PORT,

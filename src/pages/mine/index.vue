@@ -1,5 +1,5 @@
 <template>
-  <view class="page dark:text-[var(--wot-color-text)]">
+  <view class="page page--tabbar">
     <view class="mine-hero" :style="{ paddingTop: `${navbar.totalHeight.value}px` }">
       <!-- 蓝色背景 -->
       <view class="mine-hero__bg" :style="{ background: headerBackground }" />
@@ -100,19 +100,23 @@
           </view>
         </view>
 
-        <view v-if="quickCards.length" class="quick-cards">
-          <view
-            v-for="item in quickCards"
-            :key="item.title"
-            class="quick-card"
-            @click="item.action"
-          >
-            <view class="quick-card__icon" :style="{ background: item.tint }">
-              <wd-icon :name="item.icon" size="28" :color="item.iconColor || '#1e293b'" />
+        <view class="quick-cards">
+          <view class="quick-card" @click="openProfile">
+            <view class="quick-card__icon" style="background: #dbeafe">
+              <wd-icon name="user" size="28" color="#1e40af" />
             </view>
             <view class="quick-card__body">
-              <text class="quick-card__title">{{ item.title }}</text>
-              <text class="quick-card__desc">{{ item.desc }}</text>
+              <text class="quick-card__title">我的资料</text>
+              <text class="quick-card__desc">修改个人信息</text>
+            </view>
+          </view>
+          <view class="quick-card" @click="openAccount">
+            <view class="quick-card__icon" style="background: #d1fae5">
+              <wd-icon name="secured" size="28" color="#065f46" />
+            </view>
+            <view class="quick-card__body">
+              <text class="quick-card__title">账号安全</text>
+              <text class="quick-card__desc">修改密码 / 账号绑定</text>
             </view>
           </view>
         </view>
@@ -123,20 +127,25 @@
       <view class="section-card">
         <text class="section-title">系统工具</text>
         <view class="menu-list menu-list--flat">
-          <view
-            v-for="item in settingsItems"
-            :key="item.title"
-            class="menu-row"
-            @click="item.action"
-          >
-            <view class="menu-row__icon" :style="{ background: item.tint }">
-              <wd-icon :name="item.icon" size="18" :color="item.iconColor || '#1e293b'" />
+          <view class="menu-row" @click="openNetworkTest">
+            <view class="menu-row__icon" style="background: #fed7aa">
+              <wd-icon name="server" size="18" color="#c2410c" />
             </view>
             <view class="menu-row__main">
-              <text class="menu-row__title">{{ item.title }}</text>
-              <text class="menu-row__desc">{{ item.desc }}</text>
+              <text class="menu-row__title">网络检测</text>
+              <text class="menu-row__desc">检测接口连通性</text>
             </view>
-            <text v-if="item.value" class="menu-row__value">{{ item.value }}</text>
+            <wd-icon name="arrow-right" size="16" color="#94a3b8" />
+          </view>
+          <view class="menu-row" @click="handleClearCache">
+            <view class="menu-row__icon" style="background: #fecdd3">
+              <wd-icon name="delete-thin" size="18" color="#be123c" />
+            </view>
+            <view class="menu-row__main">
+              <text class="menu-row__title">清理缓存</text>
+              <text class="menu-row__desc">显示当前缓存大小</text>
+            </view>
+            <text class="menu-row__value">{{ cacheSize }}</text>
             <wd-icon name="arrow-right" size="16" color="#94a3b8" />
           </view>
         </view>
@@ -145,15 +154,25 @@
       <view class="section-card">
         <text class="section-title">帮助与支持</text>
         <view class="menu-list menu-list--flat">
-          <view v-for="item in helpItems" :key="item.title" class="menu-row" @click="item.action">
-            <view class="menu-row__icon" :style="{ background: item.tint }">
-              <wd-icon :name="item.icon" size="18" :color="item.iconColor || '#1e293b'" />
+          <view class="menu-row" @click="openUserAgreement">
+            <view class="menu-row__icon" style="background: #d1fae5">
+              <wd-icon name="secured" size="18" color="#065f46" />
             </view>
             <view class="menu-row__main">
-              <text class="menu-row__title">{{ item.title }}</text>
-              <text class="menu-row__desc">{{ item.desc }}</text>
+              <text class="menu-row__title">用户协议</text>
+              <text class="menu-row__desc">了解产品使用规则</text>
             </view>
-            <text v-if="item.value" class="menu-row__value">{{ item.value }}</text>
+            <wd-icon name="arrow-right" size="16" color="#94a3b8" />
+          </view>
+          <view class="menu-row" @click="openAbout">
+            <view class="menu-row__icon" style="background: #ccfbf1">
+              <wd-icon name="info-circle" size="18" color="#0f766e" />
+            </view>
+            <view class="menu-row__main">
+              <text class="menu-row__title">关于系统</text>
+              <text class="menu-row__desc">产品介绍与联系方式</text>
+            </view>
+            <text class="menu-row__value">v{{ appVersion }}</text>
             <wd-icon name="arrow-right" size="16" color="#94a3b8" />
           </view>
         </view>
@@ -426,83 +445,6 @@ const openOfficialAccount = () => {
     url: "/pages/mine/official/index",
   });
 };
-
-type ActionItem = {
-  title: string;
-  desc?: string;
-  icon: string;
-  tint: string;
-  iconColor?: string;
-  value?: string;
-  action: () => void;
-};
-
-const quickCards = computed<ActionItem[]>(() => {
-  const items: ActionItem[] = [
-    {
-      title: "我的资料",
-      desc: "修改个人信息",
-      icon: "user",
-      tint: "#dbeafe",
-      iconColor: "#1e40af",
-      action: openProfile,
-    },
-    {
-      title: "账号安全",
-      desc: "修改密码 / 账号绑定",
-      icon: "secured",
-      tint: "#d1fae5",
-      iconColor: "#065f46",
-      action: openAccount,
-    },
-  ];
-
-  if (isLogin.value) {
-    return items;
-  }
-
-  return [];
-});
-
-const settingsItems = computed<ActionItem[]>(() => [
-  {
-    title: "网络检测",
-    desc: "检测接口连通性",
-    icon: "server",
-    tint: "#fed7aa",
-    iconColor: "#c2410c",
-    action: openNetworkTest,
-  },
-  {
-    title: "清理缓存",
-    desc: "显示当前缓存大小",
-    icon: "delete-thin",
-    tint: "#fecdd3",
-    iconColor: "#be123c",
-    value: cacheSize.value,
-    action: handleClearCache,
-  },
-]);
-
-const helpItems = computed<ActionItem[]>(() => [
-  {
-    title: "用户协议",
-    desc: "了解产品使用规则",
-    icon: "secured",
-    tint: "#d1fae5",
-    iconColor: "#065f46",
-    action: openUserAgreement,
-  },
-  {
-    title: "关于系统",
-    desc: "产品介绍与联系方式",
-    icon: "info-circle",
-    tint: "#ccfbf1",
-    iconColor: "#0f766e",
-    value: `v${appVersion.value}`,
-    action: openAbout,
-  },
-]);
 </script>
 
 <style lang="scss" scoped>
@@ -839,7 +781,7 @@ const helpItems = computed<ActionItem[]>(() => [
   margin-top: 14rpx;
   font-size: 32rpx;
   font-weight: 600;
-  color: var(--wot-color-text, #2f3a4a);
+  color: var(--color-text);
   letter-spacing: 0.2px;
 }
 
@@ -854,7 +796,7 @@ const helpItems = computed<ActionItem[]>(() => [
   overflow: hidden;
   font-size: 24rpx;
   line-height: 1.55;
-  color: var(--wot-color-text-secondary, #64748b);
+  color: var(--color-text-secondary);
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -862,7 +804,7 @@ const helpItems = computed<ActionItem[]>(() => [
 
 .section-card {
   padding: 28rpx;
-  background: var(--wot-color-white, #fff);
+  background: var(--color-bg);
   border-radius: 32rpx;
   box-shadow: 0 10rpx 30rpx rgba(15, 23, 42, 0.05);
 }
@@ -876,7 +818,7 @@ const helpItems = computed<ActionItem[]>(() => [
   margin-bottom: 18rpx;
   font-size: 26rpx;
   font-weight: 600;
-  color: var(--wot-color-text, #2f3a4a);
+  color: var(--color-text);
 }
 
 .quick-card {
@@ -884,7 +826,7 @@ const helpItems = computed<ActionItem[]>(() => [
   gap: 20rpx;
   align-items: center;
   padding: 28rpx 24rpx;
-  background: var(--wot-color-white, #fff);
+  background: var(--color-bg);
   border-radius: 24rpx;
   box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   transition: all 0.2s ease;
@@ -915,7 +857,7 @@ const helpItems = computed<ActionItem[]>(() => [
   font-size: 28rpx;
   font-weight: 500;
   line-height: 1.35;
-  color: var(--wot-color-text, #2f3a4a);
+  color: var(--color-text);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -926,13 +868,14 @@ const helpItems = computed<ActionItem[]>(() => [
   overflow: hidden;
   font-size: 22rpx;
   line-height: 1.6;
-  color: var(--wot-color-text-secondary, #64748b);
+  color: var(--color-text-secondary);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .menu-row__icon {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 72rpx;
@@ -945,7 +888,7 @@ const helpItems = computed<ActionItem[]>(() => [
   z-index: 0;
   padding: 0 28rpx calc(env(safe-area-inset-bottom) + 40rpx);
   margin-top: 0;
-  background: var(--wot-color-bg, #f8fafc);
+  background: var(--color-bg-secondary);
   border-top-left-radius: 48rpx;
   border-top-right-radius: 48rpx;
 }
@@ -954,7 +897,7 @@ const helpItems = computed<ActionItem[]>(() => [
   padding: 0 28rpx;
   margin-top: 24rpx;
   overflow: hidden;
-  background: var(--wot-color-white, #fff);
+  background: var(--color-bg);
   border-radius: 32rpx;
   box-shadow: 0 16rpx 40rpx rgba(15, 23, 42, 0.05);
 }
@@ -978,12 +921,6 @@ const helpItems = computed<ActionItem[]>(() => [
   border-top: 1rpx solid rgba(148, 163, 184, 0.14);
 }
 
-.menu-row__icon {
-  flex-shrink: 0;
-  width: 76rpx;
-  height: 76rpx;
-}
-
 .menu-row__main {
   flex: 1;
   min-width: 0;
@@ -993,20 +930,20 @@ const helpItems = computed<ActionItem[]>(() => [
   display: block;
   font-size: 26rpx;
   font-weight: 500;
-  color: var(--wot-color-text, #2f3a4a);
+  color: var(--color-text);
 }
 
 .menu-row__desc {
   display: block;
   margin-top: 8rpx;
   font-size: 22rpx;
-  color: var(--wot-color-text-secondary, #64748b);
+  color: var(--color-text-secondary);
 }
 
 .menu-row__value {
   margin-left: 12rpx;
   font-size: 22rpx;
-  color: #94a3b8;
+  color: var(--color-text-placeholder);
 }
 
 .logout-section {
@@ -1028,8 +965,8 @@ const helpItems = computed<ActionItem[]>(() => [
   width: 100%;
   height: 88rpx !important;
   font-size: 28rpx !important;
-  color: #ef4444 !important;
-  background: var(--wot-color-white, #fff) !important;
+  color: var(--color-danger) !important;
+  background: var(--color-bg) !important;
   border: 1rpx solid rgba(239, 68, 68, 0.18) !important;
   border-radius: 24rpx !important;
   box-shadow: 0 12rpx 30rpx rgba(239, 68, 68, 0.08);

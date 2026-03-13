@@ -1,12 +1,21 @@
 @use "./theme";
 
 // ==========================================================================
-// 全局基础样式
+// 全局基础样式（uni-app 跨端兼容）
 // ==========================================================================
 
+// 页面根元素，小程序和 H5 通用
+page {
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+// H5 端字体平滑渲染
+/* #ifdef H5 */
 html,
-body,
-#app {
+body {
   height: 100%;
   padding: 0;
   margin: 0;
@@ -20,13 +29,10 @@ body,
     "Helvetica Neue",
     Helvetica,
     sans-serif;
-  font-size: 28rpx;
-  line-height: 1.5;
-  color: var(--color-text);
-  background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+/* #endif */
 
 // ==========================================================================
 // 页面容器
@@ -34,20 +40,18 @@ body,
 
 .page {
   min-height: 100vh;
-  background-color: var(--color-bg-page, var(--color-bg-secondary));
+  background-color: var(--color-bg-secondary);
 }
 
-.page--auto {
-  min-height: auto;
-}
-
+// 带内边距的页面
 .page--padding {
-  padding: 0 32rpx;
+  box-sizing: border-box;
+  padding: 16rpx 32rpx 0;
 }
 
-.page--pt {
-  box-sizing: border-box;
-  padding-top: 16rpx;
+// tabbar 页面底部安全区域
+.page--tabbar {
+  padding-bottom: calc(100rpx + env(safe-area-inset-bottom));
 }
 
 // ==========================================================================
@@ -73,10 +77,11 @@ body,
 }
 
 // ==========================================================================
-// 列表卡片
+// 卡片组件
 // ==========================================================================
 
-.item-card.wd-card {
+// 全局 wd-card 间距
+.wd-card {
   margin: 0 !important;
   margin-bottom: 12rpx !important;
 }
@@ -119,5 +124,27 @@ body,
 
   .wd-icon {
     color: #fff;
+  }
+}
+
+// ==========================================================================
+// 渐变背景
+// ==========================================================================
+
+.gradient-bg {
+  &--primary {
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-bg) 100%);
+  }
+
+  &--success {
+    background: linear-gradient(135deg, var(--color-success-light) 0%, var(--color-bg) 100%);
+  }
+
+  &--warning {
+    background: linear-gradient(135deg, var(--color-warning-light) 0%, var(--color-bg) 100%);
+  }
+
+  &--danger {
+    background: linear-gradient(135deg, var(--color-danger-light) 0%, var(--color-bg) 100%);
   }
 }

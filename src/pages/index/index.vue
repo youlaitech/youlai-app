@@ -1,7 +1,7 @@
 <template>
-  <view class="page">
+  <view class="page page--tabbar">
     <!-- 轮播图 -->
-    <view class="hero">
+    <view class="relative">
       <wd-swiper
         v-model:current="current"
         custom-class="swiper-box"
@@ -10,10 +10,11 @@
         @click="handleSwiperClick"
         @change="handleSwiperChange"
       />
+      <view class="hero-fade"></view>
     </view>
 
     <!-- 快捷导航 -->
-    <view class="section section--overlay">
+    <view class="section--overlay">
       <wd-grid clickable :column="4">
         <wd-grid-item
           v-for="(item, index) in quickNavList"
@@ -30,7 +31,7 @@
     </view>
 
     <!-- 通知公告 -->
-    <view class="section">
+    <view class="m-24rpx">
       <view class="notice-bar" @click="handleNoticeClick">
         <view class="notice-bar__icon">
           <wd-icon name="check-outline" size="32rpx" color="#34D19D" />
@@ -42,11 +43,11 @@
     </view>
 
     <!-- 数据统计 -->
-    <view class="section">
-      <view class="stat-grid">
-        <view class="stat-card stat-card--green">
-          <image class="stat-card__bg" src="/static/icons/visitor.svg" mode="aspectFit" />
-          <view class="stat-card__head">
+    <view class="m-24rpx">
+      <view class="grid grid-cols-2 gap-16rpx">
+        <view class="stat-card gradient-bg--success">
+          <image class="stat-card__icon" src="/static/icons/visitor.svg" mode="aspectFit" />
+          <view class="stat-card__header">
             <text class="stat-card__label">访客数</text>
             <view class="stat-card__dot stat-card__dot--green"></view>
           </view>
@@ -54,9 +55,9 @@
             {{ visitStatsData.todayUvCount }}
           </text>
         </view>
-        <view class="stat-card stat-card--blue">
-          <image class="stat-card__bg" src="/static/icons/browser.svg" mode="aspectFit" />
-          <view class="stat-card__head">
+        <view class="stat-card gradient-bg--primary">
+          <image class="stat-card__icon" src="/static/icons/browser.svg" mode="aspectFit" />
+          <view class="stat-card__header">
             <text class="stat-card__label">浏览量</text>
             <view class="stat-card__dot stat-card__dot--blue"></view>
           </view>
@@ -64,22 +65,15 @@
             {{ visitStatsData.todayPvCount }}
           </text>
         </view>
-        <view v-if="appVersion" class="stat-card stat-card--orange stat-card--full">
-          <view class="stat-card__head">
-            <text class="stat-card__label">应用版本</text>
-            <view class="stat-card__dot stat-card__dot--orange"></view>
-          </view>
-          <text class="stat-card__num stat-card__num--orange">{{ appVersion }}</text>
-        </view>
       </view>
     </view>
 
     <!-- 访问趋势图表 -->
-    <view class="section">
+    <view class="m-24rpx">
       <wd-card custom-class="chart-card">
         <template #title>
-          <view class="chart-header">
-            <text class="chart-header__title">访问趋势</text>
+          <view class="flex-between">
+            <text class="text-28rpx font-semibold">访问趋势</text>
             <wd-radio-group
               v-model="recentDaysRange"
               shape="button"
@@ -92,7 +86,7 @@
           </view>
         </template>
 
-        <view class="chart-container">
+        <view class="w-full h-600rpx">
           <qiun-data-charts type="area" :chartData="chartData" :opts="chartOpts" />
         </view>
       </wd-card>
@@ -363,11 +357,7 @@ onReady(() => {
 </route>
 
 <style lang="scss" scoped>
-.hero {
-  position: relative;
-}
-
-.hero::after {
+.hero-fade {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -375,7 +365,6 @@ onReady(() => {
   z-index: 1;
   height: 120rpx;
   pointer-events: none;
-  content: "";
   background: linear-gradient(
     to bottom,
     rgba(245, 247, 250, 0) 0%,
@@ -384,67 +373,18 @@ onReady(() => {
   );
 }
 
-:deep(.swiper-box) {
-  height: 420rpx;
-  overflow: hidden;
-  border-bottom-right-radius: 32rpx;
-  border-bottom-left-radius: 32rpx;
-}
-
+:deep(.swiper-box),
 :deep(.swiper-box .wd-swiper__item),
 :deep(.swiper-box image) {
   height: 420rpx;
-}
-
-.navbar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  z-index: 999;
-  background-color: rgba(255, 255, 255, 0.92);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 10rpx 24rpx rgba(0, 0, 0, 0.06);
-
-  &__content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16rpx;
-  }
-
-  &__left {
-    display: flex;
-    align-items: center;
-  }
-
-  &__title {
-    font-size: 34rpx;
-    font-weight: 600;
-    color: var(--color-text);
-  }
-
-  &__right {
-    display: flex;
-    align-items: center;
-  }
-
-  &__search {
-    width: 100%;
-  }
-}
-
-.section {
-  margin: 24rpx;
 }
 
 .section--overlay {
   position: relative;
   z-index: 2;
   padding: 18rpx 8rpx;
-  margin-top: -140rpx;
+  margin: 24rpx;
+  margin-top: -120rpx;
   background: var(--color-bg);
   border-radius: 24rpx;
   box-shadow: 0 16rpx 36rpx rgba(0, 0, 0, 0.08);
@@ -473,8 +413,8 @@ onReady(() => {
   display: flex;
   align-items: center;
   padding: 24rpx 24rpx 24rpx 20rpx;
-  background: #fff;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  background: var(--color-bg);
+  border: 1rpx solid var(--color-border);
   border-radius: 16rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
 
@@ -486,7 +426,7 @@ onReady(() => {
     width: 48rpx;
     height: 48rpx;
     margin-right: 16rpx;
-    background: rgba(52, 209, 157, 0.1);
+    background: var(--color-success-light);
     border-radius: 12rpx;
   }
 
@@ -500,17 +440,11 @@ onReady(() => {
     overflow: hidden;
     font-size: 26rpx;
     font-weight: 500;
-    color: #333;
+    color: var(--color-text);
     -webkit-line-clamp: 1;
     line-clamp: 1;
     -webkit-box-orient: vertical;
   }
-}
-
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16rpx;
 }
 
 .stat-card {
@@ -519,33 +453,12 @@ onReady(() => {
   flex-direction: column;
   padding: 24rpx 20rpx;
   overflow: hidden;
-  background: #fff;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  background: var(--color-bg);
+  border: 1rpx solid var(--color-border);
   border-radius: 16rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
 
-  &--green {
-    background: linear-gradient(135deg, #f0fdf9 0%, #fff 100%);
-  }
-
-  &--blue {
-    background: linear-gradient(135deg, #f0f7ff 0%, #fff 100%);
-  }
-
-  &--orange {
-    background: linear-gradient(135deg, #fffbf0 0%, #fff 100%);
-  }
-
-  &__bg {
-    position: absolute;
-    right: -10rpx;
-    bottom: -10rpx;
-    width: 100rpx;
-    height: 100rpx;
-    opacity: 0.15;
-  }
-
-  &__head {
+  &__header {
     position: relative;
     z-index: 1;
     display: flex;
@@ -557,7 +470,16 @@ onReady(() => {
   &__label {
     font-size: 24rpx;
     font-weight: 500;
-    color: #999;
+    color: var(--color-text-secondary);
+  }
+
+  &__icon {
+    position: absolute;
+    right: -10rpx;
+    bottom: -10rpx;
+    width: 100rpx;
+    height: 100rpx;
+    opacity: 0.15;
   }
 
   &__dot {
@@ -590,18 +512,15 @@ onReady(() => {
     letter-spacing: -1rpx;
 
     &--green {
-      color: #2ab789;
-      text-shadow: 0 4rpx 12rpx rgba(42, 183, 137, 0.3);
+      color: var(--color-success);
     }
 
     &--blue {
-      color: #3a8ee6;
-      text-shadow: 0 4rpx 12rpx rgba(58, 142, 230, 0.3);
+      color: var(--color-primary);
     }
 
     &--orange {
-      color: #e8a838;
-      text-shadow: 0 4rpx 12rpx rgba(232, 168, 56, 0.3);
+      color: var(--color-warning);
     }
   }
 
@@ -612,45 +531,10 @@ onReady(() => {
     justify-content: space-between;
     padding: 20rpx 20rpx;
 
-    .stat-card__head {
-      margin-bottom: 0;
-    }
-
     .stat-card__num {
       font-size: 28rpx;
       letter-spacing: 0;
     }
   }
-}
-
-.chart-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  &__title {
-    font-size: 28rpx;
-    font-weight: 600;
-    color: var(--color-text);
-  }
-}
-
-.chart-container {
-  width: 100%;
-  height: 300px;
-  margin-bottom: 40rpx;
-}
-
-:deep(.chart-card) {
-  margin: 0 !important;
-}
-
-:deep(.chart-card .wd-card) {
-  margin: 0 !important;
-  border-radius: 16rpx;
-}
-
-:deep(.chart-card .wd-card__body) {
-  padding: 24rpx !important;
 }
 </style>

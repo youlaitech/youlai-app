@@ -1,5 +1,5 @@
 <template>
-  <view class="page page--padding page--pt">
+  <view class="page page--padding">
     <view>
       <wd-search
         v-model="queryParams.title"

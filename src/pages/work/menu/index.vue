@@ -1,5 +1,5 @@
 <template>
-  <view class="page page--padding page--pt">
+  <view class="page page--padding">
     <view>
       <wd-search
         v-model="queryParams.keywords"
@@ -19,7 +19,7 @@
       >
         <!-- 自定义节点内容：ID + 名称 + 状态 -->
         <template #content="{ node }">
-          <view class="flex-1 flex flex-nowrap items-center gap-16rpx">
+          <view class="menu-node">
             <text class="w-120rpx text-24rpx color-text-secondary">{{ node.id }}</text>
             <wd-icon v-if="node.icon" :name="node.icon" size="16" class="color-primary" />
             <text class="flex-1 truncate">{{ node.name }}</text>
@@ -400,5 +400,13 @@ export default { options: { styleIsolation: "shared" } };
   display: flex;
   gap: 24rpx;
   margin-top: 32rpx;
+}
+
+.menu-node {
+  display: flex;
+  flex: 1;
+  flex-wrap: nowrap;
+  gap: 16rpx;
+  align-items: center;
 }
 </style>
