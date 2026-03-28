@@ -72,8 +72,8 @@ function handleNavClick(item: any) {
     }
 
     router.push({ path: item.url });
-  } catch (e) {
-    console.error("[work] router.push failed:", e, item);
+  } catch {
+    // 路由跳转失败已由拦截器处理
   }
 }
 </script>

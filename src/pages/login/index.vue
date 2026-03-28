@@ -36,7 +36,7 @@
         <view v-if="loginMode !== 'WECHAT'" class="form-area">
           <!-- 用户名/手机号 -->
           <view class="input-box">
-            <wd-icon name="person" size="20" color="#9ca3af" />
+            <wd-icon name="person" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.username"
               class="input-field"
@@ -47,23 +47,20 @@
 
           <!-- 密码 -->
           <view v-if="loginMode === 'PASSWORD'" class="input-box">
-            <wd-icon name="lock" size="20" color="#9ca3af" />
+            <wd-icon name="lock" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.password"
               class="input-field"
-              :password="!showPassword"
               placeholder="请输入密码"
               :maxlength="50"
+              password
               @confirm="handleLogin"
             />
-            <view class="input-suffix" @click="showPassword = !showPassword">
-              <wd-icon :name="showPassword ? 'eye-open' : 'eye-close'" size="20" color="#9ca3af" />
-            </view>
           </view>
 
           <!-- 图形验证码（密码登录时显示） -->
           <view v-if="loginMode === 'PASSWORD'" class="input-box">
-            <wd-icon name="shield" size="20" color="#9ca3af" />
+            <wd-icon name="shield" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.captchaCode"
               class="input-field"
@@ -82,7 +79,7 @@
 
           <!-- 验证码 -->
           <view v-else class="input-box">
-            <wd-icon name="shield" size="20" color="#9ca3af" />
+            <wd-icon name="shield" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.code"
               class="input-field"
@@ -106,14 +103,9 @@
           </view>
 
           <!-- 登录按钮 -->
-          <button
-            class="btn-primary"
-            :class="{ 'btn-primary--loading': loading }"
-            :disabled="loading"
-            @click="handleLogin"
-          >
-            {{ loading ? "登录中..." : "登 录" }}
-          </button>
+          <wd-button type="primary" block :loading="loading" @click="handleLogin">
+            登 录
+          </wd-button>
 
           <!-- 切换登录方式 -->
           <view class="switch-mode" @click="toggleLoginMode">
@@ -187,7 +179,7 @@
       v-model="showBindMobilePopup"
       position="bottom"
       closable
-      custom-style="border-radius: 24rpx 24rpx 0 0;"
+      custom-class="popup-bottom"
       @close="resetBindForm"
     >
       <view class="bind-popup">
@@ -195,7 +187,7 @@
 
         <view class="form-area">
           <view class="input-box">
-            <wd-icon name="phone" size="20" color="#9ca3af" />
+            <wd-icon name="phone" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="bindMobileForm.mobile"
               class="input-field"
@@ -206,7 +198,7 @@
           </view>
 
           <view class="input-box">
-            <wd-icon name="shield" size="20" color="#9ca3af" />
+            <wd-icon name="shield" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="bindMobileForm.code"
               class="input-field"
@@ -228,9 +220,9 @@
             <text class="demo-tip-text">演示环境验证码：123456</text>
           </view>
 
-          <button class="btn-bind" :disabled="bindLoading" @click="handleBindMobile">
-            {{ bindLoading ? "绑定中..." : "确认绑定" }}
-          </button>
+          <wd-button type="primary" block :loading="bindLoading" @click="handleBindMobile">
+            确认绑定
+          </wd-button>
         </view>
       </view>
     </wd-popup>
@@ -261,16 +253,16 @@ import { useToast, useMessage } from "wot-design-uni";
 import { useUserStore } from "@/store/modules/user";
 import AuthAPI from "@/api/auth";
 
-const statusBarHeight = ref(20);
-const navBarHeight = ref(44);
-
 const toast = useToast();
 const message = useMessage("policy-box");
 const userStore = useUserStore();
 
-// 状态
+// 导航栏
+const statusBarHeight = ref(20);
+const navBarHeight = ref(44);
+
+// 表单状态
 const loading = ref(false);
-const showPassword = ref(false);
 const isAgreePolicy = ref(false);
 const loginMode = ref<"PASSWORD" | "SMS" | "WECHAT">("PASSWORD");
 const smsCountdown = ref(0);
@@ -290,7 +282,7 @@ const captchaLoading = ref(false);
 
 const redirect = ref("/pages/index/index");
 
-// 绑定手机号相关
+// 绑定手机号
 const showBindMobilePopup = ref(false);
 const bindLoading = ref(false);
 const bindSmsCountdown = ref(0);
@@ -298,36 +290,16 @@ const bindSmsTimer = ref<ReturnType<typeof setInterval> | null>(null);
 const wechatOpenid = ref("");
 
 const bindMobileForm = ref({
-  mobile: "",
+  mobile: "18888888888",
   code: "",
 });
 
 const pendingLoginAction = ref<"FORM" | "WECHAT_PHONE" | null>(null);
-const pendingWechatPhoneCode = ref<string>("");
-
-// 获取图形验证码
-const fetchCaptcha = async () => {
-  if (captchaLoading.value) return;
-  try {
-    captchaLoading.value = true;
-    captchaBase64.value = "";
-    const res = await AuthAPI.getCaptcha();
-    captchaId.value = res.captchaId;
-    captchaBase64.value = res.captchaBase64;
-  } catch (e) {
-    console.error("获取验证码失败", e);
-  } finally {
-    captchaLoading.value = false;
-  }
-};
+const pendingWechatPhoneCode = ref("");
 
 // 计算属性
 const loginModeDesc = computed(() => {
-  const modeMap = {
-    PASSWORD: "使用账号密码登录",
-    SMS: "使用手机验证码登录",
-    WECHAT: "使用微信快捷登录",
-  };
+  const modeMap = { PASSWORD: "使用账号密码登录", SMS: "使用手机验证码登录", WECHAT: "使用微信快捷登录" };
   return modeMap[loginMode.value];
 });
 
@@ -343,48 +315,43 @@ const canSubmit = computed(() => {
   return false;
 });
 
-// 生命周期
-onLoad((options: any) => {
-  const fromQuery = options?.redirect ? decodeURIComponent(options.redirect) : "";
-  if (fromQuery && fromQuery !== "/pages/login/index") {
-    redirect.value = fromQuery;
+// 图形验证码
+const fetchCaptcha = async () => {
+  if (captchaLoading.value) return;
+  try {
+    captchaLoading.value = true;
+    captchaBase64.value = "";
+    const res = await AuthAPI.getCaptcha();
+    captchaId.value = res.captchaId;
+    captchaBase64.value = res.captchaBase64;
+  } catch {
+    // 获取验证码失败由 API 层处理
+  } finally {
+    captchaLoading.value = false;
   }
+};
 
-  uni.setNavigationBarTitle({ title: "" });
+// 短信倒计时
+const startSmsCountdown = (
+  countdown: Ref<number>,
+  timer: Ref<ReturnType<typeof setInterval> | null>
+) => {
+  countdown.value = 60;
+  if (timer.value) clearInterval(timer.value);
+  timer.value = setInterval(() => {
+    countdown.value -= 1;
+    if (countdown.value <= 0) {
+      countdown.value = 0;
+      if (timer.value) { clearInterval(timer.value); timer.value = null; }
+    }
+  }, 1000);
+};
 
-  const systemInfo = uni.getSystemInfoSync();
-  statusBarHeight.value = systemInfo.statusBarHeight || 20;
-  navBarHeight.value = 44;
-
-  // #ifdef MP-WEIXIN
-  const menuButton = uni.getMenuButtonBoundingClientRect();
-  navBarHeight.value = menuButton.height + (menuButton.top - statusBarHeight.value) * 2;
-  // #endif
-
-  // #ifndef MP-WEIXIN
-  // 非微信环境强制使用密码登录
-  if (loginMode.value === "WECHAT") {
-    loginMode.value = "PASSWORD";
-  }
-  // #endif
-  // 获取图形验证码
-  fetchCaptcha();
-});
-
-onShow(() => {
-  uni.setNavigationBarTitle({ title: "" });
-});
-
-onUnload(() => {
-  if (smsTimer.value) clearInterval(smsTimer.value);
-  if (bindSmsTimer.value) clearInterval(bindSmsTimer.value);
-});
-
-// 方法
+// 切换登录方式
 const toggleLoginMode = () => {
   if (loginMode.value === "PASSWORD") {
     loginMode.value = "SMS";
-    formData.value.username = "18812345678";
+    formData.value.username = "18888888888";
     formData.value.password = "";
     formData.value.code = "";
   } else {
@@ -397,10 +364,10 @@ const toggleLoginMode = () => {
   }
 };
 
-const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode: string = "") => {
+// 协议弹窗
+const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode = "") => {
   pendingLoginAction.value = action;
   pendingWechatPhoneCode.value = phoneCode;
-
   message
     .confirm({ title: "提示" })
     .then(async () => {
@@ -409,12 +376,8 @@ const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode: string = "
       const code = pendingWechatPhoneCode.value;
       pendingLoginAction.value = null;
       pendingWechatPhoneCode.value = "";
-
-      if (act === "WECHAT_PHONE") {
-        await doWechatPhoneLogin(code);
-      } else if (act === "FORM") {
-        await doFormLogin();
-      }
+      if (act === "WECHAT_PHONE") await doWechatPhoneLogin(code);
+      else if (act === "FORM") await doFormLogin();
     })
     .catch(() => {
       pendingLoginAction.value = null;
@@ -422,20 +385,14 @@ const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode: string = "
     });
 };
 
+// 表单登录
 async function doFormLogin() {
   if (!canSubmit.value) {
-    if (loginMode.value === "PASSWORD") {
-      toast.error("请输入用户名和密码");
-    } else if (loginMode.value === "SMS") {
-      toast.error("请输入正确的手机号和验证码");
-    }
+    toast.error(loginMode.value === "PASSWORD" ? "请输入用户名和密码" : "请输入正确的手机号和验证码");
     return;
   }
-
   if (loading.value) return;
-
   loading.value = true;
-
   try {
     if (loginMode.value === "PASSWORD") {
       await userStore.login({
@@ -445,46 +402,29 @@ async function doFormLogin() {
         captchaCode: formData.value.captchaCode,
       });
     } else {
-      await userStore.loginBySms({
-        mobile: formData.value.username.trim(),
-        code: formData.value.code,
-      });
+      await userStore.loginBySms({ mobile: formData.value.username.trim(), code: formData.value.code });
     }
-
     await userStore.getInfo();
     toast.success("登录成功");
     setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
   } catch (error: any) {
     toast.error(error?.message || "登录失败");
-    // 登录失败刷新验证码
-    if (loginMode.value === "PASSWORD") {
-      fetchCaptcha();
-    }
+    if (loginMode.value === "PASSWORD") fetchCaptcha();
   } finally {
     loading.value = false;
   }
 }
 
 const handleLogin = async () => {
-  if (!isAgreePolicy.value) {
-    openPolicyDialog("FORM");
-    return;
-  }
+  if (!isAgreePolicy.value) { openPolicyDialog("FORM"); return; }
   await doFormLogin();
 };
 
 const handleSendCode = async () => {
   if (smsCountdown.value > 0) return;
   const mobile = formData.value.username.trim();
-  if (!mobile) {
-    toast.error("请输入手机号");
-    return;
-  }
-  if (!isValidMobile(mobile)) {
-    toast.error("请输入正确的手机号");
-    return;
-  }
-
+  if (!mobile) { toast.error("请输入手机号"); return; }
+  if (!isValidMobile(mobile)) { toast.error("请输入正确的手机号"); return; }
   try {
     await AuthAPI.sendSmsLoginCode(mobile);
     toast.success("验证码已发送");
@@ -494,50 +434,20 @@ const handleSendCode = async () => {
   }
 };
 
-const startSmsCountdown = (
-  countdown: Ref<number>,
-  timer: Ref<ReturnType<typeof setInterval> | null>
-) => {
-  countdown.value = 60;
-  if (timer.value) clearInterval(timer.value);
-  timer.value = setInterval(() => {
-    countdown.value -= 1;
-    if (countdown.value <= 0) {
-      countdown.value = 0;
-      if (timer.value) {
-        clearInterval(timer.value);
-        timer.value = null;
-      }
-    }
-  }, 1000);
-};
-
 // 微信登录
 const handleWechatPhoneLogin = async (e: any) => {
   const phoneCode = e.detail.code;
-  if (!isAgreePolicy.value) {
-    openPolicyDialog("WECHAT_PHONE", phoneCode);
-    return;
-  }
-  if (!phoneCode) {
-    // 用户拒绝授权，尝试个人小程序登录
-    await handleWechatSilentLogin();
-    return;
-  }
+  if (!isAgreePolicy.value) { openPolicyDialog("WECHAT_PHONE", phoneCode); return; }
+  if (!phoneCode) { await handleWechatSilentLogin(); return; }
   await doWechatPhoneLogin(phoneCode);
 };
 
 async function doWechatPhoneLogin(phoneCode: string) {
-  if (!phoneCode) {
-    await handleWechatSilentLogin();
-    return;
-  }
-
+  if (!phoneCode) { await handleWechatSilentLogin(); return; }
   loading.value = true;
-
   try {
     const { code: loginCode } = await uni.login();
-    await userStore.loginByWechatMiniappPhone({ loginCode, phoneCode });
+    await userStore.loginByWxMaPhone({ loginCode, phoneCode });
     await userStore.getInfo();
     toast.success("登录成功");
     setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
@@ -553,8 +463,7 @@ const handleWechatSilentLogin = async () => {
   loading.value = true;
   try {
     const { code } = await uni.login();
-    const result: any = await userStore.loginByWechatMiniapp(code);
-
+    const result: any = await userStore.loginByWxMa(code);
     if (result.needBindMobile && result.openid) {
       wechatOpenid.value = result.openid;
       showBindMobilePopup.value = true;
@@ -570,14 +479,11 @@ const handleWechatSilentLogin = async () => {
   }
 };
 
+// 绑定手机号
 const handleSendBindCode = async () => {
   if (bindSmsCountdown.value > 0) return;
   const mobile = bindMobileForm.value.mobile.trim();
-  if (!isValidMobile(mobile)) {
-    toast.error("请输入正确的手机号");
-    return;
-  }
-
+  if (!isValidMobile(mobile)) { toast.error("请输入正确的手机号"); return; }
   try {
     await AuthAPI.sendSmsLoginCode(mobile);
     toast.success("验证码已发送");
@@ -590,32 +496,17 @@ const handleSendBindCode = async () => {
 const resetBindForm = () => {
   bindMobileForm.value = { mobile: "", code: "" };
   bindSmsCountdown.value = 0;
-  if (bindSmsTimer.value) {
-    clearInterval(bindSmsTimer.value);
-    bindSmsTimer.value = null;
-  }
+  if (bindSmsTimer.value) { clearInterval(bindSmsTimer.value); bindSmsTimer.value = null; }
 };
 
 const handleBindMobile = async () => {
   if (bindLoading.value) return;
   const { mobile, code } = bindMobileForm.value;
-  if (!isValidMobile(mobile)) {
-    toast.error("请输入正确的手机号");
-    return;
-  }
-  if (!code.trim()) {
-    toast.error("请输入验证码");
-    return;
-  }
-
+  if (!isValidMobile(mobile)) { toast.error("请输入正确的手机号"); return; }
+  if (!code.trim()) { toast.error("请输入验证码"); return; }
   bindLoading.value = true;
-
   try {
-    await userStore.bindMobileForWechatMiniapp({
-      openid: wechatOpenid.value,
-      mobile,
-      smsCode: code,
-    });
+    await userStore.bindMobileForWxMa({ openid: wechatOpenid.value, mobile, smsCode: code });
     await userStore.getInfo();
     showBindMobilePopup.value = false;
     resetBindForm();
@@ -629,19 +520,39 @@ const handleBindMobile = async () => {
 };
 
 const navigateToAgreement = (type: string) => {
-  const url =
-    type === "user" ? "/pages/mine/settings/agreement/index" : "/pages/mine/settings/privacy/index";
+  const url = type === "user" ? "/pages/mine/settings/agreement/index" : "/pages/mine/settings/privacy/index";
   uni.navigateTo({ url });
 };
 
 const handleBack = () => {
-  const pages = getCurrentPages();
-  if (pages.length > 1) {
-    uni.navigateBack();
-    return;
-  }
+  if (getCurrentPages().length > 1) { uni.navigateBack(); return; }
   uni.reLaunch({ url: "/pages/index/index" });
 };
+
+// 生命周期
+onLoad((options: any) => {
+  const fromQuery = options?.redirect ? decodeURIComponent(options.redirect) : "";
+  if (fromQuery && fromQuery !== "/pages/login/index") redirect.value = fromQuery;
+  uni.setNavigationBarTitle({ title: "" });
+  const systemInfo = uni.getSystemInfoSync();
+  statusBarHeight.value = systemInfo.statusBarHeight || 20;
+  navBarHeight.value = 44;
+  // #ifdef MP-WEIXIN
+  const menuButton = uni.getMenuButtonBoundingClientRect();
+  navBarHeight.value = menuButton.height + (menuButton.top - statusBarHeight.value) * 2;
+  // #endif
+  // #ifndef MP-WEIXIN
+  if (loginMode.value === "WECHAT") loginMode.value = "PASSWORD";
+  // #endif
+  fetchCaptcha();
+});
+
+onShow(() => uni.setNavigationBarTitle({ title: "" }));
+
+onUnload(() => {
+  if (smsTimer.value) clearInterval(smsTimer.value);
+  if (bindSmsTimer.value) clearInterval(bindSmsTimer.value);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -649,12 +560,12 @@ const handleBack = () => {
 .login-page {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(135deg, #eff6ff 0%, #fff 50%, #dbeafe 100%);
-}
-
-// 暗黑模式
-:global(.dark) .login-page {
-  background: linear-gradient(135deg, #111827 0%, #1f2937 50%, #111827 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-tertiary) 0%,
+    var(--color-bg) 50%,
+    var(--color-primary-light) 100%
+  );
 }
 
 // 背景装饰
@@ -687,14 +598,14 @@ const handleBack = () => {
   background-color: rgba(59, 130, 246, 0.15);
 }
 
+// 导航栏
 .login-nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 11;
-  padding-right: 16px;
-  padding-left: 16px;
+  z-index: var(--z-navbar);
+  padding: 0 16px;
 }
 
 .login-nav__bar {
@@ -742,19 +653,18 @@ const handleBack = () => {
 .login-nav__title {
   font-size: 32rpx;
   font-weight: 600;
-  color: rgba(15, 23, 42, 0.92);
   letter-spacing: 0.08em;
+  color: rgba(15, 23, 42, 0.92);
 }
 
 // 主内容
 .login-main {
   position: relative;
-  z-index: 10;
+  z-index: var(--z-sticky);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-right: 48px;
-  padding-left: 48px;
+  padding: 0 48px;
 }
 
 // Logo
@@ -775,12 +685,8 @@ const handleBack = () => {
 .logo-text {
   font-size: 20px;
   font-weight: 600;
-  color: #1f2937;
   letter-spacing: 0.05em;
-}
-
-:global(.dark) .logo-text {
-  color: #f3f4f6;
+  color: var(--color-text);
 }
 
 // 登录卡片
@@ -793,10 +699,6 @@ const handleBack = () => {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-:global(.dark) .login-card {
-  background-color: rgba(31, 41, 55, 0.95);
-}
-
 // 卡片头部
 .card-header {
   margin-bottom: 32px;
@@ -806,22 +708,14 @@ const handleBack = () => {
 .card-title {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
-}
-
-:global(.dark) .card-title {
-  color: #fff;
+  color: var(--color-text);
 }
 
 .card-desc {
   display: block;
   margin-top: 8px;
   font-size: 14px;
-  color: #6b7280;
-}
-
-:global(.dark) .card-desc {
-  color: #9ca3af;
+  color: var(--color-text-secondary);
 }
 
 // 表单区域
@@ -840,16 +734,12 @@ const handleBack = () => {
   align-items: center;
   height: 48px;
   padding: 0 16px;
-  background-color: #f9fafb;
+  background-color: var(--color-bg-secondary);
   border-radius: 12px;
 
   &:focus-within {
-    box-shadow: 0 0 0 2px #3b82f6;
+    box-shadow: 0 0 0 2px var(--color-primary);
   }
-}
-
-:global(.dark) .input-box {
-  background-color: #374151;
 }
 
 .input-field {
@@ -857,71 +747,13 @@ const handleBack = () => {
   height: 100%;
   margin-left: 12px;
   font-size: 14px;
-  color: #1f2937;
+  color: var(--color-text);
 }
 
-:global(.dark) .input-field {
-  color: #f3f4f6;
-}
-
-.input-suffix {
-  padding: 8px;
-}
-
-// 主按钮
-.btn-primary {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 48px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-  background: linear-gradient(to right, #3b82f6, #1d4ed8);
-  border-radius: 12px;
-  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
-  transition: all 0.2s;
-  overflow: hidden;
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  &:disabled {
-    opacity: 0.9;
-    box-shadow: 0 8px 14px -6px rgba(59, 130, 246, 0.22);
-    transform: none;
-  }
-}
-
-.btn-primary--loading {
-  opacity: 0.92;
-}
-
-.btn-primary--loading::before {
-  position: absolute;
-  inset: 0;
-  content: "";
-  background: linear-gradient(
-    110deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.16) 30%,
-    rgba(255, 255, 255, 0) 60%
-  );
-  transform: translateX(-100%);
-  animation: btnShimmer 1.1s ease-in-out infinite;
-}
-
-@keyframes btnShimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-
-  100% {
-    transform: translateX(100%);
-  }
+.captcha-img {
+  width: 100px;
+  height: 36px;
+  border-radius: 6px;
 }
 
 // 微信按钮
@@ -949,24 +781,6 @@ const handleBack = () => {
   margin-right: 8px;
 }
 
-// 绑定按钮
-.btn-bind {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 48px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-  background-color: #3b82f6;
-  border-radius: 12px;
-
-  &:disabled {
-    opacity: 0.5;
-  }
-}
-
 // 验证码按钮
 .sms-btn {
   display: flex;
@@ -983,27 +797,13 @@ const handleBack = () => {
 }
 
 .sms-btn-active {
-  color: #2563eb;
-  background-color: #eff6ff;
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
 }
 
 .sms-btn-disabled {
-  color: #9ca3af;
-  background-color: #e5e7eb;
-}
-
-.captcha-img {
-  width: 100px;
-  height: 36px;
-  border-radius: 6px;
-}
-
-:global(.dark) .sms-btn-active {
-  background-color: rgba(30, 58, 138, 0.3);
-}
-
-:global(.dark) .sms-btn-disabled {
-  background-color: #4b5563;
+  color: var(--color-text-placeholder);
+  background-color: var(--color-bg-tertiary);
 }
 
 // 切换登录方式
@@ -1015,55 +815,41 @@ const handleBack = () => {
 
 .switch-text {
   font-size: 14px;
-  color: #6b7280;
-}
-
-:global(.dark) .switch-text {
-  color: #9ca3af;
+  color: var(--color-text-secondary);
 }
 
 .switch-link {
   margin-left: 4px;
   font-size: 14px;
   font-weight: 500;
-  color: #2563eb;
-  border-bottom: 1px solid #2563eb;
-}
-
-:global(.dark) .switch-link {
-  color: #60a5fa;
-  border-bottom-color: #60a5fa;
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-primary);
 }
 
 // 分割线
 .divider {
   display: flex;
   align-items: center;
-  margin-top: 24px;
-  margin-bottom: 24px;
+  margin: 24px 0;
 }
 
 .divider-line {
   flex: 1;
   height: 1px;
-  background-color: #e5e7eb;
-}
-
-:global(.dark) .divider-line {
-  background-color: #374151;
+  background-color: var(--color-border);
 }
 
 .divider-text {
   padding: 0 16px;
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--color-text-placeholder);
 }
 
 // 微信登录入口
 .wechat-entry {
   display: flex;
-  gap: 32px;
   justify-content: center;
+  gap: 32px;
 }
 
 .wechat-icon-img {
@@ -1075,23 +861,24 @@ const handleBack = () => {
   }
 }
 
+// 协议
 .agreement {
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding-top: 16px;
   margin-top: 24px;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--color-border-light);
 }
 
 .agreement-text {
   font-size: 12px;
   line-height: 1.5;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 .agreement-link {
-  color: #2563eb;
+  color: var(--color-primary);
 }
 
 // 绑定手机号弹窗
@@ -1104,12 +891,8 @@ const handleBack = () => {
   margin-bottom: 24px;
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
   text-align: center;
-}
-
-:global(.dark) .bind-title {
-  color: #fff;
+  color: var(--color-text);
 }
 
 // 演示环境提示
@@ -1122,23 +905,18 @@ const handleBack = () => {
 .demo-tip-text {
   padding: 4px 12px;
   font-size: 12px;
-  color: #f59e0b;
-  background-color: #fef3c7;
+  color: var(--color-warning);
+  background-color: var(--color-warning-light);
   border-radius: 4px;
 }
 
-:global(.dark) .demo-tip-text {
-  color: #fbbf24;
-  background-color: rgba(251, 191, 36, 0.1);
-}
-
-// 暗黑模式适配
-:deep(.wd-checkbox__label) {
+// 深度样式覆盖
+::deep(.wd-checkbox__label) {
   display: flex;
   flex-wrap: wrap;
 }
 
-:deep(.wd-popup__close) {
+::deep(.wd-popup__close) {
   top: 16px;
   right: 16px;
 }

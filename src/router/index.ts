@@ -79,7 +79,7 @@ router.beforeEach(async (to, from, next) => {
 });
 
 router.afterEach((to, from) => {
-  console.log("🎯 afterEach 钩子触发:", { to, from });
+  // 路由跳转日志（生产环境可通过 vite 配置自动移除）
 });
 
 export default router;

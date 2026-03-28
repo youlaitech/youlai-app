@@ -1,7 +1,7 @@
-﻿import request, { publicRequest } from "@/utils/request";
+﻿import request from "@/utils/request";
 
 const AUTH_BASE_URL = "/api/v1/auth";
-const WECHAT_MINIAPP_AUTH_BASE_URL = "/api/v1/wechat/miniapp/auth";
+const WXMA_AUTH_BASE_URL = "/api/v1/wxma/auth";
 
 export interface LoginData {
   username: string;
@@ -20,7 +20,7 @@ export interface LoginResult {
   openid?: string;
 }
 
-export interface CaptchaVO {
+export interface Captcha {
   captchaId: string;
   captchaBase64: string;
 }
@@ -30,7 +30,7 @@ export interface SmsLoginData {
   code: string;
 }
 
-export interface WechatMiniappLoginResult {
+export interface WxMaLoginResp {
   accessToken?: string;
   refreshToken?: string;
   tokenType?: string;
@@ -40,12 +40,12 @@ export interface WechatMiniappLoginResult {
   openid?: string;
 }
 
-export interface WechatMiniappPhoneLoginData {
+export interface WxMaPhoneLoginData {
   loginCode: string;
   phoneCode: string;
 }
 
-export interface WechatMiniappBindMobileData {
+export interface WxMaBindMobileData {
   openid: string;
   mobile: string;
   smsCode: string;
@@ -55,8 +55,8 @@ const AuthAPI = {
   /**
    * 获取图形验证码
    */
-  getCaptcha(): Promise<CaptchaVO> {
-    return publicRequest<CaptchaVO>({
+  getCaptcha(): Promise<Captcha> {
+    return request<Captcha>({
       url: `${AUTH_BASE_URL}/captcha`,
       method: "GET",
     });
@@ -66,7 +66,7 @@ const AuthAPI = {
    * 账号密码登录
    */
   login(data: LoginData): Promise<LoginResult> {
-    return publicRequest<LoginResult>({
+    return request<LoginResult>({
       url: `${AUTH_BASE_URL}/login`,
       method: "POST",
       data: data,
@@ -80,7 +80,7 @@ const AuthAPI = {
    */
   sendSmsLoginCode(mobile: string): Promise<void> {
     const mobileSafe = encodeURIComponent(mobile);
-    return publicRequest<void>({
+    return request<void>({
       url: `${AUTH_BASE_URL}/sms/code?mobile=${mobileSafe}`,
       method: "POST",
     });
@@ -92,7 +92,7 @@ const AuthAPI = {
   loginBySms(data: SmsLoginData): Promise<LoginResult> {
     const mobileSafe = encodeURIComponent(data.mobile);
     const codeSafe = encodeURIComponent(data.code);
-    return publicRequest<LoginResult>({
+    return request<LoginResult>({
       url: `${AUTH_BASE_URL}/login/sms?mobile=${mobileSafe}&code=${codeSafe}`,
       method: "POST",
     });
@@ -105,9 +105,9 @@ const AuthAPI = {
    * - 已绑定手机号的用户：直接返回 token，登录成功
    * - 未绑定手机号的用户：返回 openid，需调用绑定手机号接口
    */
-  wechatMiniappSilentLogin(code: string): Promise<WechatMiniappLoginResult> {
-    return publicRequest<WechatMiniappLoginResult>({
-      url: `${WECHAT_MINIAPP_AUTH_BASE_URL}/silent-login?code=${encodeURIComponent(code)}`,
+  wxMaSilentLogin(code: string): Promise<WxMaLoginResp> {
+    return request<WxMaLoginResp>({
+      url: `${WXMA_AUTH_BASE_URL}/silent-login?code=${encodeURIComponent(code)}`,
       method: "POST",
     });
   },
@@ -118,12 +118,11 @@ const AuthAPI = {
    * 适用场景：企业认证小程序（已开通手机号快捷登录权限）
    * 一步完成登录，无需绑定流程，自动创建新用户
    */
-  wechatMiniappPhoneLogin(data: WechatMiniappPhoneLoginData): Promise<LoginResult> {
-    const loginCodeSafe = encodeURIComponent(data.loginCode);
-    const phoneCodeSafe = encodeURIComponent(data.phoneCode);
-    return publicRequest<LoginResult>({
-      url: `${WECHAT_MINIAPP_AUTH_BASE_URL}/phone-login?loginCode=${loginCodeSafe}&phoneCode=${phoneCodeSafe}`,
+  wxMaPhoneLogin(data: WxMaPhoneLoginData): Promise<LoginResult> {
+    return request<LoginResult>({
+      url: `${WXMA_AUTH_BASE_URL}/phone-login`,
       method: "POST",
+      data: data,
     });
   },
 
@@ -132,13 +131,11 @@ const AuthAPI = {
    *
    * 演示环境说明：短信服务未配置，验证码固定为 123456
    */
-  wechatMiniappBindMobile(data: WechatMiniappBindMobileData): Promise<LoginResult> {
-    const openidSafe = encodeURIComponent(data.openid);
-    const mobileSafe = encodeURIComponent(data.mobile);
-    const smsCodeSafe = encodeURIComponent(data.smsCode);
-    return publicRequest<LoginResult>({
-      url: `${WECHAT_MINIAPP_AUTH_BASE_URL}/bind-mobile?openid=${openidSafe}&mobile=${mobileSafe}&smsCode=${smsCodeSafe}`,
+  wxMaBindMobile(data: WxMaBindMobileData): Promise<LoginResult> {
+    return request<LoginResult>({
+      url: `${WXMA_AUTH_BASE_URL}/bind-mobile`,
       method: "POST",
+      data: data,
     });
   },
 
@@ -155,8 +152,8 @@ const AuthAPI = {
   /**
    * 登出
    */
-  logout(): Promise<any> {
-    return request<any>({
+  logout() {
+    return request<void>({
       url: `${AUTH_BASE_URL}/logout`,
       method: "DELETE",
     });
@@ -166,7 +163,7 @@ const AuthAPI = {
    * 刷新令牌
    */
   refreshToken(refreshToken: string): Promise<{ accessToken: string; expiresIn: number }> {
-    return publicRequest<{ accessToken: string; expiresIn: number }>({
+    return request<{ accessToken: string; expiresIn: number }>({
       url: `${AUTH_BASE_URL}/refresh-token`,
       method: "POST",
       data: { refreshToken },

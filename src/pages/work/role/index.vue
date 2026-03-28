@@ -63,11 +63,11 @@
     <wd-popup
       v-model="dialog.visible"
       position="bottom"
-      custom-style="border-radius: 24rpx 24rpx 0 0"
+      custom-class="popup-bottom"
       @close="closeRoleDialog"
     >
       <view class="p-4">
-        <view class="text-center font-bold text-32rpx mb-4">
+        <view class="popup-title">
           {{ formData.id ? "编辑角色" : "新增角色" }}
         </view>
         <wd-form ref="formRef" :model="formData" :rules="rules">
@@ -96,14 +96,18 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <view
+    <wd-fab
       v-if="hasPermission('sys:role:create') && !dialog.visible"
-      class="fab-add"
-      hover-class="fab-add:active"
-      @click.stop="openRoleDialog()"
-    >
-      <wd-icon name="add" size="44rpx" />
-    </view>
+      @click="openRoleDialog()"
+    />
+
+    <!-- 操作菜单 -->
+    <wd-action-sheet
+      v-model="actionSheetVisible"
+      :actions="actionSheetActions"
+      cancel-text="取消"
+      @select="handleActionSelect"
+    />
   </view>
 </template>
 
@@ -111,19 +115,24 @@
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useToast } from "wot-design-uni";
-import RoleAPI, { type RolePageQuery, RolePageVO, RoleForm } from "@/api/role";
+import { useToast, useMessage } from "wot-design-uni";
+import RoleAPI, { type RolePageQuery, RoleItem, RoleForm } from "@/api/role";
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
+const { messageBox } = useMessage();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
 const submitting = ref(false);
 
 const queryParams = reactive<RolePageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const total = ref(0);
-const pageData = ref<RolePageVO[]>([]);
+const pageData = ref<RoleItem[]>([]);
 const dialog = reactive({ visible: false });
+
+const actionSheetVisible = ref(false);
+const actionSheetActions = ref<{ name: string; color?: string }[]>([]);
+const currentActionItem = ref<any>(null);
 
 const initialFormData: RoleForm = {
   id: undefined,
@@ -213,37 +222,40 @@ function closeRoleDialog() {
   Object.assign(formData, initialFormData);
 }
 
+// 操作菜单分发
+function handleActionSelect({ value }: { value: string }) {
+  const item = currentActionItem.value;
+  if (value === "编辑") {
+    openRoleDialog(item.id);
+  } else if (value === "分配权限") {
+    handleAssignPerm(item.id);
+  } else if (value === "删除") {
+    messageBox({
+      title: "确认删除",
+      msg: `确定要删除角色「${item.name}」吗？`,
+      type: "warning",
+    }).then(async () => {
+      await RoleAPI.deleteByIds(String(item.id));
+      toast.success("删除成功");
+      loadRoleList();
+    });
+  }
+}
+
 // 更多操作
-function showRoleActions(item: RolePageVO) {
-  const actions: string[] = [];
-  const actionMap: Record<string, () => void> = {};
+function showRoleActions(item: RoleItem) {
+  const actions: { name: string; color?: string }[] = [];
 
-  // 编辑
   if (hasPermission("sys:role:update")) {
-    actions.push("编辑");
-    actionMap["编辑"] = () => openRoleDialog(item.id);
+    actions.push({ name: "编辑" });
   }
 
-  // 分配权限
   if (hasPermission("sys:role:assign")) {
-    actions.push("分配权限");
-    actionMap["分配权限"] = () => handleAssignPerm(item.id);
+    actions.push({ name: "分配权限" });
   }
 
-  // 删除
   if (hasPermission("sys:role:delete")) {
-    actions.push("删除");
-    actionMap["删除"] = async () => {
-      const { confirm } = await uni.showModal({
-        title: "确认删除",
-        content: `确定要删除角色「${item.name}」吗？`,
-      });
-      if (confirm) {
-        await RoleAPI.deleteByIds(String(item.id));
-        toast.success("删除成功");
-        loadRoleList();
-      }
-    };
+    actions.push({ name: "删除", color: "var(--color-danger)" });
   }
 
   if (actions.length === 0) {
@@ -251,13 +263,9 @@ function showRoleActions(item: RolePageVO) {
     return;
   }
 
-  uni.showActionSheet({
-    itemList: actions,
-    success: ({ tapIndex }) => {
-      const action = actions[tapIndex];
-      actionMap[action]?.();
-    },
-  });
+  currentActionItem.value = item;
+  actionSheetActions.value = actions;
+  actionSheetVisible.value = true;
 }
 
 // 分配权限

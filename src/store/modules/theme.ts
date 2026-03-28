@@ -56,7 +56,6 @@ export const useThemeStore = defineStore("theme", () => {
    * 设置导航栏颜色
    */
   const setNavigationBarColor = () => {
-    console.log("设置导航栏颜色", theme.value)
     uni.setNavigationBarColor({
       frontColor: theme.value === "light" ? "#000000" : "#ffffff",
       backgroundColor: theme.value === "light" ? "#ffffff" : "#000000",
@@ -81,7 +80,6 @@ export const useThemeStore = defineStore("theme", () => {
     currentThemeColor.value = color
     Storage.set(THEME_COLOR_KEY, color)
     themeVars.colorTheme = color.primary
-    console.log("主题色已设置:", color.name)
   }
 
   /**

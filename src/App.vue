@@ -1,5 +1,3 @@
 <script setup lang="ts">
-onShow(() => {
-  console.log("onShow");
-});
+onShow(() => {});
 </script>

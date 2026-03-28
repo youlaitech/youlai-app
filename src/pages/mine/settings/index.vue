@@ -68,7 +68,7 @@ const navigateToNetworkTest = () => {
 // 是否正在清理
 const clearing = ref(false);
 // 缓存大小
-const cacheSize = ref<any>("计算中...");
+const cacheSize = ref<string>("计算中...");
 // 获取缓存大小
 const getCacheSize = async () => {
   try {
@@ -84,8 +84,7 @@ const getCacheSize = async () => {
     if (!cacheSize.value) {
       cacheSize.value = "0B";
     }
-  } catch (error) {
-    console.error("获取缓存大小失败:", error);
+  } catch {
     cacheSize.value = "获取失败";
   }
 };
@@ -147,20 +146,14 @@ const handleClearCache = async () => {
 };
 
 // 退出登录
-const handleLogout = () => {
-  uni.showModal({
-    title: "提示",
-    content: "确定要退出登录吗？",
-    success: function (res) {
-      if (res.confirm) {
-        userStore.logout();
-        uni.showToast({
-          title: "已退出登录",
-          icon: "success",
-        });
-      }
-    },
-  });
+const handleLogout = async () => {
+  try {
+    await messageBox({ title: "提示", msg: "确定要退出登录吗？", type: "warning" });
+    userStore.logout();
+    toast.success("已退出登录");
+  } catch {
+    // 用户取消
+  }
 };
 
 // 检查登录状态
@@ -186,22 +179,22 @@ onLoad(() => {
   margin-top: 60rpx;
 }
 
-// 退出登录按钮样式
-:deep(.logout-btn) {
-  width: 80% !important;
-  height: 80rpx !important;
-  font-size: 32rpx !important;
-  font-weight: bold !important;
-  border-radius: 40rpx !important;
-  transition: all 0.3s ease !important;
+// 退出登录按钮样式 - 使用更具体的选择器替代 !important
+::deep(.wd-button.logout-btn) {
+  width: 80%;
+  height: 80rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 40rpx;
+  transition: all 0.3s ease;
 
   &:active {
-    opacity: 0.8 !important;
-    transform: scale(0.98) !important;
+    opacity: 0.8;
+    transform: scale(0.98);
   }
 }
 
-:deep(.loading-center) {
+::deep(.loading-center) {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -210,13 +203,13 @@ onLoad(() => {
   border-radius: 12rpx;
 }
 
-:deep(.loading-center .wd-loading__spinner) {
+::deep(.loading-center .wd-loading__spinner) {
   margin: 0 auto;
 }
 
-:deep(.loading-center .wd-loading__text) {
+::deep(.loading-center .wd-loading__text) {
   margin-top: 20rpx;
-  color: #fff;
+  color: var(--color-text-inverse);
   text-align: center;
 }
 </style>

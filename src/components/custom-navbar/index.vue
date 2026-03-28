@@ -150,7 +150,7 @@ export default {
 <style lang="scss" scoped>
 .custom-navbar {
   position: relative;
-  z-index: 999;
+  z-index: var(--z-navbar);
   box-sizing: border-box;
   background-color: var(--color-bg);
 
@@ -164,7 +164,7 @@ export default {
 
 .custom-navbar__content {
   position: relative;
-  z-index: 10;
+  z-index: var(--z-dropdown);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -172,7 +172,7 @@ export default {
 }
 
 .custom-navbar__left {
-  z-index: 10;
+  z-index: var(--z-dropdown);
   display: flex;
   align-items: center;
 }
@@ -196,7 +196,7 @@ export default {
   position: absolute;
   top: 50%;
   left: 50%;
-  z-index: 10;
+  z-index: var(--z-dropdown);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -206,7 +206,7 @@ export default {
 }
 
 .custom-navbar__title {
-  z-index: 10;
+  z-index: var(--z-dropdown);
   overflow: hidden;
   font-size: 32rpx;
   color: var(--color-text);
@@ -215,7 +215,7 @@ export default {
 }
 
 .custom-navbar__right {
-  z-index: 10;
+  z-index: var(--z-dropdown);
   display: flex;
   align-items: center;
   justify-content: flex-end;

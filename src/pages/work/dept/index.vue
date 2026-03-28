@@ -36,11 +36,11 @@
     <wd-popup
       v-model="dialog.visible"
       position="bottom"
-      custom-style="border-radius: 24rpx 24rpx 0 0"
+      custom-class="popup-bottom"
       @close="closeDeptDialog"
     >
       <view class="p-4">
-        <view class="text-center font-bold text-32rpx mb-4">
+        <view class="popup-title">
           {{ formData.id ? "编辑部门" : "新增部门" }}
         </view>
         <wd-form ref="formRef" :model="formData" :rules="rules">
@@ -72,32 +72,41 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <view
+    <wd-fab
       v-if="hasPermission('sys:dept:create') && !dialog.visible"
-      class="fab-add"
-      hover-class="fab-add:active"
-      @click.stop="openDeptDialog()"
-    >
-      <wd-icon name="add" size="44rpx" />
-    </view>
+      @click="openDeptDialog()"
+    />
+
+    <!-- 操作菜单 -->
+    <wd-action-sheet
+      v-model="actionSheetVisible"
+      :actions="actionSheetActions"
+      cancel-text="取消"
+      @select="handleActionSelect"
+    />
   </view>
 </template>
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useToast } from "wot-design-uni";
-import DeptAPI, { type DeptQuery, DeptVO, DeptForm } from "@/api/dept";
+import { useToast, useMessage } from "wot-design-uni";
+import DeptAPI, { type DeptQuery, DeptItem, DeptForm } from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
 import CustomTree from "@/components/custom-tree/index.vue";
 
 const toast = useToast();
+const { messageBox } = useMessage();
 const formRef = ref();
 const submitting = ref(false);
 
 const queryParams = reactive<DeptQuery>({ keywords: "" });
-const deptList = ref<DeptVO[]>([]);
+const deptList = ref<DeptItem[]>([]);
 const dialog = reactive({ visible: false });
+
+const actionSheetVisible = ref(false);
+const actionSheetActions = ref<{ name: string; color?: string }[]>([]);
+const currentActionItem = ref<any>(null);
 
 const initialFormData: DeptForm = {
   id: undefined,
@@ -113,7 +122,7 @@ const formData = reactive<DeptForm>({ ...initialFormData });
 // 转换为树组件数据格式
 const treeData = computed(() => deptList.value.map((dept) => transformDeptToTree(dept)));
 
-function transformDeptToTree(dept: DeptVO): any {
+function transformDeptToTree(dept: DeptItem): any {
   return {
     value: String(dept.id),
     label: dept.name,
@@ -184,53 +193,56 @@ const handleSearch = () => loadDeptList();
 
 // 加载列表
 function loadDeptList() {
-  console.log("loadDeptList called");
   DeptAPI.getList(queryParams)
     .then((data) => {
-      console.log("deptList data:", data);
       deptList.value = data;
-      console.log("treeData:", treeData.value);
     })
-    .catch((err) => {
-      console.error("loadDeptList error:", err);
+    .catch(() => {
+      // API 层已处理错误提示
     });
+}
+
+// 操作菜单分发
+function handleActionSelect({ value }: { value: string }) {
+  const dept = currentActionItem.value;
+  if (value === "新增子部门") {
+    handleAddChild(dept);
+  } else if (value === "编辑") {
+    openDeptDialog(dept);
+  } else if (value === "删除") {
+    messageBox({
+      title: "确认删除",
+      msg: `确定要删除部门「${dept.name}」吗？`,
+      type: "warning",
+    }).then(async () => {
+      await DeptAPI.deleteByIds(String(dept.id));
+      toast.success("删除成功");
+      loadDeptList();
+    });
+  }
 }
 
 // 处理节点操作按钮点击
 function handleNodeAction(node: any) {
-  const dept: DeptVO = {
+  const dept: DeptItem = {
     id: node.id,
     name: node.label,
     status: node.status,
     children: node.children,
-  } as DeptVO;
+  } as DeptItem;
 
-  const actions: string[] = [];
-  const actionMap: Record<string, () => void> = {};
+  const actions: { name: string; color?: string }[] = [];
 
   if (hasPermission("sys:dept:create")) {
-    actions.push("新增子部门");
-    actionMap["新增子部门"] = () => handleAddChild(dept);
+    actions.push({ name: "新增子部门" });
   }
 
   if (hasPermission("sys:dept:update")) {
-    actions.push("编辑");
-    actionMap["编辑"] = () => openDeptDialog(dept);
+    actions.push({ name: "编辑" });
   }
 
   if (hasPermission("sys:dept:delete")) {
-    actions.push("删除");
-    actionMap["删除"] = async () => {
-      const { confirm } = await uni.showModal({
-        title: "确认删除",
-        content: `确定要删除部门「${dept.name}」吗？`,
-      });
-      if (confirm) {
-        await DeptAPI.deleteByIds(String(dept.id));
-        toast.success("删除成功");
-        loadDeptList();
-      }
-    };
+    actions.push({ name: "删除", color: "var(--color-danger)" });
   }
 
   if (actions.length === 0) {
@@ -238,17 +250,13 @@ function handleNodeAction(node: any) {
     return;
   }
 
-  uni.showActionSheet({
-    itemList: actions,
-    success: ({ tapIndex }) => {
-      const action = actions[tapIndex];
-      actionMap[action]?.();
-    },
-  });
+  currentActionItem.value = dept;
+  actionSheetActions.value = actions;
+  actionSheetVisible.value = true;
 }
 
 // 打开弹窗（新增/编辑）
-async function openDeptDialog(dept?: DeptVO) {
+async function openDeptDialog(dept?: DeptItem) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
   parentSelected.value = [];
@@ -286,8 +294,8 @@ async function openDeptDialog(dept?: DeptVO) {
 }
 
 // 新增子部门
-function handleAddChild(dept: DeptVO) {
-  openDeptDialog({ id: undefined, parentId: dept.id } as DeptVO);
+function handleAddChild(dept: DeptItem) {
+  openDeptDialog({ id: undefined, parentId: dept.id } as DeptItem);
   formData.parentId = dept.id!;
   parentSelected.value = [String(dept.id)];
 }
@@ -318,7 +326,6 @@ function closeDeptDialog() {
 }
 
 onLoad(() => {
-  console.log("onLoad triggered");
   loadDeptList();
 });
 </script>
@@ -335,11 +342,3 @@ export default { options: { styleIsolation: "shared" } };
   }
 }
 </route>
-
-<style lang="scss" scoped>
-.popup-actions {
-  display: flex;
-  gap: 24rpx;
-  margin-top: 32rpx;
-}
-</style>

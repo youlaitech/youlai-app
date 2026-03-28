@@ -74,7 +74,7 @@
     <wd-popup
       v-model="showCustomColorInput"
       position="bottom"
-      custom-style="border-radius: 24rpx 24rpx 0 0"
+      custom-class="popup-bottom"
     >
       <view class="popup-content">
         <view class="popup-header">
@@ -181,23 +181,15 @@ const applyCustomColor = () => {
 };
 
 // 重置为默认主题
-const handleResetTheme = () => {
-  uni.showModal({
-    title: "确认重置",
-    content: "确定要重置为默认主题吗？",
-    success: (res) => {
-      if (res.confirm) {
-        setThemeColor(themeColorOptions[0]);
-        customColor.value = themeColorOptions[0].primary;
-
-        uni.showToast({
-          title: "已重置为默认主题",
-          icon: "success",
-          duration: 1500,
-        });
-      }
-    },
-  });
+const handleResetTheme = async () => {
+  try {
+    await messageBox({ title: "确认重置", msg: "确定要重置为默认主题吗？", type: "warning" });
+    setThemeColor(themeColorOptions[0]);
+    customColor.value = themeColorOptions[0].primary;
+    toast.success("已重置为默认主题");
+  } catch {
+    // 用户取消
+  }
 };
 
 // 切换暗黑模式

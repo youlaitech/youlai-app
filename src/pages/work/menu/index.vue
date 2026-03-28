@@ -44,11 +44,11 @@
     <wd-popup
       v-model="dialog.visible"
       position="bottom"
-      custom-style="border-radius: 24rpx 24rpx 0 0; max-height: 80vh"
+      custom-class="popup-bottom-scroll"
       @close="closeMenuDialog"
     >
       <view class="p-4">
-        <view class="text-center font-bold text-32rpx mb-4">
+        <view class="popup-title">
           {{ formData.id ? "编辑菜单" : "新增菜单" }}
         </view>
         <scroll-view scroll-y class="max-h-60vh">
@@ -107,32 +107,41 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <view
+    <wd-fab
       v-if="hasPermission('sys:menu:create') && !dialog.visible"
-      class="fab-add"
-      hover-class="fab-add:active"
-      @click.stop="openMenuDialog()"
-    >
-      <wd-icon name="add" size="44rpx" />
-    </view>
+      @click="openMenuDialog()"
+    />
+
+    <!-- 操作菜单 -->
+    <wd-action-sheet
+      v-model="actionSheetVisible"
+      :actions="actionSheetActions"
+      cancel-text="取消"
+      @select="handleActionSelect"
+    />
   </view>
 </template>
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useToast } from "wot-design-uni";
-import MenuAPI, { type MenuQuery, MenuVO, MenuForm } from "@/api/menu";
+import { useToast, useMessage } from "wot-design-uni";
+import MenuAPI, { type MenuQuery, MenuItem, MenuForm } from "@/api/menu";
 import { hasPermission } from "@/utils/permission";
 import CustomTree from "@/components/custom-tree/index.vue";
 
 const toast = useToast();
+const { messageBox } = useMessage();
 const formRef = ref();
 const submitting = ref(false);
 
 const queryParams = reactive<MenuQuery>({ keywords: "" });
-const menuList = ref<MenuVO[]>([]);
+const menuList = ref<MenuItem[]>([]);
 const dialog = reactive({ visible: false });
+
+const actionSheetVisible = ref(false);
+const actionSheetActions = ref<{ name: string; color?: string }[]>([]);
+const currentActionItem = ref<any>(null);
 
 const initialFormData: MenuForm = {
   id: undefined,
@@ -152,7 +161,7 @@ const formData = reactive<MenuForm>({ ...initialFormData });
 // 转换为树组件数据格式
 const treeData = computed(() => menuList.value.map((menu) => transformMenuToTree(menu)));
 
-function transformMenuToTree(menu: MenuVO): any {
+function transformMenuToTree(menu: MenuItem): any {
   return {
     value: menu.id,
     label: menu.name,
@@ -253,42 +262,48 @@ function loadMenuList() {
   });
 }
 
+// 操作菜单分发
+function handleActionSelect({ value }: { value: string }) {
+  const menu = currentActionItem.value;
+  if (value === "新增子菜单") {
+    handleAddChild(menu);
+  } else if (value === "编辑") {
+    openMenuDialog(menu);
+  } else if (value === "删除") {
+    messageBox({
+      title: "确认删除",
+      msg: `确定要删除菜单「${menu.name}」吗？`,
+      type: "warning",
+    }).then(async () => {
+      await MenuAPI.deleteById(menu.id!);
+      toast.success("删除成功");
+      loadMenuList();
+    });
+  }
+}
+
 // 处理节点操作按钮点击
 function handleNodeAction(node: any) {
-  const menu: MenuVO = {
+  const menu: MenuItem = {
     id: node.id,
     name: node.label,
     type: node.type,
     visible: node.visible,
     children: node.children,
-  } as MenuVO;
+  } as MenuItem;
 
-  const actions: string[] = [];
-  const actionMap: Record<string, () => void> = {};
+  const actions: { name: string; color?: string }[] = [];
 
   if (hasPermission("sys:menu:create") && node.type !== 3) {
-    actions.push("新增子菜单");
-    actionMap["新增子菜单"] = () => handleAddChild(menu);
+    actions.push({ name: "新增子菜单" });
   }
 
   if (hasPermission("sys:menu:update")) {
-    actions.push("编辑");
-    actionMap["编辑"] = () => openMenuDialog(menu);
+    actions.push({ name: "编辑" });
   }
 
   if (hasPermission("sys:menu:delete")) {
-    actions.push("删除");
-    actionMap["删除"] = async () => {
-      const { confirm } = await uni.showModal({
-        title: "确认删除",
-        content: `确定要删除菜单「${menu.name}」吗？`,
-      });
-      if (confirm) {
-        await MenuAPI.deleteById(menu.id!);
-        toast.success("删除成功");
-        loadMenuList();
-      }
-    };
+    actions.push({ name: "删除", color: "var(--color-danger)" });
   }
 
   if (actions.length === 0) {
@@ -296,17 +311,13 @@ function handleNodeAction(node: any) {
     return;
   }
 
-  uni.showActionSheet({
-    itemList: actions,
-    success: ({ tapIndex }) => {
-      const action = actions[tapIndex];
-      actionMap[action]?.();
-    },
-  });
+  currentActionItem.value = menu;
+  actionSheetActions.value = actions;
+  actionSheetVisible.value = true;
 }
 
 // 打开弹窗（新增/编辑）
-async function openMenuDialog(menu?: MenuVO) {
+async function openMenuDialog(menu?: MenuItem) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
   parentSelected.value = [];
@@ -346,8 +357,8 @@ async function openMenuDialog(menu?: MenuVO) {
 }
 
 // 新增子菜单
-function handleAddChild(menu: MenuVO) {
-  openMenuDialog({ id: undefined, parentId: menu.id } as MenuVO);
+function handleAddChild(menu: MenuItem) {
+  openMenuDialog({ id: undefined, parentId: menu.id } as MenuItem);
   formData.parentId = menu.id!;
   parentSelected.value = [menu.id!];
 }
@@ -396,12 +407,6 @@ export default { options: { styleIsolation: "shared" } };
 </route>
 
 <style lang="scss" scoped>
-.popup-actions {
-  display: flex;
-  gap: 24rpx;
-  margin-top: 32rpx;
-}
-
 .menu-node {
   display: flex;
   flex: 1;

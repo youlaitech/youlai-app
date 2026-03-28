@@ -78,7 +78,7 @@
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { useToast } from "wot-design-uni";
-import MenuAPI, { type MenuVO } from "@/api/menu";
+import MenuAPI, { type MenuItem } from "@/api/menu";
 import RoleAPI from "@/api/role";
 import CustomTree from "@/components/custom-tree/index.vue";
 import type { TreeOption } from "@/components/custom-tree/index.vue";
@@ -87,7 +87,7 @@ const toast = useToast();
 const submitting = ref(false);
 const roleId = ref<number>(0);
 const roleName = ref("");
-const menuList = ref<MenuVO[]>([]);
+const menuList = ref<MenuItem[]>([]);
 const checkedKeys = ref<string[]>([]);
 
 // 转换菜单为树结构
@@ -97,7 +97,7 @@ const menuTree = computed<TreeOption[]>(() => {
 });
 
 // 转换菜单为树组件格式
-function transformMenuToTree(menus: MenuVO[]): TreeOption[] {
+function transformMenuToTree(menus: MenuItem[]): TreeOption[] {
   return menus.map((menu) => {
     const id = String(menu.id);
     const name = menu.name ?? "";
@@ -129,9 +129,9 @@ function handleClearAll() {
 }
 
 // 获取所有菜单ID
-function getAllMenuIds(menus: MenuVO[]): string[] {
+function getAllMenuIds(menus: MenuItem[]): string[] {
   const ids: string[] = [];
-  function traverse(list: MenuVO[]) {
+  function traverse(list: MenuItem[]) {
     for (const menu of list) {
       if (menu.id) ids.push(String(menu.id));
       if (menu.children) traverse(menu.children);

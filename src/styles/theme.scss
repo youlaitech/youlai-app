@@ -10,6 +10,18 @@
 :root,
 page {
   // -----------------------------------------------------------------------
+  // z-index 层级变量
+  // -----------------------------------------------------------------------
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-popup: 400;
+  --z-dialog: 500;
+  --z-toast: 600;
+  --z-navbar: 700;
+  --z-fab: 800;
+
+  // -----------------------------------------------------------------------
   // 主题色
   // -----------------------------------------------------------------------
   --color-primary: #4d80f0;
@@ -27,6 +39,7 @@ page {
   // -----------------------------------------------------------------------
   --color-bg: #ffffff;
   --color-bg-secondary: #f5f5f5;
+  --color-bg-tertiary: #f1f5f9;
 
   // -----------------------------------------------------------------------
   // 文字颜色
@@ -35,6 +48,7 @@ page {
   --color-text-secondary: #6b7280;
   --color-text-placeholder: #9ca3af;
   --color-text-disabled: #d1d5db;
+  --color-text-inverse: #ffffff;
 
   // -----------------------------------------------------------------------
   // 边框颜色
@@ -64,6 +78,23 @@ page {
   --wot-color-text-secondary: var(--color-text-secondary);
   --wot-color-text-placeholder: var(--color-text-placeholder);
   --wot-color-border: var(--color-border);
+
+  // -----------------------------------------------------------------------
+  // 间距规范（8rpx 网格基数）
+  // -----------------------------------------------------------------------
+  // 基数：4rpx / 8rpx / 16rpx / 24rpx / 32rpx / 40rpx / 48rpx / 64rpx
+  --spacing-xxs: 4rpx;
+  --spacing-xs: 8rpx;
+  --spacing-sm: 16rpx;
+  --spacing-md: 24rpx;
+  --spacing-lg: 32rpx;
+  --spacing-xl: 40rpx;
+  --spacing-xxl: 48rpx;
+  --spacing-page: 32rpx;
+  --spacing-card: 24rpx;
+  --spacing-section: 24rpx;
+  --spacing-element: 16rpx;
+  --spacing-compact: 8rpx;
 }
 
 // ==========================================================================
@@ -84,10 +115,11 @@ page {
   --color-danger-light: #7f1d1d;
 
   // -----------------------------------------------------------------------
-  // 背景色 (Material Design)
+  // 背景色 (Material Design) - 不使用纯黑 #000000
   // -----------------------------------------------------------------------
-  --color-bg: #121212;
-  --color-bg-secondary: #1e1e1e;
+  --color-bg: #1f2937;
+  --color-bg-secondary: #111827;
+  --color-bg-tertiary: #1e293b;
 
   // -----------------------------------------------------------------------
   // 文字颜色
@@ -96,6 +128,7 @@ page {
   --color-text-secondary: #9ca3af;
   --color-text-placeholder: #6b7280;
   --color-text-disabled: #4b5563;
+  --color-text-inverse: #1f2937;
 
   // -----------------------------------------------------------------------
   // 边框颜色

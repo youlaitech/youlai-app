@@ -23,7 +23,7 @@
           @itemclick="handleNavClick(item)"
         >
           <view class="nav-item">
-            <image class="nav-item__icon" :src="item.icon" />
+            <image class="nav-item__icon" :src="item.icon" mode="aspectFit" />
             <text class="nav-item__label">{{ item.title }}</text>
           </view>
         </wd-grid-item>
@@ -34,7 +34,7 @@
     <view class="m-24rpx">
       <view class="notice-bar" @click="handleNoticeClick">
         <view class="notice-bar__icon">
-          <wd-icon name="check-outline" size="32rpx" color="#34D19D" />
+          <wd-icon name="check-outline" size="32rpx" color="var(--color-success)" />
         </view>
         <view class="notice-bar__content">
           <text class="notice-bar__text">{{ noticeText || "暂无通知公告" }}</text>
@@ -96,20 +96,20 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { onReady } from "@dcloudio/uni-app";
+import { onReady, onShow } from "@dcloudio/uni-app";
 import { dayjs } from "wot-design-uni";
 import { useRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
 import { menuConfig } from "@/config/menu";
 import { checkLogin, isLoggedIn } from "@/utils/auth";
-import LogAPI, { type VisitStatsVO as ApiVisitStatsVO, type VisitTrendVO } from "@/api/log";
-import NoticeAPI, { type NoticePageVO } from "@/api/notice";
+import LogAPI, { type VisitStats as ApiVisitStats, type VisitTrend } from "@/api/log";
+import NoticeAPI, { type NoticeItem } from "@/api/notice";
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
-type VisitStatsVO = ApiVisitStatsVO;
+type VisitStatsVO = ApiVisitStats;
 
 interface NavItem {
   icon: string;
@@ -146,13 +146,13 @@ const visitStatsData = ref<VisitStatsVO>({
 
 const appVersion = ref<string>("");
 
-const noticeList = ref<NoticePageVO[]>([]);
+const noticeList = ref<NoticeItem[]>([]);
 const noticeText = computed(() => {
   if (!noticeList.value.length) {
     return "暂无通知";
   }
   const titles = noticeList.value
-    .map((n: NoticePageVO) => n.title)
+    .map((n: NoticeItem) => n.title)
     .filter(Boolean)
     .slice(0, 2) as string[];
   return titles.length ? titles.join("    ") : "暂无通知";
@@ -272,7 +272,7 @@ async function loadVisitTrendData() {
     .format("YYYY-MM-DD");
 
   try {
-    const data: VisitTrendVO = await LogAPI.getVisitTrend({ startDate, endDate });
+    const data: VisitTrend = await LogAPI.getVisitTrend({ startDate, endDate });
     chartData.value = JSON.parse(
       JSON.stringify({
         categories: (data.dates || []).map((d) => dayjs(d).format("MM-DD")),
@@ -323,12 +323,10 @@ function handleNoticeClick() {
   router.push({ path: "/pages/work/notice/index" });
 }
 
-function handleSwiperClick(e: any) {
-  console.log("Swiper click:", e);
+function handleSwiperClick(_e: any) {
 }
 
-function handleSwiperChange(e: any) {
-  console.log("Swiper change:", e);
+function handleSwiperChange(_e: any) {
 }
 
 function handleDataRangeChange({ value }: { value: number }) {
@@ -343,6 +341,12 @@ function handleDataRangeChange({ value }: { value: number }) {
 onReady(() => {
   loadAppVersion();
   loadNoticeData();
+  loadVisitStatsData();
+  loadVisitTrendData();
+});
+
+// 每次页面显示时刷新数据（登录后跳转回来也能更新）
+onShow(() => {
   loadVisitStatsData();
   loadVisitTrendData();
 });
@@ -362,14 +366,14 @@ onReady(() => {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 1;
+  z-index: var(--z-sticky);
   height: 120rpx;
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(245, 247, 250, 0) 0%,
-    rgba(245, 247, 250, 0.85) 60%,
-    rgba(245, 247, 250, 1) 100%
+    transparent 0%,
+    var(--color-bg-secondary) 60%,
+    var(--color-bg-secondary) 100%
   );
 }
 
@@ -381,13 +385,13 @@ onReady(() => {
 
 .section--overlay {
   position: relative;
-  z-index: 2;
+  z-index: var(--z-sticky);
   padding: 18rpx 8rpx;
   margin: 24rpx;
   margin-top: -120rpx;
   background: var(--color-bg);
   border-radius: 24rpx;
-  box-shadow: 0 16rpx 36rpx rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
 }
 
 .nav-item {
@@ -416,7 +420,7 @@ onReady(() => {
   background: var(--color-bg);
   border: 1rpx solid var(--color-border);
   border-radius: 16rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 
   &__icon {
     display: flex;
@@ -456,11 +460,11 @@ onReady(() => {
   background: var(--color-bg);
   border: 1rpx solid var(--color-border);
   border-radius: 16rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 
   &__header {
     position: relative;
-    z-index: 1;
+    z-index: var(--z-sticky);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -488,24 +492,24 @@ onReady(() => {
     border-radius: 50%;
 
     &--green {
-      background: #34d19d;
+      background: var(--color-success);
       box-shadow: 0 0 10rpx rgba(52, 209, 157, 0.4);
     }
 
     &--blue {
-      background: #409eff;
-      box-shadow: 0 0 10rpx rgba(64, 158, 255, 0.4);
+      background: var(--color-primary);
+      box-shadow: 0 0 10rpx rgba(37, 99, 235, 0.4);
     }
 
     &--orange {
-      background: #faa21e;
-      box-shadow: 0 0 12rpx rgba(250, 162, 30, 0.4);
+      background: var(--color-warning);
+      box-shadow: 0 0 12rpx rgba(245, 158, 11, 0.4);
     }
   }
 
   &__num {
     position: relative;
-    z-index: 1;
+    z-index: var(--z-sticky);
     font-size: 48rpx;
     font-weight: 700;
     line-height: 1;

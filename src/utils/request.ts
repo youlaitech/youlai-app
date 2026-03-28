@@ -25,8 +25,6 @@ interface RequestOptions<T = any> {
   header?: Record<string, string>;
   timeout?: number;
   responseType?: "text" | "arraybuffer";
-  /** 是否跳过错误提示（如 Toast） */
-  skipErrorToast?: boolean;
 }
 
 /**
@@ -95,13 +93,5 @@ function request<T = any>(options: RequestOptions): Promise<T> {
   });
 }
 
-/**
- * 无需认证的请求（兼容旧调用）
- *
- * 说明：当前 request 实现不会在“无 token”时阻断请求，认证与否由后端决定。
- */
-export function publicRequest<T = any>(options: RequestOptions): Promise<T> {
-  return request<T>(options);
-}
-
 export default request;
+

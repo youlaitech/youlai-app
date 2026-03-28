@@ -53,22 +53,11 @@
       "type": "page"
     },
     {
-      "path": "pages/mine/feedback/index",
-      "type": "page",
-      "name": "feedback",
-      "style": {
-        "navigationBarTitleText": "意见反馈"
-      },
-      "meta": {
-        "requireAuth": true
-      }
-    },
-    {
       "path": "pages/mine/official/index",
       "type": "page",
       "name": "official",
       "style": {
-        "navigationBarTitleText": "有来技术"
+        "navigationBarTitleText": "公众号"
       }
     },
     {
@@ -177,7 +166,11 @@
     },
     {
       "path": "pages/mine/settings/network/index",
-      "type": "page"
+      "type": "page",
+      "name": "network",
+      "style": {
+        "navigationBarTitleText": "网络测试"
+      }
     },
     {
       "path": "pages/mine/settings/privacy/index",

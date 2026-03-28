@@ -4,7 +4,7 @@ const DICT_BASE_URL = "/api/v1/dicts";
 
 const DictAPI = {
   getPage(queryParams: DictTypePageQuery) {
-    return request<any>({
+    return request<PageResult<DictTypeItem>>({
       url: `${DICT_BASE_URL}`,
       method: "GET",
       data: queryParams,
@@ -42,7 +42,7 @@ const DictAPI = {
   },
 
   getItemPage(dictCode: string, queryParams: DictItemPageQuery) {
-    return request<any>({
+    return request<PageResult<DictDataItem>>({
       url: `${DICT_BASE_URL}/${dictCode}/items`,
       method: "GET",
       data: queryParams,
@@ -95,7 +95,7 @@ export interface DictTypeForm {
   remark?: string;
 }
 
-export interface DictTypePageVO {
+export interface DictTypeItem {
   id?: string;
   name?: string;
   dictCode?: string;
@@ -116,7 +116,7 @@ export interface DictItemForm {
   status?: number;
 }
 
-export interface DictItemPageVO {
+export interface DictDataItem {
   id?: string;
   dictCode?: string;
   label?: string;

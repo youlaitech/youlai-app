@@ -166,7 +166,7 @@ import UserAPI, {
   PasswordChangeForm,
   MobileBindingForm,
   EmailBindingForm,
-  UserProfileVO,
+  UserProfile,
 } from "@/api/user";
 
 const validatorConfirmPassword = (value: string) => {
@@ -207,7 +207,7 @@ const dialog = reactive({
   type: "" as DialogType, // 修改账号资料,修改密码、绑定手机、绑定邮箱
 });
 
-const userProfile = ref<UserProfileVO>(); //用户信息
+const userProfile = ref<UserProfile>(); //用户信息
 const passwordChangeForm = reactive<PasswordChangeForm>({});
 const mobileBindingForm = reactive<MobileBindingForm>({});
 const emailBindingForm = reactive<EmailBindingForm>({});
@@ -222,22 +222,14 @@ const emailCountdown = ref(0);
 const emailTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 
 const handleUnbindWechat = async () => {
-  uni.showModal({
-    title: "提示",
-    content: "确定要解绑微信吗？解绑后将无法使用微信小程序登录",
-    success: async (res) => {
-      if (!res.confirm) return;
-
-      try {
-        await UserAPI.unbindSocial("WECHAT_MINI");
-        uni.showToast({ title: "解绑成功", icon: "success" });
-        loadUserProfile();
-      } catch (e) {
-        console.error("解绑微信失败", e);
-        uni.showToast({ title: "解绑失败", icon: "none" });
-      }
-    },
-  });
+  try {
+    await messageBox({ title: "提示", msg: "确定要解绑微信吗？解绑后将无法使用微信小程序登录", type: "warning" });
+    await UserAPI.unbindSocial("WECHAT_MINI");
+    toast.success("解绑成功");
+    loadUserProfile();
+  } catch {
+    // 用户取消或解绑失败
+  }
 };
 
 /** 加载用户信息 */

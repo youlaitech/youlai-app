@@ -5,7 +5,7 @@ const ROLE_BASE_URL = "/api/v1/roles";
 const RoleAPI = {
   /** 获取角色分页数据 */
   getPage(queryParams?: RolePageQuery) {
-    return request<any>({
+    return request<PageResult<RoleItem>>({
       url: `${ROLE_BASE_URL}`,
       method: "GET",
       data: queryParams,
@@ -105,7 +105,7 @@ export interface RolePageQuery extends PageQuery {
 }
 
 /** 角色分页对象 */
-export interface RolePageVO {
+export interface RoleItem {
   /** 角色编码 */
   code?: string;
   /** 角色ID */

@@ -21,7 +21,7 @@ const UserAPI = {
    * @param queryParams 查询参数
    */
   getPage(queryParams: UserPageQuery) {
-    return request<any>({
+    return request<PageResult<UserItem>>({
       url: `${USER_BASE_URL}`,
       method: "GET",
       data: queryParams,
@@ -69,7 +69,7 @@ const UserAPI = {
 
   /** 获取个人中心用户信息 */
   getProfile() {
-    return request<UserProfileVO>({
+    return request<UserProfile>({
       url: `${USER_BASE_URL}/profile`,
       method: "GET",
     });
@@ -217,7 +217,7 @@ export interface UserPageQuery extends PageQuery {
 }
 
 /** 用户分页对象 */
-export interface UserPageVO {
+export interface UserItem {
   /** 用户头像URL */
   avatar?: string;
   /** 创建时间 */
@@ -243,7 +243,7 @@ export interface UserPageVO {
 }
 
 /** 个人中心用户信息 */
-export interface UserProfileVO {
+export interface UserProfile {
   /** 用户ID */
   id?: number;
 

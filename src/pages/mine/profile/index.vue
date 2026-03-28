@@ -9,14 +9,11 @@
                 <view v-if="!userProfile.avatar" class="img" @click="handleAvatarUpload">
                   <wd-icon name="fill-camera" custom-class="img-icon" />
                 </view>
-                <wd-img
+                <image
                   v-if="userProfile.avatar"
-                  round
-                  width="80px"
-                  height="80px"
+                  class="img"
                   :src="userProfile.avatar"
                   mode="aspectFit"
-                  custom-class="profile-img"
                   @click="handleAvatarUpload"
                 />
               </view>
@@ -74,13 +71,13 @@
   </view>
 </template>
 <script setup lang="ts">
-import UserAPI, { type UserProfileVO, UserProfileForm } from "@/api/user";
+import UserAPI, { type UserProfile, UserProfileForm } from "@/api/user";
 import FileAPI, { type FileInfo } from "@/api/file";
 import { checkLogin } from "@/utils/auth";
 
 const originalSrc = ref<string>(""); //选取的原图路径
 const avatarShow = ref<boolean>(false); //显示头像裁剪
-const userProfile = ref<UserProfileVO>(); //用户信息
+const userProfile = ref<UserProfile>(); //用户信息
 
 /** 加载用户信息 */
 const loadUserProfile = async () => {
@@ -202,7 +199,7 @@ function handleTouchMove(event: TouchEvent) {
         position: absolute;
         top: 50%;
         left: 50%;
-        color: #fff;
+        color: var(--color-text-inverse);
       }
     }
   }

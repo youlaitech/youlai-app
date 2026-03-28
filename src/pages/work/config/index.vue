@@ -44,11 +44,11 @@
     <wd-popup
       v-model="dialog.visible"
       position="bottom"
-      custom-style="border-radius: 24rpx 24rpx 0 0"
+      custom-class="popup-bottom"
       @close="closeConfigDialog"
     >
       <view class="p-4">
-        <view class="text-center font-bold text-32rpx mb-4">
+        <view class="popup-title">
           {{ formData.id ? "编辑配置" : "新增配置" }}
         </view>
         <wd-form ref="formRef" :model="formData" :rules="rules">
@@ -72,13 +72,19 @@
       </view>
     </wd-popup>
 
-    <view
+    <!-- 浮动新增按钮 -->
+    <wd-fab
       v-if="hasPermission('sys:config:create') && !dialog.visible"
-      class="fab-add"
-      @click.stop="openConfigDialog()"
-    >
-      <wd-icon name="add" size="44rpx" />
-    </view>
+      @click="openConfigDialog()"
+    />
+
+    <!-- 操作菜单 -->
+    <wd-action-sheet
+      v-model="actionSheetVisible"
+      :actions="actionSheetActions"
+      cancel-text="取消"
+      @select="handleActionSelect"
+    />
   </view>
 </template>
 
@@ -86,19 +92,24 @@
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useToast } from "wot-design-uni";
-import ConfigAPI, { type ConfigPageQuery, ConfigPageVO, ConfigForm } from "@/api/config";
+import { useToast, useMessage } from "wot-design-uni";
+import ConfigAPI, { type ConfigPageQuery, ConfigItem, ConfigForm } from "@/api/config";
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
+const { messageBox } = useMessage();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
 const submitting = ref(false);
 
 const queryParams = reactive<ConfigPageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const total = ref(0);
-const pageData = ref<ConfigPageVO[]>([]);
+const pageData = ref<ConfigItem[]>([]);
 const dialog = reactive({ visible: false });
+
+const actionSheetVisible = ref(false);
+const actionSheetActions = ref<{ name: string; color?: string }[]>([]);
+const currentActionItem = ref<any>(null);
 
 const initialFormData: ConfigForm = {
   id: undefined,
@@ -179,29 +190,34 @@ function closeConfigDialog() {
   Object.assign(formData, initialFormData);
 }
 
+// 操作菜单分发
+function handleActionSelect({ value }: { value: string }) {
+  const item = currentActionItem.value;
+  if (value === "编辑") {
+    openConfigDialog(item.id);
+  } else if (value === "删除") {
+    messageBox({
+      title: "确认删除",
+      msg: `确定要删除配置「${item.configName}」吗？`,
+      type: "warning",
+    }).then(async () => {
+      await ConfigAPI.deleteById(item.id!);
+      toast.success("删除成功");
+      loadConfigList();
+    });
+  }
+}
+
 // 更多操作
-function showConfigActions(item: ConfigPageVO) {
-  const actions: string[] = [];
-  const actionMap: Record<string, () => void> = {};
+function showConfigActions(item: ConfigItem) {
+  const actions: { name: string; color?: string }[] = [];
 
   if (hasPermission("sys:config:update")) {
-    actions.push("编辑");
-    actionMap["编辑"] = () => openConfigDialog(item.id);
+    actions.push({ name: "编辑" });
   }
 
   if (hasPermission("sys:config:delete")) {
-    actions.push("删除");
-    actionMap["删除"] = async () => {
-      const { confirm } = await uni.showModal({
-        title: "确认删除",
-        content: `确定要删除配置「${item.configName}」吗？`,
-      });
-      if (confirm) {
-        await ConfigAPI.deleteById(item.id!);
-        toast.success("删除成功");
-        loadConfigList();
-      }
-    };
+    actions.push({ name: "删除", color: "var(--color-danger)" });
   }
 
   if (actions.length === 0) {
@@ -209,13 +225,9 @@ function showConfigActions(item: ConfigPageVO) {
     return;
   }
 
-  uni.showActionSheet({
-    itemList: actions,
-    success: ({ tapIndex }) => {
-      const action = actions[tapIndex];
-      actionMap[action]?.();
-    },
-  });
+  currentActionItem.value = item;
+  actionSheetActions.value = actions;
+  actionSheetVisible.value = true;
 }
 
 onReachBottom(() => {

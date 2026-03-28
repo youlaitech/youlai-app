@@ -69,11 +69,11 @@
     <wd-popup
       v-model="detailDialog.visible"
       position="bottom"
-      custom-style="border-radius: 24rpx 24rpx 0 0"
+      custom-class="popup-bottom"
       @close="closeNoticeDetail"
     >
       <view class="p-4">
-        <view class="text-center font-bold text-32rpx mb-4">通知详情</view>
+        <view class="popup-title">通知详情</view>
         <wd-cell-group border>
           <wd-cell title="标题" :value="noticeDetail.title" />
           <wd-cell title="发布状态">
@@ -99,11 +99,11 @@
     <wd-popup
       v-model="formDialog.visible"
       position="bottom"
-      custom-style="border-radius: 24rpx 24rpx 0 0"
+      custom-class="popup-bottom"
       @close="closeNoticeForm"
     >
       <view class="p-4">
-        <view class="text-center font-bold text-32rpx mb-4">
+        <view class="popup-title">
           {{ formData.id ? "编辑通知" : "新增通知" }}
         </view>
         <wd-form ref="formRef" :model="formData" :rules="formRules">
@@ -138,13 +138,17 @@
       </view>
     </wd-popup>
 
-    <view
+    <wd-action-sheet
+      v-model="actionSheetVisible"
+      :actions="actionSheetActions"
+      cancel-text="取消"
+      @select="handleActionSelect"
+    />
+
+    <wd-fab
       v-if="hasPermission('sys:notice:create') && !formDialog.visible && !detailDialog.visible"
-      class="fab-add"
-      @click.stop="openNoticeForm()"
-    >
-      <wd-icon name="add" size="44rpx" />
-    </view>
+      @click="openNoticeForm()"
+    />
   </view>
 </template>
 
@@ -155,8 +159,8 @@ import { FormRules } from "wot-design-uni/components/wd-form/types";
 import { useToast } from "wot-design-uni";
 import NoticeAPI, {
   type NoticePageQuery,
-  NoticePageVO,
-  NoticeDetailVO,
+  NoticeItem,
+  NoticeDetail,
   NoticeForm,
 } from "@/api/notice";
 import { hasPermission } from "@/utils/permission";
@@ -168,9 +172,9 @@ const submitting = ref(false);
 
 const queryParams = reactive<NoticePageQuery>({ pageNum: 1, pageSize: 10 });
 const total = ref(0);
-const pageData = ref<NoticePageVO[]>([]);
+const pageData = ref<NoticeItem[]>([]);
 
-const noticeDetail = ref<NoticeDetailVO>({});
+const noticeDetail = ref<NoticeDetail>({});
 const detailDialog = reactive({ visible: false });
 
 const formDialog = reactive({ visible: false });
@@ -214,7 +218,7 @@ const getLevelText = (level?: string | number): string => {
 };
 
 // 格式化时间
-const formatTime = (item: NoticePageVO): string => {
+const formatTime = (item: NoticeItem): string => {
   if (item.publishStatus === 1 && item.publishTime) {
     return String(item.publishTime);
   }
@@ -251,7 +255,7 @@ function fetchNoticeList() {
 }
 
 // 打开详情弹窗
-async function openNoticeDetail(item: NoticePageVO) {
+async function openNoticeDetail(item: NoticeItem) {
   const detail = await NoticeAPI.getDetail(item.id);
   noticeDetail.value = detail;
   detailDialog.visible = true;
@@ -301,69 +305,64 @@ function submitNoticeForm() {
 }
 
 // 更多操作
-function showNoticeActions(item: NoticePageVO) {
-  const actions: string[] = ["查看"];
+const actionSheetVisible = ref(false);
+const actionSheetActions = ref<{ name: string; color?: string }[]>([]);
+const pendingAction = ref<Record<string, () => void>>({});
+
+function showNoticeActions(item: NoticeItem) {
+  const actions: { name: string; color?: string }[] = [{ name: "查看" }];
   const actionMap: Record<string, () => void> = {
     查看: () => openNoticeDetail(item),
   };
 
   if (item.publishStatus !== 1) {
     if (hasPermission("sys:notice:update")) {
-      actions.push("编辑");
+      actions.push({ name: "编辑" });
       actionMap["编辑"] = () => openNoticeForm(Number(item.id));
     }
     if (hasPermission("sys:notice:delete")) {
-      actions.push("删除");
+      actions.push({ name: "删除", color: "var(--color-danger)" });
       actionMap["删除"] = async () => {
-        const { confirm } = await uni.showModal({
-          title: "确认删除",
-          content: `确定要删除通知「${item.title}」吗？`,
-        });
-        if (confirm) {
+        try {
+          await messageBox({ title: "确认删除", msg: `确定要删除通知「${item.title}」吗？`, type: "warning" });
           await NoticeAPI.deleteByIds(item.id);
           toast.success("删除成功");
           loadNoticeList();
-        }
+        } catch {}
       };
     }
     if (hasPermission("sys:notice:publish")) {
-      actions.push("发布");
+      actions.push({ name: "发布" });
       actionMap["发布"] = async () => {
-        const { confirm } = await uni.showModal({
-          title: "确认发布",
-          content: `确定要发布通知「${item.title}」吗？`,
-        });
-        if (confirm) {
+        try {
+          await messageBox({ title: "确认发布", msg: `确定要发布通知「${item.title}」吗？`, type: "warning" });
           await NoticeAPI.publish(Number(item.id));
           toast.success("发布成功");
           loadNoticeList();
-        }
+        } catch {}
       };
     }
   } else {
     if (hasPermission("sys:notice:revoke")) {
-      actions.push("撤回");
+      actions.push({ name: "撤回", color: "var(--color-warning)" });
       actionMap["撤回"] = async () => {
-        const { confirm } = await uni.showModal({
-          title: "确认撤回",
-          content: `确定要撤回通知「${item.title}」吗？`,
-        });
-        if (confirm) {
+        try {
+          await messageBox({ title: "确认撤回", msg: `确定要撤回通知「${item.title}」吗？`, type: "warning" });
           await NoticeAPI.revoke(Number(item.id));
           toast.success("撤回成功");
           loadNoticeList();
-        }
+        } catch {}
       };
     }
   }
 
-  uni.showActionSheet({
-    itemList: actions,
-    success: ({ tapIndex }) => {
-      const action = actions[tapIndex];
-      actionMap[action]?.();
-    },
-  });
+  actionSheetActions.value = actions;
+  pendingAction.value = actionMap;
+  actionSheetVisible.value = true;
+}
+
+function handleActionSelect({ value }: { value: string }) {
+  pendingAction.value[value]?.();
 }
 
 onReachBottom(() => {

@@ -1,7 +1,6 @@
 import request from "@/utils/request";
 
 const LOG_BASE_URL = "/api/v1/logs";
-const STATISTICS_BASE_URL = "/api/v1/statistics";
 
 const LogAPI = {
   /**
@@ -10,7 +9,7 @@ const LogAPI = {
    * @param queryParams 查询参数
    */
   getPage(queryParams?: LogPageQuery) {
-    return request<any>({
+    return request<PageResult<LogItem>>({
       url: `${LOG_BASE_URL}`,
       method: "GET",
       data: queryParams,
@@ -24,8 +23,8 @@ const LogAPI = {
    * @returns 访问趋势数据
    */
   getVisitTrend(queryParams: VisitTrendQuery) {
-    return request<VisitTrendVO>({
-      url: `${STATISTICS_BASE_URL}/visits/trend`,
+    return request<VisitTrend>({
+      url: `${LOG_BASE_URL}/views/trend`,
       method: "GET",
       data: queryParams,
     });
@@ -37,8 +36,8 @@ const LogAPI = {
    * @returns 访问概览数据
    */
   getVisitStats() {
-    return request<VisitStatsVO>({
-      url: `${STATISTICS_BASE_URL}/visits/overview`,
+    return request<VisitStats>({
+      url: `${LOG_BASE_URL}/views`,
       method: "GET",
     });
   },
@@ -57,19 +56,27 @@ export interface LogPageQuery extends PageQuery {
 }
 
 /**
- * 系统日志分页VO
+ * 系统日志分页对象
  */
-export interface LogVO {
+export interface LogItem {
   /** 主键 */
   id?: number;
-  /** 日志模块 */
-  module?: string;
-  /** 日志内容 */
+  /** 模块 */
+  module?: number;
+  /** 操作类型 */
+  actionType?: number;
+  /** 操作标题 */
+  title?: string;
+  /** 自定义日志内容 */
   content?: string;
+  /** 操作人ID */
+  operatorId?: number;
+  /** 操作人名称 */
+  operatorName?: string;
   /** 请求路径 */
   requestUri?: string;
   /** 请求方法 */
-  method?: string;
+  requestMethod?: string;
   /** IP 地址 */
   ip?: string;
   /** 地区 */
@@ -78,16 +85,18 @@ export interface LogVO {
   browser?: string;
   /** 终端系统 */
   os?: string;
+  /** 状态：0失败 1成功 */
+  status?: number;
+  /** 错误信息 */
+  errorMsg?: string;
   /** 执行时间(毫秒) */
   executionTime?: number;
-  /** 操作人 */
-  operator?: string;
   /** 操作时间 */
   createTime?: string;
 }
 
-/**  访问趋势视图对象 */
-export interface VisitTrendVO {
+/**  访问趋势 */
+export interface VisitTrend {
   /** 日期列表 */
   dates: string[];
   /** 浏览量(PV) */
@@ -107,7 +116,7 @@ export interface VisitTrendQuery {
 }
 
 /**  访问统计 */
-export interface VisitStatsVO {
+export interface VisitStats {
   /** 今日访客数(UV) */
   todayUvCount: number;
   /** 总访客数 */

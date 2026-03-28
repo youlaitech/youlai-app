@@ -49,11 +49,11 @@
     <wd-popup
       v-model="dialog.visible"
       position="bottom"
-      custom-style="border-radius: 24rpx 24rpx 0 0"
+      custom-class="popup-bottom"
       @close="closeItemDialog"
     >
       <view class="p-4">
-        <view class="text-center font-bold text-32rpx mb-4">
+        <view class="popup-title">
           {{ formData.id ? "编辑字典数据" : "新增字典数据" }}
         </view>
         <wd-form ref="formRef" :model="formData" :rules="rules">
@@ -82,13 +82,17 @@
       </view>
     </wd-popup>
 
-    <view
+    <wd-action-sheet
+      v-model="actionSheetVisible"
+      :actions="actionSheetActions"
+      cancel-text="取消"
+      @select="handleActionSelect"
+    />
+
+    <wd-fab
       v-if="hasPermission('sys:dict-item:create') && !dialog.visible"
-      class="fab-add"
-      @click.stop="openItemDialog()"
-    >
-      <wd-icon name="add" size="44rpx" />
-    </view>
+      @click="openItemDialog()"
+    />
   </view>
 </template>
 
@@ -100,7 +104,7 @@ import { useToast } from "wot-design-uni";
 import DictAPI, {
   type DictItemForm,
   type DictItemPageQuery,
-  type DictItemPageVO,
+  type DictDataItem,
 } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
 
@@ -115,7 +119,7 @@ const submitting = ref(false);
 
 const queryParams = reactive<DictItemPageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const total = ref(0);
-const pageData = ref<DictItemPageVO[]>([]);
+const pageData = ref<DictDataItem[]>([]);
 const dialog = reactive({ visible: false });
 
 const initialFormData: DictItemForm = {
@@ -210,27 +214,30 @@ function closeItemDialog() {
   Object.assign(formData, initialFormData);
 }
 
-function showItemActions(item: DictItemPageVO) {
-  const actions: string[] = [];
+const actionSheetVisible = ref(false);
+const actionSheetActions = ref<{ name: string; color?: string }[]>([]);
+const pendingAction = ref<Record<string, () => void>>({});
+
+function showItemActions(item: DictDataItem) {
+  const actions: { name: string; color?: string }[] = [];
   const actionMap: Record<string, () => void> = {};
 
   if (hasPermission("sys:dict-item:update")) {
-    actions.push("编辑");
+    actions.push({ name: "编辑" });
     actionMap["编辑"] = () => openItemDialog(item.id);
   }
 
   if (hasPermission("sys:dict-item:delete")) {
-    actions.push("删除");
+    actions.push({ name: "删除", color: "var(--color-danger)" });
     actionMap["删除"] = async () => {
-      const { confirm } = await uni.showModal({
-        title: "确认删除",
-        content: `确定要删除字典数据「${item.label}」吗？`,
-      });
-      if (confirm && item.id) {
-        await DictAPI.deleteItems(dictCode.value, String(item.id));
-        toast.success("删除成功");
-        loadItemList();
-      }
+      try {
+        await messageBox({ title: "确认删除", msg: `确定要删除字典数据「${item.label}」吗？`, type: "warning" });
+        if (item.id) {
+          await DictAPI.deleteItems(dictCode.value, String(item.id));
+          toast.success("删除成功");
+          loadItemList();
+        }
+      } catch {}
     };
   }
 
@@ -239,13 +246,13 @@ function showItemActions(item: DictItemPageVO) {
     return;
   }
 
-  uni.showActionSheet({
-    itemList: actions,
-    success: ({ tapIndex }) => {
-      const action = actions[tapIndex];
-      actionMap[action]?.();
-    },
-  });
+  actionSheetActions.value = actions;
+  pendingAction.value = actionMap;
+  actionSheetVisible.value = true;
+}
+
+function handleActionSelect({ value }: { value: string }) {
+  pendingAction.value[value]?.();
 }
 
 onReachBottom(() => {

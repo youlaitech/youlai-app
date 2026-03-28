@@ -5,7 +5,7 @@ const NOTICE_BASE_URL = "/api/v1/notices";
 const NoticeAPI = {
   /** 获取通知公告分页数据 */
   getPage(queryParams?: NoticePageQuery) {
-    return request<any>({
+    return request<PageResult<NoticeItem>>({
       url: `${NOTICE_BASE_URL}`,
       method: "GET",
       data: queryParams,
@@ -97,7 +97,7 @@ const NoticeAPI = {
    * @param id
    */
   getDetail(id: string) {
-    return request<NoticeDetailVO>({
+    return request<NoticeDetail>({
       url: `${NOTICE_BASE_URL}/${id}/detail`,
       method: "GET",
     });
@@ -113,7 +113,7 @@ const NoticeAPI = {
 
   /** 获取我的通知分页列表 */
   getMyNoticePage(queryParams?: NoticePageQuery) {
-    return request<any>({
+    return request<PageResult<NoticeItem>>({
       url: `${NOTICE_BASE_URL}/my`,
       method: "GET",
       data: queryParams,
@@ -151,7 +151,7 @@ export interface NoticeForm {
 }
 
 /** 通知公告分页对象 */
-export interface NoticePageVO {
+export interface NoticeItem {
   id: string;
   /** 通知标题 */
   title?: string;
@@ -175,7 +175,7 @@ export interface NoticePageVO {
   level?: string | number;
 }
 
-export interface NoticeDetailVO {
+export interface NoticeDetail {
   /** 通知ID */
   id?: string;
 

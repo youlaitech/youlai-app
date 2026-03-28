@@ -2,12 +2,10 @@
   <view class="page page--padding">
     <wd-card>
       <view class="flex items-center p-20rpx">
-        <wd-img
-          width="120rpx"
-          height="120rpx"
+        <image
+          class="w-120rpx h-120rpx mr-16rpx"
           src="/static/logo.png"
           mode="aspectFit"
-          class="mr-16rpx"
         />
         <view class="flex-1">
           <text class="app-title">youlai-app</text>

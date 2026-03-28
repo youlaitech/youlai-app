@@ -6,8 +6,8 @@
 
       <custom-navbar
         bg-color="transparent"
-        title-color="#fff"
-        icon-color="#fff"
+        title-color="var(--color-text-inverse)"
+        icon-color="var(--color-text-inverse)"
         :show-back="false"
         :placeholder="false"
       >
@@ -27,7 +27,7 @@
               />
               <view v-if="isLogin" class="profile-card__online-dot" />
               <view v-if="genderIconName" class="profile-card__gender" :class="genderIconClass">
-                <wd-icon :name="genderIconName" size="12" color="#fff" />
+                <wd-icon :name="genderIconName" size="12" color="var(--color-text-inverse)" />
               </view>
             </view>
 
@@ -40,14 +40,14 @@
 
               <view v-if="isLogin" class="profile-card__tags">
                 <view class="profile-tag">
-                  <wd-icon name="user" size="12" color="rgba(255, 255, 255, 0.92)" />
+                  <wd-icon name="user" size="12" color="var(--color-text-inverse)" />
                   <text>{{ isLogin ? userInfo?.username || "未设置账号" : "快捷登录" }}</text>
                 </view>
                 <view class="profile-tag">
                   <wd-icon
                     :name="isLogin && deptNameText ? 'home' : 'secured'"
                     size="12"
-                    color="rgba(255, 255, 255, 0.92)"
+                    color="var(--color-text-inverse)"
                   />
                   <text>{{ isLogin && deptNameText ? deptNameText : "安全可靠" }}</text>
                 </view>
@@ -58,13 +58,13 @@
 
             <view v-if="isLogin" class="profile-card__actions">
               <view class="profile-card__action-btn" @click.stop="openNotifications">
-                <wd-icon name="notification" size="16" color="#fff" />
+                <wd-icon name="notification" size="16" color="var(--color-text-inverse)" />
                 <view v-if="notificationCount > 0" class="profile-card__notify-badge">
                   {{ notificationCount }}
                 </view>
               </view>
               <view class="profile-card__action-btn" @click.stop="openThemeSettings">
-                <wd-icon name="setting1" size="16" color="#fff" />
+                <wd-icon name="setting1" size="16" color="var(--color-text-inverse)" />
               </view>
             </view>
 
@@ -96,14 +96,14 @@
             <text class="community-card__desc">开源更新、实战内容、交流群入口，统一在这里查看</text>
           </view>
           <view class="community-card__arrow">
-            <wd-icon name="arrow-right" size="16" color="#64748b" />
+            <wd-icon name="arrow-right" size="16" color="var(--color-text-secondary)" />
           </view>
         </view>
 
         <view class="quick-cards">
           <view class="quick-card" @click="openProfile">
-            <view class="quick-card__icon" style="background: #dbeafe">
-              <wd-icon name="user" size="28" color="#1e40af" />
+            <view class="quick-card__icon quick-card__icon--info">
+              <wd-icon name="user" size="28" color="var(--color-primary)" />
             </view>
             <view class="quick-card__body">
               <text class="quick-card__title">我的资料</text>
@@ -111,8 +111,8 @@
             </view>
           </view>
           <view class="quick-card" @click="openAccount">
-            <view class="quick-card__icon" style="background: #d1fae5">
-              <wd-icon name="secured" size="28" color="#065f46" />
+            <view class="quick-card__icon quick-card__icon--success">
+              <wd-icon name="secured" size="28" color="var(--color-success-dark)" />
             </view>
             <view class="quick-card__body">
               <text class="quick-card__title">账号安全</text>
@@ -128,25 +128,25 @@
         <text class="section-title">系统工具</text>
         <view class="menu-list menu-list--flat">
           <view class="menu-row" @click="openNetworkTest">
-            <view class="menu-row__icon" style="background: #fed7aa">
-              <wd-icon name="server" size="18" color="#c2410c" />
+            <view class="menu-row__icon menu-row__icon--warning">
+              <wd-icon name="server" size="18" color="var(--color-warning-dark)" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">网络检测</text>
               <text class="menu-row__desc">检测接口连通性</text>
             </view>
-            <wd-icon name="arrow-right" size="16" color="#94a3b8" />
+            <wd-icon name="arrow-right" size="16" color="var(--color-text-placeholder)" />
           </view>
           <view class="menu-row" @click="handleClearCache">
-            <view class="menu-row__icon" style="background: #fecdd3">
-              <wd-icon name="delete-thin" size="18" color="#be123c" />
+            <view class="menu-row__icon menu-row__icon--danger">
+              <wd-icon name="delete-thin" size="18" color="var(--color-danger-dark)" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">清理缓存</text>
               <text class="menu-row__desc">显示当前缓存大小</text>
             </view>
             <text class="menu-row__value">{{ cacheSize }}</text>
-            <wd-icon name="arrow-right" size="16" color="#94a3b8" />
+            <wd-icon name="arrow-right" size="16" color="var(--color-text-placeholder)" />
           </view>
         </view>
       </view>
@@ -155,25 +155,25 @@
         <text class="section-title">帮助与支持</text>
         <view class="menu-list menu-list--flat">
           <view class="menu-row" @click="openUserAgreement">
-            <view class="menu-row__icon" style="background: #d1fae5">
-              <wd-icon name="secured" size="18" color="#065f46" />
+            <view class="menu-row__icon menu-row__icon--success">
+              <wd-icon name="secured" size="18" color="var(--color-success-dark)" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">用户协议</text>
               <text class="menu-row__desc">了解产品使用规则</text>
             </view>
-            <wd-icon name="arrow-right" size="16" color="#94a3b8" />
+            <wd-icon name="arrow-right" size="16" color="var(--color-text-placeholder)" />
           </view>
           <view class="menu-row" @click="openAbout">
-            <view class="menu-row__icon" style="background: #ccfbf1">
-              <wd-icon name="info-circle" size="18" color="#0f766e" />
+            <view class="menu-row__icon menu-row__icon--teal">
+              <wd-icon name="info-circle" size="18" color="var(--color-success-dark)" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">关于系统</text>
               <text class="menu-row__desc">产品介绍与联系方式</text>
             </view>
             <text class="menu-row__value">v{{ appVersion }}</text>
-            <wd-icon name="arrow-right" size="16" color="#94a3b8" />
+            <wd-icon name="arrow-right" size="16" color="var(--color-text-placeholder)" />
           </view>
         </view>
       </view>
@@ -204,11 +204,15 @@
 
 <script lang="ts" setup>
 import { computed, ref } from "vue";
-import { onLoad, onShow } from "@dcloudio/uni-app";
+import { onShow } from "@dcloudio/uni-app";
+import { useToast, useMessage } from "wot-design-uni";
 import { useUserStore, useThemeStore } from "@/store";
 import { useRouter } from "uni-mini-router";
 import { useNavbar } from "@/composables/useNavbar";
 import { getAccessToken } from "@/utils/auth";
+
+const toast = useToast();
+const { messageBox } = useMessage();
 
 const userStore = useUserStore();
 const themeStore = useThemeStore();
@@ -220,7 +224,7 @@ const hasAccessToken = ref(!!getAccessToken());
 const isLogin = computed(() => !!getAccessToken());
 
 const headerBackground = computed(() => {
-  const color = currentThemeColor.value || "#4d80f0";
+  const color = currentThemeColor.value || "var(--color-primary)";
   const colorWithAlpha = color.length === 7 ? `${color}E6` : color;
   const colorWithAlpha2 = color.length === 7 ? `${color}CC` : color;
   return `linear-gradient(135deg, ${colorWithAlpha} 0%, ${colorWithAlpha2} 100%)`;
@@ -279,13 +283,6 @@ const syncMiniProgramVersion = () => {
   appVersion.value = uni.getAccountInfoSync().miniProgram.version || "1.0.0";
   // #endif
 };
-
-onLoad(async () => {
-  syncAuthState();
-  await fetchUserInfoIfNeeded();
-  await fetchCacheSize();
-  syncMiniProgramVersion();
-});
 
 onShow(async () => {
   syncAuthState();
@@ -377,8 +374,7 @@ const fetchCacheSize = async () => {
     if (!cacheSize.value) {
       cacheSize.value = "0B";
     }
-  } catch (error) {
-    console.error("获取缓存大小失败:", error);
+  } catch {
     cacheSize.value = "获取失败";
   }
 };
@@ -423,20 +419,18 @@ const handleClearCache = async () => {
   }
 };
 
-const handleLogout = () => {
-  uni.showModal({
-    title: "提示",
-    content: "确定要退出登录吗？",
-    success: function (res) {
-      if (res.confirm) {
-        userStore.logout();
-        uni.showToast({
-          title: "已退出登录",
-          icon: "success",
-        });
-      }
-    },
-  });
+const handleLogout = async () => {
+  try {
+    await messageBox({
+      title: "提示",
+      msg: "确定要退出登录吗？",
+      type: "warning",
+    });
+    userStore.logout();
+    toast.success("已退出登录");
+  } catch {
+    // 用户取消
+  }
 };
 
 // 有来技术公众号
@@ -474,7 +468,7 @@ const openOfficialAccount = () => {
 
 .mine-hero__content {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-sticky);
   flex-direction: column;
   gap: 20rpx;
   padding: 20rpx 28rpx 0;
@@ -483,7 +477,7 @@ const openOfficialAccount = () => {
 .mine-navbar__title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #fff;
+  color: var(--color-text-inverse);
   letter-spacing: 2rpx;
 }
 
@@ -548,7 +542,7 @@ const openOfficialAccount = () => {
   bottom: 2rpx;
   width: 36rpx;
   height: 36rpx;
-  border: 2rpx solid #fff;
+  border: 2rpx solid var(--color-text-inverse);
   border-radius: 50%;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
 }
@@ -559,7 +553,7 @@ const openOfficialAccount = () => {
   bottom: 6rpx;
   width: 18rpx;
   height: 18rpx;
-  background: #22c55e;
+  background: var(--color-success);
   border: 3rpx solid rgba(255, 255, 255, 0.95);
   border-radius: 50%;
   box-shadow: 0 4rpx 12rpx rgba(15, 23, 42, 0.12);
@@ -598,18 +592,18 @@ const openOfficialAccount = () => {
   height: 30rpx;
   padding: 0 8rpx;
   font-size: 18rpx;
-  color: #fff;
-  background: #ef4444;
+  color: var(--color-text-inverse);
+  background: var(--color-danger);
   border: 2rpx solid rgba(255, 255, 255, 0.95);
   border-radius: 999rpx;
 }
 
 .gender-icon--male {
-  background: #60a5fa;
+  background: var(--color-primary);
 }
 
 .gender-icon--female {
-  background: #fb7185;
+  background: var(--color-danger);
 }
 
 .profile-card__main {
@@ -684,7 +678,7 @@ const openOfficialAccount = () => {
 
 .quick-cards {
   position: relative;
-  z-index: 2;
+  z-index: var(--z-sticky);
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20rpx;
@@ -707,7 +701,7 @@ const openOfficialAccount = () => {
 .community-card__bg {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: var(--z-base);
   width: 100%;
   height: 100%;
   pointer-events: none;
@@ -717,7 +711,7 @@ const openOfficialAccount = () => {
 .community-card__mask {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: var(--z-sticky);
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0.62) 0%,
@@ -729,7 +723,7 @@ const openOfficialAccount = () => {
 .community-card__sparkle {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: var(--z-sticky);
   pointer-events: none;
   background:
     radial-gradient(circle at 18% 30%, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 52%),
@@ -740,7 +734,7 @@ const openOfficialAccount = () => {
 
 .community-card__logo {
   position: relative;
-  z-index: 2;
+  z-index: var(--z-sticky);
   box-sizing: border-box;
   width: 84rpx;
   height: 84rpx;
@@ -753,14 +747,14 @@ const openOfficialAccount = () => {
 
 .community-card__body {
   position: relative;
-  z-index: 2;
+  z-index: var(--z-sticky);
   flex: 1;
   min-width: 0;
 }
 
 .community-card__arrow {
   position: relative;
-  z-index: 2;
+  z-index: var(--z-sticky);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -844,6 +838,14 @@ const openOfficialAccount = () => {
   width: 84rpx;
   height: 84rpx;
   border-radius: 22rpx;
+
+  &--info {
+    background: var(--color-primary-light);
+  }
+
+  &--success {
+    background: var(--color-success-light);
+  }
 }
 
 .quick-card__body {
@@ -881,11 +883,27 @@ const openOfficialAccount = () => {
   width: 72rpx;
   height: 72rpx;
   border-radius: 22rpx;
+
+  &--warning {
+    background: var(--color-warning-light);
+  }
+
+  &--danger {
+    background: var(--color-danger-light);
+  }
+
+  &--success {
+    background: var(--color-success-light);
+  }
+
+  &--teal {
+    background: var(--color-success-light);
+  }
 }
 
 .mine-body {
   position: relative;
-  z-index: 0;
+  z-index: var(--z-base);
   padding: 0 28rpx calc(env(safe-area-inset-bottom) + 40rpx);
   margin-top: 0;
   background: var(--color-bg-secondary);
@@ -953,22 +971,22 @@ const openOfficialAccount = () => {
 :deep(.profile-card__button) {
   flex-shrink: 0;
   min-width: 156rpx;
-  height: 72rpx !important;
-  padding: 0 24rpx !important;
-  font-size: 24rpx !important;
+  height: 72rpx;
+  padding: 0 24rpx;
+  font-size: 24rpx;
   font-weight: 600;
-  border: 0 !important;
-  border-radius: 999rpx !important;
+  border: 0;
+  border-radius: 999rpx;
 }
 
 :deep(.logout-btn) {
   width: 100%;
-  height: 88rpx !important;
-  font-size: 28rpx !important;
-  color: var(--color-danger) !important;
-  background: var(--color-bg) !important;
-  border: 1rpx solid rgba(239, 68, 68, 0.18) !important;
-  border-radius: 24rpx !important;
+  height: 88rpx;
+  font-size: 28rpx;
+  color: var(--color-danger);
+  background: var(--color-bg);
+  border: 1rpx solid rgba(239, 68, 68, 0.18);
+  border-radius: 24rpx;
   box-shadow: 0 12rpx 30rpx rgba(239, 68, 68, 0.08);
 }
 

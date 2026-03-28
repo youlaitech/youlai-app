@@ -1,108 +1,107 @@
 <template>
-  <view class="page-container dark:text-[var(--wot-color-text)]">
-    <view class="page-content">
-      <view class="header">
-        <image class="logo" src="/static/logo.png" mode="aspectFill" />
-        <view class="header-info">
-          <view class="title">有来技术</view>
-          <view class="sub-title">关注公众号获取更多技术干货</view>
-        </view>
-      </view>
-
-      <view class="qr-card">
-        <image
-          class="qr-image"
-          src="/static/images/qrcode-official.png"
-          mode="widthFix"
-          show-menu-by-longpress
-        />
-        <view class="qr-tip">长按识别二维码关注公众号</view>
-
-        <view class="group-tip">
-          如需加入技术交流群，请添加微信 haoxianrui 并备注「前端/后端/全栈」，邀您入群。
-        </view>
+  <view class="page page--padding">
+    <view class="brand">
+      <image src="/static/images/logo.png" class="brand__logo" mode="aspectFit" />
+      <view class="brand__text">
+        <view class="brand__title">有来技术</view>
+        <view class="brand__desc">让开源项目更加易用</view>
       </view>
     </view>
+
+    <view class="tip">
+      长按识别下方二维码，关注「有来技术」公众号，获取最新技术分享和项目动态。
+    </view>
+
+    <view class="qrcode-card">
+      <image
+        src="/static/images/qrcode-official.png"
+        class="qrcode-card__img"
+        mode="aspectFit"
+      />
+    </view>
+
+    <view class="qrcode-hint">长按识别二维码关注</view>
   </view>
 </template>
+
+<script lang="ts" setup>
+import { onLoad } from "@dcloudio/uni-app";
+
+onLoad(() => {
+  uni.setNavigationBarTitle({ title: "公众号" });
+});
+</script>
 
 <route lang="json">
 {
   "name": "official",
   "style": {
-    "navigationBarTitleText": "有来技术"
+    "navigationBarTitleText": "公众号"
   }
 }
 </route>
 
-<script lang="ts" setup></script>
-
 <style lang="scss" scoped>
-.page-content {
-  padding: 28rpx;
-  padding-bottom: calc(28rpx + env(safe-area-inset-bottom));
-}
-
-.header {
+.brand {
   display: flex;
   align-items: center;
   gap: 20rpx;
   padding: 28rpx;
-  background: #fff;
+  background: var(--color-bg);
   border-radius: 20rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
-.logo {
+.brand__logo {
   width: 96rpx;
   height: 96rpx;
   border-radius: 20rpx;
 }
 
-.header-info {
+.brand__text {
   flex: 1;
   min-width: 0;
 }
 
-.title {
+.brand__title {
   font-size: 34rpx;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text);
 }
 
-.sub-title {
+.brand__desc {
   margin-top: 8rpx;
   font-size: 26rpx;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
-.group-tip {
+.tip {
   margin-top: 20rpx;
   padding: 20rpx;
   font-size: 26rpx;
   line-height: 1.6;
-  color: #374151;
-  background: #f9fafb;
+  color: var(--color-text);
+  background: var(--color-bg-tertiary);
   border-radius: 16rpx;
 }
 
-.qr-card {
+.qrcode-card {
   margin-top: 24rpx;
   padding: 28rpx;
-  background: #fff;
+  background: var(--color-bg);
   border-radius: 20rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
-.qr-image {
+.qrcode-card__img {
   width: 100%;
   border-radius: 16rpx;
 }
 
-.qr-tip {
+.qrcode-hint {
   margin-top: 20rpx;
   text-align: center;
   font-size: 26rpx;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 </style>

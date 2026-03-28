@@ -47,11 +47,11 @@
     <wd-popup
       v-model="dialog.visible"
       position="bottom"
-      custom-style="border-radius: 24rpx 24rpx 0 0"
+      custom-class="popup-bottom"
       @close="closeDictDialog"
     >
       <view class="p-4">
-        <view class="text-center font-bold text-32rpx mb-4">
+        <view class="popup-title">
           {{ formData.id ? "编辑字典" : "新增字典" }}
         </view>
         <wd-form ref="formRef" :model="formData" :rules="rules">
@@ -77,13 +77,17 @@
       </view>
     </wd-popup>
 
-    <view
+    <wd-action-sheet
+      v-model="actionSheetVisible"
+      :actions="actionSheetActions"
+      cancel-text="取消"
+      @select="handleActionSelect"
+    />
+
+    <wd-fab
       v-if="hasPermission('sys:dict:create') && !dialog.visible"
-      class="fab-add"
-      @click.stop="openDictDialog()"
-    >
-      <wd-icon name="add" size="44rpx" />
-    </view>
+      @click="openDictDialog()"
+    />
   </view>
 </template>
 
@@ -96,7 +100,7 @@ import { useToast } from "wot-design-uni";
 import DictAPI, {
   type DictTypeForm,
   type DictTypePageQuery,
-  type DictTypePageVO,
+  type DictTypeItem,
 } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
 
@@ -108,7 +112,7 @@ const submitting = ref(false);
 
 const queryParams = reactive<DictTypePageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const total = ref(0);
-const pageData = ref<DictTypePageVO[]>([]);
+const pageData = ref<DictTypeItem[]>([]);
 const dialog = reactive({ visible: false });
 
 const initialFormData: DictTypeForm = {
@@ -149,7 +153,7 @@ function fetchDictTypeList() {
     });
 }
 
-function openDictItemPage(item: DictTypePageVO) {
+function openDictItemPage(item: DictTypeItem) {
   if (!item.dictCode) return;
   router.push({
     path: "/pages/work/dict/item/index",
@@ -192,40 +196,48 @@ function closeDictDialog() {
   Object.assign(formData, initialFormData);
 }
 
-function showDictActions(item: DictTypePageVO) {
-  const actions: string[] = [];
+const actionSheetVisible = ref(false);
+const actionSheetActions = ref<{ name: string; color?: string }[]>([]);
+const pendingAction = ref<Record<string, () => void>>({});
+
+function showDictActions(item: DictTypeItem) {
+  const actions: { name: string; color?: string }[] = [];
   const actionMap: Record<string, () => void> = {};
 
-  actions.push("字典数据");
+  actions.push({ name: "字典数据" });
   actionMap["字典数据"] = () => openDictItemPage(item);
 
   if (hasPermission("sys:dict:update")) {
-    actions.push("编辑");
+    actions.push({ name: "编辑" });
     actionMap["编辑"] = () => openDictDialog(item.id);
   }
 
   if (hasPermission("sys:dict:delete")) {
-    actions.push("删除");
+    actions.push({ name: "删除", color: "var(--color-danger)" });
     actionMap["删除"] = async () => {
-      const { confirm } = await uni.showModal({
-        title: "确认删除",
-        content: `确定要删除字典「${item.name}」吗？`,
-      });
-      if (confirm && item.id) {
-        await DictAPI.deleteByIds(String(item.id));
-        toast.success("删除成功");
-        loadDictTypeList();
-      }
+      try {
+        await messageBox({ title: "确认删除", msg: `确定要删除字典「${item.name}」吗？`, type: "warning" });
+        if (item.id) {
+          await DictAPI.deleteByIds(String(item.id));
+          toast.success("删除成功");
+          loadDictTypeList();
+        }
+      } catch {}
     };
   }
 
-  uni.showActionSheet({
-    itemList: actions,
-    success: ({ tapIndex }) => {
-      const action = actions[tapIndex];
-      actionMap[action]?.();
-    },
-  });
+  if (actions.length === 0) {
+    toast.warning("暂无操作权限");
+    return;
+  }
+
+  actionSheetActions.value = actions;
+  pendingAction.value = actionMap;
+  actionSheetVisible.value = true;
+}
+
+function handleActionSelect({ value }: { value: string }) {
+  pendingAction.value[value]?.();
 }
 
 onReachBottom(() => {

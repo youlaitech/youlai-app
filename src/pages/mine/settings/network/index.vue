@@ -1,222 +1,160 @@
 <template>
-  <view class="page dark:text-[var(--wot-color-text)]">
-    <!-- 网络状态展示 -->
-    <wd-card>
-      <wd-cell-group border>
-        <wd-cell title="网络状态">
-          <wd-tag :type="networkType ? 'success' : 'danger'" size="small">
-            {{ networkType ? "在线" : "离线" }}
-          </wd-tag>
-        </wd-cell>
-        <wd-cell title="网络类型" :value="networkType || '未知'" />
-        <wd-cell title="网络强度" :value="signalStrength" />
-      </wd-cell-group>
-    </wd-card>
-
-    <!-- 网络测试 -->
-    <wd-card title="网络测试" custom-style="margin: 20rpx">
-      <view slot="extra">
-        <text class="text-gray-500 text-sm">测试服务器连接情况</text>
+  <view class="page">
+    <view class="page-content dark:text-[var(--wot-color-text)]">
+      <view class="flex items-center p-20rpx text-sm mr-10">
+        <text class="text-gray-500">温馨提示：点击下方「开始测试」按钮，即可自动检测当前网络延迟。</text>
       </view>
-
-      <wd-cell-group border>
-        <wd-cell title="延迟">
-          <view class="flex items-center">
-            <text class="mr-10">{{ pingResult.delay }}ms</text>
-            <wd-tag v-if="getPingStatus" :type="getPingStatusType" size="small">
-              {{ pingResult.status }}
-            </wd-tag>
+      <view class="p-20rpx">
+        <wd-button block plain @click="startTest">开始测试</wd-button>
+      </view>
+      <view v-if="isTesting" class="flex flex-col-center p-20rpx">
+        <wd-loading color="var(--wot-color-theme)" />
+        <text class="mt-10rpx text-sm">正在测试中...</text>
+      </view>
+      <view v-if="result !== null" class="p-20rpx">
+        <view class="result-card">
+          <view class="result-card__header">测试结果</view>
+          <view class="result-card__content">
+            <view class="result-card__item">
+              <text class="result-card__label">网络延迟</text>
+              <text :class="['result-card__value', getStatusClass]">{{ result }}ms</text>
+            </view>
+            <view class="result-card__item">
+              <text class="result-card__label">网络状态</text>
+              <text :class="['result-card__status', getStatusClass]">{{ getStatusText }}</text>
+            </view>
           </view>
-        </wd-cell>
-      </wd-cell-group>
-
-      <wd-progress
-        v-if="testing"
-        :percentage="progress"
-        stroke-width="4"
-        custom-style="margin: 30rpx 0"
-      />
-
-      <wd-button block type="primary" :loading="testing" @click="startTest">
-        {{ testing ? "测试中..." : "开始测试" }}
-      </wd-button>
-    </wd-card>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
 <script lang="ts" setup>
-import request from "@/utils/request";
+import { onLoad } from "@dcloudio/uni-app";
 
-interface PingResult {
-  delay: string | number;
-  status: string;
-}
+const result = ref<number | null>(null);
+const isTesting = ref(false);
 
-// 声明全局 wx 对象
-declare const wx: any;
-
-// 响应式状态
-const networkType = ref("");
-const signalStrength = ref("获取中...");
-const testing = ref(false);
-const progress = ref(0);
-const pingResult = ref<PingResult>({
-  delay: "--",
-  status: "未测试",
-});
-const networkListener = ref<any>(null);
-
-// 计算属性
-const getPingStatus = computed(() => {
-  if (pingResult.value.delay === "--") return "";
-  // 将 delay 转换为数字进行比较
-  const delay = Number(pingResult.value.delay);
-  if (isNaN(delay)) return "";
-  if (delay < 100) return "good";
-  if (delay < 300) return "normal";
-  return "bad";
+const getStatusText = computed(() => {
+  if (result.value === null) return "";
+  if (result.value < 100) return "优秀";
+  if (result.value < 300) return "良好";
+  if (result.value < 500) return "一般";
+  return "较差";
 });
 
-// 计算状态对应的Tag类型
-const getPingStatusType = computed(() => {
-  const status = getPingStatus.value;
-  if (status === "good") return "success";
-  if (status === "normal") return "warning";
-  if (status === "bad") return "danger";
-  return "primary";
+const getStatusClass = computed(() => {
+  if (result.value === null) return "";
+  if (result.value < 100) return "result-card--success";
+  if (result.value < 300) return "result-card--good";
+  if (result.value < 500) return "result-card--warning";
+  return "result-card--danger";
 });
 
-// 方法
-const getNetworkType = async () => {
-  try {
-    const res = await uni.getNetworkType();
-    networkType.value = res.networkType;
-
-    // 微信小程序支持获取信号强度
-    // #ifdef MP-WEIXIN
-    if (wx?.getNetworkWeakness) {
-      const weaknessRes = await wx.getNetworkWeakness();
-      signalStrength.value = `${weaknessRes.weaknessLevel}%`;
-    } else {
-      signalStrength.value = "不支持";
-    }
-    // #endif
-
-    // H5环境
-    // #ifdef H5
-    signalStrength.value = (navigator as any).connection
-      ? `${(navigator as any).connection.effectiveType || "未知"}`
-      : "不支持";
-    // #endif
-  } catch {
-    networkType.value = "获取失败";
-    signalStrength.value = "获取失败";
-  }
-};
-
-// 监听网络状态变化
-const listenNetworkStatus = () => {
-  // #ifdef MP-WEIXIN
-  networkListener.value = wx?.onNetworkStatusChange((res: any) => {
-    networkType.value = res.networkType;
-    getNetworkType();
-  });
-  // #endif
-
-  // #ifdef H5
-  window.addEventListener("online", getNetworkType);
-  window.addEventListener("offline", () => {
-    networkType.value = "";
-    signalStrength.value = "离线";
-  });
-  // #endif
-};
-
-// 开始网络测试
 const startTest = async () => {
-  if (testing.value) return;
-
-  testing.value = true;
-  progress.value = 0;
-  pingResult.value.delay = "--";
-  pingResult.value.status = "测试中";
-
-  const progressTimer = setInterval(() => {
-    if (progress.value < 90) {
-      progress.value += 10;
-    }
-  }, 200);
-
+  isTesting.value = true;
+  result.value = null;
   try {
     const startTime = Date.now();
-    // #ifdef H5
-    await uni.request({
-      url: "/api/v1/auth/captcha",
-      timeout: 5000,
+    // #ifdef MP-WEIXIN
+    await new Promise<void>((resolve) => {
+      wx.request({
+        url: "https://www.baidu.com",
+        method: "GET",
+        success: () => resolve(),
+        fail: () => resolve(),
+      });
     });
     // #endif
-    // #ifndef H5
-    await request({
-      url: "/api/v1/auth/captcha",
-      timeout: 5000,
-    });
+    // #ifdef H5
+    await fetch("https://www.baidu.com", { mode: "no-cors" });
     // #endif
     const endTime = Date.now();
-    const delay = endTime - startTime;
-
-    pingResult.value.delay = delay;
-    pingResult.value.status = delay < 300 ? "正常" : "较慢";
+    result.value = endTime - startTime;
   } catch {
-    pingResult.value.delay = "--";
-    pingResult.value.status = "连接失败";
+    result.value = 9999;
   } finally {
-    clearInterval(progressTimer);
-    progress.value = 100;
-    setTimeout(() => {
-      testing.value = false;
-      progress.value = 0;
-    }, 500);
+    isTesting.value = false;
   }
 };
 
-// 生命周期钩子
-onMounted(() => {
-  getNetworkType();
-  listenNetworkStatus();
-});
-
-onBeforeUnmount(() => {
-  // #ifdef MP-WEIXIN
-  if (networkListener.value?.clear) {
-    networkListener.value.clear();
-  }
-  // #endif
-
-  // #ifdef H5
-  window.removeEventListener("online", getNetworkType);
-  window.removeEventListener("offline", getNetworkType);
-  // #endif
+onLoad(() => {
+  uni.setNavigationBarTitle({ title: "网络测试" });
 });
 </script>
 
+<route lang="json">
+{
+  "name": "network",
+  "style": {
+    "navigationBarTitleText": "网络测试"
+  }
+}
+</route>
+
 <style lang="scss" scoped>
-.mr-10 {
-  margin-right: 10rpx;
-}
-
 .text-gray-500 {
-  color: #9e9e9e;
+  color: var(--color-text-placeholder);
 }
 
-.text-sm {
-  font-size: 24rpx;
-}
+.result-card {
+  background: var(--color-bg);
+  border-radius: 16rpx;
+  border: 1px solid var(--color-border);
 
-.flex {
-  display: flex;
-}
+  &__header {
+    padding: 24rpx;
+    font-size: 32rpx;
+    font-weight: 600;
+    color: var(--color-text);
+    border-bottom: 1px solid var(--color-border);
+  }
 
-.items-center {
-  align-items: center;
+  &__content {
+    padding: 24rpx;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16rpx 0;
+
+    &:first-child {
+      border-bottom: 1px solid var(--color-border-light);
+    }
+  }
+
+  &__label {
+    font-size: 28rpx;
+    color: var(--color-text-secondary);
+  }
+
+  &__value {
+    font-size: 36rpx;
+    font-weight: 600;
+  }
+
+  &__status {
+    font-size: 28rpx;
+    font-weight: 500;
+  }
+
+  &--success {
+    color: var(--color-success);
+  }
+
+  &--good {
+    color: var(--color-primary);
+  }
+
+  &--warning {
+    color: var(--color-warning);
+  }
+
+  &--danger {
+    color: var(--color-danger);
+  }
 }
 </style>

@@ -5,7 +5,7 @@ const CONFIG_BASE_URL = "/api/v1/configs";
 const ConfigAPI = {
   /** 获取系统配置分页数据 */
   getPage(queryParams: ConfigPageQuery) {
-    return request<any>({
+    return request<PageResult<ConfigItem>>({
       url: `${CONFIG_BASE_URL}`,
       method: "GET",
       data: queryParams,
@@ -90,7 +90,7 @@ export interface ConfigForm {
 }
 
 /** 系统配置分页对象 */
-export interface ConfigPageVO {
+export interface ConfigItem {
   /** 主键 */
   id?: number;
   /** 配置名称 */

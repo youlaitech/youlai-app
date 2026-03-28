@@ -10,7 +10,7 @@ const DeptAPI = {
    * @returns 部门树形表格数据
    */
   getList(queryParams?: DeptQuery) {
-    return request<DeptVO[]>({
+    return request<DeptItem[]>({
       url: `${DEPT_BASE_URL}`,
       method: "GET",
       data: queryParams,
@@ -92,9 +92,9 @@ export interface DeptQuery {
 }
 
 /** 部门类型 */
-export interface DeptVO {
+export interface DeptItem {
   /** 子部门 */
-  children?: DeptVO[];
+  children?: DeptItem[];
   /** 创建时间 */
   createTime?: Date;
   /** 部门ID */

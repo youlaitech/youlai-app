@@ -5,7 +5,7 @@ const MENU_BASE_URL = "/api/v1/menus";
 const MenuAPI = {
   /** 获取菜单列表 */
   getList(queryParams?: MenuQuery) {
-    return request<MenuVO[]>({
+    return request<MenuItem[]>({
       url: `${MENU_BASE_URL}`,
       method: "GET",
       data: queryParams,
@@ -67,9 +67,9 @@ export interface MenuQuery {
 }
 
 /** 菜单类型 */
-export interface MenuVO {
+export interface MenuItem {
   /** 子菜单 */
-  children?: MenuVO[];
+  children?: MenuItem[];
   /** 组件路径 */
   component?: string;
   /** 创建时间 */

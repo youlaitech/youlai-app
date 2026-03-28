@@ -2,8 +2,8 @@ import { defineStore } from "pinia"
 import AuthAPI, {
   type LoginData,
   type SmsLoginData,
-  type WechatMiniappPhoneLoginData,
-  type WechatMiniappBindMobileData,
+  type WxMaPhoneLoginData,
+  type WxMaBindMobileData,
 } from "@/api/auth"
 import UserAPI, { type UserInfo } from "@/api/user"
 import { setAccessToken, clearTokens } from "@/utils/auth"
@@ -35,94 +35,49 @@ export const useUserStore = defineStore("user", () => {
 
   /**
    * 账号密码登录
-   * @param data 登录数据
    */
-  const login = (data: LoginData) => {
-    return new Promise((resolve, reject) => {
-      AuthAPI.login(data)
-        .then((data) => {
-          setAccessToken(data.accessToken)
-          resolve(data)
-        })
-        .catch((error) => {
-          console.error("登录失败", error)
-          reject(error)
-        })
-    })
+  const login = async (data: LoginData) => {
+    const result = await AuthAPI.login(data)
+    setAccessToken(result.accessToken)
+    return result
   }
 
   /**
    * 短信验证码登录
-   * @param data 短信登录数据
    */
-  const loginBySms = (data: SmsLoginData) => {
-    return new Promise((resolve, reject) => {
-      AuthAPI.loginBySms(data)
-        .then((data) => {
-          setAccessToken(data.accessToken)
-          resolve(data)
-        })
-        .catch((error) => {
-          console.error("登录失败", error)
-          reject(error)
-        })
-    })
+  const loginBySms = async (data: SmsLoginData) => {
+    const result = await AuthAPI.loginBySms(data)
+    setAccessToken(result.accessToken)
+    return result
   }
 
   /**
    * 微信小程序静默登录
-   * @param code 微信登录码
    */
-  const loginByWechatMiniapp = (code: string) => {
-    return new Promise((resolve, reject) => {
-      AuthAPI.wechatMiniappSilentLogin(code)
-        .then((data) => {
-          if (data.accessToken) {
-            setAccessToken(data.accessToken)
-          }
-          resolve(data)
-        })
-        .catch((error) => {
-          console.error("微信小程序登录失败", error)
-          reject(error)
-        })
-    })
+  const loginByWxMa = async (code: string) => {
+    const result = await AuthAPI.wxMaSilentLogin(code)
+    if (result.accessToken) {
+      setAccessToken(result.accessToken)
+    }
+    return result
   }
 
   /**
    * 微信小程序一键登录（企业小程序）
-   * @param data 微信手机号登录数据
    */
-  const loginByWechatMiniappPhone = (data: WechatMiniappPhoneLoginData) => {
-    return new Promise((resolve, reject) => {
-      AuthAPI.wechatMiniappPhoneLogin(data)
-        .then((data) => {
-          setAccessToken(data.accessToken)
-          resolve(data)
-        })
-        .catch((error) => {
-          console.error("微信小程序一键登录失败", error)
-          reject(error)
-        })
-    })
+  const loginByWxMaPhone = async (data: WxMaPhoneLoginData) => {
+    const result = await AuthAPI.wxMaPhoneLogin(data)
+    setAccessToken(result.accessToken)
+    return result
   }
 
   /**
    * 微信小程序绑定手机号
-   * @param data 绑定手机号数据
    */
-  const bindMobileForWechatMiniapp = (data: WechatMiniappBindMobileData) => {
-    return new Promise((resolve, reject) => {
-      AuthAPI.wechatMiniappBindMobile(data)
-        .then((data) => {
-          setAccessToken(data.accessToken)
-          resolve(data)
-        })
-        .catch((error) => {
-          console.error("绑定手机号失败", error)
-          reject(error)
-        })
-    })
+  const bindMobileForWxMa = async (data: WxMaBindMobileData) => {
+    const result = await AuthAPI.wxMaBindMobile(data)
+    setAccessToken(result.accessToken)
+    return result
   }
 
   // ==========================================================================
@@ -131,36 +86,24 @@ export const useUserStore = defineStore("user", () => {
 
   /**
    * 检查会话状态
-   * @returns 会话是否有效
    */
-  const checkSession = (): Promise<boolean> => {
-    return new Promise((resolve) => {
-      AuthAPI.checkSession()
-        .then((result) => {
-          resolve(result.valid)
-        })
-        .catch(() => {
-          resolve(false)
-        })
-    })
+  const checkSession = async (): Promise<boolean> => {
+    try {
+      const result = await AuthAPI.checkSession()
+      return result.valid
+    } catch {
+      return false
+    }
   }
 
   /**
    * 获取用户信息
    */
-  const getInfo = () => {
-    return new Promise((resolve, reject) => {
-      UserAPI.getUserInfo()
-        .then((data) => {
-          setUserInfo(data)
-          userInfo.value = data
-          resolve(data)
-        })
-        .catch((error) => {
-          console.error("获取用户信息失败", error)
-          reject(error)
-        })
-    })
+  const getInfo = async () => {
+    const data = await UserAPI.getUserInfo()
+    setUserInfo(data)
+    userInfo.value = data
+    return data
   }
 
   /**
@@ -169,8 +112,8 @@ export const useUserStore = defineStore("user", () => {
   const logout = async () => {
     try {
       await AuthAPI.logout()
-    } catch (error) {
-      console.error("登出失败", error)
+    } catch {
+      // 登出失败静默处理，继续清理本地状态
     } finally {
       clearTokens()
       Storage.remove(USER_INFO_KEY)
@@ -181,7 +124,6 @@ export const useUserStore = defineStore("user", () => {
 
   /**
    * 判断用户信息是否完整
-   * @returns 用户信息是否完整
    */
   const isUserInfoComplete = (): boolean => {
     if (!userInfo.value) return false
@@ -193,17 +135,12 @@ export const useUserStore = defineStore("user", () => {
   // ==========================================================================
 
   return {
-    // 状态
     userInfo,
-
-    // 登录方法
     login,
     loginBySms,
-    loginByWechatMiniapp,
-    loginByWechatMiniappPhone,
-    bindMobileForWechatMiniapp,
-
-    // 用户信息方法
+    loginByWxMa,
+    loginByWxMaPhone,
+    bindMobileForWxMa,
     logout,
     getInfo,
     checkSession,

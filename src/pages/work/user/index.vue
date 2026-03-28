@@ -52,7 +52,7 @@
       >
         <!-- 主信息行 -->
         <view class="flex-start">
-          <wd-img :src="item.avatar" width="80rpx" height="80rpx" round />
+          <image class="w-80rpx h-80rpx rounded-full" :src="item.avatar" mode="aspectFill" />
           <view class="flex-1 ml-16rpx">
             <view class="flex-start mt-12rpx">
               <text class="font-bold text-32rpx">{{ item.nickname }}</text>
@@ -111,11 +111,11 @@
     <wd-popup
       v-model="dialog.visible"
       position="bottom"
-      custom-style="border-radius: 24rpx 24rpx 0 0"
+      custom-class="popup-bottom"
       @close="closeUserDialog"
     >
       <view class="p-4">
-        <view class="text-center font-bold text-32rpx mb-4">
+        <view class="popup-title">
           {{ formData.id ? "编辑用户" : "新增用户" }}
         </view>
         <wd-form ref="formRef" :model="formData" :rules="rules">
@@ -157,14 +157,40 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <view
+    <wd-fab
       v-if="hasPermission('sys:user:create') && !dialog.visible"
-      class="fab-add"
-      hover-class="fab-add:active"
-      @click.stop="openUserDialog()"
-    >
-      <wd-icon name="add" size="44rpx" />
-    </view>
+      @click="openUserDialog()"
+    />
+
+    <!-- 操作菜单 -->
+    <wd-action-sheet
+      v-model="actionSheetVisible"
+      :actions="actionSheetActions"
+      cancel-text="取消"
+      @select="handleActionSelect"
+    />
+
+    <!-- 重置密码弹窗 -->
+    <wd-popup v-model="resetPwdDialog.visible" position="bottom" custom-class="popup-bottom">
+      <view class="p-4">
+        <view class="popup-title">重置密码</view>
+        <wd-form ref="resetPwdFormRef" :model="resetPwdForm">
+          <wd-cell-group border>
+            <wd-input
+              v-model="resetPwdForm.password"
+              label="新密码"
+              placeholder="请输入新密码（至少6位）"
+              prop="password"
+              :rules="[{ required: true, message: '请输入新密码' }, { pattern: /^.{6,}$/, message: '密码至少需要6位字符' }]"
+            />
+          </wd-cell-group>
+        </wd-form>
+        <view class="popup-actions">
+          <wd-button type="info" plain @click="resetPwdDialog.visible = false">取消</wd-button>
+          <wd-button type="primary" :loading="resetPwdDialog.submitting" @click="handleResetPassword">确认</wd-button>
+        </view>
+      </view>
+    </wd-popup>
   </view>
 </template>
 
@@ -173,7 +199,7 @@ import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
 import { useQueue, useToast } from "wot-design-uni";
-import UserAPI, { type UserPageQuery, UserPageVO, UserForm } from "@/api/user";
+import UserAPI, { type UserPageQuery, UserItem, UserForm } from "@/api/user";
 import RoleAPI from "@/api/role";
 import DeptAPI from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
@@ -193,7 +219,7 @@ const sortOptions = ref([
 
 const queryParams = reactive<UserPageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const total = ref(0);
-const pageData = ref<UserPageVO[]>([]);
+const pageData = ref<UserItem[]>([]);
 const dialog = reactive({ visible: false });
 
 const initialFormData: UserForm = {
@@ -384,36 +410,41 @@ function closeUserDialog() {
   Object.assign(formData, initialFormData);
 }
 
+const actionSheetVisible = ref(false);
+const actionSheetActions = ref<{ name: string; color?: string }[]>([]);
+const pendingAction = ref<Record<string, () => void>>({});
+
+const resetPwdDialog = reactive({ visible: false, submitting: false, userId: undefined as number | undefined });
+const resetPwdForm = reactive({ password: "" });
+const resetPwdFormRef = ref();
+
 // 更多操作
-function showUserActions(item: UserPageVO) {
-  const actions: string[] = [];
+function showUserActions(item: UserItem) {
+  const actions: { name: string; color?: string }[] = [];
   const actionMap: Record<string, () => void> = {};
 
   // 重置密码
   if (hasPermission("sys:user:reset-password")) {
-    actions.push("重置密码");
-    actionMap["重置密码"] = () => handleResetPassword(item);
+    actions.push({ name: "重置密码" });
+    actionMap["重置密码"] = () => openResetPwdDialog(item);
   }
 
   // 编辑
   if (hasPermission("sys:user:update")) {
-    actions.push("编辑");
+    actions.push({ name: "编辑" });
     actionMap["编辑"] = () => openUserDialog(item.id);
   }
 
   // 删除
   if (hasPermission("sys:user:delete")) {
-    actions.push("删除");
+    actions.push({ name: "删除", color: "var(--color-danger)" });
     actionMap["删除"] = async () => {
-      const { confirm } = await uni.showModal({
-        title: "确认删除",
-        content: `确定要删除用户「${item.nickname}」吗？`,
-      });
-      if (confirm) {
+      try {
+        await messageBox({ title: "确认删除", msg: `确定要删除用户「${item.nickname}」吗？`, type: "warning" });
         await UserAPI.deleteByIds(String(item.id));
         toast.success("删除成功");
         loadUserList();
-      }
+      } catch {}
     };
   }
 
@@ -422,34 +453,40 @@ function showUserActions(item: UserPageVO) {
     return;
   }
 
-  uni.showActionSheet({
-    itemList: actions,
-    success: ({ tapIndex }) => {
-      const action = actions[tapIndex];
-      actionMap[action]?.();
-    },
+  actionSheetActions.value = actions;
+  pendingAction.value = actionMap;
+  actionSheetVisible.value = true;
+}
+
+function handleActionSelect({ value }: { value: string }) {
+  pendingAction.value[value]?.();
+}
+
+// 打开重置密码弹窗
+function openResetPwdDialog(item: UserItem) {
+  resetPwdForm.password = "";
+  resetPwdDialog.userId = item.id;
+  resetPwdDialog.visible = true;
+  nextTick(() => {
+    resetPwdFormRef.value?.reset();
   });
 }
 
 // 重置密码
-async function handleResetPassword(item: UserPageVO) {
-  const { confirm, content: password } = await uni.showModal({
-    title: "重置密码",
-    editable: true,
-    placeholderText: `请输入用户「${item.username}」的新密码`,
-  });
-  if (!confirm || !password) return;
+async function handleResetPassword() {
+  const valid = await resetPwdFormRef.value?.validate();
+  if (!valid || valid.valid === false) return;
+  if (!resetPwdDialog.userId) return;
 
-  if (password.length < 6) {
-    toast.error("密码至少需要6位字符");
-    return;
-  }
-
+  resetPwdDialog.submitting = true;
   try {
-    await UserAPI.resetPassword(item.id, password);
+    await UserAPI.resetPassword(resetPwdDialog.userId, resetPwdForm.password);
     toast.success("密码重置成功");
+    resetPwdDialog.visible = false;
   } catch (error) {
     // API 已处理错误提示
+  } finally {
+    resetPwdDialog.submitting = false;
   }
 }
 
