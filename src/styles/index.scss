@@ -1,10 +1,6 @@
 @use "./theme";
 
-// ==========================================================================
-// 全局基础样式（uni-app 跨端兼容）
-// ==========================================================================
-
-// 页面根元素，小程序和 H5 通用
+// 基础样式
 page {
   font-size: 28rpx;
   line-height: 1.6;
@@ -34,30 +30,22 @@ body {
 }
 /* #endif */
 
-// ==========================================================================
 // 页面容器
-// ==========================================================================
-
 .page {
   min-height: 100vh;
   background-color: var(--color-bg-secondary);
 }
 
-// 带内边距的页面
 .page--padding {
   box-sizing: border-box;
   padding: 16rpx 32rpx 0;
 }
 
-// tabbar 页面底部安全区域
 .page--tabbar {
   padding-bottom: calc(100rpx + env(safe-area-inset-bottom));
 }
 
-// ==========================================================================
 // 筛选栏
-// ==========================================================================
-
 .filter-bar {
   display: flex;
   align-items: center;
@@ -76,21 +64,14 @@ body {
   }
 }
 
-// ==========================================================================
-// 卡片组件
-// ==========================================================================
-
-// 全局 wd-card 间距（使用更高选择器权重替代 !important）
+// 全局 wd-card 间距
 .page .wd-card,
 .filter-bar .wd-card {
   margin: 0;
   margin-bottom: 16rpx;
 }
 
-// ==========================================================================
-// 弹窗/面板底部按钮
-// ==========================================================================
-
+// 弹窗底部按钮
 .popup-actions {
   display: flex;
   gap: 16rpx;
@@ -101,59 +82,7 @@ body {
   }
 }
 
-// ==========================================================================
-// 浮动新增按钮（应优先使用 wd-fab 组件替代此类）
-// ==========================================================================
-
-.fab-add {
-  position: fixed;
-  right: 32rpx;
-  bottom: calc(120rpx + env(safe-area-inset-bottom));
-  z-index: var(--z-fab);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 88rpx;
-  height: 88rpx;
-  background: var(--color-primary);
-  border-radius: 50%;
-  box-shadow: var(--shadow-lg);
-
-  &:active {
-    opacity: 0.8;
-  }
-
-  .wd-icon {
-    color: var(--color-text-inverse);
-  }
-}
-
-// ==========================================================================
-// 底部固定按钮区（公共样式）
-// ==========================================================================
-
-.footer-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  gap: 24rpx;
-  padding: 24rpx 32rpx;
-  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
-  background-color: var(--color-bg);
-  border-top: 1px solid var(--color-border);
-}
-
-// 页面内容预留底部按钮区高度
-.page-content {
-  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
-}
-
-// ==========================================================================
 // 渐变背景
-// ==========================================================================
-
 .gradient-bg {
   &--primary {
     background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-bg) 100%);
@@ -172,10 +101,7 @@ body {
   }
 }
 
-// ==========================================================================
-// 底部弹窗圆角（替代 custom-style 内联样式）
-// ==========================================================================
-
+// 底部弹窗圆角
 .popup-bottom {
   border-radius: 24rpx 24rpx 0 0;
 }
@@ -185,18 +111,12 @@ body {
   max-height: 80vh;
 }
 
-// ==========================================================================
-// 弹窗标题（替代重复的 text-center font-bold text-32rpx mb-4）
-// ==========================================================================
-
+// 弹窗标题
 .popup-title {
-  @apply text-center font-bold text-32rpx mb-4;
+  text-align: center;
+  font-weight: bold;
+  font-size: 32rpx;
+  margin-bottom: 16rpx;
 }
 
-// ==========================================================================
-// 列表项间距（替代重复的 mt-16rpx）
-// ==========================================================================
 
-.list-section {
-  margin-top: 16rpx;
-}

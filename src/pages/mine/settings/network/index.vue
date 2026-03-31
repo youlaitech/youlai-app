@@ -1,6 +1,6 @@
 <template>
   <view class="page">
-    <view class="page-content dark:text-[var(--wot-color-text)]">
+    <view class="dark:text-[var(--wot-color-text)]">
       <view class="flex items-center p-20rpx text-sm mr-10">
         <text class="text-gray-500">温馨提示：点击下方「开始测试」按钮，即可自动检测当前网络延迟。</text>
       </view>
