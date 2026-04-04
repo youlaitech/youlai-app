@@ -24,7 +24,7 @@ const LogAPI = {
    */
   getVisitTrend(queryParams: VisitTrendQuery) {
     return request<VisitTrend>({
-      url: `${LOG_BASE_URL}/views/trend`,
+      url: `${LOG_BASE_URL}/analytics/trend`,
       method: "GET",
       data: queryParams,
     });
@@ -37,7 +37,7 @@ const LogAPI = {
    */
   getVisitStats() {
     return request<VisitStats>({
-      url: `${LOG_BASE_URL}/views`,
+      url: `${LOG_BASE_URL}/analytics/overview`,
       method: "GET",
     });
   },
