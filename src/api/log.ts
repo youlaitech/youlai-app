@@ -35,8 +35,8 @@ const LogAPI = {
    *
    * @returns 访问概览数据
    */
-  getVisitStats() {
-    return request<VisitStats>({
+  getVisitOverview() {
+    return request<VisitOverview>({
       url: `${LOG_BASE_URL}/analytics/overview`,
       method: "GET",
     });
@@ -103,8 +103,6 @@ export interface VisitTrend {
   pvList: number[];
   /** 访客数(UV) */
   uvList: number[];
-  /** IP数 */
-  ipList: number[];
 }
 
 /** 访问趋势查询参数 */
@@ -116,7 +114,7 @@ export interface VisitTrendQuery {
 }
 
 /**  访问统计 */
-export interface VisitStats {
+export interface VisitOverview {
   /** 今日访客数(UV) */
   todayUvCount: number;
   /** 总访客数 */

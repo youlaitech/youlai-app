@@ -52,7 +52,7 @@
             <view class="stat-card__dot stat-card__dot--green"></view>
           </view>
           <text class="stat-card__num stat-card__num--green">
-            {{ visitStatsData.todayUvCount }}
+            {{ visitOverviewData.todayUvCount }}
           </text>
         </view>
         <view class="stat-card gradient-bg--primary">
@@ -62,7 +62,7 @@
             <view class="stat-card__dot stat-card__dot--blue"></view>
           </view>
           <text class="stat-card__num stat-card__num--blue">
-            {{ visitStatsData.todayPvCount }}
+            {{ visitOverviewData.todayPvCount }}
           </text>
         </view>
       </view>
@@ -102,14 +102,14 @@ import { useRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
 import { menuConfig } from "@/config/menu";
 import { checkLogin, isLoggedIn } from "@/utils/auth";
-import LogAPI, { type VisitStats as ApiVisitStats, type VisitTrend } from "@/api/log";
+import LogAPI, { type VisitOverview as ApiVisitOverview, type VisitTrend } from "@/api/log";
 import NoticeAPI, { type NoticeItem } from "@/api/notice";
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
-type VisitStatsVO = ApiVisitStats;
+type VisitOverviewVO = ApiVisitOverview;
 
 interface NavItem {
   icon: string;
@@ -135,7 +135,7 @@ const recentDaysRange = ref(7);
 
 const swiperList = ref(["https://www.youlai.tech/storage/blog/banner9.png"]);
 
-const visitStatsData = ref<VisitStatsVO>({
+const visitOverviewData = ref<VisitOverviewVO>({
   todayUvCount: 0,
   uvGrowthRate: 0,
   totalUvCount: 0,
@@ -257,9 +257,9 @@ async function loadNoticeData() {
   }
 }
 
-async function loadVisitStatsData() {
+async function loadVisitOverviewData() {
   try {
-    visitStatsData.value = await LogAPI.getVisitStats();
+    visitOverviewData.value = await LogAPI.getVisitOverview();
   } catch {
     // ignore
   }
@@ -323,11 +323,9 @@ function handleNoticeClick() {
   router.push({ path: "/pages/work/notice/index" });
 }
 
-function handleSwiperClick(_e: any) {
-}
+function handleSwiperClick(_e: any) {}
 
-function handleSwiperChange(_e: any) {
-}
+function handleSwiperChange(_e: any) {}
 
 function handleDataRangeChange({ value }: { value: number }) {
   recentDaysRange.value = value;
@@ -341,13 +339,13 @@ function handleDataRangeChange({ value }: { value: number }) {
 onReady(() => {
   loadAppVersion();
   loadNoticeData();
-  loadVisitStatsData();
+  loadVisitOverviewData();
   loadVisitTrendData();
 });
 
 // 每次页面显示时刷新数据（登录后跳转回来也能更新）
 onShow(() => {
-  loadVisitStatsData();
+  loadVisitOverviewData();
   loadVisitTrendData();
 });
 </script>
