@@ -7,9 +7,8 @@ import AuthAPI, {
 } from "@/api/auth"
 import UserAPI, { type UserInfo } from "@/api/user"
 import { setAccessToken, clearTokens } from "@/utils/auth"
-import { getUserInfo, setUserInfo } from "@/utils/storage"
-import { USER_INFO_KEY } from "@/constants"
 import { Storage } from "@/utils/storage"
+import { USER_INFO_KEY } from "@/constants"
 
 /**
  * 用户状态管理 Store
@@ -27,7 +26,7 @@ export const useUserStore = defineStore("user", () => {
   // ==========================================================================
 
   /** 用户信息 */
-  const userInfo = ref<UserInfo | undefined>(getUserInfo())
+  const userInfo = ref<UserInfo | undefined>(Storage.get<UserInfo>(USER_INFO_KEY))
 
   // ==========================================================================
   // 登录方法
@@ -101,7 +100,7 @@ export const useUserStore = defineStore("user", () => {
    */
   const getInfo = async () => {
     const data = await UserAPI.getUserInfo()
-    setUserInfo(data)
+    Storage.set(USER_INFO_KEY, data)
     userInfo.value = data
     return data
   }

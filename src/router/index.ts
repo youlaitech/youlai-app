@@ -1,5 +1,5 @@
 ﻿import { pages, subPackages } from "virtual:uni-pages";
-import { getAccessToken, isLoggedIn } from "@/utils/auth";
+import { getAccessToken } from "@/utils/auth";
 import { createRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
 
@@ -7,7 +7,6 @@ import { useUserStore } from "@/store";
 function generateRoutes() {
   const routes = pages.map((page: { path: string; [key: string]: any }) => {
     const newPath = `/${page.path}`;
-    // 透传 meta 字段（如果 pages.json 中定义了）
     const meta = page.meta ?? undefined;
     return { ...page, path: newPath, meta };
   });
@@ -33,37 +32,32 @@ const router = createRouter({
 
 // 全局前置守卫
 router.beforeEach(async (to, from, next) => {
-  if (to.meta && to.meta.requireAuth && !isLoggedIn()) {
-    const redirectPath = (to.path || "/pages/index/index") as string;
-    // 先取消本次导航，避免在异步对话框中遗漏 next 导致报错
-    next(false);
-    uni.showModal({
-      title: "提示",
-      content: "该功能需要登录后使用",
-      confirmText: "去登录",
-      cancelText: "返回",
-      success: (res) => {
-        if (res.confirm) {
-          router.push({
-            path: "/pages/login/index",
-            query: { redirect: encodeURIComponent(redirectPath) },
-          });
-        }
-      },
-    });
-    return;
-  }
-
   if (to.meta && to.meta.requireAuth) {
     const token = getAccessToken();
-    const userStore = useUserStore();
 
+    // 无 token：弹窗提示登录
     if (!token) {
+      const redirectPath = (to.path || "/pages/index/index") as string;
       next(false);
-      router.push({ path: "/pages/login/index" });
+      uni.showModal({
+        title: "提示",
+        content: "该功能需要登录后使用",
+        confirmText: "去登录",
+        cancelText: "返回",
+        success: (res) => {
+          if (res.confirm) {
+            router.push({
+              path: "/pages/login/index",
+              query: { redirect: encodeURIComponent(redirectPath) },
+            });
+          }
+        },
+      });
       return;
     }
 
+    // 有 token 但无用户信息：尝试获取
+    const userStore = useUserStore();
     if (!userStore.userInfo) {
       try {
         await userStore.getInfo();

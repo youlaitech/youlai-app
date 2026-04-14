@@ -33,6 +33,7 @@ body {
 // 页面容器
 .page {
   min-height: 100vh;
+  box-sizing: border-box;
   background-color: var(--color-bg-secondary);
 }
 
@@ -42,7 +43,7 @@ body {
 }
 
 .page--tabbar {
-  padding-bottom: calc(100rpx + env(safe-area-inset-bottom));
+  padding-bottom: calc(50px + env(safe-area-inset-bottom));
 }
 
 // 筛选栏

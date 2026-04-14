@@ -1,5 +1,9 @@
 <template>
-  <view class="page page--padding page--tabbar">
+  <custom-navbar title="工作台" :show-back="false" />
+  <view
+    class="page page--tabbar"
+    :style="{ padding: `${navbar.totalHeight.value + 8}px 32rpx 0` }"
+  >
     <template v-for="(item, index) in visibleGridList" :key="index">
       <wd-card :title="item.title">
         <wd-grid clickable :column="4">
@@ -23,12 +27,16 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useRouter } from "uni-mini-router";
+import { useNavbar } from "@/composables/useNavbar";
 import { useUserStore } from "@/store";
 import { menuConfig } from "@/config/menu";
 import { checkLogin, isLoggedIn } from "@/utils/auth";
+import { hasPermission as checkPermission } from "@/utils/permission";
 
 const router = useRouter();
 const userStore = useUserStore();
+
+const navbar = useNavbar({ hasTabbar: true });
 
 // 用户权限列表
 const userPerms = computed(() => userStore.userInfo?.perms || []);
@@ -38,8 +46,8 @@ const isLogged = computed(() => isLoggedIn());
 
 // 检查是否有权限
 const hasPermission = (perm: string) => {
-  if (!perm) return true; // 无权限要求则显示
-  return userPerms.value.includes(perm) || userPerms.value.includes("*:*:*");
+  if (!perm) return true;
+  return checkPermission(perm);
 };
 
 // 根据权限过滤后的菜单列表
@@ -82,6 +90,7 @@ function handleNavClick(item: any) {
 {
   "name": "work",
   "style": {
+    "navigationStyle": "custom",
     "navigationBarTitleText": "工作台"
   },
   "layout": "tabbar"

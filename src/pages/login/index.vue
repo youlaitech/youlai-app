@@ -1,56 +1,57 @@
 <template>
-  <view class="login-page">
+  <view class="page login">
     <!-- 背景装饰 -->
-    <view class="bg-decoration">
-      <view class="bg-circle bg-circle-1" />
-      <view class="bg-circle bg-circle-2" />
+    <view class="login__decoration">
+      <view class="login__circle login__circle--1" />
+      <view class="login__circle login__circle--2" />
     </view>
 
-    <view class="login-nav" :style="{ paddingTop: `${statusBarHeight}px` }">
-      <view class="login-nav__bar" :style="{ height: `${navBarHeight}px` }">
-        <view class="login-nav__action" hover-class="login-nav__action--active" @click="handleBack">
-          <text class="login-nav__back-icon">‹</text>
+    <!-- 导航栏 -->
+    <view class="login__navbar" :style="{ paddingTop: `${statusBarHeight}px` }">
+      <view class="login__navbar-bar" :style="{ height: `${navBarHeight}px` }">
+        <view class="login__navbar-btn" hover-class="login__navbar-btn--active" @click="handleBack">
+          <text class="login__navbar-icon">‹</text>
         </view>
-        <view class="login-nav__title" />
-        <view class="login-nav__placeholder" />
+        <view class="login__navbar-title" />
+        <view class="login__navbar-placeholder" />
       </view>
     </view>
 
     <!-- 主内容 -->
-    <view class="login-main" :style="{ paddingTop: `${statusBarHeight + navBarHeight + 4}px` }">
+    <view class="login__body" :style="{ paddingTop: `${statusBarHeight + navBarHeight + 4}px` }">
       <!-- Logo -->
-      <view class="login-logo">
-        <image class="logo-image" src="/static/logo.png" mode="aspectFit" />
-        <text class="logo-text">youlai-app</text>
+      <view class="login__brand">
+        <image class="login__logo" src="/static/logo.png" mode="aspectFit" />
+        <text class="login__brand-name">youlai-app</text>
       </view>
 
       <!-- 登录卡片 -->
-      <view class="login-card">
+      <view class="login__card">
         <!-- 标题 -->
-        <view class="card-header">
-          <text class="card-title">欢迎登录</text>
-          <text class="card-desc">{{ loginModeDesc }}</text>
+        <view class="login__card-head">
+          <text class="login__card-title">欢迎登录</text>
+          <text class="login__card-subtitle">{{ loginModeDesc }}</text>
         </view>
 
         <!-- 表单区域 -->
-        <view v-if="loginMode !== 'WECHAT'" class="form-area">
+        <view v-if="loginMode !== 'WECHAT'" class="login__form">
           <!-- 用户名/手机号 -->
-          <view class="input-box">
+          <view class="login__field">
             <wd-icon name="person" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.username"
-              class="input-field"
+              class="login__field-input"
               :placeholder="loginMode === 'PASSWORD' ? '请输入用户名' : '请输入手机号'"
               :maxlength="loginMode === 'PASSWORD' ? 50 : 11"
             />
           </view>
 
           <!-- 密码 -->
-          <view v-if="loginMode === 'PASSWORD'" class="input-box">
+          <view v-if="loginMode === 'PASSWORD'" class="login__field">
             <wd-icon name="lock" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.password"
-              class="input-field"
+              class="login__field-input"
               placeholder="请输入密码"
               :maxlength="50"
               password
@@ -59,38 +60,38 @@
           </view>
 
           <!-- 图形验证码（密码登录时显示） -->
-          <view v-if="loginMode === 'PASSWORD'" class="input-box">
+          <view v-if="loginMode === 'PASSWORD'" class="login__field">
             <wd-icon name="shield" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.captchaCode"
-              class="input-field"
+              class="login__field-input"
               placeholder="请输入验证码"
               :maxlength="6"
               @confirm="handleLogin"
             />
             <image
               v-if="captchaBase64"
-              class="captcha-img"
+              class="login__captcha-img"
               :src="captchaBase64"
               mode="aspectFit"
               @click="fetchCaptcha"
             />
           </view>
 
-          <!-- 验证码 -->
-          <view v-else class="input-box">
+          <!-- 短信验证码 -->
+          <view v-else class="login__field">
             <wd-icon name="shield" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.code"
-              class="input-field"
+              class="login__field-input"
               placeholder="请输入验证码"
               type="number"
               :maxlength="6"
               @confirm="handleLogin"
             />
             <view
-              class="sms-btn"
-              :class="smsCountdown > 0 ? 'sms-btn-disabled' : 'sms-btn-active'"
+              class="login__code-btn"
+              :class="smsCountdown > 0 ? 'login__code-btn--disabled' : 'login__code-btn--active'"
               @click="handleSendCode"
             >
               {{ smsCountdown > 0 ? `${smsCountdown}s` : "获取验证码" }}
@@ -98,8 +99,8 @@
           </view>
 
           <!-- 演示环境提示 -->
-          <view v-if="loginMode === 'SMS'" class="demo-tip">
-            <text class="demo-tip-text">演示环境验证码：123456</text>
+          <view v-if="loginMode === 'SMS'" class="login__demo-hint">
+            <text class="login__demo-hint-text">演示环境验证码：123456</text>
           </view>
 
           <!-- 登录按钮 -->
@@ -108,11 +109,11 @@
           </wd-button>
 
           <!-- 切换登录方式 -->
-          <view class="switch-mode" @click="toggleLoginMode">
-            <text class="switch-text">
+          <view class="login__mode-switch" @click="toggleLoginMode">
+            <text class="login__mode-switch-text">
               {{ loginMode === "PASSWORD" ? "忘记密码？" : "记得密码？" }}
             </text>
-            <text class="switch-link">
+            <text class="login__mode-switch-link">
               {{ loginMode === "PASSWORD" ? "验证码登录" : "密码登录" }}
             </text>
           </view>
@@ -120,51 +121,52 @@
 
         <!-- #ifdef MP-WEIXIN -->
         <!-- 微信登录区域 -->
-        <view v-else class="form-area">
+        <view v-else class="login__form">
           <button
-            class="btn-wechat"
+            class="login__wx-btn"
             open-type="getPhoneNumber"
             @getphonenumber="handleWechatPhoneLogin"
           >
-            <image class="btn-wechat-icon" src="/static/icons/weixin.png" mode="aspectFit" />
+            <image class="login__wx-btn-icon" src="/static/icons/weixin.png" mode="aspectFit" />
             微信一键登录
           </button>
 
           <!-- 其他登录方式 -->
-          <view class="switch-mode" @click="loginMode = 'PASSWORD'">
-            <text class="switch-text">其他登录方式</text>
-            <text class="switch-link">账号登录</text>
+          <view class="login__mode-switch" @click="loginMode = 'PASSWORD'">
+            <text class="login__mode-switch-text">其他登录方式</text>
+            <text class="login__mode-switch-link">账号登录</text>
           </view>
         </view>
         <!-- #endif -->
 
         <!-- #ifdef MP-WEIXIN -->
         <!-- 分割线 -->
-        <view v-if="loginMode !== 'WECHAT'" class="divider">
-          <view class="divider-line" />
-          <text class="divider-text">其他登录方式</text>
-          <view class="divider-line" />
+        <view v-if="loginMode !== 'WECHAT'" class="login__divider">
+          <view class="login__divider-line" />
+          <text class="login__divider-text">其他登录方式</text>
+          <view class="login__divider-line" />
         </view>
 
         <!-- 微信登录入口 -->
-        <view v-if="loginMode !== 'WECHAT'" class="wechat-entry">
+        <view v-if="loginMode !== 'WECHAT'" class="login__oauth-row">
           <image
-            class="wechat-icon-img"
+            class="login__wx-icon"
             src="/static/icons/weixin.png"
             mode="aspectFit"
             @click="loginMode = 'WECHAT'"
           />
         </view>
 
-        <view class="agreement">
+        <!-- 协议勾选 -->
+        <view class="login__policy">
           <wd-checkbox v-model="isAgreePolicy" shape="square" size="16px">
-            <text class="agreement-text">
+            <text class="login__policy-text">
               我已阅读并同意
-              <text class="agreement-link" @click.stop="navigateToAgreement('user')">
+              <text class="login__policy-link" @click.stop="navigateToAgreement('user')">
                 《用户协议》
               </text>
               与
-              <text class="agreement-link" @click.stop="navigateToAgreement('privacy')">
+              <text class="login__policy-link" @click.stop="navigateToAgreement('privacy')">
                 《隐私政策》
               </text>
             </text>
@@ -182,33 +184,33 @@
       custom-class="popup-bottom"
       @close="resetBindForm"
     >
-      <view class="bind-popup">
-        <text class="bind-title">绑定手机号</text>
+      <view class="login__bind-panel">
+        <text class="login__bind-panel-title">绑定手机号</text>
 
-        <view class="form-area">
-          <view class="input-box">
+        <view class="login__form">
+          <view class="login__field">
             <wd-icon name="phone" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="bindMobileForm.mobile"
-              class="input-field"
+              class="login__field-input"
               placeholder="请输入手机号"
               type="number"
               :maxlength="11"
             />
           </view>
 
-          <view class="input-box">
+          <view class="login__field">
             <wd-icon name="shield" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="bindMobileForm.code"
-              class="input-field"
+              class="login__field-input"
               placeholder="请输入验证码"
               type="number"
               :maxlength="6"
             />
             <view
-              class="sms-btn"
-              :class="bindSmsCountdown > 0 ? 'sms-btn-disabled' : 'sms-btn-active'"
+              class="login__code-btn"
+              :class="bindSmsCountdown > 0 ? 'login__code-btn--disabled' : 'login__code-btn--active'"
               @click="handleSendBindCode"
             >
               {{ bindSmsCountdown > 0 ? `${bindSmsCountdown}s` : "获取验证码" }}
@@ -216,8 +218,8 @@
           </view>
 
           <!-- 演示环境提示 -->
-          <view class="demo-tip">
-            <text class="demo-tip-text">演示环境验证码：123456</text>
+          <view class="login__demo-hint">
+            <text class="login__demo-hint-text">演示环境验证码：123456</text>
           </view>
 
           <wd-button type="primary" block :loading="bindLoading" @click="handleBindMobile">
@@ -228,7 +230,7 @@
     </wd-popup>
 
     <!-- 协议确认弹窗 -->
-    <wd-message-box selector="policy-box">
+    <wd-message-box selector="policy-box" root-portal>
       <view class="text-center text-sm text-gray-500 leading-relaxed">
         请阅读并同意有来技术
         <text class="text-blue-500" @click.stop="navigateToAgreement('user')">《用户协议》</text>
@@ -257,7 +259,7 @@ const toast = useToast();
 const message = useMessage("policy-box");
 const userStore = useUserStore();
 
-// 导航栏
+// 导航栏尺寸
 const statusBarHeight = ref(20);
 const navBarHeight = ref(44);
 
@@ -556,10 +558,10 @@ onUnload(() => {
 </script>
 
 <style lang="scss" scoped>
-// 页面容器
-.login-page {
-  position: relative;
-  min-height: 100vh;
+// ==========================================================================
+// 页面背景
+// ==========================================================================
+.login {
   background: linear-gradient(
     135deg,
     var(--color-bg-tertiary) 0%,
@@ -568,38 +570,42 @@ onUnload(() => {
   );
 }
 
-// 背景装饰
-.bg-decoration {
-  position: absolute;
+// ==========================================================================
+// 背景装饰（模糊光晕圆）
+// ==========================================================================
+.login__decoration {
+  position: fixed;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
 }
 
-.bg-circle {
+.login__circle {
   position: absolute;
   filter: blur(64px);
   border-radius: 50%;
+
+  &--1 {
+    top: -80px;
+    left: -80px;
+    width: 240px;
+    height: 240px;
+    background-color: rgba(96, 165, 250, 0.2);
+  }
+
+  &--2 {
+    right: -80px;
+    bottom: -80px;
+    width: 320px;
+    height: 320px;
+    background-color: rgba(59, 130, 246, 0.15);
+  }
 }
 
-.bg-circle-1 {
-  top: -80px;
-  left: -80px;
-  width: 240px;
-  height: 240px;
-  background-color: rgba(96, 165, 250, 0.2);
-}
-
-.bg-circle-2 {
-  right: -80px;
-  bottom: -80px;
-  width: 320px;
-  height: 320px;
-  background-color: rgba(59, 130, 246, 0.15);
-}
-
+// ==========================================================================
 // 导航栏
-.login-nav {
+// ==========================================================================
+.login__navbar {
   position: fixed;
   top: 0;
   left: 0;
@@ -608,15 +614,15 @@ onUnload(() => {
   padding: 0 16px;
 }
 
-.login-nav__bar {
+.login__navbar-bar {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.login-nav__action,
-.login-nav__placeholder {
+.login__navbar-btn,
+.login__navbar-placeholder {
   position: absolute;
   top: 50%;
   display: flex;
@@ -627,22 +633,22 @@ onUnload(() => {
   transform: translateY(-50%);
 }
 
-.login-nav__action {
+.login__navbar-btn {
   left: 0;
   background-color: rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 999px;
+
+  &--active {
+    opacity: 0.8;
+  }
 }
 
-.login-nav__action--active {
-  opacity: 0.8;
-}
-
-.login-nav__placeholder {
+.login__navbar-placeholder {
   right: 0;
 }
 
-.login-nav__back-icon {
+.login__navbar-icon {
   margin-top: -4rpx;
   font-size: 44rpx;
   font-weight: 500;
@@ -650,25 +656,27 @@ onUnload(() => {
   color: rgba(15, 23, 42, 0.92);
 }
 
-.login-nav__title {
+.login__navbar-title {
   font-size: 32rpx;
   font-weight: 600;
   letter-spacing: 0.08em;
   color: rgba(15, 23, 42, 0.92);
 }
 
-// 主内容
-.login-main {
-  position: relative;
-  z-index: var(--z-sticky);
+// ==========================================================================
+// 主内容区 —— 普通流式布局，不需要高 z-index
+// ==========================================================================
+.login__body {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 0 48px;
 }
 
-// Logo
-.login-logo {
+// ==========================================================================
+// 品牌 Logo
+// ==========================================================================
+.login__brand {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -676,21 +684,23 @@ onUnload(() => {
   margin-bottom: 36px;
 }
 
-.logo-image {
+.login__logo {
   width: 80px;
   height: 80px;
   margin-bottom: 16px;
 }
 
-.logo-text {
+.login__brand-name {
   font-size: 20px;
   font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--color-text);
 }
 
+// ==========================================================================
 // 登录卡片
-.login-card {
+// ==========================================================================
+.login__card {
   width: 100%;
   padding: 32px;
   background-color: rgba(255, 255, 255, 0.95);
@@ -700,26 +710,28 @@ onUnload(() => {
 }
 
 // 卡片头部
-.card-header {
+.login__card-head {
   margin-bottom: 32px;
   text-align: center;
 }
 
-.card-title {
+.login__card-title {
   font-size: 24px;
   font-weight: 700;
   color: var(--color-text);
 }
 
-.card-desc {
+.login__card-subtitle {
   display: block;
   margin-top: 8px;
   font-size: 14px;
   color: var(--color-text-secondary);
 }
 
+// ==========================================================================
 // 表单区域
-.form-area {
+// ==========================================================================
+.login__form {
   > view,
   > button {
     &:not(:first-child) {
@@ -728,8 +740,8 @@ onUnload(() => {
   }
 }
 
-// 输入框容器
-.input-box {
+// 输入框行
+.login__field {
   display: flex;
   align-items: center;
   height: 48px;
@@ -742,7 +754,7 @@ onUnload(() => {
   }
 }
 
-.input-field {
+.login__field-input {
   flex: 1;
   height: 100%;
   margin-left: 12px;
@@ -750,14 +762,17 @@ onUnload(() => {
   color: var(--color-text);
 }
 
-.captcha-img {
+// 图形验证码图片
+.login__captcha-img {
   width: 100px;
   height: 36px;
   border-radius: 6px;
 }
 
-// 微信按钮
-.btn-wechat {
+// ==========================================================================
+// 微信登录按钮
+// ==========================================================================
+.login__wx-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -775,14 +790,16 @@ onUnload(() => {
   }
 }
 
-.btn-wechat-icon {
+.login__wx-btn-icon {
   width: 20px;
   height: 20px;
   margin-right: 8px;
 }
 
+// ==========================================================================
 // 验证码按钮
-.sms-btn {
+// ==========================================================================
+.login__code-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -794,31 +811,33 @@ onUnload(() => {
   transition:
     background-color 0.2s,
     color 0.2s;
+
+  &--active {
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+  }
+
+  &--disabled {
+    color: var(--color-text-placeholder);
+    background-color: var(--color-bg-tertiary);
+  }
 }
 
-.sms-btn-active {
-  color: var(--color-primary);
-  background-color: var(--color-primary-light);
-}
-
-.sms-btn-disabled {
-  color: var(--color-text-placeholder);
-  background-color: var(--color-bg-tertiary);
-}
-
-// 切换登录方式
-.switch-mode {
+// ==========================================================================
+// 登录方式切换
+// ==========================================================================
+.login__mode-switch {
   display: flex;
   justify-content: center;
   padding-top: 16px;
 }
 
-.switch-text {
+.login__mode-switch-text {
   font-size: 14px;
   color: var(--color-text-secondary);
 }
 
-.switch-link {
+.login__mode-switch-link {
   margin-left: 4px;
   font-size: 14px;
   font-weight: 500;
@@ -826,33 +845,37 @@ onUnload(() => {
   border-bottom: 1px solid var(--color-primary);
 }
 
+// ==========================================================================
 // 分割线
-.divider {
+// ==========================================================================
+.login__divider {
   display: flex;
   align-items: center;
   margin: 24px 0;
 }
 
-.divider-line {
+.login__divider-line {
   flex: 1;
   height: 1px;
   background-color: var(--color-border);
 }
 
-.divider-text {
+.login__divider-text {
   padding: 0 16px;
   font-size: 12px;
   color: var(--color-text-placeholder);
 }
 
-// 微信登录入口
-.wechat-entry {
+// ==========================================================================
+// 第三方登录入口
+// ==========================================================================
+.login__oauth-row {
   display: flex;
   justify-content: center;
   gap: 32px;
 }
 
-.wechat-icon-img {
+.login__wx-icon {
   width: 40px;
   height: 40px;
 
@@ -861,8 +884,10 @@ onUnload(() => {
   }
 }
 
-// 协议
-.agreement {
+// ==========================================================================
+// 协议勾选
+// ==========================================================================
+.login__policy {
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -871,22 +896,24 @@ onUnload(() => {
   border-top: 1px solid var(--color-border-light);
 }
 
-.agreement-text {
+.login__policy-text {
   font-size: 12px;
   line-height: 1.5;
   color: var(--color-text-secondary);
 }
 
-.agreement-link {
+.login__policy-link {
   color: var(--color-primary);
 }
 
+// ==========================================================================
 // 绑定手机号弹窗
-.bind-popup {
+// ==========================================================================
+.login__bind-panel {
   padding: 24px;
 }
 
-.bind-title {
+.login__bind-panel-title {
   display: block;
   margin-bottom: 24px;
   font-size: 18px;
@@ -895,29 +922,20 @@ onUnload(() => {
   color: var(--color-text);
 }
 
+// ==========================================================================
 // 演示环境提示
-.demo-tip {
+// ==========================================================================
+.login__demo-hint {
   display: flex;
   justify-content: center;
   margin-top: 12px;
 }
 
-.demo-tip-text {
+.login__demo-hint-text {
   padding: 4px 12px;
   font-size: 12px;
   color: var(--color-warning);
   background-color: var(--color-warning-light);
   border-radius: 4px;
-}
-
-// 深度样式覆盖
-::deep(.wd-checkbox__label) {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-::deep(.wd-popup__close) {
-  top: 16px;
-  right: 16px;
 }
 </style>

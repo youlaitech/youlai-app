@@ -40,6 +40,7 @@
       "type": "page",
       "name": "work",
       "style": {
+        "navigationStyle": "custom",
         "navigationBarTitleText": "工作台"
       },
       "layout": "tabbar"
@@ -200,7 +201,7 @@
   "globalStyle": {
     "navigationBarBackgroundColor": "@navBgColor",
     "navigationBarTextStyle": "@navTxtStyle",
-    "navigationBarTitleText": "vue-uniapp-template",
+    "navigationBarTitleText": "youlai-app",
     "backgroundColor": "@bgColor",
     "backgroundTextStyle": "@bgTxtStyle",
     "backgroundColorTop": "@bgColorTop",

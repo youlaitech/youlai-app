@@ -45,23 +45,23 @@
     <!-- 数据统计 -->
     <view class="m-24rpx">
       <view class="grid grid-cols-2 gap-16rpx">
-        <view class="stat-card gradient-bg--success">
-          <image class="stat-card__icon" src="/static/icons/visitor.svg" mode="aspectFit" />
+        <view class="stat-card stat-card--uv">
+          <image class="stat-card__icon" src="/static/icons/uv.svg" mode="aspectFit" />
           <view class="stat-card__header">
             <text class="stat-card__label">访客数</text>
-            <view class="stat-card__dot stat-card__dot--green"></view>
+            <view class="stat-card__dot stat-card__dot--uv"></view>
           </view>
-          <text class="stat-card__num stat-card__num--green">
+          <text class="stat-card__num stat-card__num--uv">
             {{ visitOverviewData.todayUvCount }}
           </text>
         </view>
-        <view class="stat-card gradient-bg--primary">
-          <image class="stat-card__icon" src="/static/icons/browser.svg" mode="aspectFit" />
+        <view class="stat-card stat-card--pv">
+          <image class="stat-card__icon" src="/static/icons/pv.svg" mode="aspectFit" />
           <view class="stat-card__header">
             <text class="stat-card__label">浏览量</text>
-            <view class="stat-card__dot stat-card__dot--blue"></view>
+            <view class="stat-card__dot stat-card__dot--pv"></view>
           </view>
-          <text class="stat-card__num stat-card__num--blue">
+          <text class="stat-card__num stat-card__num--pv">
             {{ visitOverviewData.todayPvCount }}
           </text>
         </view>
@@ -69,7 +69,7 @@
     </view>
 
     <!-- 访问趋势图表 -->
-    <view class="m-24rpx">
+    <view class="mt-24rpx">
       <wd-card custom-class="chart-card">
         <template #title>
           <view class="flex-between">
@@ -133,7 +133,7 @@ const userStore = useUserStore();
 const current = ref(0);
 const recentDaysRange = ref(7);
 
-const swiperList = ref(["https://www.youlai.tech/storage/blog/banner9.png"]);
+const swiperList = ref(["https://www.youlai.tech/storage/youlai/bg02.png" ,"https://www.youlai.tech/storage/blog/banner9.png" ]);
 
 const visitOverviewData = ref<VisitOverviewVO>({
   todayUvCount: 0,
@@ -477,11 +477,11 @@ onShow(() => {
 
   &__icon {
     position: absolute;
-    right: -10rpx;
-    bottom: -10rpx;
-    width: 100rpx;
-    height: 100rpx;
-    opacity: 0.15;
+    right: 4px;
+    bottom: 4px;
+    width: 72rpx;
+    height: 72rpx;
+    opacity: 0.25;
   }
 
   &__dot {
@@ -489,19 +489,16 @@ onShow(() => {
     height: 12rpx;
     border-radius: 50%;
 
+    &--uv,
     &--green {
-      background: var(--color-success);
-      box-shadow: 0 0 10rpx rgba(52, 209, 157, 0.4);
+      background: #34d19d;
+      box-shadow: 0 0 10rpx rgba(52, 209, 157, 0.35);
     }
 
+    &--pv,
     &--blue {
-      background: var(--color-primary);
-      box-shadow: 0 0 10rpx rgba(37, 99, 235, 0.4);
-    }
-
-    &--orange {
-      background: var(--color-warning);
-      box-shadow: 0 0 12rpx rgba(245, 158, 11, 0.4);
+      background: #4d80f0;
+      box-shadow: 0 0 10rpx rgba(77, 128, 240, 0.3);
     }
   }
 
@@ -513,16 +510,14 @@ onShow(() => {
     line-height: 1;
     letter-spacing: -1rpx;
 
+    &--uv,
     &--green {
-      color: var(--color-success);
+      color: #34d19d;
     }
 
+    &--pv,
     &--blue {
-      color: var(--color-primary);
-    }
-
-    &--orange {
-      color: var(--color-warning);
+      color: #4d80f0;
     }
   }
 

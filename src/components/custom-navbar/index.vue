@@ -57,13 +57,13 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   title: "",
-  titleColor: "#333333",
-  bgColor: "#ffffff",
+  titleColor: "var(--color-text)",
+  bgColor: "var(--color-bg)",
   showBack: true,
   showHome: false,
   backIcon: "arrow-left",
   backIconSize: "20px",
-  iconColor: "#333333",
+  iconColor: "var(--color-text)",
   fixed: true,
   placeholder: false,
   navBarHeight: 44,

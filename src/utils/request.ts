@@ -1,5 +1,8 @@
 ﻿import { getAccessToken, clearTokens } from "./auth";
 
+// 401 跳转防抖锁，避免并发请求多次跳转登录页
+let isRedirecting401 = false;
+
 /**
  * 请求错误类
  */
@@ -7,13 +10,13 @@ export class RequestError extends Error {
   /** HTTP 状态码 */
   statusCode: number;
   /** 业务错误码 */
-  code: number;
+  code: string;
 
-  constructor(message: string, statusCode: number, code?: number) {
+  constructor(message: string, statusCode: number, code?: string) {
     super(message);
     this.name = "RequestError";
     this.statusCode = statusCode;
-    this.code = code ?? statusCode;
+    this.code = code ?? String(statusCode);
   }
 }
 
@@ -65,26 +68,42 @@ function request<T = any>(options: RequestOptions): Promise<T> {
       timeout: options.timeout || 30000,
       responseType: options.responseType,
       success: (res: any) => {
+        const serverCode = res?.data?.code;
         const serverMsg = res?.data?.msg || res?.data?.message;
-        // 请求成功
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          resolve(res.data.data);
-        }
-        // 未授权错误：清除 token 并跳转登录页
-        else if (res.statusCode === 401) {
+
+        // 令牌无效/过期（业务码 A023x 或 HTTP 401）：清除 token 并跳转登录页（防抖）
+        const isTokenError =
+          (res.statusCode >= 200 && res.statusCode < 300 && serverCode?.startsWith("A023")) ||
+          res.statusCode === 401;
+        if (isTokenError) {
           clearTokens();
-          uni.navigateTo({
-            url: "/pages/login/index",
-          });
-          reject(new RequestError(serverMsg || "未授权，请重新登录", 401));
+          if (!isRedirecting401) {
+            isRedirecting401 = true;
+            uni.navigateTo({
+              url: "/pages/login/index",
+              complete: () => {
+                isRedirecting401 = false;
+              },
+            });
+          }
+          reject(new RequestError(serverMsg || "未授权，请重新登录", 401, serverCode || "A0230"));
+          return;
         }
-        // 其他错误
-        else {
-          const errorCode = res?.data?.code || res.statusCode;
-          reject(
-            new RequestError(serverMsg || `请求失败: ${res.statusCode}`, res.statusCode, errorCode)
-          );
+
+        // HTTP 成功：校验业务码
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          if (!serverCode || serverCode === "00000") {
+            resolve(res.data.data);
+          } else {
+            reject(new RequestError(serverMsg || "请求失败", res.statusCode, serverCode));
+          }
+          return;
         }
+
+        // 其他 HTTP 错误
+        reject(
+          new RequestError(serverMsg || `请求失败: ${res.statusCode}`, res.statusCode, serverCode)
+        );
       },
       fail: (err) => {
         reject(new RequestError(err.errMsg || "网络请求失败", 0));
@@ -94,4 +113,3 @@ function request<T = any>(options: RequestOptions): Promise<T> {
 }
 
 export default request;
-

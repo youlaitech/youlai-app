@@ -22,7 +22,7 @@ declare global {
    */
   interface PageResult<T> {
     /** 数据列表 */
-    list: T;
+    list: T[];
     /** 总数 */
     total: number;
   }

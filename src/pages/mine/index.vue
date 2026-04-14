@@ -904,7 +904,7 @@ const openOfficialAccount = () => {
 .mine-body {
   position: relative;
   z-index: var(--z-base);
-  padding: 0 28rpx calc(env(safe-area-inset-bottom) + 40rpx);
+  padding: 0 28rpx 40rpx;
   margin-top: 0;
   background: var(--color-bg-secondary);
   border-top-left-radius: 48rpx;

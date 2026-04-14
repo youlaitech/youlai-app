@@ -1,5 +1,5 @@
 {
-  "name": "vue-uniapp-template",
+  "name": "youlai-app",
   "appid": "",
   "description": "有来移动端跨端解决方案开发模板",
   "versionName": "1.0.0",
@@ -44,7 +44,9 @@
   "mp-weixin": {
     "appid": "wx99a151dc43d2637b",
     "setting": {
-      "urlCheck": false
+      "urlCheck": false,
+      "ignoreDevUnusedFiles": false,
+      "ignoreUploadUnusedFiles": false
     },
     "usingComponents": true,
     "darkMode": true,

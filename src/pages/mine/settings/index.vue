@@ -180,7 +180,7 @@ onLoad(() => {
 }
 
 // 退出登录按钮样式 - 使用更具体的选择器替代 !important
-::deep(.wd-button.logout-btn) {
+:deep(.wd-button.logout-btn) {
   width: 80%;
   height: 80rpx;
   font-size: 32rpx;
@@ -194,7 +194,7 @@ onLoad(() => {
   }
 }
 
-::deep(.loading-center) {
+:deep(.loading-center) {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -203,11 +203,11 @@ onLoad(() => {
   border-radius: 12rpx;
 }
 
-::deep(.loading-center .wd-loading__spinner) {
+:deep(.loading-center .wd-loading__spinner) {
   margin: 0 auto;
 }
 
-::deep(.loading-center .wd-loading__text) {
+:deep(.loading-center .wd-loading__text) {
   margin-top: 20rpx;
   color: var(--color-text-inverse);
   text-align: center;

@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, type Ref, type ComputedRef } from "vue";
 
 /**
  * 微信小程序导航栏高度计算
@@ -175,6 +175,15 @@ export function useNavbar(options: UseNavbarOptions = {}): UseNavbarReturn {
         }, delayMs);
       } else {
         console.warn("getMenuButtonBoundingClientRect 返回值无效，使用默认值");
+        // 兜底：设置合理的默认胶囊按钮尺寸，避免导航栏高度为 0
+        menuButton.value = {
+          width: 87,
+          height: 32,
+          top: statusBarHeight.value + 6,
+          right: windowWidth.value - 10,
+          bottom: statusBarHeight.value + 38,
+          left: windowWidth.value - 97,
+        };
       }
     } catch (e) {
       console.warn("获取胶囊按钮位置失败，使用默认值", e);
@@ -208,10 +217,8 @@ export function useNavbar(options: UseNavbarOptions = {}): UseNavbarReturn {
     }
   };
 
-  // 在 onMounted 中调用，确保页面渲染完成
-  onMounted(() => {
-    init();
-  });
+  // setup 阶段同步调用，避免首次渲染闪烁
+  init();
 
   return {
     // 高度信息
@@ -236,7 +243,3 @@ export function useNavbar(options: UseNavbarOptions = {}): UseNavbarReturn {
     init,
   };
 }
-
-// 类型导出
-type Ref<T> = import("vue").Ref<T>;
-type ComputedRef<T> = import("vue").ComputedRef;

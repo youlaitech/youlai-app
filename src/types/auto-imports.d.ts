@@ -245,8 +245,6 @@ declare module 'vue' {
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly getRefreshToken: UnwrapRef<typeof import('../utils/auth')['getRefreshToken']>
-    readonly getToken: UnwrapRef<typeof import('../utils/storage')['getToken']>
-    readonly getUserInfo: UnwrapRef<typeof import('../utils/storage')['getUserInfo']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hasAllPermissions: UnwrapRef<typeof import('../utils/permission')['hasAllPermissions']>
     readonly hasAllRoles: UnwrapRef<typeof import('../utils/permission')['hasAllRoles']>
@@ -318,8 +316,6 @@ declare module 'vue' {
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly setRefreshToken: UnwrapRef<typeof import('../utils/auth')['setRefreshToken']>
-    readonly setToken: UnwrapRef<typeof import('../utils/storage')['setToken']>
-    readonly setUserInfo: UnwrapRef<typeof import('../utils/storage')['setUserInfo']>
     readonly setupStore: UnwrapRef<typeof import('../store/index')['setupStore']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>

@@ -28,16 +28,16 @@ export const useThemeStore = defineStore("theme", () => {
 
   /** 主题变量（响应式对象） */
   const themeVars = reactive({
-    darkBackground: "#0f0f0f",
-    darkBackground2: "#1a1a1a",
-    darkBackground3: "#242424",
-    darkBackground4: "#2f2f2f",
-    darkBackground5: "#3d3d3d",
-    darkBackground6: "#4a4a4a",
-    darkBackground7: "#606060",
-    darkColor: "#ffffff",
-    darkColor2: "#e0e0e0",
-    darkColor3: "#a0a0a0",
+    darkBackground: "#1f2937",
+    darkBackground2: "#111827",
+    darkBackground3: "#1e293b",
+    darkBackground4: "#374151",
+    darkBackground5: "#4b5563",
+    darkBackground6: "#6b7280",
+    darkBackground7: "#9ca3af",
+    darkColor: "#f9fafb",
+    darkColor2: "#9ca3af",
+    darkColor3: "#6b7280",
     colorTheme: currentThemeColor.value.primary,
   })
 
@@ -58,7 +58,7 @@ export const useThemeStore = defineStore("theme", () => {
   const setNavigationBarColor = () => {
     uni.setNavigationBarColor({
       frontColor: theme.value === "light" ? "#000000" : "#ffffff",
-      backgroundColor: theme.value === "light" ? "#ffffff" : "#000000",
+      backgroundColor: theme.value === "light" ? "#ffffff" : "#1f2937",
     })
   }
 
