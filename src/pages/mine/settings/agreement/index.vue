@@ -1,5 +1,5 @@
 <template>
-  <view class="page-container dark:text-[var(--wot-color-text)]">
+  <view class="page">
     <wd-collapse v-model="activeNames" accordion>
       <wd-collapse-item
         v-for="(section, index) in agreementContent"
@@ -7,13 +7,13 @@
         :title="section.title"
         :name="String(index)"
       >
-        <view class="py-3 px-4">
-          <text class="text-base leading-relaxed text-gray-600">{{ section.content }}</text>
+        <view class="agreement__content">
+          <text class="agreement__text">{{ section.content }}</text>
         </view>
       </wd-collapse-item>
     </wd-collapse>
 
-    <view class="mt-6 px-4">
+    <view class="agreement__action">
       <wd-button type="primary" block @click="handleAgree">我已阅读并同意</wd-button>
     </view>
   </view>
@@ -76,4 +76,19 @@ const handleAgree = () => {
 }
 </route>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.agreement__content {
+  padding: 24rpx 32rpx;
+}
+
+.agreement__text {
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.agreement__action {
+  margin-top: 48rpx;
+  padding: 0 32rpx;
+}
+</style>

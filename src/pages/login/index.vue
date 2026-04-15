@@ -36,7 +36,7 @@
         <!-- 表单区域 -->
         <view v-if="loginMode !== 'WECHAT'" class="login__form">
           <!-- 用户名/手机号 -->
-          <view class="login__field">
+          <view class="login__form-item login__field">
             <wd-icon name="person" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.username"
@@ -47,7 +47,7 @@
           </view>
 
           <!-- 密码 -->
-          <view v-if="loginMode === 'PASSWORD'" class="login__field">
+          <view v-if="loginMode === 'PASSWORD'" class="login__form-item login__field">
             <wd-icon name="lock" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.password"
@@ -60,7 +60,7 @@
           </view>
 
           <!-- 图形验证码（密码登录时显示） -->
-          <view v-if="loginMode === 'PASSWORD'" class="login__field">
+          <view v-if="loginMode === 'PASSWORD'" class="login__form-item login__field">
             <wd-icon name="shield" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.captchaCode"
@@ -79,7 +79,7 @@
           </view>
 
           <!-- 短信验证码 -->
-          <view v-else class="login__field">
+          <view v-else class="login__form-item login__field">
             <wd-icon name="shield" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.code"
@@ -99,17 +99,19 @@
           </view>
 
           <!-- 演示环境提示 -->
-          <view v-if="loginMode === 'SMS'" class="login__demo-hint">
+          <view v-if="loginMode === 'SMS'" class="login__form-item login__demo-hint">
             <text class="login__demo-hint-text">演示环境验证码：123456</text>
           </view>
 
           <!-- 登录按钮 -->
-          <wd-button type="primary" block :loading="loading" @click="handleLogin">
-            登 录
-          </wd-button>
+          <view class="login__form-item">
+            <wd-button type="primary" block :loading="loading" @click="handleLogin">
+              登 录
+            </wd-button>
+          </view>
 
           <!-- 切换登录方式 -->
-          <view class="login__mode-switch" @click="toggleLoginMode">
+          <view class="login__form-item login__mode-switch" @click="toggleLoginMode">
             <text class="login__mode-switch-text">
               {{ loginMode === "PASSWORD" ? "忘记密码？" : "记得密码？" }}
             </text>
@@ -122,17 +124,19 @@
         <!-- #ifdef MP-WEIXIN -->
         <!-- 微信登录区域 -->
         <view v-else class="login__form">
-          <button
-            class="login__wx-btn"
-            open-type="getPhoneNumber"
-            @getphonenumber="handleWechatPhoneLogin"
-          >
-            <image class="login__wx-btn-icon" src="/static/icons/weixin.png" mode="aspectFit" />
-            微信一键登录
-          </button>
+          <view class="login__form-item">
+            <button
+              class="login__wx-btn"
+              open-type="getPhoneNumber"
+              @getphonenumber="handleWechatPhoneLogin"
+            >
+              <image class="login__wx-btn-icon" src="/static/icons/weixin.png" mode="aspectFit" />
+              微信一键登录
+            </button>
+          </view>
 
           <!-- 其他登录方式 -->
-          <view class="login__mode-switch" @click="loginMode = 'PASSWORD'">
+          <view class="login__form-item login__mode-switch" @click="loginMode = 'PASSWORD'">
             <text class="login__mode-switch-text">其他登录方式</text>
             <text class="login__mode-switch-link">账号登录</text>
           </view>
@@ -159,7 +163,7 @@
 
         <!-- 协议勾选 -->
         <view class="login__policy">
-          <wd-checkbox v-model="isAgreePolicy" shape="square" size="16px">
+          <wd-checkbox v-model="isAgreePolicy" shape="square" size="32rpx">
             <text class="login__policy-text">
               我已阅读并同意
               <text class="login__policy-link" @click.stop="navigateToAgreement('user')">
@@ -575,7 +579,10 @@ onUnload(() => {
 // ==========================================================================
 .login__decoration {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   overflow: hidden;
   pointer-events: none;
 }
@@ -586,18 +593,18 @@ onUnload(() => {
   border-radius: 50%;
 
   &--1 {
-    top: -80px;
-    left: -80px;
-    width: 240px;
-    height: 240px;
+    top: -160rpx;
+    left: -160rpx;
+    width: 480rpx;
+    height: 480rpx;
     background-color: rgba(96, 165, 250, 0.2);
   }
 
   &--2 {
-    right: -80px;
-    bottom: -80px;
-    width: 320px;
-    height: 320px;
+    right: -160rpx;
+    bottom: -160rpx;
+    width: 640rpx;
+    height: 640rpx;
     background-color: rgba(59, 130, 246, 0.15);
   }
 }
@@ -611,7 +618,7 @@ onUnload(() => {
   left: 0;
   right: 0;
   z-index: var(--z-navbar);
-  padding: 0 16px;
+  padding: 0 32rpx;
 }
 
 .login__navbar-bar {
@@ -636,8 +643,8 @@ onUnload(() => {
 .login__navbar-btn {
   left: 0;
   background-color: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 999px;
+  border: 2rpx solid rgba(255, 255, 255, 0.35);
+  border-radius: 999rpx;
 
   &--active {
     opacity: 0.8;
@@ -670,7 +677,7 @@ onUnload(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 48px;
+  padding: 0 96rpx;
 }
 
 // ==========================================================================
@@ -680,18 +687,18 @@ onUnload(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 8px;
-  margin-bottom: 36px;
+  margin-top: 16rpx;
+  margin-bottom: 72rpx;
 }
 
 .login__logo {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 16px;
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 32rpx;
 }
 
 .login__brand-name {
-  font-size: 20px;
+  font-size: 40rpx;
   font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--color-text);
@@ -702,41 +709,40 @@ onUnload(() => {
 // ==========================================================================
 .login__card {
   width: 100%;
-  padding: 32px;
+  padding: 64rpx;
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(24px);
-  border-radius: 24px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  border-radius: 48rpx;
+  box-shadow: 0 20rpx 50rpx -10rpx rgba(0, 0, 0, 0.1);
 }
 
 // 卡片头部
 .login__card-head {
-  margin-bottom: 32px;
+  margin-bottom: 64rpx;
   text-align: center;
 }
 
 .login__card-title {
-  font-size: 24px;
+  font-size: 48rpx;
   font-weight: 700;
   color: var(--color-text);
 }
 
 .login__card-subtitle {
   display: block;
-  margin-top: 8px;
-  font-size: 14px;
+  margin-top: 16rpx;
+  font-size: 28rpx;
   color: var(--color-text-secondary);
 }
 
 // ==========================================================================
 // 表单区域
 // ==========================================================================
-.login__form {
-  > view,
-  > button {
-    &:not(:first-child) {
-      margin-top: 16px;
-    }
+.login__form-item {
+  margin-top: 32rpx;
+
+  &:first-child {
+    margin-top: 0;
   }
 }
 
@@ -744,29 +750,25 @@ onUnload(() => {
 .login__field {
   display: flex;
   align-items: center;
-  height: 48px;
-  padding: 0 16px;
+  height: 96rpx;
+  padding: 0 32rpx;
   background-color: var(--color-bg-secondary);
-  border-radius: 12px;
-
-  &:focus-within {
-    box-shadow: 0 0 0 2px var(--color-primary);
-  }
+  border-radius: 24rpx;
 }
 
 .login__field-input {
   flex: 1;
   height: 100%;
-  margin-left: 12px;
-  font-size: 14px;
+  margin-left: 24rpx;
+  font-size: 28rpx;
   color: var(--color-text);
 }
 
 // 图形验证码图片
 .login__captcha-img {
-  width: 100px;
-  height: 36px;
-  border-radius: 6px;
+  width: 200rpx;
+  height: 72rpx;
+  border-radius: 12rpx;
 }
 
 // ==========================================================================
@@ -777,13 +779,13 @@ onUnload(() => {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 48px;
-  font-size: 16px;
+  height: 96rpx;
+  font-size: 32rpx;
   font-weight: 600;
-  color: #fff;
-  background-color: #22c55e;
-  border-radius: 12px;
-  box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.3);
+  color: var(--color-text-inverse);
+  background-color: var(--color-wx-green);
+  border-radius: 24rpx;
+  box-shadow: 0 20rpx 30rpx -6rpx rgba(34, 197, 94, 0.3);
 
   &:active {
     transform: scale(0.98);
@@ -791,9 +793,9 @@ onUnload(() => {
 }
 
 .login__wx-btn-icon {
-  width: 20px;
-  height: 20px;
-  margin-right: 8px;
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 16rpx;
 }
 
 // ==========================================================================
@@ -803,15 +805,11 @@ onUnload(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
-  padding: 0 16px;
-  font-size: 14px;
+  height: 64rpx;
+  padding: 0 32rpx;
+  font-size: 28rpx;
   font-weight: 500;
-  border-radius: 8px;
-  transition:
-    background-color 0.2s,
-    color 0.2s;
-
+  border-radius: 16rpx;
   &--active {
     color: var(--color-primary);
     background-color: var(--color-primary-light);
@@ -829,20 +827,20 @@ onUnload(() => {
 .login__mode-switch {
   display: flex;
   justify-content: center;
-  padding-top: 16px;
+  padding-top: 32rpx;
 }
 
 .login__mode-switch-text {
-  font-size: 14px;
+  font-size: 28rpx;
   color: var(--color-text-secondary);
 }
 
 .login__mode-switch-link {
-  margin-left: 4px;
-  font-size: 14px;
+  margin-left: 8rpx;
+  font-size: 28rpx;
   font-weight: 500;
   color: var(--color-primary);
-  border-bottom: 1px solid var(--color-primary);
+  border-bottom: 2rpx solid var(--color-primary);
 }
 
 // ==========================================================================
@@ -851,18 +849,18 @@ onUnload(() => {
 .login__divider {
   display: flex;
   align-items: center;
-  margin: 24px 0;
+  margin: 48rpx 0;
 }
 
 .login__divider-line {
   flex: 1;
-  height: 1px;
+  height: 2rpx;
   background-color: var(--color-border);
 }
 
 .login__divider-text {
-  padding: 0 16px;
-  font-size: 12px;
+  padding: 0 32rpx;
+  font-size: 24rpx;
   color: var(--color-text-placeholder);
 }
 
@@ -872,12 +870,12 @@ onUnload(() => {
 .login__oauth-row {
   display: flex;
   justify-content: center;
-  gap: 32px;
+  gap: 64rpx;
 }
 
 .login__wx-icon {
-  width: 40px;
-  height: 40px;
+  width: 80rpx;
+  height: 80rpx;
 
   &:active {
     transform: scale(0.95);
@@ -891,13 +889,13 @@ onUnload(() => {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 16px;
-  margin-top: 24px;
-  border-top: 1px solid var(--color-border-light);
+  padding-top: 32rpx;
+  margin-top: 48rpx;
+  border-top: 2rpx solid var(--color-border-light);
 }
 
 .login__policy-text {
-  font-size: 12px;
+  font-size: 24rpx;
   line-height: 1.5;
   color: var(--color-text-secondary);
 }
@@ -910,13 +908,13 @@ onUnload(() => {
 // 绑定手机号弹窗
 // ==========================================================================
 .login__bind-panel {
-  padding: 24px;
+  padding: 48rpx;
 }
 
 .login__bind-panel-title {
   display: block;
-  margin-bottom: 24px;
-  font-size: 18px;
+  margin-bottom: 48rpx;
+  font-size: 36rpx;
   font-weight: 600;
   text-align: center;
   color: var(--color-text);
@@ -928,14 +926,14 @@ onUnload(() => {
 .login__demo-hint {
   display: flex;
   justify-content: center;
-  margin-top: 12px;
+  margin-top: 24rpx;
 }
 
 .login__demo-hint-text {
-  padding: 4px 12px;
-  font-size: 12px;
+  padding: 8rpx 24rpx;
+  font-size: 24rpx;
   color: var(--color-warning);
   background-color: var(--color-warning-light);
-  border-radius: 4px;
+  border-radius: 8rpx;
 }
 </style>

@@ -1,17 +1,21 @@
 <template>
-  <view class="page dark:text-[var(--wot-color-text)]">
+  <view class="page">
     <view class="profile-content">
-      <view class="pt-20rpx">
+      <view class="profile-content__card-area">
         <wd-card v-if="userProfile">
           <wd-cell-group border>
             <wd-cell class="avatar-cell" title="头像" center is-link>
-              <view class="avatar">
-                <view v-if="!userProfile.avatar" class="img" @click="handleAvatarUpload">
-                  <wd-icon name="fill-camera" custom-class="img-icon" />
+              <view class="avatar-cell__avatar">
+                <view
+                  v-if="!userProfile.avatar"
+                  class="avatar-cell__img"
+                  @click="handleAvatarUpload"
+                >
+                  <wd-icon name="fill-camera" custom-class="avatar-cell__img-icon" />
                 </view>
                 <image
                   v-if="userProfile.avatar"
-                  class="img"
+                  class="avatar-cell__img"
                   :src="userProfile.avatar"
                   mode="aspectFit"
                   @click="handleAvatarUpload"
@@ -63,7 +67,7 @@
             </wd-radio-group>
           </wd-cell>
         </wd-cell-group>
-        <view class="p-6">
+        <view class="edit-form__submit">
           <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -185,28 +189,40 @@ function handleTouchMove(event: TouchEvent) {
   :deep(.wd-cell__body) {
     align-items: center;
   }
-  .avatar {
-    display: flex;
-    align-items: center;
-    justify-content: right;
-    .img {
-      position: relative;
-      width: 80px;
-      height: 80px;
-      background-color: rgba(0, 0, 0, 0.04);
-      border-radius: 50%;
-      .img-icon {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        color: var(--color-text-inverse);
-      }
-    }
-  }
+}
+
+.avatar-cell__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: right;
+}
+
+.avatar-cell__img {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 50%;
+}
+
+.profile-content__card-area {
+  padding-top: 20rpx;
+}
+
+.avatar-cell__img-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: var(--color-text-inverse);
 }
 
 .edit-form {
   padding-top: 40rpx;
+
+  &__submit {
+    padding: 24rpx;
+  }
+
   .ef-radio-group {
     line-height: 1;
     text-align: left;

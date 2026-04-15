@@ -62,7 +62,7 @@ const props = withDefaults(defineProps<Props>(), {
   showBack: true,
   showHome: false,
   backIcon: "arrow-left",
-  backIconSize: "20px",
+  backIconSize: "40rpx",
   iconColor: "var(--color-text)",
   fixed: true,
   placeholder: false,
@@ -223,6 +223,6 @@ export default {
 
 .custom-navbar__capsule-space {
   flex: 0 0 auto;
-  height: 1px;
+  height: 2rpx;
 }
 </style>

@@ -108,9 +108,13 @@
 
 <script lang="ts" setup>
 import { useTheme } from "@/composables/useTheme";
+import { useToast, useMessage } from "wot-design-uni";
 
 // 使用主题组合函数
 const { isDark, themeVars, themeColorOptions, toggleTheme, setThemeColor } = useTheme();
+
+const toast = useToast();
+const { messageBox } = useMessage();
 
 // 创建响应式的计算属性
 const isDarkMode = computed(() => isDark.value);
@@ -236,7 +240,6 @@ onShow(() => {
   height: 48rpx;
   cursor: pointer;
   border-radius: 50%;
-  transition: transform 0.2s;
 
   &--active {
     box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);

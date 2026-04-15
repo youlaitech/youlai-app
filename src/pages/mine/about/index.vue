@@ -1,21 +1,17 @@
 <template>
   <view class="page page--padding">
     <wd-card>
-      <view class="flex items-center p-20rpx">
-        <image
-          class="w-120rpx h-120rpx mr-16rpx"
-          src="/static/logo.png"
-          mode="aspectFit"
-        />
-        <view class="flex-1">
-          <text class="app-title">youlai-app</text>
-          <text class="app-version">版本 {{ version }}</text>
+      <view class="about__header">
+        <image class="about__logo" src="/static/logo.png" mode="aspectFit" />
+        <view class="about__info">
+          <text class="about__app-title">youlai-app</text>
+          <text class="about__app-version">版本 {{ version }}</text>
         </view>
       </view>
 
-      <view class="px-20rpx pb-20rpx">
-        <text class="intro-title">项目介绍</text>
-        <text class="intro-desc">
+      <view class="about__intro">
+        <text class="about__intro-title">项目介绍</text>
+        <text class="about__intro-desc">
           一个基于 uni-app + Vue 3 + TypeScript 的移动端模板，内置主题系统与 wot-design-uni
           组件库。同时提供管理端与多后端版本（Java / Gin / Nest / Django / ThinkPHP /
           ASP.NET），并包含多租户实现。
@@ -30,7 +26,7 @@
             <wd-cell
               title="vue3-element-admin"
               icon="desktop"
-              title-width="200px"
+              title-width="400rpx"
               value="简介"
               clickable
               @click="openProjectIntro('vue3-element-admin')"
@@ -38,7 +34,7 @@
             <wd-cell
               title="vue3-element-admin-js"
               icon="desktop"
-              title-width="200px"
+              title-width="400rpx"
               value="简介"
               clickable
               @click="openProjectIntro('vue3-element-admin-js')"
@@ -46,7 +42,7 @@
             <wd-cell
               title="vue3-element-template"
               icon="desktop"
-              title-width="200px"
+              title-width="400rpx"
               value="简介"
               clickable
               @click="openProjectIntro('vue3-element-template')"
@@ -59,7 +55,7 @@
             <wd-cell
               title="youlai-app"
               icon="mobile"
-              title-width="200px"
+              title-width="400rpx"
               value="简介"
               clickable
               @click="openProjectIntro('youlai-app')"
@@ -72,7 +68,7 @@
             <wd-cell
               title="youlai-boot"
               icon="server"
-              title-width="200px"
+              title-width="400rpx"
               value="简介"
               clickable
               @click="openProjectIntro('youlai-boot')"
@@ -80,7 +76,7 @@
             <wd-cell
               title="youlai-gin"
               icon="server"
-              title-width="200px"
+              title-width="400rpx"
               value="简介"
               clickable
               @click="openProjectIntro('youlai-gin')"
@@ -88,7 +84,7 @@
             <wd-cell
               title="youlai-nest"
               icon="server"
-              title-width="200px"
+              title-width="400rpx"
               value="简介"
               clickable
               @click="openProjectIntro('youlai-nest')"
@@ -96,7 +92,7 @@
             <wd-cell
               title="youlai-django"
               icon="server"
-              title-width="200px"
+              title-width="400rpx"
               value="简介"
               clickable
               @click="openProjectIntro('youlai-django')"
@@ -104,7 +100,7 @@
             <wd-cell
               title="youlai-think"
               icon="server"
-              title-width="200px"
+              title-width="400rpx"
               value="简介"
               clickable
               @click="openProjectIntro('youlai-think')"
@@ -112,7 +108,7 @@
             <wd-cell
               title="youlai-aspnet"
               icon="server"
-              title-width="200px"
+              title-width="400rpx"
               value="简介"
               clickable
               @click="openProjectIntro('youlai-aspnet')"
@@ -125,7 +121,7 @@
             <wd-cell
               title="youlai-boot-tenant"
               icon="server"
-              title-width="200px"
+              title-width="400rpx"
               value="简介"
               clickable
               @click="openProjectIntro('youlai-boot-tenant')"
@@ -161,21 +157,21 @@
       </wd-cell-group>
     </wd-card>
 
-    <view class="py-32rpx text-center">
-      <text class="copyright">Copyright {{ getYear() }} 有来开源组织</text>
-      <text class="copyright mt-8rpx">All Rights Reserved</text>
+    <view class="about__footer">
+      <text class="about__copyright">Copyright {{ getYear() }} 有来开源组织</text>
+      <text class="about__copyright about__copyright--sub">All Rights Reserved</text>
     </view>
 
     <wd-popup v-model="introPopupVisible" position="bottom">
-      <view class="p-24rpx">
-        <view class="text-32rpx font-700">{{ currentProject?.title }}</view>
-        <view v-if="currentProject?.stack" class="mt-12rpx text-26rpx text-secondary">
+      <view class="about__popup">
+        <view class="about__popup-title">{{ currentProject?.title }}</view>
+        <view v-if="currentProject?.stack" class="about__popup-stack">
           技术栈：{{ currentProject.stack }}
         </view>
-        <view v-if="currentProject?.summary" class="mt-12rpx text-26rpx text-secondary">
+        <view v-if="currentProject?.summary" class="about__popup-summary">
           {{ currentProject.summary }}
         </view>
-        <view class="mt-20rpx">
+        <view class="about__popup-action">
           <wd-button type="primary" block @click="goCurrentProjectRepo">去仓库</wd-button>
         </view>
       </view>
@@ -338,55 +334,88 @@ onMounted(() => {
   }
 }
 
-.app-title {
+// ==========================================================================
+// 头部区域（Logo + 应用信息）
+// ==========================================================================
+.about__header {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+}
+
+.about__logo {
+  width: 120rpx;
+  height: 120rpx;
+  margin-right: 16rpx;
+}
+
+.about__info {
+  flex: 1;
+}
+
+.about__app-title {
   display: block;
   margin-bottom: 8rpx;
   font-size: 32rpx;
   font-weight: 700;
 }
 
-.app-version {
+.about__app-version {
   display: block;
   font-size: 24rpx;
   color: var(--color-text-secondary);
 }
 
-.intro-title {
+.about__intro-title {
   display: block;
   margin-bottom: 8rpx;
   font-size: 28rpx;
   font-weight: 500;
 }
 
-.intro-desc {
+.about__intro-desc {
   display: block;
   font-size: 24rpx;
   line-height: 1.6;
   color: var(--color-text-secondary);
 }
 
-.section-title {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12rpx;
-  font-size: 28rpx;
-  font-weight: 500;
-
-  :deep(.wd-icon) {
-    margin-right: 12rpx;
-  }
+.about__intro {
+  padding: 0 20rpx 20rpx;
 }
 
-.section-subtitle {
-  display: block;
-  padding-left: 32rpx;
-  font-size: 24rpx;
-  color: var(--color-text-secondary);
+.about__footer {
+  padding: 32rpx 0;
+  text-align: center;
 }
 
-.copyright {
+.about__copyright {
   display: block;
   font-size: 24rpx;
   color: var(--color-text-placeholder);
+
+  &--sub {
+    margin-top: 8rpx;
+  }
+}
+
+.about__popup {
+  padding: 24rpx;
+}
+
+.about__popup-title {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.about__popup-stack,
+.about__popup-summary {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: var(--color-text-secondary);
+}
+
+.about__popup-action {
+  margin-top: 20rpx;
 }
 </style>

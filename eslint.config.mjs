@@ -48,6 +48,10 @@ export default [
           PageQuery: "readonly", // 分页查询数据类型
           OptionType: "readonly", // 选项类型
           getCurrentPages: "readonly", // uni-app 全局 API
+          wx: "readonly", // 微信小程序 API
+          useToast: "readonly", // wot-design-uni
+          useMessage: "readonly", // wot-design-uni
+          useNotify: "readonly", // wot-design-uni
         },
       },
     },

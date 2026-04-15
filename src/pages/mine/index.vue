@@ -481,7 +481,6 @@ const openOfficialAccount = () => {
   letter-spacing: 2rpx;
 }
 
-.profile-card__status,
 .profile-tag,
 .profile-card__gender {
   display: inline-flex;
@@ -626,17 +625,6 @@ const openOfficialAccount = () => {
   text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
 }
 
-.profile-card__status {
-  flex-shrink: 0;
-  padding: 8rpx 16rpx;
-  font-size: 20rpx;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.95);
-  background: rgba(255, 255, 255, 0.2);
-  border: 1rpx solid rgba(255, 255, 255, 0.3);
-  border-radius: 20rpx;
-}
-
 .profile-card__desc {
   display: -webkit-box;
   margin-top: 12rpx;
@@ -700,7 +688,10 @@ const openOfficialAccount = () => {
 
 .community-card__bg {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: var(--z-base);
   width: 100%;
   height: 100%;
@@ -710,7 +701,10 @@ const openOfficialAccount = () => {
 
 .community-card__mask {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: var(--z-sticky);
   background: linear-gradient(
     90deg,
@@ -722,7 +716,10 @@ const openOfficialAccount = () => {
 
 .community-card__sparkle {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: var(--z-sticky);
   pointer-events: none;
   background:
@@ -740,7 +737,7 @@ const openOfficialAccount = () => {
   height: 84rpx;
   padding: 10rpx;
   background: rgba(255, 255, 255, 0.96);
-  border: 1rpx solid rgba(148, 163, 184, 0.22);
+  border: 1rpx solid var(--color-border-glass);
   border-radius: 20rpx;
   box-shadow: 0 6rpx 18rpx rgba(15, 23, 42, 0.06);
 }
@@ -776,7 +773,7 @@ const openOfficialAccount = () => {
   font-size: 32rpx;
   font-weight: 600;
   color: var(--color-text);
-  letter-spacing: 0.2px;
+  letter-spacing: 0.4rpx;
 }
 
 :deep(.community-card__tag) {
@@ -784,7 +781,6 @@ const openOfficialAccount = () => {
 }
 
 .community-card__desc {
-  display: block;
   display: -webkit-box;
   margin-top: 10rpx;
   overflow: hidden;
@@ -823,7 +819,6 @@ const openOfficialAccount = () => {
   background: var(--color-bg);
   border-radius: 24rpx;
   box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
-  transition: all 0.2s ease;
 }
 
 .quick-card:active {
@@ -936,7 +931,7 @@ const openOfficialAccount = () => {
 }
 
 .menu-row + .menu-row {
-  border-top: 1rpx solid rgba(148, 163, 184, 0.14);
+  border-top: 1rpx solid var(--color-border-light);
 }
 
 .menu-row__main {
@@ -987,7 +982,7 @@ const openOfficialAccount = () => {
   background: var(--color-bg);
   border: 1rpx solid rgba(239, 68, 68, 0.18);
   border-radius: 24rpx;
-  box-shadow: 0 12rpx 30rpx rgba(239, 68, 68, 0.08);
+  box-shadow: 0 12rpx 30rpx var(--color-danger-shadow);
 }
 
 :deep(.loading-center) {

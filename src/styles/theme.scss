@@ -33,6 +33,7 @@ page {
   --color-warning-light: #fff4e6;
   --color-danger: #ff4757;
   --color-danger-light: #fff1f2;
+  --color-wx-green: #22c55e;
 
   // -----------------------------------------------------------------------
   // 背景色 (Material Design)
@@ -56,13 +57,15 @@ page {
   --color-border: #e5e7eb;
   --color-border-light: #f3f4f6;
   --color-border-dark: #d1d5db;
+  --color-border-glass: rgba(148, 163, 184, 0.22);
+  --color-danger-shadow: rgba(239, 68, 68, 0.08);
 
   // -----------------------------------------------------------------------
   // 阴影
   // -----------------------------------------------------------------------
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 2rpx 4rpx rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8rpx 12rpx rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20rpx 30rpx rgba(0, 0, 0, 0.1);
 
   // -----------------------------------------------------------------------
   // wot-design-uni 组件库变量
@@ -113,6 +116,7 @@ page {
   --color-warning-light: #78350f;
   --color-danger: #f87171;
   --color-danger-light: #7f1d1d;
+  --color-wx-green: #22c55e;
 
   // -----------------------------------------------------------------------
   // 背景色 (Material Design) - 不使用纯黑 #000000
@@ -136,13 +140,15 @@ page {
   --color-border: #374151;
   --color-border-light: #1f2937;
   --color-border-dark: #4b5563;
+  --color-border-glass: rgba(148, 163, 184, 0.15);
+  --color-danger-shadow: rgba(239, 68, 68, 0.15);
 
   // -----------------------------------------------------------------------
   // 阴影
   // -----------------------------------------------------------------------
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2rpx 4rpx rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8rpx 12rpx rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20rpx 30rpx rgba(0, 0, 0, 0.4);
 
   // -----------------------------------------------------------------------
   // wot-design-uni 组件库变量

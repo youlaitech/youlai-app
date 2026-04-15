@@ -1,9 +1,9 @@
 <template>
   <view class="page">
     <!-- 头部 -->
-    <view class="hero">
-      <view class="hero__title">完善个人信息</view>
-      <view class="hero__subtitle">为了给您提供更好的服务，请完善以下信息</view>
+    <view class="complete-profile__hero">
+      <view class="complete-profile__hero-title">完善个人信息</view>
+      <view class="complete-profile__hero-subtitle">为了给您提供更好的服务，请完善以下信息</view>
     </view>
 
     <!-- 表单 -->
@@ -121,12 +121,12 @@
 <script lang="ts" setup>
 import { ref, reactive, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
-import { useToast, useMessage } from "wot-design-uni";
 import { useUserStore } from "@/store";
 import UserAPI, { type UserProfileForm } from "@/api/user";
 import FileAPI, { type FileInfo } from "@/api/file";
 
 const toast = useToast();
+const { messageBox } = useMessage();
 const userStore = useUserStore();
 
 const redirect = ref("/pages/index/index");
@@ -267,22 +267,22 @@ const handleSkip = async () => {
 </script>
 
 <style lang="scss" scoped>
-.hero {
+.complete-profile__hero {
   margin-bottom: 60rpx;
   text-align: center;
+}
 
-  &__title {
-    margin-bottom: 20rpx;
-    font-size: 48rpx;
-    font-weight: bold;
-    color: var(--color-text-inverse);
-  }
+.complete-profile__hero-title {
+  margin-bottom: 20rpx;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: var(--color-text-inverse);
+}
 
-  &__subtitle {
-    font-size: 28rpx;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.8);
-  }
+.complete-profile__hero-subtitle {
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .profile-form {

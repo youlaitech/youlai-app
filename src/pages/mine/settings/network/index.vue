@@ -1,28 +1,30 @@
 <template>
   <view class="page">
-    <view class="px-32rpx py-24rpx">
-      <text class="text-sm" style="color: var(--color-text-placeholder)">温馨提示：点击下方「开始测试」按钮，即可自动检测当前网络延迟。</text>
+    <view class="network__tip">
+      <text class="network__tip-text">
+        温馨提示：点击下方「开始测试」按钮，即可自动检测当前网络延迟。
+      </text>
     </view>
 
-    <view class="px-32rpx">
+    <view class="network__action">
       <wd-button block plain @click="startTest">开始测试</wd-button>
     </view>
 
-    <view v-if="isTesting" class="flex-col-center py-40rpx">
+    <view v-if="isTesting" class="network__loading">
       <wd-loading color="var(--wot-color-theme)" />
-      <text class="mt-16rpx text-sm" style="color: var(--color-text-secondary)">正在测试中...</text>
+      <text class="network__loading-text">正在测试中...</text>
     </view>
 
-    <view v-if="result !== null" class="px-32rpx">
+    <view v-if="result !== null" class="network__result">
       <view class="result-card">
         <view class="result-card__header">测试结果</view>
         <view class="result-card__row">
           <text style="color: var(--color-text-secondary)">网络延迟</text>
-          <text :class="['text-36rpx font-semibold', statusColor]">{{ result }}ms</text>
+          <text :class="['network__delay', statusColor]">{{ result }}ms</text>
         </view>
         <view class="result-card__row">
           <text style="color: var(--color-text-secondary)">网络状态</text>
-          <text :class="['font-medium', statusColor]">{{ statusText }}</text>
+          <text :class="['network__status', statusColor]">{{ statusText }}</text>
         </view>
       </view>
     </view>
@@ -95,14 +97,14 @@ onLoad(() => {
 .result-card {
   background: var(--color-bg);
   border-radius: 16rpx;
-  border: 1px solid var(--color-border);
+  border: 1rpx solid var(--color-border);
   overflow: hidden;
 
   &__header {
     padding: 24rpx;
     font-size: 32rpx;
     font-weight: 600;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1rpx solid var(--color-border);
   }
 
   &__row {
@@ -112,13 +114,63 @@ onLoad(() => {
     padding: 24rpx;
 
     & + & {
-      border-top: 1px solid var(--color-border-light);
+      border-top: 1rpx solid var(--color-border-light);
     }
   }
 }
 
-.color-success { color: var(--color-success); }
-.color-primary { color: var(--color-primary); }
-.color-warning { color: var(--color-warning); }
-.color-danger { color: var(--color-danger); }
+.network__tip {
+  padding: 24rpx 32rpx;
+}
+
+.network__tip-text {
+  font-size: 24rpx;
+  color: var(--color-text-placeholder);
+}
+
+.network__action {
+  padding: 0 32rpx;
+}
+
+.network__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 0;
+}
+
+.network__loading-text {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+}
+
+.network__result {
+  padding: 0 32rpx;
+}
+
+.network__delay {
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.network__status {
+  font-weight: 500;
+}
+
+.color-success {
+  color: var(--color-success);
+}
+
+.color-primary {
+  color: var(--color-primary);
+}
+
+.color-warning {
+  color: var(--color-warning);
+}
+
+.color-danger {
+  color: var(--color-danger);
+}
 </style>

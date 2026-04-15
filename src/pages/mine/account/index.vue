@@ -1,5 +1,5 @@
 <template>
-  <view class="page account-page dark:text-[var(--wot-color-text)] py-2">
+  <view class="page account-page">
     <wd-card>
       <wd-cell-group border>
         <wd-cell
@@ -73,7 +73,7 @@
             :rules="rules.confirmPassword"
           />
         </wd-cell-group>
-        <view class="p-6">
+        <view class="account-page__submit">
           <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -113,7 +113,7 @@
             </template>
           </wd-input>
         </wd-cell-group>
-        <view class="p-6">
+        <view class="account-page__submit">
           <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -153,7 +153,7 @@
             </template>
           </wd-input>
         </wd-cell-group>
-        <view class="p-6">
+        <view class="account-page__submit">
           <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -162,12 +162,16 @@
 </template>
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive, ref } from "vue";
+import { useToast, useMessage } from "wot-design-uni";
 import UserAPI, {
   PasswordChangeForm,
   MobileBindingForm,
   EmailBindingForm,
   UserProfile,
 } from "@/api/user";
+
+const toast = useToast();
+const { messageBox } = useMessage();
 
 const validatorConfirmPassword = (value: string) => {
   if (!value) {
@@ -223,7 +227,11 @@ const emailTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 
 const handleUnbindWechat = async () => {
   try {
-    await messageBox({ title: "提示", msg: "确定要解绑微信吗？解绑后将无法使用微信小程序登录", type: "warning" });
+    await messageBox({
+      title: "提示",
+      msg: "确定要解绑微信吗？解绑后将无法使用微信小程序登录",
+      type: "warning",
+    });
     await UserAPI.unbindSocial("WECHAT_MINI");
     toast.success("解绑成功");
     loadUserProfile();
@@ -352,4 +360,11 @@ onUnmounted(() => {
 });
 </script>
 <style lang="scss" scoped>
+.account-page {
+  padding: 16rpx 0;
+}
+
+.account-page__submit {
+  padding: 24rpx;
+}
 </style>

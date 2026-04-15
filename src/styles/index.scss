@@ -43,7 +43,7 @@ body {
 }
 
 .page--tabbar {
-  padding-bottom: calc(50px + env(safe-area-inset-bottom));
+  padding-bottom: calc(100rpx + env(safe-area-inset-bottom));
 }
 
 // 筛选栏
