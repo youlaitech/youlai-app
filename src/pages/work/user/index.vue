@@ -52,10 +52,10 @@
       >
         <!-- 主信息行 -->
         <view class="flex-start">
-          <image class="w-80rpx h-80rpx rounded-full" :src="item.avatar" mode="aspectFill" />
-          <view class="flex-1 ml-16rpx">
+          <image class="user-card__avatar" :src="item.avatar" mode="aspectFill" />
+          <view class="user-card__main">
             <view class="flex-start mt-12rpx">
-              <text class="font-bold text-32rpx">{{ item.nickname }}</text>
+              <text class="user-card__name">{{ item.nickname }}</text>
               <wd-icon
                 v-if="item.gender === 1"
                 name="gender-male"
@@ -69,9 +69,7 @@
                 class="ml-8rpx"
               />
             </view>
-            <text class="text-24rpx color-text-secondary">
-              {{ item.roleNames }} · {{ item.deptName }}
-            </text>
+            <text class="user-card__role">{{ item.roleNames }} · {{ item.deptName }}</text>
           </view>
           <wd-tag :type="item.status === 1 ? 'success' : 'danger'" plain>
             {{ item.status === 1 ? "正常" : "禁用" }}
@@ -79,23 +77,23 @@
         </view>
 
         <!-- 辅助信息行 -->
-        <view class="flex gap-24rpx mt-12rpx">
-          <view v-if="item.mobile" class="flex-start min-w-0">
+        <view class="user-card__meta">
+          <view v-if="item.mobile" class="user-card__contact">
             <wd-icon name="mobile" size="16" class="color-text-secondary" />
-            <text class="ml-8rpx text-24rpx color-text-secondary truncate">{{ item.mobile }}</text>
+            <text class="user-card__contact-text">{{ item.mobile }}</text>
           </view>
-          <view v-if="item.email" class="flex-start min-w-0">
+          <view v-if="item.email" class="user-card__contact">
             <wd-icon name="mail" size="16" class="color-text-secondary" />
-            <text class="ml-8rpx text-24rpx color-text-secondary truncate">{{ item.email }}</text>
+            <text class="user-card__contact-text">{{ item.email }}</text>
           </view>
         </view>
 
         <!-- 元信息行 -->
-        <view class="flex-between mt-16rpx">
-          <text class="text-24rpx color-text-placeholder">{{ item.createTime }}</text>
+        <view class="user-card__footer">
+          <text class="user-card__time">{{ item.createTime }}</text>
           <view
-            class="w-88rpx h-88rpx flex-center rounded-full"
-            hover-class="bg-[var(--color-text-placeholder)]/16"
+            class="user-card__action"
+            hover-class="user-card__action--hover"
             @click.stop="showUserActions(item)"
           >
             <wd-icon name="more" size="18" class="color-text-secondary" />
@@ -157,10 +155,7 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <wd-fab
-      v-if="hasPermission('sys:user:create') && !dialog.visible"
-      @click="openUserDialog()"
-    />
+    <wd-fab v-if="hasPermission('sys:user:create') && !dialog.visible" @click="openUserDialog()" />
 
     <!-- 操作菜单 -->
     <wd-action-sheet
@@ -181,13 +176,22 @@
               label="新密码"
               placeholder="请输入新密码（至少6位）"
               prop="password"
-              :rules="[{ required: true, message: '请输入新密码' }, { pattern: /^.{6,}$/, message: '密码至少需要6位字符' }]"
+              :rules="[
+                { required: true, message: '请输入新密码' },
+                { pattern: /^.{6,}$/, message: '密码至少需要6位字符' },
+              ]"
             />
           </wd-cell-group>
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" plain @click="resetPwdDialog.visible = false">取消</wd-button>
-          <wd-button type="primary" :loading="resetPwdDialog.submitting" @click="handleResetPassword">确认</wd-button>
+          <wd-button
+            type="primary"
+            :loading="resetPwdDialog.submitting"
+            @click="handleResetPassword"
+          >
+            确认
+          </wd-button>
         </view>
       </view>
     </wd-popup>
@@ -198,13 +202,14 @@
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useQueue, useToast } from "wot-design-uni";
+import { useQueue, useToast, useMessage } from "wot-design-uni";
 import UserAPI, { type UserPageQuery, UserItem, UserForm } from "@/api/user";
 import RoleAPI from "@/api/role";
 import DeptAPI from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
+const { messageBox } = useMessage();
 const { closeOutside } = useQueue();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
@@ -414,7 +419,11 @@ const actionSheetVisible = ref(false);
 const actionSheetActions = ref<{ name: string; color?: string }[]>([]);
 const pendingAction = ref<Record<string, () => void>>({});
 
-const resetPwdDialog = reactive({ visible: false, submitting: false, userId: undefined as number | undefined });
+const resetPwdDialog = reactive({
+  visible: false,
+  submitting: false,
+  userId: undefined as number | undefined,
+});
 const resetPwdForm = reactive({ password: "" });
 const resetPwdFormRef = ref();
 
@@ -440,11 +449,17 @@ function showUserActions(item: UserItem) {
     actions.push({ name: "删除", color: "var(--color-danger)" });
     actionMap["删除"] = async () => {
       try {
-        await messageBox({ title: "确认删除", msg: `确定要删除用户「${item.nickname}」吗？`, type: "warning" });
+        await messageBox({
+          title: "确认删除",
+          msg: `确定要删除用户「${item.nickname}」吗？`,
+          type: "warning",
+        });
         await UserAPI.deleteByIds(String(item.id));
         toast.success("删除成功");
         loadUserList();
-      } catch {}
+      } catch {
+        // 用户取消操作
+      }
     };
   }
 
@@ -515,3 +530,73 @@ export default { options: { styleIsolation: "shared" } };
   }
 }
 </route>
+
+<style lang="scss" scoped>
+.user-card__avatar {
+  flex-shrink: 0;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+}
+
+.user-card__main {
+  flex: 1;
+  margin-left: 16rpx;
+}
+
+.user-card__name {
+  font-weight: 700;
+  font-size: 32rpx;
+}
+
+.user-card__role {
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+}
+
+.user-card__meta {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 12rpx;
+}
+
+.user-card__contact {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.user-card__contact-text {
+  margin-left: 8rpx;
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16rpx;
+}
+
+.user-card__time {
+  font-size: 24rpx;
+  color: var(--color-text-placeholder);
+}
+
+.user-card__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+}
+
+.user-card__action--hover {
+  background: rgba(var(--color-text-placeholder-rgb, 148, 163, 184), 0.16);
+}
+</style>

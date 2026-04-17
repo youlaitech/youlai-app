@@ -84,10 +84,7 @@
       @select="handleActionSelect"
     />
 
-    <wd-fab
-      v-if="hasPermission('sys:dict:create') && !dialog.visible"
-      @click="openDictDialog()"
-    />
+    <wd-fab v-if="hasPermission('sys:dict:create') && !dialog.visible" @click="openDictDialog()" />
   </view>
 </template>
 
@@ -96,16 +93,13 @@ import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { useRouter } from "uni-mini-router";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useToast } from "wot-design-uni";
-import DictAPI, {
-  type DictTypeForm,
-  type DictTypePageQuery,
-  type DictTypeItem,
-} from "@/api/dict";
+import { useToast, useMessage } from "wot-design-uni";
+import DictAPI, { type DictTypeForm, type DictTypePageQuery, type DictTypeItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
 
 const router = useRouter();
 const toast = useToast();
+const { messageBox } = useMessage();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
 const submitting = ref(false);
@@ -216,13 +210,19 @@ function showDictActions(item: DictTypeItem) {
     actions.push({ name: "删除", color: "var(--color-danger)" });
     actionMap["删除"] = async () => {
       try {
-        await messageBox({ title: "确认删除", msg: `确定要删除字典「${item.name}」吗？`, type: "warning" });
+        await messageBox({
+          title: "确认删除",
+          msg: `确定要删除字典「${item.name}」吗？`,
+          type: "warning",
+        });
         if (item.id) {
           await DictAPI.deleteByIds(String(item.id));
           toast.success("删除成功");
           loadDictTypeList();
         }
-      } catch {}
+      } catch {
+        // 用户取消操作
+      }
     };
   }
 

@@ -71,11 +71,7 @@
     </view>
 
     <!-- 自定义颜色输入弹窗 -->
-    <wd-popup
-      v-model="showCustomColorInput"
-      position="bottom"
-      custom-class="popup-bottom"
-    >
+    <wd-popup v-model="showCustomColorInput" position="bottom" custom-class="popup-bottom">
       <view class="popup-content">
         <view class="popup-header">
           <text class="popup-title">自定义主题色</text>

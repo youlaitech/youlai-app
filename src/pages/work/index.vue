@@ -1,9 +1,6 @@
 <template>
   <custom-navbar title="工作台" :show-back="false" />
-  <view
-    class="page page--tabbar"
-    :style="{ padding: `${navbar.totalHeight.value + 8}px 32rpx 0` }"
-  >
+  <view class="page page--tabbar" :style="{ padding: `${navbar.totalHeight.value + 8}px 32rpx 0` }">
     <template v-for="(item, index) in visibleGridList" :key="index">
       <wd-card :title="item.title">
         <wd-grid clickable :column="4">
@@ -13,10 +10,10 @@
             use-slot
             @itemclick="handleNavClick(child)"
           >
-            <view class="p-2">
+            <view class="work-grid__icon p-2">
               <image class="w-72rpx h-72rpx rounded-8rpx" :src="child.icon" />
             </view>
-            <view class="text">{{ child.title }}</view>
+            <view class="work-grid__label">{{ child.title }}</view>
           </wd-grid-item>
         </wd-grid>
       </wd-card>
@@ -28,18 +25,13 @@
 import { computed } from "vue";
 import { useRouter } from "uni-mini-router";
 import { useNavbar } from "@/composables/useNavbar";
-import { useUserStore } from "@/store";
 import { menuConfig } from "@/config/menu";
 import { checkLogin, isLoggedIn } from "@/utils/auth";
 import { hasPermission as checkPermission } from "@/utils/permission";
 
 const router = useRouter();
-const userStore = useUserStore();
 
 const navbar = useNavbar({ hasTabbar: true });
-
-// 用户权限列表
-const userPerms = computed(() => userStore.userInfo?.perms || []);
 
 // 是否已登录
 const isLogged = computed(() => isLoggedIn());

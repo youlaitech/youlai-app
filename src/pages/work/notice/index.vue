@@ -19,11 +19,11 @@
       >
         <!-- 主信息行 -->
         <view class="flex-start">
-          <view class="flex-1">
+          <view class="notice-card__main">
             <view class="flex-start mt-12rpx">
-              <text class="font-bold text-32rpx">{{ item.title }}</text>
+              <text class="notice-card__title">{{ item.title }}</text>
             </view>
-            <text class="text-24rpx color-text-secondary">
+            <text class="notice-card__publisher">
               {{ item.publisherName || "系统管理员" }}
             </text>
           </view>
@@ -33,27 +33,27 @@
         </view>
 
         <!-- 辅助信息行 -->
-        <view class="flex gap-24rpx mt-12rpx">
-          <view class="flex-start min-w-0">
+        <view class="notice-card__meta">
+          <view class="notice-card__detail">
             <wd-icon name="user" size="16" class="color-text-secondary" />
-            <text class="ml-8rpx text-24rpx color-text-secondary">
+            <text class="notice-card__detail-text">
               {{ item.targetType === 1 ? "全体" : "指定用户" }}
             </text>
           </view>
-          <view class="flex-start min-w-0">
+          <view class="notice-card__detail">
             <wd-icon name="warning" size="16" class="color-text-secondary" />
-            <text class="ml-8rpx text-24rpx color-text-secondary">
+            <text class="notice-card__detail-text">
               {{ getLevelText(item.level) }}
             </text>
           </view>
         </view>
 
         <!-- 元信息行 -->
-        <view class="flex-between mt-16rpx">
-          <text class="text-24rpx color-text-placeholder">{{ formatTime(item) }}</text>
+        <view class="notice-card__footer">
+          <text class="notice-card__time">{{ formatTime(item) }}</text>
           <view
-            class="w-64rpx h-64rpx flex-center rounded-full"
-            hover-class="bg-[var(--color-text-placeholder)]/16"
+            class="notice-card__action"
+            hover-class="notice-card__action--hover"
             @click.stop="showNoticeActions(item)"
           >
             <wd-icon name="more" size="16" class="color-text-secondary" />
@@ -156,7 +156,7 @@
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useToast } from "wot-design-uni";
+import { useToast, useMessage } from "wot-design-uni";
 import NoticeAPI, {
   type NoticePageQuery,
   NoticeItem,
@@ -166,6 +166,7 @@ import NoticeAPI, {
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
+const { messageBox } = useMessage();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
 const submitting = ref(false);
@@ -324,22 +325,34 @@ function showNoticeActions(item: NoticeItem) {
       actions.push({ name: "删除", color: "var(--color-danger)" });
       actionMap["删除"] = async () => {
         try {
-          await messageBox({ title: "确认删除", msg: `确定要删除通知「${item.title}」吗？`, type: "warning" });
+          await messageBox({
+            title: "确认删除",
+            msg: `确定要删除通知「${item.title}」吗？`,
+            type: "warning",
+          });
           await NoticeAPI.deleteByIds(item.id);
           toast.success("删除成功");
           loadNoticeList();
-        } catch {}
+        } catch {
+          // 用户取消操作
+        }
       };
     }
     if (hasPermission("sys:notice:publish")) {
       actions.push({ name: "发布" });
       actionMap["发布"] = async () => {
         try {
-          await messageBox({ title: "确认发布", msg: `确定要发布通知「${item.title}」吗？`, type: "warning" });
+          await messageBox({
+            title: "确认发布",
+            msg: `确定要发布通知「${item.title}」吗？`,
+            type: "warning",
+          });
           await NoticeAPI.publish(Number(item.id));
           toast.success("发布成功");
           loadNoticeList();
-        } catch {}
+        } catch {
+          // 用户取消操作
+        }
       };
     }
   } else {
@@ -347,11 +360,17 @@ function showNoticeActions(item: NoticeItem) {
       actions.push({ name: "撤回", color: "var(--color-warning)" });
       actionMap["撤回"] = async () => {
         try {
-          await messageBox({ title: "确认撤回", msg: `确定要撤回通知「${item.title}」吗？`, type: "warning" });
+          await messageBox({
+            title: "确认撤回",
+            msg: `确定要撤回通知「${item.title}」吗？`,
+            type: "warning",
+          });
           await NoticeAPI.revoke(Number(item.id));
           toast.success("撤回成功");
           loadNoticeList();
-        } catch {}
+        } catch {
+          // 用户取消操作
+        }
       };
     }
   }
@@ -390,3 +409,62 @@ export default { options: { styleIsolation: "shared" } };
   }
 }
 </route>
+
+<style lang="scss" scoped>
+.notice-card__main {
+  flex: 1;
+}
+
+.notice-card__title {
+  font-weight: 700;
+  font-size: 32rpx;
+}
+
+.notice-card__publisher {
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+}
+
+.notice-card__meta {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 12rpx;
+}
+
+.notice-card__detail {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.notice-card__detail-text {
+  margin-left: 8rpx;
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+}
+
+.notice-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16rpx;
+}
+
+.notice-card__time {
+  font-size: 24rpx;
+  color: var(--color-text-placeholder);
+}
+
+.notice-card__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+}
+
+.notice-card__action--hover {
+  background: rgba(var(--color-text-placeholder-rgb, 148, 163, 184), 0.16);
+}
+</style>

@@ -13,11 +13,7 @@
     </view>
 
     <view class="qrcode-card">
-      <image
-        src="/static/images/qrcode-official.png"
-        class="qrcode-card__img"
-        mode="aspectFit"
-      />
+      <image src="/static/images/qrcode-official.png" class="qrcode-card__img" mode="aspectFit" />
     </view>
 
     <view class="qrcode-hint">长按识别二维码关注</view>

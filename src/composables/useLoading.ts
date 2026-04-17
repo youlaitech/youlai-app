@@ -1,4 +1,4 @@
-import { ref, computed } from "vue"
+import { ref, computed } from "vue";
 
 /**
  * 加载状态管理
@@ -26,63 +26,63 @@ import { ref, computed } from "vue"
 
 export interface UseLoadingOptions {
   /** 是否使用全局单例，默认 true */
-  singleton?: boolean
+  singleton?: boolean;
   /** 初始加载状态，默认 false */
-  initial?: boolean
+  initial?: boolean;
   /** 加载提示消息 */
-  message?: string
+  message?: string;
 }
 
 export interface UseLoadingReturn {
   /** 是否处于加载状态 */
-  isLoading: ReturnType<typeof computed<boolean>>
+  isLoading: ReturnType<typeof computed<boolean>>;
   /** 加载计数（支持并发） */
-  loadingCount: ReturnType<typeof ref<number>>
+  loadingCount: ReturnType<typeof ref<number>>;
   /** 当前加载消息 */
-  message: ReturnType<typeof ref<string>>
+  message: ReturnType<typeof ref<string>>;
   /** 开始加载 */
-  start: (msg?: string) => void
+  start: (msg?: string) => void;
   /** 结束加载 */
-  stop: () => void
+  stop: () => void;
   /** 包装异步函数，自动管理加载状态 */
-  wrap: <T>(promise: Promise<T>) => Promise<T>
+  wrap: <T>(promise: Promise<T>) => Promise<T>;
   /** 设置加载消息 */
-  setMessage: (msg: string) => void
+  setMessage: (msg: string) => void;
 }
 
 /**
  * 创建加载状态实例
  */
 function createLoadingState(options: UseLoadingOptions = {}) {
-  const { initial = false, message: initialMessage = "" } = options
+  const { message: initialMessage = "" } = options;
 
-  const loadingCount = ref(0)
-  const message = ref(initialMessage)
+  const loadingCount = ref(0);
+  const message = ref(initialMessage);
 
-  const isLoading = computed(() => loadingCount.value > 0)
+  const isLoading = computed(() => loadingCount.value > 0);
 
   /**
    * 开始加载
    * @param msg 加载提示消息
    */
   const start = (msg?: string): void => {
-    loadingCount.value++
+    loadingCount.value++;
     if (msg) {
-      message.value = msg
+      message.value = msg;
     }
-  }
+  };
 
   /**
    * 结束加载
    */
   const stop = (): void => {
     if (loadingCount.value > 0) {
-      loadingCount.value--
+      loadingCount.value--;
     }
     if (loadingCount.value === 0) {
-      message.value = ""
+      message.value = "";
     }
-  }
+  };
 
   /**
    * 包装异步函数，自动管理加载状态
@@ -90,20 +90,20 @@ function createLoadingState(options: UseLoadingOptions = {}) {
    */
   const wrap = async <T>(promise: Promise<T>): Promise<T> => {
     try {
-      start()
-      return await promise
+      start();
+      return await promise;
     } finally {
-      stop()
+      stop();
     }
-  }
+  };
 
   /**
    * 设置加载消息
    * @param msg 消息内容
    */
   const setMessage = (msg: string): void => {
-    message.value = msg
-  }
+    message.value = msg;
+  };
 
   return {
     isLoading,
@@ -113,11 +113,11 @@ function createLoadingState(options: UseLoadingOptions = {}) {
     stop,
     wrap,
     setMessage,
-  }
+  };
 }
 
 /** 全局单例实例 */
-let loadingInstance: UseLoadingReturn | null = null
+let loadingInstance: UseLoadingReturn | null = null;
 
 /**
  * 加载状态管理 Hook
@@ -128,14 +128,14 @@ let loadingInstance: UseLoadingReturn | null = null
  * @param options 配置选项
  */
 export function useLoading(options?: UseLoadingOptions): UseLoadingReturn {
-  const { singleton = true } = options ?? {}
+  const { singleton = true } = options ?? {};
 
   if (singleton) {
     if (!loadingInstance) {
-      loadingInstance = createLoadingState(options)
+      loadingInstance = createLoadingState(options);
     }
-    return loadingInstance
+    return loadingInstance;
   }
 
-  return createLoadingState(options)
+  return createLoadingState(options);
 }

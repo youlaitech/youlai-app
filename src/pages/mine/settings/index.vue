@@ -35,8 +35,11 @@
 <script lang="ts" setup>
 import { useUserStore } from "@/store";
 import { onLoad } from "@dcloudio/uni-app";
+import { useToast, useMessage } from "wot-design-uni";
 
 const userStore = useUserStore();
+const toast = useToast();
+const { messageBox } = useMessage();
 const isLogin = computed(() => !!userStore.userInfo);
 
 // 主题设置
@@ -179,8 +182,7 @@ onLoad(() => {
   margin-top: 60rpx;
 }
 
-// 退出登录按钮样式 - 使用更具体的选择器替代 !important
-:deep(.wd-button.logout-btn) {
+:deep(.logout-btn) {
   width: 80%;
   height: 80rpx;
   font-size: 32rpx;
@@ -193,7 +195,7 @@ onLoad(() => {
   }
 }
 
-:deep(.loading-center) {
+.loading-center {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -202,11 +204,11 @@ onLoad(() => {
   border-radius: 12rpx;
 }
 
-:deep(.loading-center .wd-loading__spinner) {
+.loading-center :deep(.wd-loading__spinner) {
   margin: 0 auto;
 }
 
-:deep(.loading-center .wd-loading__text) {
+.loading-center :deep(.wd-loading__text) {
   margin-top: 20rpx;
   color: var(--color-text-inverse);
   text-align: center;

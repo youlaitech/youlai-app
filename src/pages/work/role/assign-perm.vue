@@ -279,7 +279,7 @@ export default { options: { styleIsolation: "shared" } };
   box-shadow: 0 -2rpx 16rpx rgba(0, 0, 0, 0.05);
 }
 
-:deep(.bottom-bar .wd-button) {
+.bottom-bar :deep(.wd-button) {
   flex: 1;
 }
 </style>

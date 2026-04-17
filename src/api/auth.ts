@@ -80,7 +80,7 @@ const AuthAPI = {
    */
   sendSmsLoginCode(mobile: string): Promise<void> {
     const mobileSafe = encodeURIComponent(mobile);
-    return request<void>({
+    return request({
       url: `${AUTH_BASE_URL}/sms/code?mobile=${mobileSafe}`,
       method: "POST",
     });
@@ -153,7 +153,7 @@ const AuthAPI = {
    * 登出
    */
   logout() {
-    return request<void>({
+    return request({
       url: `${AUTH_BASE_URL}/logout`,
       method: "DELETE",
     });

@@ -1,5 +1,5 @@
 <template>
-  <view class="page account-page">
+  <view class="page py-16rpx">
     <wd-card>
       <wd-cell-group border>
         <wd-cell
@@ -73,7 +73,7 @@
             :rules="rules.confirmPassword"
           />
         </wd-cell-group>
-        <view class="account-page__submit">
+        <view class="p-24rpx">
           <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -113,7 +113,7 @@
             </template>
           </wd-input>
         </wd-cell-group>
-        <view class="account-page__submit">
+        <view class="p-24rpx">
           <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -153,7 +153,7 @@
             </template>
           </wd-input>
         </wd-cell-group>
-        <view class="account-page__submit">
+        <view class="p-24rpx">
           <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -359,12 +359,3 @@ onUnmounted(() => {
   }
 });
 </script>
-<style lang="scss" scoped>
-.account-page {
-  padding: 16rpx 0;
-}
-
-.account-page__submit {
-  padding: 24rpx;
-}
-</style>

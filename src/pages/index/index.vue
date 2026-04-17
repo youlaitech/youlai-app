@@ -105,10 +105,6 @@ import { checkLogin, isLoggedIn } from "@/utils/auth";
 import LogAPI, { type VisitOverview as ApiVisitOverview, type VisitTrend } from "@/api/log";
 import NoticeAPI, { type NoticeItem } from "@/api/notice";
 
-// ============================================================================
-// 类型定义
-// ============================================================================
-
 type VisitOverviewVO = ApiVisitOverview;
 
 interface NavItem {
@@ -118,22 +114,17 @@ interface NavItem {
   perm: string;
 }
 
-// ============================================================================
-// Hooks
-// ============================================================================
-
 const router = useRouter();
 const userStore = useUserStore();
 // custom-navbar 组件内部已处理导航栏高度与胶囊避让
 
-// ============================================================================
-// 响应式数据
-// ============================================================================
-
 const current = ref(0);
 const recentDaysRange = ref(7);
 
-const swiperList = ref(["https://www.youlai.tech/storage/youlai/bg02.png" ,"https://www.youlai.tech/storage/blog/banner9.png" ]);
+const swiperList = ref([
+  "https://www.youlai.tech/storage/youlai/bg02.png",
+  "https://www.youlai.tech/storage/blog/banner9.png",
+]);
 
 const visitOverviewData = ref<VisitOverviewVO>({
   todayUvCount: 0,
@@ -228,10 +219,6 @@ const chartOpts = ref({
   },
 });
 
-// ============================================================================
-// 数据加载
-// ============================================================================
-
 function loadAppVersion() {
   try {
     const p: any = (globalThis as any).plus;
@@ -287,10 +274,6 @@ async function loadVisitTrendData() {
   }
 }
 
-// ============================================================================
-// 事件处理
-// ============================================================================
-
 function handleNavClick(item: NavItem) {
   // 未登录 / 无权限时：展示默认导航，但点击统一跳登录
   if (!isLogged.value || !hasAnyPerm.value) {
@@ -331,10 +314,6 @@ function handleDataRangeChange({ value }: { value: number }) {
   recentDaysRange.value = value;
   loadVisitTrendData();
 }
-
-// ============================================================================
-// 生命周期
-// ============================================================================
 
 onReady(() => {
   loadAppVersion();
@@ -491,13 +470,13 @@ onShow(() => {
 
     &--uv,
     &--green {
-      background: #34d19d;
+      background: var(--color-success);
       box-shadow: 0 0 10rpx rgba(52, 209, 157, 0.35);
     }
 
     &--pv,
     &--blue {
-      background: #4d80f0;
+      background: var(--color-primary);
       box-shadow: 0 0 10rpx rgba(77, 128, 240, 0.3);
     }
   }
@@ -512,12 +491,12 @@ onShow(() => {
 
     &--uv,
     &--green {
-      color: #34d19d;
+      color: var(--color-success);
     }
 
     &--pv,
     &--blue {
-      color: #4d80f0;
+      color: var(--color-primary);
     }
   }
 

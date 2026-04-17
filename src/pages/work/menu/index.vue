@@ -107,10 +107,7 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <wd-fab
-      v-if="hasPermission('sys:menu:create') && !dialog.visible"
-      @click="openMenuDialog()"
-    />
+    <wd-fab v-if="hasPermission('sys:menu:create') && !dialog.visible" @click="openMenuDialog()" />
 
     <!-- 操作菜单 -->
     <wd-action-sheet

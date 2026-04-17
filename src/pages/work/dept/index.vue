@@ -19,9 +19,9 @@
       >
         <!-- 自定义节点内容：ID + 名称 + 状态 -->
         <template #content="{ node }">
-          <view class="flex-1 flex items-center gap-16rpx">
-            <text class="w-120rpx text-24rpx color-text-secondary">{{ node.id }}</text>
-            <text class="flex-1 truncate">{{ node.name }}</text>
+          <view class="dept-node">
+            <text class="dept-node__id">{{ node.id }}</text>
+            <text class="dept-node__name">{{ node.name }}</text>
             <wd-tag :type="node.status === 1 ? 'success' : 'danger'" size="small">
               {{ node.status === 1 ? "正常" : "禁用" }}
             </wd-tag>
@@ -72,10 +72,7 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <wd-fab
-      v-if="hasPermission('sys:dept:create') && !dialog.visible"
-      @click="openDeptDialog()"
-    />
+    <wd-fab v-if="hasPermission('sys:dept:create') && !dialog.visible" @click="openDeptDialog()" />
 
     <!-- 操作菜单 -->
     <wd-action-sheet
@@ -342,3 +339,25 @@ export default { options: { styleIsolation: "shared" } };
   }
 }
 </route>
+
+<style lang="scss" scoped>
+.dept-node {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.dept-node__id {
+  width: 120rpx;
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+}
+
+.dept-node__name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>

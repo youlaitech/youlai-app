@@ -72,7 +72,7 @@ export interface UseNavbarReturn {
  * @param options 配置选项
  */
 export function useNavbar(options: UseNavbarOptions = {}): UseNavbarReturn {
-  const { navBarHeight = 44, hasTabbar = false } = options;
+  const { navBarHeight = 44 } = options;
 
   // 状态栏高度
   const statusBarHeight = ref(0);

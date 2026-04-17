@@ -24,8 +24,16 @@ export default {
       "flex-column": "flex flex-col",
       "flex-row": "flex flex-row",
 
-      // 垂直布局并居中对齐
       "flex-col-center": "flex flex-col items-center",
+
+      "text-secondary": "color-text-secondary",
+      "text-placeholder": "color-text-placeholder",
+      "text-inverse": "color-text-inverse",
+      "text-xs": "text-24rpx",
+      "text-sm": "text-28rpx",
+      "text-base": "text-32rpx",
+      "text-lg": "text-36rpx",
+      "font-bold": "font-semibold",
     },
   ],
 

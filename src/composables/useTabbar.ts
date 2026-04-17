@@ -1,4 +1,4 @@
-﻿import { ref, computed } from "vue"
+﻿import { ref, computed } from "vue";
 
 /**
  * TabBar 状态管理
@@ -19,15 +19,15 @@
 
 export interface TabbarItem {
   /** 唯一标识 */
-  name: string
+  name: string;
   /** 徽标数字，null 表示不显示 */
-  value: number | null
+  value: number | null;
   /** 是否激活 */
-  active: boolean
+  active: boolean;
   /** 显示标题 */
-  title: string
+  title: string;
   /** 图标名称 */
-  icon: string
+  icon: string;
 }
 
 /** 默认 TabBar 配置 */
@@ -35,7 +35,7 @@ const DEFAULT_TABBAR_ITEMS: Omit<TabbarItem, "active">[] = [
   { name: "home", value: null, title: "首页", icon: "home" },
   { name: "work", value: null, title: "工作台", icon: "laptop" },
   { name: "mine", value: null, title: "我的", icon: "user" },
-]
+];
 
 /**
  * 创建 TabBar 状态实例
@@ -49,24 +49,24 @@ function createTabbarState() {
       ...item,
       active: index === 0,
     }))
-  )
+  );
 
   /** TabBar 列表 */
-  const tabbarList = computed(() => items.value)
+  const tabbarList = computed(() => items.value);
 
   /** 当前激活的 TabBar 项 */
   const activeTabbar = computed(() => {
-    return items.value.find((item) => item.active) || items.value[0]
-  })
+    return items.value.find((item) => item.active) || items.value[0];
+  });
 
   /**
    * 获取指定 TabBar 项的徽标数字
    * @param name TabBar 项名称
    */
   const getTabbarItemValue = (name: string): number | null => {
-    const item = items.value.find((item) => item.name === name)
-    return item?.value ?? null
-  }
+    const item = items.value.find((item) => item.name === name);
+    return item?.value ?? null;
+  };
 
   /**
    * 设置 TabBar 项的徽标数字
@@ -74,11 +74,11 @@ function createTabbarState() {
    * @param value 徽标数字
    */
   const setTabbarItem = (name: string, value: number): void => {
-    const item = items.value.find((item) => item.name === name)
+    const item = items.value.find((item) => item.name === name);
     if (item) {
-      item.value = value
+      item.value = value;
     }
-  }
+  };
 
   /**
    * 设置激活的 TabBar 项
@@ -86,9 +86,9 @@ function createTabbarState() {
    */
   const setTabbarItemActive = (name: string): void => {
     items.value.forEach((item) => {
-      item.active = item.name === name
-    })
-  }
+      item.active = item.name === name;
+    });
+  };
 
   /**
    * 重置 TabBar 状态
@@ -97,8 +97,8 @@ function createTabbarState() {
     items.value = DEFAULT_TABBAR_ITEMS.map((item, index) => ({
       ...item,
       active: index === 0,
-    }))
-  }
+    }));
+  };
 
   return {
     tabbarList,
@@ -107,11 +107,11 @@ function createTabbarState() {
     setTabbarItem,
     setTabbarItemActive,
     resetTabbar,
-  }
+  };
 }
 
 /** 全局单例实例 */
-let tabbarInstance: ReturnType<typeof createTabbarState> | null = null
+let tabbarInstance: ReturnType<typeof createTabbarState> | null = null;
 
 /**
  * TabBar 状态管理 Hook
@@ -123,14 +123,14 @@ let tabbarInstance: ReturnType<typeof createTabbarState> | null = null
  * @param options.singleton 是否使用单例模式，默认 true
  */
 export function useTabbar(options?: { singleton?: boolean }) {
-  const { singleton = true } = options ?? {}
+  const { singleton = true } = options ?? {};
 
   if (singleton) {
     if (!tabbarInstance) {
-      tabbarInstance = createTabbarState()
+      tabbarInstance = createTabbarState();
     }
-    return tabbarInstance
+    return tabbarInstance;
   }
 
-  return createTabbarState()
+  return createTabbarState();
 }

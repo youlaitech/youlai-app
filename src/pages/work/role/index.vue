@@ -19,11 +19,11 @@
       >
         <!-- 主信息行 -->
         <view class="flex-start">
-          <view class="flex-1">
+          <view class="role-card__main">
             <view class="flex-start mt-12rpx">
-              <text class="font-bold text-32rpx">{{ item.name }}</text>
+              <text class="role-card__name">{{ item.name }}</text>
             </view>
-            <text class="text-24rpx color-text-secondary">{{ item.code }}</text>
+            <text class="role-card__code">{{ item.code }}</text>
           </view>
           <wd-tag :type="item.status === 1 ? 'success' : 'danger'" plain>
             {{ item.status === 1 ? "正常" : "禁用" }}
@@ -31,23 +31,23 @@
         </view>
 
         <!-- 辅助信息行 -->
-        <view class="flex gap-24rpx mt-12rpx">
-          <view class="flex-start min-w-0">
+        <view class="role-card__meta">
+          <view class="role-card__detail">
             <wd-icon name="view" size="16" class="color-text-secondary" />
-            <text class="ml-8rpx text-24rpx color-text-secondary">{{ item.dataScopeLabel }}</text>
+            <text class="role-card__detail-text">{{ item.dataScopeLabel }}</text>
           </view>
-          <view class="flex-start min-w-0">
+          <view class="role-card__detail">
             <wd-icon name="sort" size="16" class="color-text-secondary" />
-            <text class="ml-8rpx text-24rpx color-text-secondary">排序: {{ item.sort }}</text>
+            <text class="role-card__detail-text">排序: {{ item.sort }}</text>
           </view>
         </view>
 
         <!-- 元信息行 -->
-        <view class="flex-between mt-16rpx">
-          <text class="text-24rpx color-text-placeholder">{{ item.createTime }}</text>
+        <view class="role-card__footer">
+          <text class="role-card__time">{{ item.createTime }}</text>
           <view
-            class="w-88rpx h-88rpx flex-center rounded-full"
-            hover-class="bg-[var(--color-text-placeholder)]/16"
+            class="role-card__action"
+            hover-class="role-card__action--hover"
             @click.stop="showRoleActions(item)"
           >
             <wd-icon name="more" size="18" class="color-text-secondary" />
@@ -96,10 +96,7 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <wd-fab
-      v-if="hasPermission('sys:role:create') && !dialog.visible"
-      @click="openRoleDialog()"
-    />
+    <wd-fab v-if="hasPermission('sys:role:create') && !dialog.visible" @click="openRoleDialog()" />
 
     <!-- 操作菜单 -->
     <wd-action-sheet
@@ -300,3 +297,62 @@ export default { options: { styleIsolation: "shared" } };
   }
 }
 </route>
+
+<style lang="scss" scoped>
+.role-card__main {
+  flex: 1;
+}
+
+.role-card__name {
+  font-weight: 700;
+  font-size: 32rpx;
+}
+
+.role-card__code {
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+}
+
+.role-card__meta {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 12rpx;
+}
+
+.role-card__detail {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.role-card__detail-text {
+  margin-left: 8rpx;
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+}
+
+.role-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16rpx;
+}
+
+.role-card__time {
+  font-size: 24rpx;
+  color: var(--color-text-placeholder);
+}
+
+.role-card__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+}
+
+.role-card__action--hover {
+  background: rgba(var(--color-text-placeholder-rgb, 148, 163, 184), 0.16);
+}
+</style>

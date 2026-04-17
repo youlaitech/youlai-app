@@ -214,7 +214,9 @@
             />
             <view
               class="login__code-btn"
-              :class="bindSmsCountdown > 0 ? 'login__code-btn--disabled' : 'login__code-btn--active'"
+              :class="
+                bindSmsCountdown > 0 ? 'login__code-btn--disabled' : 'login__code-btn--active'
+              "
               @click="handleSendBindCode"
             >
               {{ bindSmsCountdown > 0 ? `${bindSmsCountdown}s` : "获取验证码" }}
@@ -235,10 +237,14 @@
 
     <!-- 协议确认弹窗 -->
     <wd-message-box selector="policy-box" root-portal>
-      <view class="text-center text-sm text-gray-500 leading-relaxed">
+      <view class="policy-dialog__content">
         请阅读并同意有来技术
-        <text class="text-blue-500" @click.stop="navigateToAgreement('user')">《用户协议》</text>
-        <text class="text-blue-500" @click.stop="navigateToAgreement('privacy')">《隐私政策》</text>
+        <text class="policy-dialog__link" @click.stop="navigateToAgreement('user')">
+          《用户协议》
+        </text>
+        <text class="policy-dialog__link" @click.stop="navigateToAgreement('privacy')">
+          《隐私政策》
+        </text>
       </view>
     </wd-message-box>
 
@@ -305,7 +311,11 @@ const pendingWechatPhoneCode = ref("");
 
 // 计算属性
 const loginModeDesc = computed(() => {
-  const modeMap = { PASSWORD: "使用账号密码登录", SMS: "使用手机验证码登录", WECHAT: "使用微信快捷登录" };
+  const modeMap = {
+    PASSWORD: "使用账号密码登录",
+    SMS: "使用手机验证码登录",
+    WECHAT: "使用微信快捷登录",
+  };
   return modeMap[loginMode.value];
 });
 
@@ -348,7 +358,10 @@ const startSmsCountdown = (
     countdown.value -= 1;
     if (countdown.value <= 0) {
       countdown.value = 0;
-      if (timer.value) { clearInterval(timer.value); timer.value = null; }
+      if (timer.value) {
+        clearInterval(timer.value);
+        timer.value = null;
+      }
     }
   }, 1000);
 };
@@ -394,7 +407,9 @@ const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode = "") => {
 // 表单登录
 async function doFormLogin() {
   if (!canSubmit.value) {
-    toast.error(loginMode.value === "PASSWORD" ? "请输入用户名和密码" : "请输入正确的手机号和验证码");
+    toast.error(
+      loginMode.value === "PASSWORD" ? "请输入用户名和密码" : "请输入正确的手机号和验证码"
+    );
     return;
   }
   if (loading.value) return;
@@ -408,7 +423,10 @@ async function doFormLogin() {
         captchaCode: formData.value.captchaCode,
       });
     } else {
-      await userStore.loginBySms({ mobile: formData.value.username.trim(), code: formData.value.code });
+      await userStore.loginBySms({
+        mobile: formData.value.username.trim(),
+        code: formData.value.code,
+      });
     }
     await userStore.getInfo();
     toast.success("登录成功");
@@ -422,15 +440,24 @@ async function doFormLogin() {
 }
 
 const handleLogin = async () => {
-  if (!isAgreePolicy.value) { openPolicyDialog("FORM"); return; }
+  if (!isAgreePolicy.value) {
+    openPolicyDialog("FORM");
+    return;
+  }
   await doFormLogin();
 };
 
 const handleSendCode = async () => {
   if (smsCountdown.value > 0) return;
   const mobile = formData.value.username.trim();
-  if (!mobile) { toast.error("请输入手机号"); return; }
-  if (!isValidMobile(mobile)) { toast.error("请输入正确的手机号"); return; }
+  if (!mobile) {
+    toast.error("请输入手机号");
+    return;
+  }
+  if (!isValidMobile(mobile)) {
+    toast.error("请输入正确的手机号");
+    return;
+  }
   try {
     await AuthAPI.sendSmsLoginCode(mobile);
     toast.success("验证码已发送");
@@ -443,13 +470,22 @@ const handleSendCode = async () => {
 // 微信登录
 const handleWechatPhoneLogin = async (e: any) => {
   const phoneCode = e.detail.code;
-  if (!isAgreePolicy.value) { openPolicyDialog("WECHAT_PHONE", phoneCode); return; }
-  if (!phoneCode) { await handleWechatSilentLogin(); return; }
+  if (!isAgreePolicy.value) {
+    openPolicyDialog("WECHAT_PHONE", phoneCode);
+    return;
+  }
+  if (!phoneCode) {
+    await handleWechatSilentLogin();
+    return;
+  }
   await doWechatPhoneLogin(phoneCode);
 };
 
 async function doWechatPhoneLogin(phoneCode: string) {
-  if (!phoneCode) { await handleWechatSilentLogin(); return; }
+  if (!phoneCode) {
+    await handleWechatSilentLogin();
+    return;
+  }
   loading.value = true;
   try {
     const { code: loginCode } = await uni.login();
@@ -489,7 +525,10 @@ const handleWechatSilentLogin = async () => {
 const handleSendBindCode = async () => {
   if (bindSmsCountdown.value > 0) return;
   const mobile = bindMobileForm.value.mobile.trim();
-  if (!isValidMobile(mobile)) { toast.error("请输入正确的手机号"); return; }
+  if (!isValidMobile(mobile)) {
+    toast.error("请输入正确的手机号");
+    return;
+  }
   try {
     await AuthAPI.sendSmsLoginCode(mobile);
     toast.success("验证码已发送");
@@ -502,14 +541,23 @@ const handleSendBindCode = async () => {
 const resetBindForm = () => {
   bindMobileForm.value = { mobile: "", code: "" };
   bindSmsCountdown.value = 0;
-  if (bindSmsTimer.value) { clearInterval(bindSmsTimer.value); bindSmsTimer.value = null; }
+  if (bindSmsTimer.value) {
+    clearInterval(bindSmsTimer.value);
+    bindSmsTimer.value = null;
+  }
 };
 
 const handleBindMobile = async () => {
   if (bindLoading.value) return;
   const { mobile, code } = bindMobileForm.value;
-  if (!isValidMobile(mobile)) { toast.error("请输入正确的手机号"); return; }
-  if (!code.trim()) { toast.error("请输入验证码"); return; }
+  if (!isValidMobile(mobile)) {
+    toast.error("请输入正确的手机号");
+    return;
+  }
+  if (!code.trim()) {
+    toast.error("请输入验证码");
+    return;
+  }
   bindLoading.value = true;
   try {
     await userStore.bindMobileForWxMa({ openid: wechatOpenid.value, mobile, smsCode: code });
@@ -526,12 +574,16 @@ const handleBindMobile = async () => {
 };
 
 const navigateToAgreement = (type: string) => {
-  const url = type === "user" ? "/pages/mine/settings/agreement/index" : "/pages/mine/settings/privacy/index";
+  const url =
+    type === "user" ? "/pages/mine/settings/agreement/index" : "/pages/mine/settings/privacy/index";
   uni.navigateTo({ url });
 };
 
 const handleBack = () => {
-  if (getCurrentPages().length > 1) { uni.navigateBack(); return; }
+  if (getCurrentPages().length > 1) {
+    uni.navigateBack();
+    return;
+  }
   uni.reLaunch({ url: "/pages/index/index" });
 };
 
@@ -562,9 +614,6 @@ onUnload(() => {
 </script>
 
 <style lang="scss" scoped>
-// ==========================================================================
-// 页面背景
-// ==========================================================================
 .login {
   background: linear-gradient(
     135deg,
@@ -574,9 +623,6 @@ onUnload(() => {
   );
 }
 
-// ==========================================================================
-// 背景装饰（模糊光晕圆）
-// ==========================================================================
 .login__decoration {
   position: fixed;
   top: 0;
@@ -597,7 +643,7 @@ onUnload(() => {
     left: -160rpx;
     width: 480rpx;
     height: 480rpx;
-    background-color: rgba(96, 165, 250, 0.2);
+    background-color: var(--color-primary-alpha-20);
   }
 
   &--2 {
@@ -605,13 +651,10 @@ onUnload(() => {
     bottom: -160rpx;
     width: 640rpx;
     height: 640rpx;
-    background-color: rgba(59, 130, 246, 0.15);
+    background-color: var(--color-primary-alpha-15);
   }
 }
 
-// ==========================================================================
-// 导航栏
-// ==========================================================================
 .login__navbar {
   position: fixed;
   top: 0;
@@ -642,8 +685,8 @@ onUnload(() => {
 
 .login__navbar-btn {
   left: 0;
-  background-color: rgba(255, 255, 255, 0.18);
-  border: 2rpx solid rgba(255, 255, 255, 0.35);
+  background-color: var(--color-glass);
+  border: 2rpx solid var(--color-border-glass);
   border-radius: 999rpx;
 
   &--active {
@@ -660,19 +703,16 @@ onUnload(() => {
   font-size: 44rpx;
   font-weight: 500;
   line-height: 1;
-  color: rgba(15, 23, 42, 0.92);
+  color: var(--color-text);
 }
 
 .login__navbar-title {
   font-size: 32rpx;
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: rgba(15, 23, 42, 0.92);
+  color: var(--color-text);
 }
 
-// ==========================================================================
-// 主内容区 —— 普通流式布局，不需要高 z-index
-// ==========================================================================
 .login__body {
   display: flex;
   flex-direction: column;
@@ -680,9 +720,6 @@ onUnload(() => {
   padding: 0 96rpx;
 }
 
-// ==========================================================================
-// 品牌 Logo
-// ==========================================================================
 .login__brand {
   display: flex;
   flex-direction: column;
@@ -704,13 +741,10 @@ onUnload(() => {
   color: var(--color-text);
 }
 
-// ==========================================================================
-// 登录卡片
-// ==========================================================================
 .login__card {
   width: 100%;
   padding: 64rpx;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: var(--color-bg-alpha-95);
   backdrop-filter: blur(24px);
   border-radius: 48rpx;
   box-shadow: 0 20rpx 50rpx -10rpx rgba(0, 0, 0, 0.1);
@@ -735,9 +769,6 @@ onUnload(() => {
   color: var(--color-text-secondary);
 }
 
-// ==========================================================================
-// 表单区域
-// ==========================================================================
 .login__form-item {
   margin-top: 32rpx;
 
@@ -771,9 +802,6 @@ onUnload(() => {
   border-radius: 12rpx;
 }
 
-// ==========================================================================
-// 微信登录按钮
-// ==========================================================================
 .login__wx-btn {
   display: flex;
   align-items: center;
@@ -798,9 +826,6 @@ onUnload(() => {
   margin-right: 16rpx;
 }
 
-// ==========================================================================
-// 验证码按钮
-// ==========================================================================
 .login__code-btn {
   display: flex;
   align-items: center;
@@ -821,9 +846,6 @@ onUnload(() => {
   }
 }
 
-// ==========================================================================
-// 登录方式切换
-// ==========================================================================
 .login__mode-switch {
   display: flex;
   justify-content: center;
@@ -843,9 +865,6 @@ onUnload(() => {
   border-bottom: 2rpx solid var(--color-primary);
 }
 
-// ==========================================================================
-// 分割线
-// ==========================================================================
 .login__divider {
   display: flex;
   align-items: center;
@@ -864,9 +883,6 @@ onUnload(() => {
   color: var(--color-text-placeholder);
 }
 
-// ==========================================================================
-// 第三方登录入口
-// ==========================================================================
 .login__oauth-row {
   display: flex;
   justify-content: center;
@@ -882,9 +898,6 @@ onUnload(() => {
   }
 }
 
-// ==========================================================================
-// 协议勾选
-// ==========================================================================
 .login__policy {
   display: flex;
   align-items: flex-start;
@@ -904,9 +917,17 @@ onUnload(() => {
   color: var(--color-primary);
 }
 
-// ==========================================================================
-// 绑定手机号弹窗
-// ==========================================================================
+.policy-dialog__content {
+  font-size: 26rpx;
+  line-height: 1.625;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.policy-dialog__link {
+  color: var(--color-primary);
+}
+
 .login__bind-panel {
   padding: 48rpx;
 }
@@ -920,9 +941,6 @@ onUnload(() => {
   color: var(--color-text);
 }
 
-// ==========================================================================
-// 演示环境提示
-// ==========================================================================
 .login__demo-hint {
   display: flex;
   justify-content: center;

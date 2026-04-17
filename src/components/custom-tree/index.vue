@@ -211,8 +211,6 @@ function handleNodeAction(node: FlatNode) {
   emit("action", node.raw);
 }
 
-// ===== 多选相关 =====
-
 /** 判断节点是否选中（多选模式） */
 function isChecked(value: string) {
   return internalCheckedKeys.value.has(value);

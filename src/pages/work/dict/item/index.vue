@@ -100,15 +100,12 @@
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
 import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useToast } from "wot-design-uni";
-import DictAPI, {
-  type DictItemForm,
-  type DictItemPageQuery,
-  type DictDataItem,
-} from "@/api/dict";
+import { useToast, useMessage } from "wot-design-uni";
+import DictAPI, { type DictItemForm, type DictItemPageQuery, type DictDataItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
+const { messageBox } = useMessage();
 
 const dictCode = ref<string>("");
 const pageTitle = ref<string>("字典数据");
@@ -231,13 +228,19 @@ function showItemActions(item: DictDataItem) {
     actions.push({ name: "删除", color: "var(--color-danger)" });
     actionMap["删除"] = async () => {
       try {
-        await messageBox({ title: "确认删除", msg: `确定要删除字典数据「${item.label}」吗？`, type: "warning" });
+        await messageBox({
+          title: "确认删除",
+          msg: `确定要删除字典数据「${item.label}」吗？`,
+          type: "warning",
+        });
         if (item.id) {
           await DictAPI.deleteItems(dictCode.value, String(item.id));
           toast.success("删除成功");
           loadItemList();
         }
-      } catch {}
+      } catch {
+        // 用户取消操作
+      }
     };
   }
 

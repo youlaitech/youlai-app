@@ -84,7 +84,6 @@
             mode="aspectFill"
           />
           <view class="community-card__mask" />
-          <view class="community-card__sparkle" />
           <view class="community-card__logo">
             <image src="/static/logo.png" mode="aspectFit" class="w-full h-full" />
           </view>
@@ -260,8 +259,8 @@ const genderIconName = computed(() => {
 });
 
 const genderIconClass = computed(() => {
-  if (normalizedGender.value === 1) return "gender-icon--male";
-  if (normalizedGender.value === 2) return "gender-icon--female";
+  if (normalizedGender.value === 1) return "profile-card__gender--male";
+  if (normalizedGender.value === 2) return "profile-card__gender--female";
   return "";
 });
 
@@ -492,26 +491,14 @@ const openOfficialAccount = () => {
   position: relative;
   padding: 28rpx 28rpx;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.12) 100%);
+  background: linear-gradient(135deg, var(--color-glass) 0%, var(--color-glass-light) 100%);
   backdrop-filter: blur(20px);
-  border: 1rpx solid rgba(255, 255, 255, 0.35);
+  border: 1rpx solid var(--color-border-glass);
   border-radius: 28rpx;
   box-shadow:
     0 8rpx 32rpx rgba(0, 0, 0, 0.08),
     0 2rpx 8rpx rgba(0, 0, 0, 0.04),
-    inset 0 1rpx 0 rgba(255, 255, 255, 0.25);
-}
-
-.profile-card::before {
-  position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 200rpx;
-  height: 200rpx;
-  pointer-events: none;
-  content: "";
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, transparent 70%);
-  border-radius: 50%;
+    inset 0 1rpx 0 var(--color-glass);
 }
 
 .profile-card__header {
@@ -530,7 +517,7 @@ const openOfficialAccount = () => {
   flex-shrink: 0;
   width: 120rpx;
   height: 120rpx;
-  border: 3rpx solid rgba(255, 255, 255, 0.9);
+  border: 3rpx solid var(--color-border-glass-strong);
   border-radius: 50%;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
 }
@@ -553,7 +540,7 @@ const openOfficialAccount = () => {
   width: 18rpx;
   height: 18rpx;
   background: var(--color-success);
-  border: 3rpx solid rgba(255, 255, 255, 0.95);
+  border: 3rpx solid var(--color-border-glass-strong);
   border-radius: 50%;
   box-shadow: 0 4rpx 12rpx rgba(15, 23, 42, 0.12);
 }
@@ -574,9 +561,9 @@ const openOfficialAccount = () => {
   justify-content: center;
   width: 52rpx;
   height: 52rpx;
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--color-glass-light);
   backdrop-filter: blur(10px);
-  border: 1rpx solid rgba(255, 255, 255, 0.22);
+  border: 1rpx solid var(--color-border-glass);
   border-radius: 999rpx;
 }
 
@@ -593,15 +580,15 @@ const openOfficialAccount = () => {
   font-size: 18rpx;
   color: var(--color-text-inverse);
   background: var(--color-danger);
-  border: 2rpx solid rgba(255, 255, 255, 0.95);
+  border: 2rpx solid var(--color-border-glass-strong);
   border-radius: 999rpx;
 }
 
-.gender-icon--male {
+.profile-card__gender--male {
   background: var(--color-primary);
 }
 
-.gender-icon--female {
+.profile-card__gender--female {
   background: var(--color-danger);
 }
 
@@ -621,8 +608,7 @@ const openOfficialAccount = () => {
   min-width: 0;
   font-size: 38rpx;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.98);
-  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+  color: var(--color-text-inverse);
 }
 
 .profile-card__desc {
@@ -631,7 +617,7 @@ const openOfficialAccount = () => {
   overflow: hidden;
   font-size: 24rpx;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.84);
+  color: var(--color-text-inverse);
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -641,7 +627,7 @@ const openOfficialAccount = () => {
   display: block;
   margin-top: 14rpx;
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.84);
+  color: var(--color-text-inverse);
 }
 
 .profile-card__tags {
@@ -658,9 +644,9 @@ const openOfficialAccount = () => {
   gap: 8rpx;
   padding: 8rpx 14rpx;
   font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.15);
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  color: var(--color-text-inverse);
+  background: var(--color-glass-light);
+  border: 1rpx solid var(--color-border-glass);
   border-radius: 12rpx;
 }
 
@@ -708,25 +694,10 @@ const openOfficialAccount = () => {
   z-index: var(--z-sticky);
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.62) 0%,
-    rgba(255, 255, 255, 0.34) 55%,
-    rgba(255, 255, 255, 0.58) 100%
+    var(--color-glass) 0%,
+    var(--color-glass-light) 55%,
+    var(--color-glass) 100%
   );
-}
-
-.community-card__sparkle {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: var(--z-sticky);
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 18% 30%, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 52%),
-    radial-gradient(circle at 72% 20%, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0) 58%),
-    radial-gradient(circle at 60% 78%, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0) 60%);
-  opacity: 0.55;
 }
 
 .community-card__logo {
@@ -736,7 +707,7 @@ const openOfficialAccount = () => {
   width: 84rpx;
   height: 84rpx;
   padding: 10rpx;
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--color-bg-alpha-95);
   border: 1rpx solid var(--color-border-glass);
   border-radius: 20rpx;
   box-shadow: 0 6rpx 18rpx rgba(15, 23, 42, 0.06);
@@ -757,7 +728,7 @@ const openOfficialAccount = () => {
   justify-content: center;
   width: 44rpx;
   height: 44rpx;
-  background: rgba(255, 255, 255, 0.68);
+  background: var(--color-glass);
   border-radius: 999rpx;
 }
 
@@ -776,7 +747,7 @@ const openOfficialAccount = () => {
   letter-spacing: 0.4rpx;
 }
 
-:deep(.community-card__tag) {
+.community-card__tag {
   margin-top: 14rpx;
 }
 
@@ -963,7 +934,7 @@ const openOfficialAccount = () => {
   padding: 36rpx 32rpx 0;
 }
 
-:deep(.profile-card__button) {
+.profile-card__button {
   flex-shrink: 0;
   min-width: 156rpx;
   height: 72rpx;
@@ -974,7 +945,7 @@ const openOfficialAccount = () => {
   border-radius: 999rpx;
 }
 
-:deep(.logout-btn) {
+.logout-btn {
   width: 100%;
   height: 88rpx;
   font-size: 28rpx;
@@ -985,7 +956,7 @@ const openOfficialAccount = () => {
   box-shadow: 0 12rpx 30rpx var(--color-danger-shadow);
 }
 
-:deep(.loading-center) {
+.loading-center {
   display: flex;
   flex-direction: column;
   align-items: center;
