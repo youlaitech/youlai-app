@@ -208,6 +208,7 @@ import { useToast, useMessage } from "wot-design-uni";
 import { useUserStore, useThemeStore } from "@/store";
 import { useRouter } from "uni-mini-router";
 import { useNavbar } from "@/composables/useNavbar";
+import type { UserInfo } from "@/api/user";
 import { getAccessToken } from "@/utils/auth";
 
 const toast = useToast();
@@ -235,11 +236,11 @@ const appVersion = ref("1.0.0");
 const navbar = useNavbar({ hasTabbar: true });
 
 const hasUserProfile = computed(() => {
-  const info = userInfo.value as any;
-  return !!(info && (info.id || info.userId || info.username || info.nickname));
+  const info = userInfo.value;
+  return !!(info && (info.userId || info.username || info.nickname));
 });
 
-const genderValue = computed(() => (userInfo.value as any)?.gender);
+const genderValue = computed(() => userInfo.value?.gender);
 const normalizedGender = computed(() => {
   const v = genderValue.value;
   const n = typeof v === "number" ? v : Number(v);
@@ -248,7 +249,7 @@ const normalizedGender = computed(() => {
 
 const deptNameText = computed(() => {
   if (!isLogin.value) return "";
-  return (userInfo.value as any)?.deptName || "";
+  return userInfo.value?.deptName || "";
 });
 
 const genderIconName = computed(() => {
@@ -347,7 +348,7 @@ const openAbout = () => {
 };
 
 const clearing = ref(false);
-const cacheSize = ref<any>("计算中...");
+const cacheSize = ref<string>("计算中...");
 
 const formatBytes = (size: number) => {
   if (size < 1024) {

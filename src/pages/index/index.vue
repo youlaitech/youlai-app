@@ -102,6 +102,7 @@ import { useRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
 import { menuConfig } from "@/config/menu";
 import { checkLogin, isLoggedIn } from "@/utils/auth";
+import { hasPermission } from "@/utils/permission";
 import LogAPI, { type VisitOverview as ApiVisitOverview, type VisitTrend } from "@/api/log";
 import NoticeAPI, { type NoticeItem } from "@/api/notice";
 
@@ -156,12 +157,6 @@ const userPerms = computed(() => userStore.userInfo?.perms || []);
 const isLogged = computed(() => isLoggedIn());
 
 const hasAnyPerm = computed(() => userPerms.value.length > 0);
-
-// 检查是否有权限
-const hasPermission = (perm: string) => {
-  if (!perm) return true;
-  return userPerms.value.includes(perm) || userPerms.value.includes("*:*:*");
-};
 
 // 默认菜单（未登录时显示）
 const defaultNavList = computed(() => {

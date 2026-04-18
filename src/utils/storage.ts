@@ -14,7 +14,7 @@
 /**
  * localStorage 存储
  */
-function set(key: string, value: any): void {
+function set<T>(key: string, value: T): void {
   uni.setStorageSync(key, JSON.stringify(value));
 }
 

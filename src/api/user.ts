@@ -180,6 +180,9 @@ export interface UserInfo {
   /** 邮箱 */
   email?: string;
 
+  /** 性别 */
+  gender?: number;
+
   /** 部门名称 */
   deptName?: string;
 
