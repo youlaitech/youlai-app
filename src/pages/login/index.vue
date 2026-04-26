@@ -105,7 +105,7 @@
 
           <!-- 登录按钮 -->
           <view class="login__form-item">
-            <wd-button type="primary" block :loading="loading" @click="handleLogin">
+            <wd-button type="primary" block :loading="isLoading" @click="handleLogin">
               登 录
             </wd-button>
           </view>
@@ -228,7 +228,7 @@
             <text class="login__demo-hint-text">演示环境验证码：123456</text>
           </view>
 
-          <wd-button type="primary" block :loading="bindLoading" @click="handleBindMobile">
+          <wd-button type="primary" block :loading="isBindLoading" @click="handleBindMobile">
             确认绑定
           </wd-button>
         </view>
@@ -260,9 +260,10 @@
 </route>
 
 <script lang="ts" setup>
-import { onLoad, onShow, onUnload } from "@dcloudio/uni-app";
+import { onLoad, onShow } from "@dcloudio/uni-app";
 import { useToast, useMessage } from "wot-design-uni";
 import { useUserStore } from "@/store/modules/user";
+import { useCountdown } from "@/composables/useCountdown";
 import AuthAPI from "@/api/auth";
 
 const toast = useToast();
@@ -274,11 +275,10 @@ const statusBarHeight = ref(20);
 const navBarHeight = ref(44);
 
 // 表单状态
-const loading = ref(false);
+const isLoading = ref(false);
 const isAgreePolicy = ref(false);
 const loginMode = ref<"PASSWORD" | "SMS" | "WECHAT">("PASSWORD");
-const smsCountdown = ref(0);
-const smsTimer = ref<ReturnType<typeof setInterval> | null>(null);
+const { countdown: smsCountdown, start: startSmsCountdown } = useCountdown(60);
 
 const formData = ref({
   username: "admin",
@@ -290,15 +290,14 @@ const formData = ref({
 // 图形验证码
 const captchaId = ref("");
 const captchaBase64 = ref("");
-const captchaLoading = ref(false);
+const isCaptchaLoading = ref(false);
 
 const redirect = ref("/pages/index/index");
 
 // 绑定手机号
 const showBindMobilePopup = ref(false);
-const bindLoading = ref(false);
-const bindSmsCountdown = ref(0);
-const bindSmsTimer = ref<ReturnType<typeof setInterval> | null>(null);
+const isBindLoading = ref(false);
+const { countdown: bindSmsCountdown, start: startBindSmsCountdown } = useCountdown(60);
 const wechatOpenid = ref("");
 
 const bindMobileForm = ref({
@@ -333,9 +332,9 @@ const canSubmit = computed(() => {
 
 // 图形验证码
 const fetchCaptcha = async () => {
-  if (captchaLoading.value) return;
+  if (isCaptchaLoading.value) return;
   try {
-    captchaLoading.value = true;
+    isCaptchaLoading.value = true;
     captchaBase64.value = "";
     const res = await AuthAPI.getCaptcha();
     captchaId.value = res.captchaId;
@@ -343,27 +342,8 @@ const fetchCaptcha = async () => {
   } catch {
     // 获取验证码失败由 API 层处理
   } finally {
-    captchaLoading.value = false;
+    isCaptchaLoading.value = false;
   }
-};
-
-// 短信倒计时
-const startSmsCountdown = (
-  countdown: Ref<number>,
-  timer: Ref<ReturnType<typeof setInterval> | null>
-) => {
-  countdown.value = 60;
-  if (timer.value) clearInterval(timer.value);
-  timer.value = setInterval(() => {
-    countdown.value -= 1;
-    if (countdown.value <= 0) {
-      countdown.value = 0;
-      if (timer.value) {
-        clearInterval(timer.value);
-        timer.value = null;
-      }
-    }
-  }, 1000);
 };
 
 // 切换登录方式
@@ -412,8 +392,8 @@ async function doFormLogin() {
     );
     return;
   }
-  if (loading.value) return;
-  loading.value = true;
+  if (isLoading.value) return;
+  isLoading.value = true;
   try {
     if (loginMode.value === "PASSWORD") {
       await userStore.login({
@@ -435,7 +415,7 @@ async function doFormLogin() {
     toast.error(error?.message || "登录失败");
     if (loginMode.value === "PASSWORD") fetchCaptcha();
   } finally {
-    loading.value = false;
+    isLoading.value = false;
   }
 }
 
@@ -461,7 +441,7 @@ const handleSendCode = async () => {
   try {
     await AuthAPI.sendSmsLoginCode(mobile);
     toast.success("验证码已发送");
-    startSmsCountdown(smsCountdown, smsTimer);
+    startSmsCountdown();
   } catch (error: any) {
     toast.error(error?.message || "发送失败");
   }
@@ -486,7 +466,7 @@ async function doWechatPhoneLogin(phoneCode: string) {
     await handleWechatSilentLogin();
     return;
   }
-  loading.value = true;
+  isLoading.value = true;
   try {
     const { code: loginCode } = await uni.login();
     await userStore.loginByWxMaPhone({ loginCode, phoneCode });
@@ -497,12 +477,12 @@ async function doWechatPhoneLogin(phoneCode: string) {
     toast.info("正在尝试其他登录方式...");
     await handleWechatSilentLogin();
   } finally {
-    loading.value = false;
+    isLoading.value = false;
   }
 }
 
 const handleWechatSilentLogin = async () => {
-  loading.value = true;
+  isLoading.value = true;
   try {
     const { code } = await uni.login();
     const result: any = await userStore.loginByWxMa(code);
@@ -517,7 +497,7 @@ const handleWechatSilentLogin = async () => {
   } catch (error: any) {
     toast.error(error?.message || "微信登录失败");
   } finally {
-    loading.value = false;
+    isLoading.value = false;
   }
 };
 
@@ -532,7 +512,7 @@ const handleSendBindCode = async () => {
   try {
     await AuthAPI.sendSmsLoginCode(mobile);
     toast.success("验证码已发送");
-    startSmsCountdown(bindSmsCountdown, bindSmsTimer);
+    startBindSmsCountdown();
   } catch (error: any) {
     toast.error(error?.message || "发送失败");
   }
@@ -541,14 +521,10 @@ const handleSendBindCode = async () => {
 const resetBindForm = () => {
   bindMobileForm.value = { mobile: "", code: "" };
   bindSmsCountdown.value = 0;
-  if (bindSmsTimer.value) {
-    clearInterval(bindSmsTimer.value);
-    bindSmsTimer.value = null;
-  }
 };
 
 const handleBindMobile = async () => {
-  if (bindLoading.value) return;
+  if (isBindLoading.value) return;
   const { mobile, code } = bindMobileForm.value;
   if (!isValidMobile(mobile)) {
     toast.error("请输入正确的手机号");
@@ -558,7 +534,7 @@ const handleBindMobile = async () => {
     toast.error("请输入验证码");
     return;
   }
-  bindLoading.value = true;
+  isBindLoading.value = true;
   try {
     await userStore.bindMobileForWxMa({ openid: wechatOpenid.value, mobile, smsCode: code });
     await userStore.getInfo();
@@ -569,7 +545,7 @@ const handleBindMobile = async () => {
   } catch (error: any) {
     toast.error(error?.message || "绑定失败");
   } finally {
-    bindLoading.value = false;
+    isBindLoading.value = false;
   }
 };
 
@@ -606,11 +582,6 @@ onLoad((options: any) => {
 });
 
 onShow(() => uni.setNavigationBarTitle({ title: "" }));
-
-onUnload(() => {
-  if (smsTimer.value) clearInterval(smsTimer.value);
-  if (bindSmsTimer.value) clearInterval(bindSmsTimer.value);
-});
 </script>
 
 <style lang="scss" scoped>
@@ -744,10 +715,15 @@ onUnload(() => {
 .login__card {
   width: 100%;
   padding: 64rpx;
-  background-color: var(--color-bg-alpha-95);
-  backdrop-filter: blur(24px);
+  background-color: var(--color-bg);
   border-radius: 48rpx;
   box-shadow: 0 20rpx 50rpx -10rpx rgba(0, 0, 0, 0.1);
+
+  @supports (backdrop-filter: blur(24px)) or (-webkit-backdrop-filter: blur(24px)) {
+    background-color: var(--color-bg-alpha-95);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+  }
 }
 
 // 卡片头部

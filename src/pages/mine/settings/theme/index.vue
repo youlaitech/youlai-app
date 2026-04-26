@@ -25,7 +25,7 @@
                 v-if="currentThemeColor === color.primary"
                 name="check"
                 size="14"
-                color="#fff"
+                color="var(--color-text-inverse)"
               />
             </view>
           </view>

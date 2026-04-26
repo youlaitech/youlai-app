@@ -77,7 +77,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" plain @click="closeItemDialog">取消</wd-button>
-          <wd-button type="primary" :loading="submitting" @click="submitItemForm">保存</wd-button>
+          <wd-button type="primary" :loading="isSubmitting" @click="submitItemForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -112,7 +112,7 @@ const pageTitle = ref<string>("字典数据");
 
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
-const submitting = ref(false);
+const isSubmitting = ref(false);
 
 const queryParams = reactive<DictItemPageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const total = ref(0);
@@ -187,7 +187,7 @@ function submitItemForm() {
       return;
     }
 
-    submitting.value = true;
+    isSubmitting.value = true;
     const id = formData.id;
     const action = id
       ? DictAPI.updateItem(dictCode.value, id, formData)
@@ -200,7 +200,7 @@ function submitItemForm() {
         loadItemList();
       })
       .finally(() => {
-        submitting.value = false;
+        isSubmitting.value = false;
       });
   });
 }

@@ -14,11 +14,6 @@ interface ImportMetaEnv {
 
   /** 应用版本号 */
   readonly VITE_APP_VERSION: string;
-
-  /**
-   * WebSocket 端点
-   */
-  readonly VITE_APP_WS_ENDPOINT?: string;
 }
 
 interface ImportMeta {

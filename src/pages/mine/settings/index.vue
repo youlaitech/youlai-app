@@ -23,8 +23,8 @@
 
     <!-- 使用wot-design-uni的Loading组件 -->
     <wd-loading
-      v-if="clearing"
-      v-model="clearing"
+      v-if="isClearing"
+      v-model="isClearing"
       text="正在清理..."
       mask
       custom-class="loading-center"
@@ -69,7 +69,7 @@ const navigateToNetworkTest = () => {
 };
 
 // 是否正在清理
-const clearing = ref(false);
+const isClearing = ref(false);
 // 缓存大小
 const cacheSize = ref<string>("计算中...");
 // 获取缓存大小
@@ -121,12 +121,12 @@ const handleClearCache = async () => {
     });
     return;
   }
-  if (clearing.value) {
+  if (isClearing.value) {
     return;
   }
 
   try {
-    clearing.value = true;
+    isClearing.value = true;
     // 模拟清理过程
     await new Promise((resolve) => setTimeout(resolve, 1500));
     // 清除缓存
@@ -144,7 +144,7 @@ const handleClearCache = async () => {
       icon: "error",
     });
   } finally {
-    clearing.value = false;
+    isClearing.value = false;
   }
 };
 

@@ -133,7 +133,9 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" plain @click="closeNoticeForm">取消</wd-button>
-          <wd-button type="primary" :loading="submitting" @click="submitNoticeForm">保存</wd-button>
+          <wd-button type="primary" :loading="isSubmitting" @click="submitNoticeForm">
+            保存
+          </wd-button>
         </view>
       </view>
     </wd-popup>
@@ -169,7 +171,7 @@ const toast = useToast();
 const { messageBox } = useMessage();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
-const submitting = ref(false);
+const isSubmitting = ref(false);
 
 const queryParams = reactive<NoticePageQuery>({ pageNum: 1, pageSize: 10 });
 const total = ref(0);
@@ -290,7 +292,7 @@ function closeNoticeForm() {
 function submitNoticeForm() {
   formRef.value.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
-    submitting.value = true;
+    isSubmitting.value = true;
     const id = formData.id;
     const action = id ? NoticeAPI.update(id, formData) : NoticeAPI.add(formData);
     action
@@ -300,7 +302,7 @@ function submitNoticeForm() {
         loadNoticeList();
       })
       .finally(() => {
-        submitting.value = false;
+        isSubmitting.value = false;
       });
   });
 }

@@ -23,18 +23,13 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useRouter } from "uni-mini-router";
 import { useNavbar } from "@/composables/useNavbar";
+import { useNavigation } from "@/composables/useNavigation";
 import { menuConfig } from "@/config/menu";
-import { checkLogin, isLoggedIn } from "@/utils/auth";
 import { hasPermission as checkPermission } from "@/utils/permission";
 
-const router = useRouter();
-
-const navbar = useNavbar({ hasTabbar: true });
-
-// 是否已登录
-const isLogged = computed(() => isLoggedIn());
+const navbar = useNavbar();
+const { handleNavClick } = useNavigation();
 
 // 检查是否有权限
 const hasPermission = (perm: string) => {
@@ -51,31 +46,6 @@ const visibleGridList = computed(() => {
     }))
     .filter((group) => group.children.length > 0);
 });
-
-// 处理导航点击
-function handleNavClick(item: any) {
-  // 未登录时跳转登录页
-  if (!isLogged.value) {
-    uni.navigateTo({ url: "/pages/login/index" });
-    return;
-  }
-  // 已登录但访问受限时，仍做一次登录校验（防 token 过期）
-  if (!checkLogin()) return;
-
-  try {
-    if (
-      typeof item?.url === "string" &&
-      (item.url.startsWith("http://") || item.url.startsWith("https://"))
-    ) {
-      uni.navigateTo({ url: `/pages/webview/index?url=${encodeURIComponent(item.url)}` });
-      return;
-    }
-
-    router.push({ path: item.url });
-  } catch {
-    // 路由跳转失败已由拦截器处理
-  }
-}
 </script>
 
 <route lang="json">

@@ -101,7 +101,7 @@
         </scroll-view>
         <view class="popup-actions">
           <wd-button type="info" plain @click="closeMenuDialog">取消</wd-button>
-          <wd-button type="primary" :loading="submitting" @click="submitMenuForm">保存</wd-button>
+          <wd-button type="primary" :loading="isSubmitting" @click="submitMenuForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -130,7 +130,7 @@ import CustomTree from "@/components/custom-tree/index.vue";
 const toast = useToast();
 const { messageBox } = useMessage();
 const formRef = ref();
-const submitting = ref(false);
+const isSubmitting = ref(false);
 
 const queryParams = reactive<MenuQuery>({ keywords: "" });
 const menuList = ref<MenuItem[]>([]);
@@ -364,7 +364,7 @@ function handleAddChild(menu: MenuItem) {
 function submitMenuForm() {
   formRef.value.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
-    submitting.value = true;
+    isSubmitting.value = true;
     const action = formData.id ? MenuAPI.update(formData.id, formData) : MenuAPI.add(formData);
     action
       .then(() => {
@@ -373,7 +373,7 @@ function submitMenuForm() {
         loadMenuList();
       })
       .finally(() => {
-        submitting.value = false;
+        isSubmitting.value = false;
       });
   });
 }

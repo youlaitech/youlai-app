@@ -2,14 +2,7 @@
   <view class="page page--tabbar">
     <!-- 轮播图 -->
     <view class="relative">
-      <wd-swiper
-        v-model:current="current"
-        custom-class="swiper-box"
-        :list="swiperList"
-        autoplay
-        @click="handleSwiperClick"
-        @change="handleSwiperChange"
-      />
+      <wd-swiper v-model:current="current" custom-class="swiper-box" :list="swiperList" autoplay />
       <view class="hero-fade"></view>
     </view>
 
@@ -20,7 +13,7 @@
           v-for="(item, index) in quickNavList"
           :key="index"
           use-slot
-          @itemclick="handleNavClick(item)"
+          @itemclick="handleNavClickWithGuard(item)"
         >
           <view class="nav-item">
             <image class="nav-item__icon" :src="item.icon" mode="aspectFit" />
@@ -100,8 +93,9 @@ import { onReady, onShow } from "@dcloudio/uni-app";
 import { dayjs } from "wot-design-uni";
 import { useRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
+import { useNavigation } from "@/composables/useNavigation";
 import { menuConfig } from "@/config/menu";
-import { checkLogin, isLoggedIn } from "@/utils/auth";
+import { isLoggedIn } from "@/utils/auth";
 import { hasPermission } from "@/utils/permission";
 import LogAPI, { type VisitOverview as ApiVisitOverview, type VisitTrend } from "@/api/log";
 import NoticeAPI, { type NoticeItem } from "@/api/notice";
@@ -117,6 +111,7 @@ interface NavItem {
 
 const router = useRouter();
 const userStore = useUserStore();
+const { handleNavClick } = useNavigation();
 // custom-navbar 组件内部已处理导航栏高度与胶囊避让
 
 const current = ref(0);
@@ -136,17 +131,12 @@ const visitOverviewData = ref<VisitOverviewVO>({
   totalPvCount: 0,
 });
 
-const appVersion = ref<string>("");
-
 const noticeList = ref<NoticeItem[]>([]);
 const noticeText = computed(() => {
-  if (!noticeList.value.length) {
-    return "暂无通知";
-  }
   const titles = noticeList.value
     .map((n: NoticeItem) => n.title)
     .filter(Boolean)
-    .slice(0, 2) as string[];
+    .slice(0, 2);
   return titles.length ? titles.join("    ") : "暂无通知";
 });
 
@@ -214,17 +204,6 @@ const chartOpts = ref({
   },
 });
 
-function loadAppVersion() {
-  try {
-    const p: any = (globalThis as any).plus;
-    if (p?.runtime?.version) {
-      appVersion.value = `v${p.runtime.version}`;
-    }
-  } catch {
-    appVersion.value = "";
-  }
-}
-
 async function loadNoticeData() {
   // 未登录时不调用通知接口
   if (!isLogged.value) {
@@ -269,41 +248,17 @@ async function loadVisitTrendData() {
   }
 }
 
-function handleNavClick(item: NavItem) {
-  // 未登录 / 无权限时：展示默认导航，但点击统一跳登录
+function handleNavClickWithGuard(item: NavItem) {
   if (!isLogged.value || !hasAnyPerm.value) {
     uni.navigateTo({ url: "/pages/login/index" });
     return;
   }
-  // 已登录但访问受限时，仍做一次登录校验（防 token 过期）
-  if (!checkLogin()) return;
-
-  // 外部链接处理
-  if (item.url.startsWith("http://") || item.url.startsWith("https://")) {
-    const isH5 = typeof window !== "undefined";
-    if (isH5) {
-      uni.navigateTo({ url: `/pages/webview/index?url=${encodeURIComponent(item.url)}` });
-    } else {
-      try {
-        const p = (globalThis as any).plus;
-        p?.runtime?.openURL(item.url);
-      } catch {
-        uni.navigateTo({ url: `/pages/webview/index?url=${encodeURIComponent(item.url)}` });
-      }
-    }
-    return;
-  }
-
-  router.push({ path: item.url });
+  handleNavClick(item);
 }
 
 function handleNoticeClick() {
   router.push({ path: "/pages/work/notice/index" });
 }
-
-function handleSwiperClick(_e: any) {}
-
-function handleSwiperChange(_e: any) {}
 
 function handleDataRangeChange({ value }: { value: number }) {
   recentDaysRange.value = value;
@@ -311,7 +266,6 @@ function handleDataRangeChange({ value }: { value: number }) {
 }
 
 onReady(() => {
-  loadAppVersion();
   loadNoticeData();
   loadVisitOverviewData();
   loadVisitTrendData();
@@ -436,7 +390,6 @@ onShow(() => {
 
   &__header {
     position: relative;
-    z-index: var(--z-sticky);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -478,7 +431,6 @@ onShow(() => {
 
   &__num {
     position: relative;
-    z-index: var(--z-sticky);
     font-size: 48rpx;
     font-weight: 700;
     line-height: 1;

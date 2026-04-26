@@ -96,8 +96,8 @@
         type="primary"
         size="large"
         block
-        :disabled="!canComplete || loading"
-        :loading="loading"
+        :disabled="!canComplete || isLoading"
+        :loading="isLoading"
         @click="handleComplete"
       >
         完成
@@ -145,7 +145,7 @@ const rules = {
   ],
 };
 
-const loading = ref(false);
+const isLoading = ref(false);
 const cropperVisible = ref(false);
 const originalImageSrc = ref("");
 const profileFormRef = ref();
@@ -231,7 +231,7 @@ const handleComplete = async () => {
       return;
     }
 
-    loading.value = true;
+    isLoading.value = true;
 
     await UserAPI.updateProfile({
       nickname: profileForm.nickname,
@@ -252,7 +252,7 @@ const handleComplete = async () => {
   } catch (error: any) {
     toast.error(error?.message || "完善信息失败");
   } finally {
-    loading.value = false;
+    isLoading.value = false;
   }
 };
 

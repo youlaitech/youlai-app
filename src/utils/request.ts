@@ -1,4 +1,5 @@
-﻿import { getAccessToken, clearTokens } from "./auth";
+import { getAccessToken, clearTokens } from "./auth";
+import { ApiCode } from "@/enums/api-code-enum";
 
 // 401 跳转防抖锁，避免并发请求多次跳转登录页
 let isRedirecting401 = false;
@@ -92,7 +93,7 @@ function request<T = any>(options: RequestOptions): Promise<T> {
 
         // HTTP 成功：校验业务码
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          if (!serverCode || serverCode === "00000") {
+          if (!serverCode || serverCode === ApiCode.SUCCESS) {
             resolve(res.data.data);
           } else {
             reject(new RequestError(serverMsg || "请求失败", res.statusCode, serverCode));

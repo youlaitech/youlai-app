@@ -161,8 +161,9 @@
   </view>
 </template>
 <script setup lang="ts">
-import { onMounted, onUnmounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useToast, useMessage } from "wot-design-uni";
+import { useCountdown } from "@/composables/useCountdown";
 import UserAPI, {
   PasswordChangeForm,
   MobileBindingForm,
@@ -219,11 +220,8 @@ const passwordChangeFormRef = ref();
 const mobileBindingFormRef = ref();
 const emailBindingFormRef = ref();
 
-const mobileCountdown = ref(0);
-const mobileTimer = ref<ReturnType<typeof setInterval> | null>(null);
-
-const emailCountdown = ref(0);
-const emailTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+const { countdown: mobileCountdown, start: startMobileCountdown } = useCountdown(60);
+const { countdown: emailCountdown, start: startEmailCountdown } = useCountdown(60);
 
 const handleUnbindWechat = async () => {
   try {
@@ -280,14 +278,7 @@ const handleSendVerificationCode = async (contactType: string) => {
       if (valid) {
         UserAPI.sendVerificationCode(mobileBindingForm.mobile!, "MOBILE").then(() => {
           uni.showToast({ title: "验证码已发送", icon: "none" });
-          mobileCountdown.value = 60;
-          mobileTimer.value = setInterval(() => {
-            if (mobileCountdown.value > 0) {
-              mobileCountdown.value -= 1;
-            } else {
-              clearInterval(mobileTimer.value!);
-            }
-          }, 1000);
+          startMobileCountdown();
         });
       }
     });
@@ -296,14 +287,7 @@ const handleSendVerificationCode = async (contactType: string) => {
       if (valid) {
         UserAPI.sendVerificationCode(emailBindingForm.email!, "EMAIL").then(() => {
           uni.showToast({ title: "验证码已发送", icon: "none" });
-          emailCountdown.value = 60;
-          emailTimer.value = setInterval(() => {
-            if (emailCountdown.value > 0) {
-              emailCountdown.value -= 1;
-            } else {
-              clearInterval(emailTimer.value!);
-            }
-          }, 1000);
+          startEmailCountdown();
         });
       }
     });
@@ -346,16 +330,5 @@ function handleSubmit() {
 
 onMounted(() => {
   loadUserProfile();
-});
-
-onUnmounted(() => {
-  if (mobileTimer.value) {
-    clearInterval(mobileTimer.value);
-    mobileTimer.value = null;
-  }
-  if (emailTimer.value) {
-    clearInterval(emailTimer.value as unknown as number);
-    emailTimer.value = null;
-  }
 });
 </script>

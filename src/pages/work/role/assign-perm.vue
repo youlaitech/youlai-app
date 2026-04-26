@@ -70,7 +70,7 @@
     <!-- 固定底部操作栏 -->
     <view class="bottom-bar">
       <wd-button type="info" plain @click="handleCancel">取消</wd-button>
-      <wd-button type="primary" :loading="submitting" @click="handleSubmit">保存</wd-button>
+      <wd-button type="primary" :loading="isSubmitting" @click="handleSubmit">保存</wd-button>
     </view>
   </view>
 </template>
@@ -84,7 +84,7 @@ import CustomTree from "@/components/custom-tree/index.vue";
 import type { TreeOption } from "@/components/custom-tree/index.vue";
 
 const toast = useToast();
-const submitting = ref(false);
+const isSubmitting = ref(false);
 const roleId = ref<number>(0);
 const roleName = ref("");
 const menuList = ref<MenuItem[]>([]);
@@ -148,13 +148,13 @@ function handleCancel() {
 
 // 提交
 async function handleSubmit() {
-  submitting.value = true;
+  isSubmitting.value = true;
   try {
     await RoleAPI.updateRoleMenus(roleId.value, checkedKeys.value.map(Number));
     toast.success("保存成功");
     uni.navigateBack();
   } finally {
-    submitting.value = false;
+    isSubmitting.value = false;
   }
 }
 

@@ -11,12 +11,14 @@ declare global {
   const PERM_ALL: typeof import('../utils/permission')['PERM_ALL']
   const ROLE_ROOT: typeof import('../utils/permission')['ROLE_ROOT']
   const RequestError: typeof import('../utils/request')['RequestError']
+  const SseConnectionState: typeof import('../composables/useSse')['SseConnectionState']
   const Storage: typeof import('../utils/storage')['Storage']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const applyThemeOnPageShow: typeof import('../utils/theme')['applyThemeOnPageShow']
   const applyThemeToMiniProgram: typeof import('../utils/theme')['applyThemeToMiniProgram']
   const auth: typeof import('../api/auth')['default']
   const checkLogin: typeof import('../utils/auth')['checkLogin']
+  const cleanupSse: typeof import('../composables/useSse')['cleanupSse']
   const clearAll: typeof import('../utils/storage')['clearAll']
   const clearTokens: typeof import('../utils/auth')['clearTokens']
   const colorColumns: typeof import('../composables/types/theme')['colorColumns']
@@ -35,6 +37,8 @@ declare global {
   const dict: typeof import('../api/dict')['default']
   const effectScope: typeof import('vue')['effectScope']
   const file: typeof import('../api/file')['default']
+  const formatBytes: typeof import('../utils/format')['formatBytes']
+  const formatNumber: typeof import('../utils/format')['formatNumber']
   const getAccessToken: typeof import('../utils/auth')['getAccessToken']
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
@@ -150,6 +154,7 @@ declare global {
   const useActionSheet: typeof import('@uni-helper/uni-use')['useActionSheet']
   const useAttrs: typeof import('vue')['useAttrs']
   const useClipboardData: typeof import('@uni-helper/uni-use')['useClipboardData']
+  const useCountdown: typeof import('../composables/useCountdown')['useCountdown']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
   const useDownloadFile: typeof import('@uni-helper/uni-use')['useDownloadFile']
@@ -163,6 +168,7 @@ declare global {
   const useModal: typeof import('@uni-helper/uni-use')['useModal']
   const useModel: typeof import('vue')['useModel']
   const useNavbar: typeof import('../composables/useNavbar')['useNavbar']
+  const useNavigation: typeof import('../composables/useNavigation')['useNavigation']
   const useNetwork: typeof import('@uni-helper/uni-use')['useNetwork']
   const useNotify: typeof import('wot-design-uni')['useNotify']
   const useOnline: typeof import('@uni-helper/uni-use')['useOnline']
@@ -184,7 +190,7 @@ declare global {
   const useSelectorQuery: typeof import('@uni-helper/uni-use')['useSelectorQuery']
   const useSlots: typeof import('vue')['useSlots']
   const useSocket: typeof import('@uni-helper/uni-use')['useSocket']
-  const useStomp: typeof import('../composables/useStomp')['useStomp']
+  const useSse: typeof import('../composables/useSse')['useSse']
   const useStorage: typeof import('@uni-helper/uni-use')['useStorage']
   const useStorageAsync: typeof import('@uni-helper/uni-use')['useStorageAsync']
   const useStorageSync: typeof import('@uni-helper/uni-use')['useStorageSync']
@@ -208,6 +214,9 @@ declare global {
   export type { Component, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
+  export type { SseConnectionState } from '../composables/useSse'
+  import('../composables/useSse')
+  // @ts-ignore
   export type { RequestError } from '../utils/request'
   import('../utils/request')
 }
@@ -220,10 +229,12 @@ declare module 'vue' {
     readonly CommonUtil: UnwrapRef<typeof import('wot-design-uni')['CommonUtil']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly RequestError: UnwrapRef<typeof import('../utils/request')['RequestError']>
+    readonly SseConnectionState: UnwrapRef<typeof import('../composables/useSse')['SseConnectionState']>
     readonly Storage: UnwrapRef<typeof import('../utils/storage')['Storage']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly auth: UnwrapRef<typeof import('../api/auth')['default']>
     readonly checkLogin: UnwrapRef<typeof import('../utils/auth')['checkLogin']>
+    readonly cleanupSse: UnwrapRef<typeof import('../composables/useSse')['cleanupSse']>
     readonly clearAll: UnwrapRef<typeof import('../utils/storage')['clearAll']>
     readonly clearTokens: UnwrapRef<typeof import('../utils/auth')['clearTokens']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
@@ -240,6 +251,8 @@ declare module 'vue' {
     readonly dict: UnwrapRef<typeof import('../api/dict')['default']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly file: UnwrapRef<typeof import('../api/file')['default']>
+    readonly formatBytes: UnwrapRef<typeof import('../utils/format')['formatBytes']>
+    readonly formatNumber: UnwrapRef<typeof import('../utils/format')['formatNumber']>
     readonly getAccessToken: UnwrapRef<typeof import('../utils/auth')['getAccessToken']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
@@ -330,6 +343,7 @@ declare module 'vue' {
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
+    readonly useCountdown: UnwrapRef<typeof import('../composables/useCountdown')['useCountdown']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
@@ -337,13 +351,14 @@ declare module 'vue' {
     readonly useMessage: UnwrapRef<typeof import('wot-design-uni')['useMessage']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useNavbar: UnwrapRef<typeof import('../composables/useNavbar')['useNavbar']>
+    readonly useNavigation: UnwrapRef<typeof import('../composables/useNavigation')['useNavigation']>
     readonly useNotify: UnwrapRef<typeof import('wot-design-uni')['useNotify']>
     readonly usePagination: UnwrapRef<typeof import('../composables/useRequest')['usePagination']>
     readonly useRequest: UnwrapRef<typeof import('../composables/useRequest')['useRequest']>
     readonly useRoute: UnwrapRef<typeof import('uni-mini-router')['useRoute']>
     readonly useRouter: UnwrapRef<typeof import('uni-mini-router')['useRouter']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
-    readonly useStomp: UnwrapRef<typeof import('../composables/useStomp')['useStomp']>
+    readonly useSse: UnwrapRef<typeof import('../composables/useSse')['useSse']>
     readonly useTabbar: UnwrapRef<typeof import('../composables/useTabbar')['useTabbar']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../composables/useTheme')['useTheme']>

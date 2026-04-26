@@ -72,7 +72,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" plain @click="closeDictDialog">取消</wd-button>
-          <wd-button type="primary" :loading="submitting" @click="submitDictForm">保存</wd-button>
+          <wd-button type="primary" :loading="isSubmitting" @click="submitDictForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -102,7 +102,7 @@ const toast = useToast();
 const { messageBox } = useMessage();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
-const submitting = ref(false);
+const isSubmitting = ref(false);
 
 const queryParams = reactive<DictTypePageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const total = ref(0);
@@ -169,7 +169,7 @@ async function openDictDialog(id?: string) {
 function submitDictForm() {
   formRef.value.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
-    submitting.value = true;
+    isSubmitting.value = true;
     const id = formData.id;
     const action = id ? DictAPI.update(id, formData) : DictAPI.create(formData);
     action
@@ -179,7 +179,7 @@ function submitDictForm() {
         loadDictTypeList();
       })
       .finally(() => {
-        submitting.value = false;
+        isSubmitting.value = false;
       });
   });
 }

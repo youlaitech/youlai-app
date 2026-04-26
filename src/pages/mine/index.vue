@@ -24,6 +24,7 @@
                 class="profile-card__avatar"
                 :src="isLogin && userInfo?.avatar ? userInfo.avatar : defaultAvatar"
                 mode="aspectFill"
+                lazy-load
               />
               <view v-if="isLogin" class="profile-card__online-dot" />
               <view v-if="genderIconName" class="profile-card__gender" :class="genderIconClass">
@@ -57,13 +58,18 @@
             </view>
 
             <view v-if="isLogin" class="profile-card__actions">
-              <view class="profile-card__action-btn" @click.stop="openNotifications">
+              <view
+                class="profile-card__action-btn"
+                aria-label="通知"
+                @click.stop="openNotifications"
+              >
                 <wd-icon name="notification" size="16" color="var(--color-text-inverse)" />
-                <view v-if="notificationCount > 0" class="profile-card__notify-badge">
-                  {{ notificationCount }}
-                </view>
               </view>
-              <view class="profile-card__action-btn" @click.stop="openThemeSettings">
+              <view
+                class="profile-card__action-btn"
+                aria-label="主题设置"
+                @click.stop="openThemeSettings"
+              >
                 <wd-icon name="setting1" size="16" color="var(--color-text-inverse)" />
               </view>
             </view>
@@ -183,8 +189,8 @@
     </view>
 
     <wd-loading
-      v-if="clearing"
-      v-model="clearing"
+      v-if="isClearing"
+      v-model="isClearing"
       text="正在清理..."
       mask
       custom-class="loading-center"
@@ -208,8 +214,8 @@ import { useToast, useMessage } from "wot-design-uni";
 import { useUserStore, useThemeStore } from "@/store";
 import { useRouter } from "uni-mini-router";
 import { useNavbar } from "@/composables/useNavbar";
-import type { UserInfo } from "@/api/user";
 import { getAccessToken } from "@/utils/auth";
+import { formatBytes } from "@/utils/format";
 
 const toast = useToast();
 const { messageBox } = useMessage();
@@ -220,7 +226,6 @@ const currentThemeColor = computed(() => themeStore.themeVars.colorTheme);
 const userInfo = computed(() => userStore.userInfo);
 const defaultAvatar = "/static/images/default-avatar.png";
 
-const hasAccessToken = ref(!!getAccessToken());
 const isLogin = computed(() => !!getAccessToken());
 
 const headerBackground = computed(() => {
@@ -231,7 +236,6 @@ const headerBackground = computed(() => {
 });
 
 const router = useRouter();
-const notificationCount = computed(() => 0);
 const appVersion = ref("1.0.0");
 const navbar = useNavbar({ hasTabbar: true });
 
@@ -265,12 +269,8 @@ const genderIconClass = computed(() => {
   return "";
 });
 
-const syncAuthState = () => {
-  hasAccessToken.value = !!getAccessToken();
-};
-
 const fetchUserInfoIfNeeded = async () => {
-  if (!hasAccessToken.value || hasUserProfile.value) return;
+  if (!isLogin.value || hasUserProfile.value) return;
   try {
     await userStore.getInfo();
   } catch {
@@ -285,7 +285,6 @@ const syncMiniProgramVersion = () => {
 };
 
 onShow(async () => {
-  syncAuthState();
   await fetchUserInfoIfNeeded();
   await fetchCacheSize();
   syncMiniProgramVersion();
@@ -347,18 +346,8 @@ const openAbout = () => {
   router.push({ path: "/pages/mine/about/index" });
 };
 
-const clearing = ref(false);
+const isClearing = ref(false);
 const cacheSize = ref<string>("计算中...");
-
-const formatBytes = (size: number) => {
-  if (size < 1024) {
-    return size + "B";
-  } else if (size < 1024 * 1024) {
-    return (size / 1024).toFixed(2) + "KB";
-  } else {
-    return (size / 1024 / 1024).toFixed(2) + "MB";
-  }
-};
 
 const fetchCacheSize = async () => {
   try {
@@ -396,12 +385,12 @@ const handleClearCache = async () => {
     });
     return;
   }
-  if (clearing.value) {
+  if (isClearing.value) {
     return;
   }
 
   try {
-    clearing.value = true;
+    isClearing.value = true;
     await new Promise((resolve) => setTimeout(resolve, 1500));
     await uni.clearStorage();
     await fetchCacheSize();
@@ -415,7 +404,7 @@ const handleClearCache = async () => {
       icon: "error",
     });
   } finally {
-    clearing.value = false;
+    isClearing.value = false;
   }
 };
 
@@ -492,14 +481,16 @@ const openOfficialAccount = () => {
   position: relative;
   padding: 28rpx 28rpx;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--color-glass) 0%, var(--color-glass-light) 100%);
-  backdrop-filter: blur(20px);
+  background: var(--color-bg-alpha-95);
   border: 1rpx solid var(--color-border-glass);
   border-radius: 28rpx;
-  box-shadow:
-    0 8rpx 32rpx rgba(0, 0, 0, 0.08),
-    0 2rpx 8rpx rgba(0, 0, 0, 0.04),
-    inset 0 1rpx 0 var(--color-glass);
+  box-shadow: var(--shadow-md);
+
+  @supports (backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px)) {
+    background: linear-gradient(135deg, var(--color-glass) 0%, var(--color-glass-light) 100%);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+  }
 }
 
 .profile-card__header {
@@ -520,7 +511,7 @@ const openOfficialAccount = () => {
   height: 120rpx;
   border: 3rpx solid var(--color-border-glass-strong);
   border-radius: 50%;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .profile-card__gender {
@@ -531,7 +522,7 @@ const openOfficialAccount = () => {
   height: 36rpx;
   border: 2rpx solid var(--color-text-inverse);
   border-radius: 50%;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-sm);
 }
 
 .profile-card__online-dot {
@@ -543,7 +534,7 @@ const openOfficialAccount = () => {
   background: var(--color-success);
   border: 3rpx solid var(--color-border-glass-strong);
   border-radius: 50%;
-  box-shadow: 0 4rpx 12rpx rgba(15, 23, 42, 0.12);
+  box-shadow: var(--shadow-sm);
 }
 
 .profile-card__actions {
@@ -562,10 +553,15 @@ const openOfficialAccount = () => {
   justify-content: center;
   width: 52rpx;
   height: 52rpx;
-  background: var(--color-glass-light);
-  backdrop-filter: blur(10px);
+  background: var(--color-bg-alpha-95);
   border: 1rpx solid var(--color-border-glass);
   border-radius: 999rpx;
+
+  @supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
+    background: var(--color-glass-light);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
 }
 
 .profile-card__notify-badge {
@@ -670,7 +666,7 @@ const openOfficialAccount = () => {
   overflow: hidden;
   background: transparent;
   border-radius: 32rpx;
-  box-shadow: 0 10rpx 30rpx rgba(15, 23, 42, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .community-card__bg {
@@ -703,7 +699,6 @@ const openOfficialAccount = () => {
 
 .community-card__logo {
   position: relative;
-  z-index: var(--z-sticky);
   box-sizing: border-box;
   width: 84rpx;
   height: 84rpx;
@@ -711,19 +706,17 @@ const openOfficialAccount = () => {
   background: var(--color-bg-alpha-95);
   border: 1rpx solid var(--color-border-glass);
   border-radius: 20rpx;
-  box-shadow: 0 6rpx 18rpx rgba(15, 23, 42, 0.06);
+  box-shadow: var(--shadow-sm);
 }
 
 .community-card__body {
   position: relative;
-  z-index: var(--z-sticky);
   flex: 1;
   min-width: 0;
 }
 
 .community-card__arrow {
   position: relative;
-  z-index: var(--z-sticky);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -768,7 +761,7 @@ const openOfficialAccount = () => {
   padding: 28rpx;
   background: var(--color-bg);
   border-radius: 32rpx;
-  box-shadow: 0 10rpx 30rpx rgba(15, 23, 42, 0.05);
+  box-shadow: var(--shadow-md);
 }
 
 .section-card + .section-card {
@@ -790,11 +783,11 @@ const openOfficialAccount = () => {
   padding: 28rpx 24rpx;
   background: var(--color-bg);
   border-radius: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .quick-card:active {
-  box-shadow: 0 4rpx 12rpx rgba(15, 23, 42, 0.06);
+  box-shadow: var(--shadow-sm);
   transform: scale(0.96);
 }
 
@@ -884,7 +877,7 @@ const openOfficialAccount = () => {
   overflow: hidden;
   background: var(--color-bg);
   border-radius: 32rpx;
-  box-shadow: 0 16rpx 40rpx rgba(15, 23, 42, 0.05);
+  box-shadow: var(--shadow-lg);
 }
 
 .menu-list--flat {
@@ -932,7 +925,8 @@ const openOfficialAccount = () => {
 }
 
 .logout-section {
-  padding: 36rpx 32rpx 0;
+  display: flex;
+  padding: 36rpx 28rpx 0;
 }
 
 .profile-card__button {
@@ -947,14 +941,15 @@ const openOfficialAccount = () => {
 }
 
 .logout-btn {
-  width: 100%;
+  flex: 1;
+  width: auto;
   height: 88rpx;
   font-size: 28rpx;
   color: var(--color-danger);
   background: var(--color-bg);
   border: 1rpx solid rgba(239, 68, 68, 0.18);
   border-radius: 24rpx;
-  box-shadow: 0 12rpx 30rpx var(--color-danger-shadow);
+  box-shadow: var(--shadow-md);
 }
 
 .loading-center {

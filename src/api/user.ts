@@ -160,38 +160,24 @@ const UserAPI = {
 };
 export default UserAPI;
 
+interface BaseUser {
+  username?: string;
+  nickname?: string;
+  avatar?: string;
+  gender?: number;
+  mobile?: string;
+  email?: string;
+  deptName?: string;
+}
+
 /** 登录用户信息 */
-export interface UserInfo {
+export interface UserInfo extends BaseUser {
   /** 用户ID */
   userId?: number;
-
-  /** 用户名 */
-  username?: string;
-
-  /** 昵称 */
-  nickname?: string;
-
-  /** 头像URL */
-  avatar?: string;
-
-  /** 手机号 */
-  mobile?: string;
-
-  /** 邮箱 */
-  email?: string;
-
-  /** 性别 */
-  gender?: number;
-
-  /** 部门名称 */
-  deptName?: string;
-
   /** 角色编码集合 */
   roles?: string[];
-
   /** 权限标识集合 */
   perms?: string[];
-
   /** 角色名称（前端计算字段，取 roles[0] 的中文映射） */
   roleName?: string;
 }
@@ -246,60 +232,22 @@ export interface UserItem {
 }
 
 /** 个人中心用户信息 */
-export interface UserProfile {
+export interface UserProfile extends BaseUser {
   /** 用户ID */
   id?: number;
-
-  /** 用户名 */
-  username?: string;
-
-  /** 昵称 */
-  nickname?: string;
-
-  /** 头像URL */
-  avatar?: string;
-
-  /** 性别 */
-  gender?: number;
-
-  /** 手机号 */
-  mobile?: string;
-
-  /** 邮箱 */
-  email?: string;
-
-  /** 部门名称 */
-  deptName?: string;
-
   /** 角色名称，多个使用英文逗号(,)分割 */
   roleNames?: string;
-
   /** 创建时间 */
   createTime?: string;
 }
 
 /** 个人中心用户信息表单 */
-export interface UserProfileForm {
+export interface UserProfileForm extends Pick<
+  BaseUser,
+  "username" | "nickname" | "avatar" | "gender" | "mobile" | "email"
+> {
   /** 用户ID */
   id?: number;
-
-  /** 用户名 */
-  username?: string;
-
-  /** 昵称 */
-  nickname?: string;
-
-  /** 头像URL */
-  avatar?: string;
-
-  /** 性别 */
-  gender?: number;
-
-  /** 手机号 */
-  mobile?: string;
-
-  /** 邮箱 */
-  email?: string;
 }
 
 /** 修改密码表单 */

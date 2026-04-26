@@ -67,7 +67,9 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" plain @click="closeConfigDialog">取消</wd-button>
-          <wd-button type="primary" :loading="submitting" @click="submitConfigForm">保存</wd-button>
+          <wd-button type="primary" :loading="isSubmitting" @click="submitConfigForm">
+            保存
+          </wd-button>
         </view>
       </view>
     </wd-popup>
@@ -100,7 +102,7 @@ const toast = useToast();
 const { messageBox } = useMessage();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
-const submitting = ref(false);
+const isSubmitting = ref(false);
 
 const queryParams = reactive<ConfigPageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const total = ref(0);
@@ -169,7 +171,7 @@ async function openConfigDialog(id?: number) {
 function submitConfigForm() {
   formRef.value.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
-    submitting.value = true;
+    isSubmitting.value = true;
     const action = formData.id ? ConfigAPI.update(formData.id, formData) : ConfigAPI.add(formData);
     action
       .then(() => {
@@ -178,7 +180,7 @@ function submitConfigForm() {
         loadConfigList();
       })
       .finally(() => {
-        submitting.value = false;
+        isSubmitting.value = false;
       });
   });
 }

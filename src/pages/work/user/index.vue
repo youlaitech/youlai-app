@@ -52,7 +52,7 @@
       >
         <!-- 主信息行 -->
         <view class="flex-start">
-          <image class="user-card__avatar" :src="item.avatar" mode="aspectFill" />
+          <image class="user-card__avatar" :src="item.avatar" mode="aspectFill" lazy-load />
           <view class="user-card__main">
             <view class="flex-start mt-12rpx">
               <text class="user-card__name">{{ item.nickname }}</text>
@@ -149,7 +149,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" plain @click="closeUserDialog">取消</wd-button>
-          <wd-button type="primary" :loading="submitting" @click="submitUserForm">保存</wd-button>
+          <wd-button type="primary" :loading="isSubmitting" @click="submitUserForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -187,7 +187,7 @@
           <wd-button type="info" plain @click="resetPwdDialog.visible = false">取消</wd-button>
           <wd-button
             type="primary"
-            :loading="resetPwdDialog.submitting"
+            :loading="resetPwdDialog.isSubmitting"
             @click="handleResetPassword"
           >
             确认
@@ -213,7 +213,7 @@ const { messageBox } = useMessage();
 const { closeOutside } = useQueue();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
-const submitting = ref(false);
+const isSubmitting = ref(false);
 
 const sortValue = ref(0);
 const sortOptions = ref([
@@ -394,7 +394,7 @@ async function openUserDialog(id?: number) {
 function submitUserForm() {
   formRef.value.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
-    submitting.value = true;
+    isSubmitting.value = true;
     const action = formData.id ? UserAPI.update(formData.id, formData) : UserAPI.add(formData);
     action
       .then(() => {
@@ -403,7 +403,7 @@ function submitUserForm() {
         loadUserList();
       })
       .finally(() => {
-        submitting.value = false;
+        isSubmitting.value = false;
       });
   });
 }
@@ -421,7 +421,7 @@ const pendingAction = ref<Record<string, () => void>>({});
 
 const resetPwdDialog = reactive({
   visible: false,
-  submitting: false,
+  isSubmitting: false,
   userId: undefined as number | undefined,
 });
 const resetPwdForm = reactive({ password: "" });
@@ -493,7 +493,7 @@ async function handleResetPassword() {
   if (!valid || valid.valid === false) return;
   if (!resetPwdDialog.userId) return;
 
-  resetPwdDialog.submitting = true;
+  resetPwdDialog.isSubmitting = true;
   try {
     await UserAPI.resetPassword(resetPwdDialog.userId, resetPwdForm.password);
     toast.success("密码重置成功");
@@ -501,7 +501,7 @@ async function handleResetPassword() {
   } catch (error) {
     // API 已处理错误提示
   } finally {
-    resetPwdDialog.submitting = false;
+    resetPwdDialog.isSubmitting = false;
   }
 }
 

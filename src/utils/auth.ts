@@ -59,58 +59,40 @@ export function clearTokens(): void {
   Storage.remove(REFRESH_TOKEN_KEY);
 }
 
+function getCurrentPagePath(): string {
+  const pages = getCurrentPages();
+  if (pages.length === 0) return "/pages/index/index";
+
+  const currentPage = pages[pages.length - 1];
+  const route = currentPage.route || "";
+  const options = (currentPage as any).options || {};
+
+  const query = Object.entries(options)
+    .map(([key, value]) => `${key}=${value}`)
+    .join("&");
+
+  return query ? `/${route}?${query}` : `/${route}`;
+}
+
 /**
  * 检查用户登录状态，未登录则跳转到登录页面
  * @param silent 是否静默检查，不跳转登录页面
  * @returns 返回用户是否已登录
  */
 export function checkLogin(silent: boolean = false): boolean {
-  const accessToken = getAccessToken();
+  if (getAccessToken()) return true;
 
-  // 检查 token 是否存在
-  const isLoggedIn = !!accessToken;
-
-  if (!isLoggedIn && !silent) {
-    try {
-      // 获取当前页面路径
-      let currentPagePath = "/pages/index/index"; // 默认路径
-
-      const pages = getCurrentPages();
-      if (pages && pages.length > 0) {
-        const currentPage = pages[pages.length - 1];
-        if (currentPage && currentPage.route) {
-          currentPagePath = `/${currentPage.route}`;
-
-          // 处理页面参数 - 使用类型断言
-          const pageOptions = (currentPage as any).options;
-          if (pageOptions && Object.keys(pageOptions).length > 0) {
-            const params = new URLSearchParams(pageOptions as Record<string, string>);
-            currentPagePath += `?${params.toString()}`;
-          }
-        }
-      }
-
-      // 跳转到登录页面
-      uni.navigateTo({
-        url: `/pages/login/index?redirect=${encodeURIComponent(currentPagePath)}`,
-        fail: (error) => {
-          console.error("跳转登录页面失败:", error);
-          // 如果 navigateTo 失败，尝试使用 reLaunch
-          uni.reLaunch({
-            url: "/pages/login/index",
-          });
-        },
-      });
-    } catch (error) {
-      console.error("检查登录状态时发生错误:", error);
-      // 发生错误时，尝试直接跳转到登录页
-      uni.reLaunch({
-        url: "/pages/login/index",
-      });
-    }
+  if (!silent) {
+    const redirect = encodeURIComponent(getCurrentPagePath());
+    uni.navigateTo({
+      url: `/pages/login/index?redirect=${redirect}`,
+      fail: () => {
+        uni.reLaunch({ url: "/pages/login/index" });
+      },
+    });
   }
 
-  return isLoggedIn;
+  return false;
 }
 
 /**

@@ -66,7 +66,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" plain @click="closeDeptDialog">取消</wd-button>
-          <wd-button type="primary" :loading="submitting" @click="submitDeptForm">保存</wd-button>
+          <wd-button type="primary" :loading="isSubmitting" @click="submitDeptForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -95,7 +95,7 @@ import CustomTree from "@/components/custom-tree/index.vue";
 const toast = useToast();
 const { messageBox } = useMessage();
 const formRef = ref();
-const submitting = ref(false);
+const isSubmitting = ref(false);
 
 const queryParams = reactive<DeptQuery>({ keywords: "" });
 const deptList = ref<DeptItem[]>([]);
@@ -301,7 +301,7 @@ function handleAddChild(dept: DeptItem) {
 function submitDeptForm() {
   formRef.value.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
-    submitting.value = true;
+    isSubmitting.value = true;
     const action = formData.id ? DeptAPI.update(formData.id, formData) : DeptAPI.add(formData);
     action
       .then(() => {
@@ -310,7 +310,7 @@ function submitDeptForm() {
         loadDeptList();
       })
       .finally(() => {
-        submitting.value = false;
+        isSubmitting.value = false;
       });
   });
 }
