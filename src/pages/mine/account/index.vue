@@ -273,58 +273,56 @@ const handleOpenDialog = (type: DialogType) => {
  * @param contactType 联系方式类型 MOBILE: 手机号码  EMAIL: 邮箱
  */
 const handleSendVerificationCode = async (contactType: string) => {
-  if (contactType === "MOBILE") {
-    mobileBindingFormRef.value.validate("mobile").then(({ valid }: { valid: boolean }) => {
+  try {
+    if (contactType === "MOBILE") {
+      const { valid } = await mobileBindingFormRef.value.validate("mobile");
       if (valid) {
-        UserAPI.sendVerificationCode(mobileBindingForm.mobile!, "MOBILE").then(() => {
-          uni.showToast({ title: "验证码已发送", icon: "none" });
-          startMobileCountdown();
-        });
+        await UserAPI.sendVerificationCode(mobileBindingForm.mobile!, "MOBILE");
+        uni.showToast({ title: "验证码已发送", icon: "none" });
+        startMobileCountdown();
       }
-    });
-  } else if (contactType === "EMAIL") {
-    emailBindingFormRef.value.validate("email").then(({ valid }: { valid: boolean }) => {
+    } else if (contactType === "EMAIL") {
+      const { valid } = await emailBindingFormRef.value.validate("email");
       if (valid) {
-        UserAPI.sendVerificationCode(emailBindingForm.email!, "EMAIL").then(() => {
-          uni.showToast({ title: "验证码已发送", icon: "none" });
-          startEmailCountdown();
-        });
+        await UserAPI.sendVerificationCode(emailBindingForm.email!, "EMAIL");
+        uni.showToast({ title: "验证码已发送", icon: "none" });
+        startEmailCountdown();
       }
-    });
+    }
+  } catch (error) {
+    console.error("发送验证码失败:", error);
   }
 };
 
 // 提交表单
-function handleSubmit() {
-  if (dialog.type === DialogType.PASSWORD) {
-    passwordChangeFormRef.value.validate().then(({ valid }: { valid: boolean }) => {
+async function handleSubmit() {
+  try {
+    if (dialog.type === DialogType.PASSWORD) {
+      const { valid } = await passwordChangeFormRef.value.validate();
       if (valid) {
-        UserAPI.changePassword(passwordChangeForm).then(() => {
-          uni.showToast({ title: "密码修改成功", icon: "none" });
-          dialog.visible = false;
-        });
+        await UserAPI.changePassword(passwordChangeForm);
+        uni.showToast({ title: "密码修改成功", icon: "none" });
+        dialog.visible = false;
       }
-    });
-  } else if (dialog.type === DialogType.MOBILE) {
-    mobileBindingFormRef.value.validate().then(({ valid }: { valid: boolean }) => {
+    } else if (dialog.type === DialogType.MOBILE) {
+      const { valid } = await mobileBindingFormRef.value.validate();
       if (valid) {
-        UserAPI.bindMobile(mobileBindingForm).then(() => {
-          uni.showToast({ title: "手机号绑定成功", icon: "none" });
-          dialog.visible = false;
-          loadUserProfile();
-        });
+        await UserAPI.bindMobile(mobileBindingForm);
+        uni.showToast({ title: "手机号绑定成功", icon: "none" });
+        dialog.visible = false;
+        loadUserProfile();
       }
-    });
-  } else if (dialog.type === DialogType.EMAIL) {
-    emailBindingFormRef.value.validate().then(({ valid }: { valid: boolean }) => {
+    } else if (dialog.type === DialogType.EMAIL) {
+      const { valid } = await emailBindingFormRef.value.validate();
       if (valid) {
-        UserAPI.bindEmail(emailBindingForm).then(() => {
-          uni.showToast({ title: "邮箱绑定成功", icon: "none" });
-          dialog.visible = false;
-          loadUserProfile();
-        });
+        await UserAPI.bindEmail(emailBindingForm);
+        uni.showToast({ title: "邮箱绑定成功", icon: "none" });
+        dialog.visible = false;
+        loadUserProfile();
       }
-    });
+    }
+  } catch (error) {
+    console.error("提交表单失败:", error);
   }
 }
 

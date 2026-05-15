@@ -159,9 +159,19 @@
       <view class="section-card">
         <text class="section-title">帮助与支持</text>
         <view class="menu-list menu-list--flat">
+          <view class="menu-row" @click="openSettings">
+            <view class="menu-row__icon menu-row__icon--primary">
+              <wd-icon name="setting" size="18" :color="`rgba(77, 128, 240, 0.12)`" />
+            </view>
+            <view class="menu-row__main">
+              <text class="menu-row__title">系统设置</text>
+              <text class="menu-row__desc">主题、语言、通知等设置</text>
+            </view>
+            <wd-icon name="arrow-right" size="16" color="var(--color-text-placeholder)" />
+          </view>
           <view class="menu-row" @click="openUserAgreement">
             <view class="menu-row__icon menu-row__icon--success">
-              <wd-icon name="secured" size="18" color="var(--color-success-dark)" />
+              <wd-icon name="secured" size="18" :color="`rgba(52, 209, 157, 0.12)`" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">用户协议</text>
@@ -171,7 +181,7 @@
           </view>
           <view class="menu-row" @click="openAbout">
             <view class="menu-row__icon menu-row__icon--teal">
-              <wd-icon name="info-circle" size="18" color="var(--color-success-dark)" />
+              <wd-icon name="info-circle" size="18" :color="`rgba(52, 209, 157, 0.12)`" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">关于系统</text>
@@ -181,10 +191,6 @@
             <wd-icon name="arrow-right" size="16" color="var(--color-text-placeholder)" />
           </view>
         </view>
-      </view>
-
-      <view v-if="isLogin" class="logout-section">
-        <wd-button custom-class="logout-btn" plain @click="handleLogout">退出登录</wd-button>
       </view>
     </view>
 
@@ -330,6 +336,11 @@ const openNotifications = () => {
 // 主题设置
 const openThemeSettings = () => {
   router.push({ path: "/pages/mine/settings/theme/index" });
+};
+
+// 系统设置
+const openSettings = () => {
+  router.push({ path: "/pages/mine/settings/index" });
 };
 
 // 用户协议
@@ -844,6 +855,10 @@ const openOfficialAccount = () => {
   height: 72rpx;
   border-radius: 22rpx;
 
+  &--primary {
+    background: rgba(77, 128, 240, 0.12);
+  }
+
   &--warning {
     background: var(--color-warning-light);
   }
@@ -853,11 +868,11 @@ const openOfficialAccount = () => {
   }
 
   &--success {
-    background: var(--color-success-light);
+    background: rgba(52, 209, 157, 0.12);
   }
 
   &--teal {
-    background: var(--color-success-light);
+    background: rgba(52, 209, 157, 0.12);
   }
 }
 
