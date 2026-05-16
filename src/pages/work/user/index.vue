@@ -102,7 +102,7 @@
       </wd-card>
 
       <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="fetchUserList" />
-      <wd-status-tip v-else-if="total === 0" image="search" tip="暂无数据" />
+      <wd-empty v-else-if="total === 0" icon="search" tip="暂无数据" />
     </view>
 
     <!-- 弹窗表单 -->
@@ -125,7 +125,7 @@
               required
             />
             <wd-input v-model="formData.nickname" label="昵称" required />
-            <wd-col-picker
+            <wd-cascader
               v-model="deptSelected"
               label="部门"
               :columns="deptColumns"
@@ -200,16 +200,16 @@
 
 <script lang="ts" setup>
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
-import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
-import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useQueue, useToast, useMessage } from "wot-design-uni";
+import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
+import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { useQueue, useToast, useDialog } from "@wot-ui/ui";
 import UserAPI, { type UserPageQuery, UserItem, UserForm } from "@/api/user";
 import RoleAPI from "@/api/role";
 import DeptAPI from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
-const { messageBox } = useMessage();
+const { messageBox } = useDialog();
 const { closeOutside } = useQueue();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();

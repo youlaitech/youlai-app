@@ -216,7 +216,7 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
-import { useToast, useMessage } from "wot-design-uni";
+import { useToast, useDialog } from "@wot-ui/ui";
 import { useUserStore, useThemeStore } from "@/store";
 import { useRouter } from "uni-mini-router";
 import { useNavbar } from "@/composables/useNavbar";
@@ -224,7 +224,7 @@ import { getAccessToken } from "@/utils/auth";
 import { formatBytes } from "@/utils/format";
 
 const toast = useToast();
-const { messageBox } = useMessage();
+const { messageBox } = useDialog();
 
 const userStore = useUserStore();
 const themeStore = useThemeStore();

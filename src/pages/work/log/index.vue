@@ -59,7 +59,7 @@
       </wd-card>
 
       <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="fetchLogList" />
-      <wd-status-tip v-else-if="total === 0" image="search" tip="暂无数据" />
+      <wd-empty v-else-if="total === 0" icon="search" tip="暂无数据" />
     </view>
 
     <!-- 详情弹窗 -->
@@ -102,7 +102,7 @@
 
 <script lang="ts" setup>
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
-import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
+import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
 import LogAPI, { type LogPageQuery, LogItem } from "@/api/log";
 
 const loadMoreState = ref<LoadMoreState>("loading");

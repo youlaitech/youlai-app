@@ -43,7 +43,7 @@
       </wd-card>
 
       <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="fetchItemList" />
-      <wd-status-tip v-else-if="total === 0" image="search" tip="暂无数据" />
+      <wd-empty v-else-if="total === 0" icon="search" tip="暂无数据" />
     </view>
 
     <wd-popup
@@ -98,14 +98,14 @@
 
 <script lang="ts" setup>
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
-import { LoadMoreState } from "wot-design-uni/components/wd-loadmore/types";
-import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useToast, useMessage } from "wot-design-uni";
+import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
+import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { useToast, useDialog } from "@wot-ui/ui";
 import DictAPI, { type DictItemForm, type DictItemPageQuery, type DictDataItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
-const { messageBox } = useMessage();
+const { messageBox } = useDialog();
 
 const dictCode = ref<string>("");
 const pageTitle = ref<string>("字典数据");

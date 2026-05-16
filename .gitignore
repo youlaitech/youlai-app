@@ -24,3 +24,10 @@ dist
 launch.json
 .hbuilderx
 pnpm-lock.yaml
+
+
+.claude/
+.cursor/
+.windsurf/
+.agents/
+skills-lock.json

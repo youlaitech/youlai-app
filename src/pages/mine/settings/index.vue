@@ -35,11 +35,11 @@
 <script lang="ts" setup>
 import { useUserStore } from "@/store";
 import { onLoad } from "@dcloudio/uni-app";
-import { useToast, useMessage } from "wot-design-uni";
+import { useToast, useDialog } from "@wot-ui/ui";
 
 const userStore = useUserStore();
 const toast = useToast();
-const { messageBox } = useMessage();
+const { messageBox } = useDialog();
 const isLogin = computed(() => !!userStore.userInfo);
 
 // 主题设置

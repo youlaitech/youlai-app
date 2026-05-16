@@ -8,7 +8,31 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import Components from "@uni-helper/vite-plugin-uni-components";
-import { WotResolver } from "@uni-helper/vite-plugin-uni-components/resolvers";
+import type { ComponentResolver } from "@uni-helper/vite-plugin-uni-components";
+import { kebabCase } from "@uni-helper/vite-plugin-uni-components";
+
+/**
+ * 自定义 Wot UI v2 组件解析器
+ * 
+ * 由于 @wot-ui/ui v2 的包名和路径发生了变化，需要自定义 resolver
+ * 官方迁移文档: https://wot-ui.cn/guide/migration-v2.html#vite-插件自动导入
+ * 
+ * @returns ComponentResolver
+ */
+function WotUIResolver(): ComponentResolver {
+  return {
+    type: "component",
+    resolve: (name: string) => {
+      if (name.match(/^Wd[A-Z]/)) {
+        const compName = kebabCase(name);
+        return {
+          name,
+          from: `@wot-ui/ui/components/${compName}/${compName}.vue`,
+        };
+      }
+    },
+  };
+}
 
 export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => {
   const UnoCss = await import("unocss/vite").then((i) => i.default);
@@ -47,7 +71,7 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
         }
       : undefined,
     optimizeDeps: {
-      include: ["wot-design-uni"],
+      include: ["@wot-ui/ui"],
       exclude: ["vue-demi"],
     },
     plugins: [
@@ -64,7 +88,7 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
         exclude: ["**/components/**/*.*"],
       }),
       Components({
-        resolvers: [WotResolver()],
+        resolvers: [WotUIResolver()],
         dirs: ["src/components"],
       }),
 
@@ -78,8 +102,8 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
             imports: ["createRouter", "useRouter", "useRoute"],
           },
           {
-            from: "wot-design-uni",
-            imports: ["useToast", "useMessage", "useNotify", "CommonUtil"],
+            from: "@wot-ui/ui",
+            imports: ["useToast", "useDialog", "useNotify", "CommonUtil"],
           },
         ],
         dts: "src/types/auto-imports.d.ts", // 自动生成的类型声明文件

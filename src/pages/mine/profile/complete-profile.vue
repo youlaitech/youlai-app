@@ -126,7 +126,7 @@ import UserAPI, { type UserProfileForm } from "@/api/user";
 import FileAPI, { type FileInfo } from "@/api/file";
 
 const toast = useToast();
-const { messageBox } = useMessage();
+const { messageBox } = useDialog();
 const userStore = useUserStore();
 
 const redirect = ref("/pages/index/index");

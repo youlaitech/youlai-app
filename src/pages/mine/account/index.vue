@@ -162,7 +162,7 @@
 </template>
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "vue";
-import { useToast, useMessage } from "wot-design-uni";
+import { useToast, useDialog } from "@wot-ui/ui";
 import { useCountdown } from "@/composables/useCountdown";
 import UserAPI, {
   PasswordChangeForm,
@@ -172,7 +172,7 @@ import UserAPI, {
 } from "@/api/user";
 
 const toast = useToast();
-const { messageBox } = useMessage();
+const { messageBox } = useDialog();
 
 const validatorConfirmPassword = (value: string) => {
   if (!value) {

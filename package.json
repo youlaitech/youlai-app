@@ -92,9 +92,10 @@
     "@dcloudio/uni-quickapp-webview": "3.0.0-4020420240722002",
     "@uni-helper/uni-use": "^0.19.15",
     "@vueuse/core": "9.13.0",
+    "dayjs": "^1.11.13",
     "pinia": "^2.3.1",
     "vue": "^3.5.22",
-    "wot-design-uni": "^1.14.0"
+    "@wot-ui/ui": "2.0.8"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
@@ -108,7 +109,7 @@
     "@uni-helper/uni-types": "1.0.0-alpha.6",
     "@uni-helper/vite-plugin-uni-components": "^0.2.3",
     "@uni-helper/vite-plugin-uni-layouts": "^0.1.11",
-    "@uni-helper/vite-plugin-uni-pages": "^0.2.29",
+    "@uni-helper/vite-plugin-uni-pages": "^0.3.24",
     "@vue/runtime-core": "^3.5.22",
     "commitizen": "^4.3.1",
     "cz-git": "^1.12.0",

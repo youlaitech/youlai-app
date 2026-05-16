@@ -6,7 +6,7 @@
 // biome-ignore lint: disable
 export {}
 declare global {
-  const CommonUtil: typeof import('wot-design-uni')['CommonUtil']
+  const CommonUtil: typeof import('@wot-ui/ui')['CommonUtil']
   const EffectScope: typeof import('vue')['EffectScope']
   const PERM_ALL: typeof import('../utils/permission')['PERM_ALL']
   const ROLE_ROOT: typeof import('../utils/permission')['ROLE_ROOT']
@@ -157,6 +157,7 @@ declare global {
   const useCountdown: typeof import('../composables/useCountdown')['useCountdown']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
+  const useDialog: typeof import('@wot-ui/ui')['useDialog']
   const useDownloadFile: typeof import('@uni-helper/uni-use')['useDownloadFile']
   const useGlobalData: typeof import('@uni-helper/uni-use')['useGlobalData']
   const useId: typeof import('vue')['useId']
@@ -170,7 +171,7 @@ declare global {
   const useNavbar: typeof import('../composables/useNavbar')['useNavbar']
   const useNavigation: typeof import('../composables/useNavigation')['useNavigation']
   const useNetwork: typeof import('@uni-helper/uni-use')['useNetwork']
-  const useNotify: typeof import('wot-design-uni')['useNotify']
+  const useNotify: typeof import('@wot-ui/ui')['useNotify']
   const useOnline: typeof import('@uni-helper/uni-use')['useOnline']
   const usePage: typeof import('@uni-helper/uni-use')['usePage']
   const usePageLayout: typeof import('../composables/useNavbar')['usePageLayout']
@@ -198,7 +199,7 @@ declare global {
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const useTheme: typeof import('../composables/useTheme')['useTheme']
   const useThemeStore: typeof import('../store/modules/theme')['useThemeStore']
-  const useToast: typeof import('wot-design-uni')['useToast']
+  const useToast: typeof import('@wot-ui/ui')['useToast']
   const useUploadFile: typeof import('@uni-helper/uni-use')['useUploadFile']
   const useUserStore: typeof import('../store/modules/user')['useUserStore']
   const useVisible: typeof import('@uni-helper/uni-use')['useVisible']
@@ -226,7 +227,7 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
-    readonly CommonUtil: UnwrapRef<typeof import('wot-design-uni')['CommonUtil']>
+    readonly CommonUtil: UnwrapRef<typeof import('@wot-ui/ui')['CommonUtil']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly RequestError: UnwrapRef<typeof import('../utils/request')['RequestError']>
     readonly SseConnectionState: UnwrapRef<typeof import('../composables/useSse')['SseConnectionState']>
@@ -346,13 +347,13 @@ declare module 'vue' {
     readonly useCountdown: UnwrapRef<typeof import('../composables/useCountdown')['useCountdown']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
+    readonly useDialog: UnwrapRef<typeof import('@wot-ui/ui')['useDialog']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useLoading: UnwrapRef<typeof import('../composables/useLoading')['useLoading']>
-    readonly useMessage: UnwrapRef<typeof import('wot-design-uni')['useMessage']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useNavbar: UnwrapRef<typeof import('../composables/useNavbar')['useNavbar']>
     readonly useNavigation: UnwrapRef<typeof import('../composables/useNavigation')['useNavigation']>
-    readonly useNotify: UnwrapRef<typeof import('wot-design-uni')['useNotify']>
+    readonly useNotify: UnwrapRef<typeof import('@wot-ui/ui')['useNotify']>
     readonly usePagination: UnwrapRef<typeof import('../composables/useRequest')['usePagination']>
     readonly useRequest: UnwrapRef<typeof import('../composables/useRequest')['useRequest']>
     readonly useRoute: UnwrapRef<typeof import('uni-mini-router')['useRoute']>
@@ -363,7 +364,7 @@ declare module 'vue' {
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../composables/useTheme')['useTheme']>
     readonly useThemeStore: UnwrapRef<typeof import('../store/modules/theme')['useThemeStore']>
-    readonly useToast: UnwrapRef<typeof import('wot-design-uni')['useToast']>
+    readonly useToast: UnwrapRef<typeof import('@wot-ui/ui')['useToast']>
     readonly useUserStore: UnwrapRef<typeof import('../store/modules/user')['useUserStore']>
     readonly user: UnwrapRef<typeof import('../api/user')['default']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>

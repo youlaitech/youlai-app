@@ -104,13 +104,13 @@
 
 <script lang="ts" setup>
 import { useTheme } from "@/composables/useTheme";
-import { useToast, useMessage } from "wot-design-uni";
+import { useToast, useDialog } from "@wot-ui/ui";
 
 // 使用主题组合函数
 const { isDark, themeVars, themeColorOptions, toggleTheme, setThemeColor } = useTheme();
 
 const toast = useToast();
-const { messageBox } = useMessage();
+const { messageBox } = useDialog();
 
 // 创建响应式的计算属性
 const isDarkMode = computed(() => isDark.value);

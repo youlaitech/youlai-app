@@ -236,7 +236,7 @@
     </wd-popup>
 
     <!-- 协议确认弹窗 -->
-    <wd-message-box selector="policy-box" root-portal>
+    <wd-dialog selector="policy-box" root-portal>
       <view class="policy-dialog__content">
         请阅读并同意有来技术
         <text class="policy-dialog__link" @click.stop="navigateToAgreement('user')">
@@ -246,7 +246,7 @@
           《隐私政策》
         </text>
       </view>
-    </wd-message-box>
+    </wd-dialog>
 
     <wd-toast />
   </view>
@@ -261,13 +261,13 @@
 
 <script lang="ts" setup>
 import { onLoad, onShow } from "@dcloudio/uni-app";
-import { useToast, useMessage } from "wot-design-uni";
+import { useToast, useDialog } from "@wot-ui/ui";
 import { useUserStore } from "@/store/modules/user";
 import { useCountdown } from "@/composables/useCountdown";
 import AuthAPI from "@/api/auth";
 
 const toast = useToast();
-const message = useMessage("policy-box");
+const dialog = useDialog("policy-box");
 const userStore = useUserStore();
 
 // 导航栏尺寸

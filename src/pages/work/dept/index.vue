@@ -29,7 +29,7 @@
         </template>
       </CustomTree>
 
-      <wd-status-tip v-if="deptList.length === 0" image="search" tip="暂无数据" />
+      <wd-empty v-if="deptList.length === 0" icon="search" tip="暂无数据" />
     </view>
 
     <!-- 弹窗表单 -->
@@ -45,7 +45,7 @@
         </view>
         <wd-form ref="formRef" :model="formData" :rules="rules">
           <wd-cell-group border>
-            <wd-col-picker
+            <wd-cascader
               v-model="parentSelected"
               label="上级部门"
               :columns="parentColumns"
@@ -86,14 +86,14 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useToast, useMessage } from "wot-design-uni";
+import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { useToast, useDialog } from "@wot-ui/ui";
 import DeptAPI, { type DeptQuery, DeptItem, DeptForm } from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
 import CustomTree from "@/components/custom-tree/index.vue";
 
 const toast = useToast();
-const { messageBox } = useMessage();
+const { messageBox } = useDialog();
 const formRef = ref();
 const isSubmitting = ref(false);
 

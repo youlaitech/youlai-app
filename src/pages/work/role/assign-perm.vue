@@ -64,7 +64,7 @@
         </template>
       </custom-tree>
 
-      <wd-status-tip v-if="menuTree.length === 0" image="search" tip="暂无菜单数据" />
+      <wd-empty v-if="menuTree.length === 0" icon="search" tip="暂无菜单数据" />
     </scroll-view>
 
     <!-- 固定底部操作栏 -->
@@ -77,7 +77,7 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { useToast } from "wot-design-uni";
+import { useToast } from "@wot-ui/ui";
 import MenuAPI, { type MenuItem } from "@/api/menu";
 import RoleAPI from "@/api/role";
 import CustomTree from "@/components/custom-tree/index.vue";

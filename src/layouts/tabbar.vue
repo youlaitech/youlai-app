@@ -19,7 +19,7 @@
     </wd-tabbar>
     <wd-notify />
     <wd-toast />
-    <wd-message-box />
+    <wd-dialog />
   </wd-config-provider>
 </template>
 

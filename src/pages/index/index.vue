@@ -90,7 +90,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { onReady, onShow } from "@dcloudio/uni-app";
-import { dayjs } from "wot-design-uni";
+import dayjs from "dayjs";
 import { useRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
 import { useNavigation } from "@/composables/useNavigation";

@@ -21,6 +21,6 @@ export default {
     <slot />
     <wd-notify />
     <wd-toast />
-    <wd-message-box />
+    <wd-dialog />
   </wd-config-provider>
 </template>

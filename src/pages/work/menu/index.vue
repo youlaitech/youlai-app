@@ -37,7 +37,7 @@
         </template>
       </custom-tree>
 
-      <wd-status-tip v-if="menuList.length === 0" image="search" tip="暂无数据" />
+      <wd-empty v-if="menuList.length === 0" icon="search" tip="暂无数据" />
     </view>
 
     <!-- 弹窗表单 -->
@@ -54,7 +54,7 @@
         <scroll-view scroll-y class="max-h-60vh">
           <wd-form ref="formRef" :model="formData" :rules="rules">
             <wd-cell-group border>
-              <wd-col-picker
+              <wd-cascader
                 v-model="parentSelected"
                 label="上级菜单"
                 :columns="parentColumns"
@@ -121,14 +121,14 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { FormRules } from "wot-design-uni/components/wd-form/types";
-import { useToast, useMessage } from "wot-design-uni";
+import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { useToast, useDialog } from "@wot-ui/ui";
 import MenuAPI, { type MenuQuery, MenuItem, MenuForm } from "@/api/menu";
 import { hasPermission } from "@/utils/permission";
 import CustomTree from "@/components/custom-tree/index.vue";
 
 const toast = useToast();
-const { messageBox } = useMessage();
+const { messageBox } = useDialog();
 const formRef = ref();
 const isSubmitting = ref(false);
 
