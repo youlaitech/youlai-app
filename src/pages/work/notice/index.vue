@@ -90,7 +90,7 @@
           <rich-text :nodes="noticeDetail.content" class="text-28rpx" />
         </view>
         <view class="popup-actions">
-          <wd-button type="info" plain block @click="closeNoticeDetail">关闭</wd-button>
+          <wd-button type="info" variant="plain" block @click="closeNoticeDetail">关闭</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -110,14 +110,14 @@
           <wd-cell-group border>
             <wd-input v-model="formData.title" label="标题" required placeholder="请输入通知标题" />
             <wd-cell title="优先级">
-              <wd-radio-group v-model="formData.level" shape="button">
+              <wd-radio-group v-model="formData.level" type="button">
                 <wd-radio value="L">低</wd-radio>
                 <wd-radio value="M">中</wd-radio>
                 <wd-radio value="H">高</wd-radio>
               </wd-radio-group>
             </wd-cell>
             <wd-cell title="目标类型">
-              <wd-radio-group v-model="formData.targetType" shape="button">
+              <wd-radio-group v-model="formData.targetType" type="button">
                 <wd-radio :value="1">全体</wd-radio>
                 <wd-radio :value="2">指定用户</wd-radio>
               </wd-radio-group>
@@ -132,7 +132,7 @@
           </wd-cell-group>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" plain @click="closeNoticeForm">取消</wd-button>
+          <wd-button type="info" variant="plain" @click="closeNoticeForm">取消</wd-button>
           <wd-button type="primary" :loading="isSubmitting" @click="submitNoticeForm">
             保存
           </wd-button>

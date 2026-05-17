@@ -9,8 +9,8 @@
 
       <view class="action-bar">
         <view class="action-bar__left">
-          <wd-button size="small" plain @click="handleSelectAll">全选</wd-button>
-          <wd-button size="small" plain @click="handleClearAll">取消全选</wd-button>
+          <wd-button size="small" variant="plain" @click="handleSelectAll">全选</wd-button>
+          <wd-button size="small" variant="plain" @click="handleClearAll">取消全选</wd-button>
         </view>
       </view>
     </view>
@@ -69,7 +69,7 @@
 
     <!-- 固定底部操作栏 -->
     <view class="bottom-bar">
-      <wd-button type="info" plain @click="handleCancel">取消</wd-button>
+      <wd-button type="info" variant="plain" @click="handleCancel">取消</wd-button>
       <wd-button type="primary" :loading="isSubmitting" @click="handleSubmit">保存</wd-button>
     </view>
   </view>

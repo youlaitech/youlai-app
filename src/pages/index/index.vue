@@ -13,7 +13,7 @@
           v-for="(item, index) in quickNavList"
           :key="index"
           use-slot
-          @itemclick="handleNavClickWithGuard(item)"
+          @click="handleNavClickWithGuard(item)"
         >
           <view class="nav-item">
             <image class="nav-item__icon" :src="item.icon" mode="aspectFit" />
@@ -27,7 +27,7 @@
     <view class="m-24rpx">
       <view class="notice-bar" @click="handleNoticeClick">
         <view class="notice-bar__icon">
-          <wd-icon name="check-outline" size="32rpx" color="var(--color-success)" />
+          <wd-icon name="check" size="32rpx" color="var(--color-success)" />
         </view>
         <view class="notice-bar__content">
           <text class="notice-bar__text">{{ noticeText || "暂无通知公告" }}</text>
@@ -62,20 +62,27 @@
     </view>
 
     <!-- 访问趋势图表 -->
-    <view class="mt-24rpx">
+    <view class="m-24rpx">
       <wd-card custom-class="chart-card">
         <template #title>
-          <view class="flex-between">
-            <text class="text-28rpx font-semibold">访问趋势</text>
-            <wd-radio-group
-              v-model="recentDaysRange"
-              shape="button"
-              inline
-              @change="handleDataRangeChange"
-            >
-              <wd-radio :value="7">近7天</wd-radio>
-              <wd-radio :value="15">近15天</wd-radio>
-            </wd-radio-group>
+          <view class="chart-header">
+            <text class="chart-header__title">访问趋势</text>
+            <view class="segment-control">
+              <view
+                class="segment-control__item"
+                :class="{ 'is-active': recentDaysRange === 7 }"
+                @click="switchRange(7)"
+              >
+                近7天
+              </view>
+              <view
+                class="segment-control__item"
+                :class="{ 'is-active': recentDaysRange === 15 }"
+                @click="switchRange(15)"
+              >
+                近15天
+              </view>
+            </view>
           </view>
         </template>
 
@@ -238,8 +245,8 @@ async function loadVisitTrendData() {
       JSON.stringify({
         categories: (data.dates || []).map((d) => dayjs(d).format("MM-DD")),
         series: [
-          { name: "访客数(UV)", data: data.uvList || [] },
-          { name: "浏览量(PV)", data: data.pvList || [] },
+          { name: "访客数", data: data.uvList || [] },
+          { name: "浏览量", data: data.pvList || [] },
         ],
       })
     );
@@ -260,7 +267,8 @@ function handleNoticeClick() {
   router.push({ path: "/pages/work/notice/index" });
 }
 
-function handleDataRangeChange({ value }: { value: number }) {
+function switchRange(value: number) {
+  if (recentDaysRange.value === value) return;
   recentDaysRange.value = value;
   loadVisitTrendData();
 }
@@ -307,6 +315,42 @@ onShow(() => {
 :deep(.swiper-box .wd-swiper__item),
 :deep(.swiper-box image) {
   height: 420rpx;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+
+.chart-header__title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.segment-control {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx;
+  background: var(--color-bg-tertiary);
+  border: 1rpx solid var(--color-border);
+  border-radius: 12rpx;
+}
+
+.segment-control__item {
+  padding: 8rpx 20rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  border-radius: 8rpx;
+  transition: all 0.2s ease;
+}
+
+.segment-control__item.is-active {
+  color: var(--color-text-inverse);
+  background: var(--color-primary);
 }
 
 .section--overlay {

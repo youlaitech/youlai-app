@@ -60,22 +60,11 @@ export const menuConfig: WorkMenuGroup[] = [
         url: "/pages/work/notice/index",
         perm: "sys:notice:list",
       },
-    ],
-  },
-  {
-    title: "系统监控",
-    children: [
       {
         icon: "/static/icons/log.svg",
         title: "系统日志",
         url: "/pages/work/log/index",
         perm: "sys:log:list",
-      },
-      {
-        icon: "/static/icons/dashboard.svg",
-        title: "应用监控",
-        url: "https://www.baidu.com",
-        perm: "",
       },
     ],
   },

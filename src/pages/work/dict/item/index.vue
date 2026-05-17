@@ -76,7 +76,7 @@
           </wd-cell-group>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" plain @click="closeItemDialog">取消</wd-button>
+          <wd-button type="info" variant="plain" @click="closeItemDialog">取消</wd-button>
           <wd-button type="primary" :loading="isSubmitting" @click="submitItemForm">保存</wd-button>
         </view>
       </view>

@@ -1,27 +1,32 @@
 <template>
-  <view class="page">
-    <wd-cell-group>
-      <wd-cell title="主题设置" icon="setting1" is-link @click="navigateToTheme" />
-      <wd-cell title="用户协议" icon="user" is-link @click="navigateToUserAgreement" />
-      <wd-cell title="关于我们" icon="info-circle" is-link @click="navigateToAbout" />
-    </wd-cell-group>
-
-    <wd-cell-group custom-style="margin-top:40rpx">
-      <wd-cell title="网络测试" icon="wifi" is-link @click="navigateToNetworkTest" />
-      <wd-cell
-        title="清空缓存"
-        icon="delete1"
-        :value="cacheSize"
-        clickable
-        @click="handleClearCache"
-      />
-    </wd-cell-group>
-
-    <view v-if="isLogin" class="logout-section">
-      <wd-button custom-class="logout-btn" plain @click="handleLogout">退出登录</wd-button>
+  <view class="page settings-page">
+    <view class="settings-group-wrap">
+      <wd-cell-group>
+        <wd-cell title="主题设置" icon="settings" is-link @click="navigateToTheme" />
+        <wd-cell title="用户协议" icon="user" is-link @click="navigateToUserAgreement" />
+        <wd-cell title="关于我们" icon="info-circle" is-link @click="navigateToAbout" />
+      </wd-cell-group>
     </view>
 
-    <!-- 使用wot-design-uni的Loading组件 -->
+    <view class="settings-group-wrap">
+      <wd-cell-group custom-style="margin-top:24rpx">
+        <wd-cell title="网络测试" icon="wifi" is-link @click="navigateToNetworkTest" />
+        <wd-cell
+          title="清空缓存"
+          icon="delete"
+          :value="cacheSize"
+          clickable
+          @click="handleClearCache"
+        />
+      </wd-cell-group>
+    </view>
+
+    <view v-if="isLogin" class="logout-section">
+      <wd-button type="danger" block custom-class="logout-btn" @click="handleLogout">
+        退出登录
+      </wd-button>
+    </view>
+
     <wd-loading
       v-if="isClearing"
       v-model="isClearing"
@@ -35,11 +40,10 @@
 <script lang="ts" setup>
 import { useUserStore } from "@/store";
 import { onLoad } from "@dcloudio/uni-app";
-import { useToast, useDialog } from "@wot-ui/ui";
+import { useToast } from "@wot-ui/ui";
 
 const userStore = useUserStore();
 const toast = useToast();
-const { messageBox } = useDialog();
 const isLogin = computed(() => !!userStore.userInfo);
 
 // 主题设置
@@ -149,14 +153,21 @@ const handleClearCache = async () => {
 };
 
 // 退出登录
-const handleLogout = async () => {
-  try {
-    await messageBox({ title: "提示", msg: "确定要退出登录吗？", type: "warning" });
-    userStore.logout();
-    toast.success("已退出登录");
-  } catch {
-    // 用户取消
-  }
+const handleLogout = () => {
+  uni.showModal({
+    title: "提示",
+    content: "确定要退出登录吗？",
+    confirmColor: "#ff4757",
+    success: (res) => {
+      if (res.confirm) {
+        userStore.logout();
+        toast.success("已退出登录");
+        setTimeout(() => {
+          uni.reLaunch({ url: "/pages/mine/index" });
+        }, 800);
+      }
+    },
+  });
 };
 
 // 检查登录状态
@@ -182,17 +193,27 @@ onLoad(() => {
   margin-top: 60rpx;
 }
 
-:deep(.logout-btn) {
-  width: 80%;
-  height: 80rpx;
-  font-size: 32rpx;
-  font-weight: bold;
-  border-radius: 40rpx;
+.settings-page {
+  padding: 24rpx;
+}
 
-  &:active {
-    opacity: 0.8;
-    transform: scale(0.98);
-  }
+.settings-group-wrap {
+  margin-bottom: 24rpx;
+}
+
+.logout-section {
+  margin-top: 48rpx;
+}
+
+:deep(.wd-cell:active) {
+  background-color: var(--color-bg-tertiary) !important;
+}
+
+:deep(.logout-btn) {
+  height: 88rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 24rpx;
 }
 
 .loading-center {

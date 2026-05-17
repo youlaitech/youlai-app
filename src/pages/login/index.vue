@@ -37,7 +37,7 @@
         <view v-if="loginMode !== 'WECHAT'" class="login__form">
           <!-- 用户名/手机号 -->
           <view class="login__form-item login__field">
-            <wd-icon name="person" size="20" color="var(--color-text-placeholder)" />
+            <wd-icon name="user" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.username"
               class="login__field-input"
@@ -61,7 +61,7 @@
 
           <!-- 图形验证码（密码登录时显示） -->
           <view v-if="loginMode === 'PASSWORD'" class="login__form-item login__field">
-            <wd-icon name="shield" size="20" color="var(--color-text-placeholder)" />
+            <wd-icon name="code-square" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.captchaCode"
               class="login__field-input"
@@ -80,7 +80,7 @@
 
           <!-- 短信验证码 -->
           <view v-else class="login__form-item login__field">
-            <wd-icon name="shield" size="20" color="var(--color-text-placeholder)" />
+            <wd-icon name="lock" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="formData.code"
               class="login__field-input"
@@ -163,7 +163,7 @@
 
         <!-- 协议勾选 -->
         <view class="login__policy">
-          <wd-checkbox v-model="isAgreePolicy" shape="square" size="32rpx">
+          <wd-checkbox v-model="isAgreePolicy" type="square" size="32rpx">
             <text class="login__policy-text">
               我已阅读并同意
               <text class="login__policy-link" @click.stop="navigateToAgreement('user')">
@@ -204,7 +204,7 @@
           </view>
 
           <view class="login__field">
-            <wd-icon name="shield" size="20" color="var(--color-text-placeholder)" />
+            <wd-icon name="lock" size="20" color="var(--color-text-placeholder)" />
             <input
               v-model="bindMobileForm.code"
               class="login__field-input"
@@ -236,17 +236,7 @@
     </wd-popup>
 
     <!-- 协议确认弹窗 -->
-    <wd-dialog selector="policy-box" root-portal>
-      <view class="policy-dialog__content">
-        请阅读并同意有来技术
-        <text class="policy-dialog__link" @click.stop="navigateToAgreement('user')">
-          《用户协议》
-        </text>
-        <text class="policy-dialog__link" @click.stop="navigateToAgreement('privacy')">
-          《隐私政策》
-        </text>
-      </view>
-    </wd-dialog>
+    <wd-dialog selector="policy-box" root-portal />
 
     <wd-toast />
   </view>
@@ -367,8 +357,11 @@ const toggleLoginMode = () => {
 const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode = "") => {
   pendingLoginAction.value = action;
   pendingWechatPhoneCode.value = phoneCode;
-  message
-    .confirm({ title: "提示" })
+  dialog
+    .confirm({
+      title: "提示",
+      msg: "请阅读并同意《用户协议》与《隐私政策》",
+    })
     .then(async () => {
       isAgreePolicy.value = true;
       const act = pendingLoginAction.value;
@@ -386,12 +379,7 @@ const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode = "") => {
 
 // 表单登录
 async function doFormLogin() {
-  if (!canSubmit.value) {
-    toast.error(
-      loginMode.value === "PASSWORD" ? "请输入用户名和密码" : "请输入正确的手机号和验证码"
-    );
-    return;
-  }
+  if (isLoading.value) return;
   if (isLoading.value) return;
   isLoading.value = true;
   try {
@@ -420,6 +408,14 @@ async function doFormLogin() {
 }
 
 const handleLogin = async () => {
+  // 先校验表单必填项
+  if (!canSubmit.value) {
+    toast.error(
+      loginMode.value === "PASSWORD" ? "请输入用户名和密码" : "请输入正确的手机号和验证码"
+    );
+    return;
+  }
+  // 再校验隐私协议
   if (!isAgreePolicy.value) {
     openPolicyDialog("FORM");
     return;
@@ -890,17 +886,6 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 }
 
 .login__policy-link {
-  color: var(--color-primary);
-}
-
-.policy-dialog__content {
-  font-size: 26rpx;
-  line-height: 1.625;
-  color: var(--color-text-secondary);
-  text-align: center;
-}
-
-.policy-dialog__link {
   color: var(--color-primary);
 }
 

@@ -17,7 +17,7 @@ export default {
 </script>
 
 <template>
-  <wd-config-provider :theme-vars="themeVars" :custom-class="theme" :theme="theme">
+  <wd-config-provider :theme-vars="themeVars" :custom-class="theme === 'dark' ? 'dark' : ''" :theme="theme === 'dark' ? 'dark' : ''">
     <slot />
     <wd-notify />
     <wd-toast />

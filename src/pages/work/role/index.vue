@@ -89,7 +89,7 @@
           </wd-cell-group>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" plain @click="closeRoleDialog">取消</wd-button>
+          <wd-button type="info" variant="plain" @click="closeRoleDialog">取消</wd-button>
           <wd-button type="primary" :loading="isSubmitting" @click="submitRoleForm">保存</wd-button>
         </view>
       </view>

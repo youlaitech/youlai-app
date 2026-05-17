@@ -61,7 +61,7 @@
             :rules="rules.nickname"
           />
           <wd-cell title="性别" title-width="160rpx" center prop="gender" :rules="rules.gender">
-            <wd-radio-group v-model="userProfileForm.gender" shape="button" class="ef-radio-group">
+            <wd-radio-group v-model="userProfileForm.gender" type="button" class="ef-radio-group">
               <wd-radio :value="1">男</wd-radio>
               <wd-radio :value="2">女</wd-radio>
             </wd-radio-group>

@@ -26,8 +26,10 @@ export const useThemeStore = defineStore("theme", () => {
     Storage.get<ThemeColorOption>(THEME_COLOR_KEY, themeColorOptions[0])
   );
 
-  /** 主题变量（响应式对象） */
-  const themeVars = reactive({
+  /**
+   * 深色主题变量（仅在 dark 模式下注入）
+   */
+  const darkThemeVars = {
     darkBackground: "#1f2937",
     darkBackground2: "#111827",
     darkBackground3: "#1e293b",
@@ -38,7 +40,45 @@ export const useThemeStore = defineStore("theme", () => {
     darkColor: "#f9fafb",
     darkColor2: "#9ca3af",
     darkColor3: "#6b7280",
-    colorTheme: currentThemeColor.value.primary,
+    filledOppo: "#1f2937",
+    cardBg: "#1f2937",
+    cardBorderColor: "#374151",
+    cardTitleColor: "#f9fafb",
+    cardContentColor: "#9ca3af",
+    gridItemBg: "#1f2937",
+    gridItemTextColor: "#f9fafb",
+    gridItemIconColor: "#9ca3af",
+    cellBg: "#1f2937",
+    popupBg: "#1f2937",
+    searchBg: "#1f2937",
+    searchInputBg: "#374151",
+    inputBg: "#374151",
+    textareaBg: "#374151",
+    pickerBg: "#1f2937",
+    dialogBg: "#1f2937",
+    actionSheetBg: "#1f2937",
+    tabsNavBg: "#1f2937",
+    tabbarBg: "#1f2937",
+    navbarBg: "#1f2937",
+    buttonNormalBg: "#374151",
+    borderMain: "#374151",
+    borderLight: "#4b5563",
+    textMain: "#f9fafb",
+    textSecondary: "#9ca3af",
+    textPlaceholder: "#6b7280",
+    iconMain: "#f9fafb",
+    iconSecondary: "#9ca3af",
+    baseBlack: "#1f2937",
+    baseWhite: "#f9fafb",
+  };
+
+  /** 主题变量（计算属性，根据模式动态切换） */
+  const themeVars = computed(() => {
+    const base = { colorTheme: currentThemeColor.value.primary };
+    if (theme.value === "dark") {
+      return { ...base, ...darkThemeVars };
+    }
+    return base;
   });
 
   // ==========================================================================
@@ -47,6 +87,27 @@ export const useThemeStore = defineStore("theme", () => {
 
   /** 是否为暗黑模式 */
   const isDark = computed(() => theme.value === "dark");
+
+  /**
+   * 将 themeVars 转换为 CSS 变量内联样式字符串
+   * light 模式下只注入主题色，避免覆盖 Wot UI 默认亮色样式
+   * dark 模式下注入完整的深色变量覆盖
+   */
+  const kebabCase = (str: string) =>
+    str
+      .replace(/^./, (s) => s.toLowerCase())
+      .replace(/([a-z])([A-Z])/g, "$1-$2")
+      .replace(/(\d)/g, "-$1")
+      .toLowerCase();
+
+  const themeCSSVars = computed(() => {
+    if (theme.value === "light") {
+      return `--wot-color-theme:${themeVars.value.colorTheme};`;
+    }
+    return Object.entries(themeVars.value)
+      .map(([key, val]) => `--wot-${kebabCase(key)}:${val}`)
+      .join(";");
+  });
 
   // ==========================================================================
   // 方法
@@ -79,17 +140,12 @@ export const useThemeStore = defineStore("theme", () => {
   const setCurrentThemeColor = (color: ThemeColorOption) => {
     currentThemeColor.value = color;
     Storage.set(THEME_COLOR_KEY, color);
-    themeVars.colorTheme = color.primary;
   };
 
   /**
    * 初始化主题
    */
   const initTheme = () => {
-    // 更新主题变量中的颜色
-    themeVars.colorTheme = currentThemeColor.value.primary;
-
-    // 设置导航栏颜色
     nextTick(() => {
       setNavigationBarColor();
     });
@@ -107,6 +163,7 @@ export const useThemeStore = defineStore("theme", () => {
 
     // 计算属性
     isDark,
+    themeCSSVars,
 
     // 方法
     toggleTheme,

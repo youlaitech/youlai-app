@@ -12,7 +12,7 @@
       <!-- 预设颜色选择 -->
       <wd-cell title="预设主题色">
         <template #default>
-          <view class="flex gap-16rpx">
+          <view class="flex flex-wrap gap-12rpx">
             <view
               v-for="(color, index) in themeColorOptions"
               :key="index"
@@ -54,7 +54,7 @@
     <wd-cell-group title="效果预览" border custom-class="mt-24rpx">
       <wd-cell>
         <template #default>
-          <view class="flex gap-24rpx py-12rpx">
+          <view class="flex items-center justify-center gap-24rpx py-12rpx">
             <wd-button type="primary" size="small">主要按钮</wd-button>
             <text class="text-28rpx font-500" :style="{ color: currentThemeColor }">
               主题色文本
@@ -67,7 +67,9 @@
 
     <!-- 操作按钮 -->
     <view class="mt-32rpx">
-      <wd-button type="info" size="large" block @click="handleResetTheme">重置为默认主题</wd-button>
+      <wd-button type="primary" plain size="large" block @click="handleResetTheme">
+        重置为默认主题
+      </wd-button>
     </view>
 
     <!-- 自定义颜色输入弹窗 -->
@@ -88,7 +90,12 @@
           <text class="text-28rpx color-text-secondary">请输入十六进制颜色值</text>
           <view class="flex items-center gap-16rpx mt-16rpx">
             <view class="color-dot-lg" :style="{ backgroundColor: customColor || '#FF4757' }" />
-            <wd-input v-model="customColor" placeholder="例如: #FF4757" :maxlength="7" />
+            <wd-input
+              v-model="customColor"
+              placeholder="例如: #FF4757"
+              :maxlength="7"
+              custom-class="theme-input"
+            />
           </view>
           <text class="text-24rpx color-text-placeholder mt-12rpx">支持格式：#RGB 或 #RRGGBB</text>
         </view>
@@ -279,5 +286,10 @@ onShow(() => {
   gap: 24rpx;
   padding: 24rpx 32rpx;
   border-top: 1rpx solid var(--color-border);
+}
+
+:deep(.theme-input) {
+  background-color: var(--color-bg-secondary) !important;
+  color: var(--color-text) !important;
 }
 </style>

@@ -33,7 +33,7 @@
               />
               <cu-date-query v-model="queryParams.createTime" label="创建时间" />
               <view class="popup-actions">
-                <wd-button type="info" plain @click="resetUserFilter">重置</wd-button>
+                <wd-button type="info" variant="plain" @click="resetUserFilter">重置</wd-button>
                 <wd-button type="primary" @click="applyUserFilter">查询</wd-button>
               </view>
             </view>
@@ -148,7 +148,7 @@
           </wd-cell-group>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" plain @click="closeUserDialog">取消</wd-button>
+          <wd-button type="info" variant="plain" @click="closeUserDialog">取消</wd-button>
           <wd-button type="primary" :loading="isSubmitting" @click="submitUserForm">保存</wd-button>
         </view>
       </view>
@@ -184,7 +184,7 @@
           </wd-cell-group>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" plain @click="resetPwdDialog.visible = false">取消</wd-button>
+          <wd-button type="info" variant="plain" @click="resetPwdDialog.visible = false">取消</wd-button>
           <wd-button
             type="primary"
             :loading="resetPwdDialog.isSubmitting"

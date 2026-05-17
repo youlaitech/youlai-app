@@ -24,7 +24,7 @@
             :model-value="isChecked(item.value)"
             :indeterminate="isIndeterminate(item.value)"
             :disabled="item.disabled"
-            shape="square"
+            type="square"
           />
         </view>
 

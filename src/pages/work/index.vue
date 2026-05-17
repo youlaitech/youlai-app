@@ -8,7 +8,7 @@
             v-for="(child, childIndex) in item.children"
             :key="childIndex"
             use-slot
-            @itemclick="handleNavClick(child)"
+            @click="handleNavClick(child)"
           >
             <view class="work-grid__icon p-2">
               <image class="w-72rpx h-72rpx rounded-8rpx" :src="child.icon" />

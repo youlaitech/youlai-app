@@ -65,7 +65,7 @@
               />
               <wd-input v-model="formData.name" label="菜单名称" required />
               <wd-cell title="菜单类型" required>
-                <wd-radio-group v-model="formData.type" size="smalll" shape="button" cell>
+                <wd-radio-group v-model="formData.type" size="small" type="button">
                   <wd-radio value="C">目录</wd-radio>
                   <wd-radio value="M">菜单</wd-radio>
                   <wd-radio value="B">按钮</wd-radio>
@@ -100,7 +100,7 @@
           </wd-form>
         </scroll-view>
         <view class="popup-actions">
-          <wd-button type="info" plain @click="closeMenuDialog">取消</wd-button>
+          <wd-button type="info" variant="plain" @click="closeMenuDialog">取消</wd-button>
           <wd-button type="primary" :loading="isSubmitting" @click="submitMenuForm">保存</wd-button>
         </view>
       </view>

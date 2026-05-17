@@ -33,7 +33,7 @@ export interface TabbarItem {
 /** 默认 TabBar 配置 */
 const DEFAULT_TABBAR_ITEMS: Omit<TabbarItem, "active">[] = [
   { name: "home", value: null, title: "首页", icon: "home" },
-  { name: "work", value: null, title: "工作台", icon: "laptop" },
+  { name: "work", value: null, title: "工作台", icon: "apps" },
   { name: "mine", value: null, title: "我的", icon: "user" },
 ];
 

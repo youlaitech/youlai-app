@@ -67,7 +67,7 @@
         <!-- 性别 -->
         <view class="profile-form__section">
           <view class="profile-form__label">性别</view>
-          <wd-radio-group v-model="profileForm.gender" shape="button" class="gender-group">
+          <wd-radio-group v-model="profileForm.gender" type="button" class="gender-group">
             <wd-radio :value="1" class="gender-radio">男</wd-radio>
             <wd-radio :value="2" class="gender-radio">女</wd-radio>
           </wd-radio-group>

@@ -27,9 +27,6 @@
                 lazy-load
               />
               <view v-if="isLogin" class="profile-card__online-dot" />
-              <view v-if="genderIconName" class="profile-card__gender" :class="genderIconClass">
-                <wd-icon :name="genderIconName" size="12" color="var(--color-text-inverse)" />
-              </view>
             </view>
 
             <view class="profile-card__main" @click="isLogin ? openProfile() : navigateToLogin()">
@@ -46,7 +43,7 @@
                 </view>
                 <view class="profile-tag">
                   <wd-icon
-                    :name="isLogin && deptNameText ? 'home' : 'secured'"
+                    :name="isLogin && deptNameText ? 'home' : 'safe'"
                     size="12"
                     color="var(--color-text-inverse)"
                   />
@@ -64,13 +61,6 @@
                 @click.stop="openNotifications"
               >
                 <wd-icon name="notification" size="16" color="var(--color-text-inverse)" />
-              </view>
-              <view
-                class="profile-card__action-btn"
-                aria-label="主题设置"
-                @click.stop="openThemeSettings"
-              >
-                <wd-icon name="setting1" size="16" color="var(--color-text-inverse)" />
               </view>
             </view>
 
@@ -101,7 +91,7 @@
             <text class="community-card__desc">开源更新、实战内容、交流群入口，统一在这里查看</text>
           </view>
           <view class="community-card__arrow">
-            <wd-icon name="arrow-right" size="16" color="var(--color-text-secondary)" />
+            <wd-icon name="right" size="16" color="var(--color-text-secondary)" />
           </view>
         </view>
 
@@ -117,7 +107,7 @@
           </view>
           <view class="quick-card" @click="openAccount">
             <view class="quick-card__icon quick-card__icon--success">
-              <wd-icon name="secured" size="28" color="var(--color-success-dark)" />
+              <wd-icon name="safe" size="28" color="var(--color-success)" />
             </view>
             <view class="quick-card__body">
               <text class="quick-card__title">账号安全</text>
@@ -134,24 +124,24 @@
         <view class="menu-list menu-list--flat">
           <view class="menu-row" @click="openNetworkTest">
             <view class="menu-row__icon menu-row__icon--warning">
-              <wd-icon name="server" size="18" color="var(--color-warning-dark)" />
+              <wd-icon name="tool" size="18" color="var(--color-primary)" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">网络检测</text>
               <text class="menu-row__desc">检测接口连通性</text>
             </view>
-            <wd-icon name="arrow-right" size="16" color="var(--color-text-placeholder)" />
+            <wd-icon name="right" size="16" color="var(--color-text-placeholder)" />
           </view>
           <view class="menu-row" @click="handleClearCache">
             <view class="menu-row__icon menu-row__icon--danger">
-              <wd-icon name="delete-thin" size="18" color="var(--color-danger-dark)" />
+              <wd-icon name="delete" size="18" color="var(--color-danger)" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">清理缓存</text>
               <text class="menu-row__desc">显示当前缓存大小</text>
             </view>
             <text class="menu-row__value">{{ cacheSize }}</text>
-            <wd-icon name="arrow-right" size="16" color="var(--color-text-placeholder)" />
+            <wd-icon name="right" size="16" color="var(--color-text-placeholder)" />
           </view>
         </view>
       </view>
@@ -161,34 +151,34 @@
         <view class="menu-list menu-list--flat">
           <view class="menu-row" @click="openSettings">
             <view class="menu-row__icon menu-row__icon--primary">
-              <wd-icon name="setting" size="18" :color="`rgba(77, 128, 240, 0.12)`" />
+              <wd-icon name="settings" size="18" color="var(--color-primary)" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">系统设置</text>
               <text class="menu-row__desc">主题、语言、通知等设置</text>
             </view>
-            <wd-icon name="arrow-right" size="16" color="var(--color-text-placeholder)" />
+            <wd-icon name="right" size="16" color="var(--color-text-placeholder)" />
           </view>
           <view class="menu-row" @click="openUserAgreement">
             <view class="menu-row__icon menu-row__icon--success">
-              <wd-icon name="secured" size="18" :color="`rgba(52, 209, 157, 0.12)`" />
+              <wd-icon name="safe" size="18" color="var(--color-success)" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">用户协议</text>
               <text class="menu-row__desc">了解产品使用规则</text>
             </view>
-            <wd-icon name="arrow-right" size="16" color="var(--color-text-placeholder)" />
+            <wd-icon name="right" size="16" color="var(--color-text-placeholder)" />
           </view>
           <view class="menu-row" @click="openAbout">
-            <view class="menu-row__icon menu-row__icon--teal">
-              <wd-icon name="info-circle" size="18" :color="`rgba(52, 209, 157, 0.12)`" />
+            <view class="menu-row__icon menu-row__icon--info">
+              <wd-icon name="info-circle" size="18" color="var(--color-info)" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">关于系统</text>
               <text class="menu-row__desc">产品介绍与联系方式</text>
             </view>
             <text class="menu-row__value">v{{ appVersion }}</text>
-            <wd-icon name="arrow-right" size="16" color="var(--color-text-placeholder)" />
+            <wd-icon name="right" size="16" color="var(--color-text-placeholder)" />
           </view>
         </view>
       </view>
@@ -250,30 +240,12 @@ const hasUserProfile = computed(() => {
   return !!(info && (info.userId || info.username || info.nickname));
 });
 
-const genderValue = computed(() => userInfo.value?.gender);
-const normalizedGender = computed(() => {
-  const v = genderValue.value;
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : 0;
-});
-
 const deptNameText = computed(() => {
   if (!isLogin.value) return "";
   return userInfo.value?.deptName || "";
 });
 
-const genderIconName = computed(() => {
-  if (!isLogin.value) return "";
-  if (normalizedGender.value === 1) return "gender-male";
-  if (normalizedGender.value === 2) return "gender-female";
-  return "";
-});
 
-const genderIconClass = computed(() => {
-  if (normalizedGender.value === 1) return "profile-card__gender--male";
-  if (normalizedGender.value === 2) return "profile-card__gender--female";
-  return "";
-});
 
 const fetchUserInfoIfNeeded = async () => {
   if (!isLogin.value || hasUserProfile.value) return;
@@ -481,8 +453,7 @@ const openOfficialAccount = () => {
   letter-spacing: 2rpx;
 }
 
-.profile-tag,
-.profile-card__gender {
+.profile-tag {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -514,6 +485,8 @@ const openOfficialAccount = () => {
 .profile-card__left {
   position: relative;
   flex-shrink: 0;
+  width: 120rpx;
+  height: 120rpx;
 }
 
 .profile-card__avatar {
@@ -525,27 +498,15 @@ const openOfficialAccount = () => {
   box-shadow: var(--shadow-sm);
 }
 
-.profile-card__gender {
-  position: absolute;
-  right: -4rpx;
-  bottom: 2rpx;
-  width: 36rpx;
-  height: 36rpx;
-  border: 2rpx solid var(--color-text-inverse);
-  border-radius: 50%;
-  box-shadow: var(--shadow-sm);
-}
-
 .profile-card__online-dot {
   position: absolute;
-  right: 6rpx;
-  bottom: 6rpx;
-  width: 18rpx;
-  height: 18rpx;
+  right: -4rpx;
+  bottom: -4rpx;
+  width: 16rpx;
+  height: 16rpx;
   background: var(--color-success);
-  border: 3rpx solid var(--color-border-glass-strong);
+  border: 2rpx solid var(--color-bg);
   border-radius: 50%;
-  box-shadow: var(--shadow-sm);
 }
 
 .profile-card__actions {
@@ -592,13 +553,7 @@ const openOfficialAccount = () => {
   border-radius: 999rpx;
 }
 
-.profile-card__gender--male {
-  background: var(--color-primary);
-}
 
-.profile-card__gender--female {
-  background: var(--color-danger);
-}
 
 .profile-card__main {
   flex: 1;
@@ -856,11 +811,11 @@ const openOfficialAccount = () => {
   border-radius: 22rpx;
 
   &--primary {
-    background: rgba(77, 128, 240, 0.12);
+    background: var(--color-primary-alpha-15);
   }
 
   &--warning {
-    background: var(--color-warning-light);
+    background: var(--color-primary-alpha-15);
   }
 
   &--danger {
@@ -868,11 +823,11 @@ const openOfficialAccount = () => {
   }
 
   &--success {
-    background: rgba(52, 209, 157, 0.12);
+    background: var(--color-success-light);
   }
 
-  &--teal {
-    background: rgba(52, 209, 157, 0.12);
+  &--info {
+    background: var(--color-info-light);
   }
 }
 

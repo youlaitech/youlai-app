@@ -93,7 +93,7 @@
           <wd-cell v-if="logDetail.errorMsg" title="错误信息" :value="logDetail.errorMsg" />
         </wd-cell-group>
         <view class="popup-actions">
-          <wd-button type="info" plain block @click="closeLogDetail">关闭</wd-button>
+          <wd-button type="info" variant="plain" block @click="closeLogDetail">关闭</wd-button>
         </view>
       </view>
     </wd-popup>

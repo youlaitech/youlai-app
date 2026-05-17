@@ -33,6 +33,8 @@ page {
   --color-warning-light: #fff4e6;
   --color-danger: #ff4757;
   --color-danger-light: #fff1f2;
+  --color-info: #3b82f6;
+  --color-info-light: #dbeafe;
   --color-wx-green: #22c55e;
 
   // -----------------------------------------------------------------------
@@ -130,6 +132,8 @@ page {
   --color-warning-light: #78350f;
   --color-danger: #f87171;
   --color-danger-light: #7f1d1d;
+  --color-info: #60a5fa;
+  --color-info-light: #1e3a5f;
   --color-wx-green: #22c55e;
 
   // -----------------------------------------------------------------------
@@ -192,4 +196,7 @@ page {
   --wot-color-text-secondary: var(--color-text-secondary);
   --wot-color-text-placeholder: var(--color-text-placeholder);
   --wot-color-border: var(--color-border);
+  --wot-radio-button-bg: var(--color-bg-tertiary);
+  --wot-radio-button-checked-bg: var(--color-primary);
+  --wot-radio-label-color: var(--color-text);
 }
