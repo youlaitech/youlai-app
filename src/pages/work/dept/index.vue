@@ -85,6 +85,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "dept",
+  style: { navigationBarTitleText: "部门管理" },
+});
+
 import { onLoad } from "@dcloudio/uni-app";
 import { FormRules } from "@wot-ui/ui/components/wd-form/types";
 import { useToast, useDialog } from "@wot-ui/ui";
@@ -331,14 +336,7 @@ onLoad(() => {
 export default { options: { styleIsolation: "shared" } };
 </script>
 
-<route lang="json">
-{
-  "name": "dept",
-  "style": {
-    "navigationBarTitleText": "部门管理"
-  }
-}
-</route>
+
 
 <style lang="scss" scoped>
 .dept-node {

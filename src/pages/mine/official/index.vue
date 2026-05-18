@@ -21,21 +21,17 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "official",
+  style: { navigationBarTitleText: "公众号" },
+});
+
 import { onLoad } from "@dcloudio/uni-app";
 
 onLoad(() => {
   uni.setNavigationBarTitle({ title: "公众号" });
 });
 </script>
-
-<route lang="json">
-{
-  "name": "official",
-  "style": {
-    "navigationBarTitleText": "公众号"
-  }
-}
-</route>
 
 <style lang="scss" scoped>
 .brand {

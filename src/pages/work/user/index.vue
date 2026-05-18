@@ -199,6 +199,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "user",
+  style: { navigationBarTitleText: "用户管理" },
+});
+
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
 import { FormRules } from "@wot-ui/ui/components/wd-form/types";
@@ -522,14 +527,7 @@ onLoad(() => {
 export default { options: { styleIsolation: "shared" } };
 </script>
 
-<route lang="json">
-{
-  "name": "user",
-  "style": {
-    "navigationBarTitleText": "用户管理"
-  }
-}
-</route>
+
 
 <style lang="scss" scoped>
 .user-card__avatar {

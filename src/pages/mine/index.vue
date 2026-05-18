@@ -195,15 +195,13 @@
   </view>
 </template>
 
-<route lang="json">
-{
-  "name": "mine",
-  "style": { "navigationStyle": "custom" },
-  "layout": "tabbar"
-}
-</route>
-
 <script lang="ts" setup>
+definePage({
+  name: "mine",
+  style: { navigationStyle: "custom" },
+  layout: "tabbar",
+});
+
 import { computed, ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { useToast, useDialog } from "@wot-ui/ui";

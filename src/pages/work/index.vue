@@ -22,6 +22,15 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "work",
+  style: {
+    navigationStyle: "custom",
+    navigationBarTitleText: "工作台",
+  },
+  layout: "tabbar",
+});
+
 import { computed } from "vue";
 import { useNavbar } from "@/composables/useNavbar";
 import { useNavigation } from "@/composables/useNavigation";
@@ -48,13 +57,4 @@ const visibleGridList = computed(() => {
 });
 </script>
 
-<route lang="json">
-{
-  "name": "work",
-  "style": {
-    "navigationStyle": "custom",
-    "navigationBarTitleText": "工作台"
-  },
-  "layout": "tabbar"
-}
-</route>
+

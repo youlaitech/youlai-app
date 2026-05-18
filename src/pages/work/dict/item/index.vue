@@ -97,6 +97,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "dict-item",
+  style: { navigationBarTitleText: "字典数据" },
+});
+
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
 import { FormRules } from "@wot-ui/ui/components/wd-form/types";
@@ -280,11 +285,4 @@ onLoad((query) => {
 export default { options: { styleIsolation: "shared" } };
 </script>
 
-<route lang="json">
-{
-  "name": "dict-item",
-  "style": {
-    "navigationBarTitleText": "字典数据"
-  }
-}
-</route>
+

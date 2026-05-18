@@ -3,21 +3,20 @@
     <wd-config-provider :theme-vars="themeVars" :theme="theme === 'dark' ? 'dark' : ''">
       <slot />
       <wd-tabbar
-        :model-value="activeTabbar.name"
+        v-model="active"
         bordered
         safe-area-inset-bottom
         fixed
         @change="handleTabbarChange"
       >
-      <wd-tabbar-item
-        v-for="(item, index) in tabbarList"
-        :key="index"
-        :name="item.name"
-        :value="getTabbarItemValue(item.name)"
-        :title="item.title"
-        :icon="item.icon"
-      />
-    </wd-tabbar>
+        <wd-tabbar-item
+          v-for="item in tabbarList"
+          :key="item.name"
+          :name="item.name"
+          :title="item.title"
+          :icon="item.icon"
+        />
+      </wd-tabbar>
       <wd-notify />
       <wd-toast />
       <wd-dialog />
@@ -26,58 +25,52 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, nextTick } from "vue";
+import { onShow } from "@dcloudio/uni-app";
 import { useThemeStore } from "@/store";
-import { useTabbar } from "@/composables/useTabbar";
-import { useRouter } from "uni-mini-router";
-import { storeToRefs } from "pinia";
 
-const router = useRouter();
 const themeStore = useThemeStore();
-const { themeVars, theme, themeCSSVars } = storeToRefs(themeStore);
-const { activeTabbar, getTabbarItemValue, setTabbarItemActive, tabbarList } = useTabbar();
+const theme = computed(() => themeStore.theme);
+const themeVars = computed(() => themeStore.themeVars);
+const themeCSSVars = computed(() => themeStore.themeCSSVars);
 
-/** 页面路径 -> tabbar name 映射（兼容带/不带前缀） */
-const ROUTE_TO_TABBAR_NAME: Record<string, string> = {
-  "/pages/index/index": "home",
-  "/pages/work/index": "work",
-  "/pages/mine/index": "mine",
-  "pages/index/index": "home",
-  "pages/work/index": "work",
-  "pages/mine/index": "mine",
-};
+/** tabbar 配置：name 与页面路径一一对应 */
+const tabbarList = [
+  { name: "/pages/index/index", title: "首页", icon: "home" },
+  { name: "/pages/work/index", title: "工作台", icon: "apps" },
+  { name: "/pages/mine/index", title: "我的", icon: "user" },
+];
 
-function handleTabbarChange({ value }: { value: string }) {
-  setTabbarItemActive(value);
-  router.pushTab({ name: value });
-}
+/** 当前激活项，用页面路径作为 name，初始化时根据当前页面设置 */
+const active = ref(tabbarList[0].name);
 
-/** 根据当前页面路径同步 tabbar 激活状态 */
-function syncTabbarActive() {
+function initActive() {
   const pages = getCurrentPages();
   const currentPage = pages[pages.length - 1];
-  const currentRoute = (currentPage?.route as string) || "";
-
-  if (!currentRoute) return;
-
-  const tabName = ROUTE_TO_TABBAR_NAME[currentRoute];
-  if (tabName && tabName !== activeTabbar.value.name) {
-    setTabbarItemActive(tabName);
+  const route = (currentPage?.route as string) || "";
+  const matched = tabbarList.find((item) => item.name === `/${route}`);
+  if (matched) {
+    active.value = matched.name;
   }
 }
 
-onMounted(() => {
-  syncTabbarActive();
+function handleTabbarChange({ value }: { value: string }) {
+  active.value = value;
+  nextTick(() => {
+    uni.switchTab({ url: value });
+  });
+}
 
-  // 小程序 switchTab 时 layout 组件被复用，onMounted 不会再次触发
-  // 使用定时轮询兜底，确保 tabbar 激活状态始终与当前页面一致
-  // #ifdef MP-WEIXIN || MP-ALIPAY || MP-BAIDU || MP-TOUTIAO || MP-QQ || MP-KUAISHOU || MP-LARK || MP-XHS || MP-JD
-  const timer = setInterval(syncTabbarActive, 300);
-  onUnmounted(() => clearInterval(timer));
-  // #endif
+onMounted(() => {
+  initActive();
 
   // #ifdef APP-PLUS
   uni.hideTabBar();
   // #endif
+});
+
+onShow(() => {
+  initActive();
 });
 </script>
 

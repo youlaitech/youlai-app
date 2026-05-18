@@ -76,8 +76,12 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "role-assign-perm",
+  style: { navigationBarTitleText: "分配权限" },
+});
+
 import { onLoad } from "@dcloudio/uni-app";
-import { useToast } from "@wot-ui/ui";
 import MenuAPI, { type MenuItem } from "@/api/menu";
 import RoleAPI from "@/api/role";
 import CustomTree from "@/components/custom-tree/index.vue";
@@ -284,11 +288,4 @@ export default { options: { styleIsolation: "shared" } };
 }
 </style>
 
-<route lang="json">
-{
-  "name": "role-assign-perm",
-  "style": {
-    "navigationBarTitleText": "分配权限"
-  }
-}
-</route>
+

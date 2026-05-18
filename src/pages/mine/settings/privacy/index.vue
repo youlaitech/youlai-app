@@ -20,6 +20,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "privacy",
+  style: { navigationBarTitleText: "隐私政策" },
+});
+
 const activeNames = ref(["0"]); // 默认展开第一项
 
 const privacyContent = [
@@ -81,15 +86,6 @@ const handleAgree = () => {
   }, 1500);
 };
 </script>
-
-<route lang="json">
-{
-  "name": "privacy",
-  "style": {
-    "navigationBarTitleText": "隐私政策"
-  }
-}
-</route>
 
 <style lang="scss" scoped>
 .privacy__content {

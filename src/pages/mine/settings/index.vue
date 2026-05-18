@@ -38,6 +38,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "settings",
+  style: { navigationBarTitleText: "设置" },
+});
+
 import { useUserStore } from "@/store";
 import { onLoad } from "@dcloudio/uni-app";
 import { useToast } from "@wot-ui/ui";
@@ -175,15 +180,6 @@ onLoad(() => {
   getCacheSize();
 });
 </script>
-
-<route lang="json">
-{
-  "name": "settings",
-  "style": {
-    "navigationBarTitleText": "设置"
-  }
-}
-</route>
 
 <style lang="scss" scoped>
 .logout-section {

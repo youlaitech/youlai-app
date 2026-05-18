@@ -89,6 +89,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "dict",
+  style: { navigationBarTitleText: "字典管理" },
+});
+
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { useRouter } from "uni-mini-router";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
@@ -257,11 +262,4 @@ onLoad(() => {
 export default { options: { styleIsolation: "shared" } };
 </script>
 
-<route lang="json">
-{
-  "name": "dict",
-  "style": {
-    "navigationBarTitleText": "字典管理"
-  }
-}
-</route>
+

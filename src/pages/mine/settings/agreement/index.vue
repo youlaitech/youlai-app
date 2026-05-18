@@ -20,6 +20,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "theme",
+  style: { navigationBarTitleText: "用户协议" },
+});
+
 const activeNames = ref(["0"]); // 默认展开第一项
 
 const agreementContent = [
@@ -66,15 +71,6 @@ const handleAgree = () => {
   }, 1500);
 };
 </script>
-
-<route lang="json">
-{
-  "name": "theme",
-  "style": {
-    "navigationBarTitleText": "用户协议"
-  }
-}
-</route>
 
 <style lang="scss" scoped>
 .agreement__content {

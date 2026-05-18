@@ -101,6 +101,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "log",
+  style: { navigationBarTitleText: "系统日志" },
+});
+
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
 import LogAPI, { type LogPageQuery, LogItem } from "@/api/log";
@@ -168,11 +173,4 @@ onLoad(() => {
 export default { options: { styleIsolation: "shared" } };
 </script>
 
-<route lang="json">
-{
-  "name": "log",
-  "style": {
-    "navigationBarTitleText": "系统日志"
-  }
-}
-</route>
+

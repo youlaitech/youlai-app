@@ -63,51 +63,51 @@
 
     <!-- 访问趋势图表 -->
     <view class="m-24rpx">
-      <wd-card custom-class="chart-card">
-        <template #title>
-          <view class="chart-header">
-            <text class="chart-header__title">访问趋势</text>
-            <view class="segment-control">
-              <view
-                class="segment-control__item"
-                :class="{ 'is-active': recentDaysRange === 7 }"
-                @click="switchRange(7)"
-              >
-                近7天
-              </view>
-              <view
-                class="segment-control__item"
-                :class="{ 'is-active': recentDaysRange === 15 }"
-                @click="switchRange(15)"
-              >
-                近15天
-              </view>
+      <view class="chart-wrapper">
+        <view class="chart-header">
+          <text class="chart-header__title">访问趋势</text>
+          <view class="segment-control">
+            <view
+              class="segment-control__item"
+              :class="{ 'is-active': recentDaysRange === 7 }"
+              @click="switchRange(7)"
+            >
+              近7天
+            </view>
+            <view
+              class="segment-control__item"
+              :class="{ 'is-active': recentDaysRange === 15 }"
+              @click="switchRange(15)"
+            >
+              近15天
             </view>
           </view>
-        </template>
-
-        <view class="w-full h-600rpx">
+        </view>
+        <view class="w-full h-600rpx px-20rpx box-border">
           <qiun-data-charts type="area" :chartData="chartData" :opts="chartOpts" />
         </view>
-      </wd-card>
+      </view>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
+definePage({
+  name: "home",
+  style: { navigationStyle: "custom" },
+  layout: "tabbar",
+});
+
 import { computed, ref } from "vue";
-import { onReady, onShow } from "@dcloudio/uni-app";
 import dayjs from "dayjs";
-import { useRouter } from "uni-mini-router";
+import { onReady, onShow } from "@dcloudio/uni-app";
 import { useUserStore } from "@/store";
 import { useNavigation } from "@/composables/useNavigation";
 import { menuConfig } from "@/config/menu";
 import { isLoggedIn } from "@/utils/auth";
 import { hasPermission } from "@/utils/permission";
-import LogAPI, { type VisitOverview as ApiVisitOverview, type VisitTrend } from "@/api/log";
+import LogAPI, { type VisitOverview, type VisitTrend } from "@/api/log";
 import NoticeAPI, { type NoticeItem } from "@/api/notice";
-
-type VisitOverviewVO = ApiVisitOverview;
 
 interface NavItem {
   icon: string;
@@ -116,28 +116,23 @@ interface NavItem {
   perm: string;
 }
 
-const router = useRouter();
 const userStore = useUserStore();
 const { handleNavClick } = useNavigation();
-// custom-navbar 组件内部已处理导航栏高度与胶囊避让
 
 const current = ref(0);
 const recentDaysRange = ref(7);
 
 const swiperList = ref([
-  "https://www.youlai.tech/storage/youlai/bg02.png",
-  "https://www.youlai.tech/storage/blog/banner9.png",
+  "https://www.youlai.tech/storage/youlai/bg02.png"
 ]);
 
-const visitOverviewData = ref<VisitOverviewVO>({
+/** 访问概览数据 */
+const visitOverviewData = ref<VisitOverview>({
   todayUvCount: 0,
-  uvGrowthRate: 0,
-  totalUvCount: 0,
   todayPvCount: 0,
-  pvGrowthRate: 0,
-  totalPvCount: 0,
-});
+} as VisitOverview);
 
+/** 通知公告文本 */
 const noticeList = ref<NoticeItem[]>([]);
 const noticeText = computed(() => {
   const titles = noticeList.value
@@ -147,42 +142,30 @@ const noticeText = computed(() => {
   return titles.length ? titles.join("    ") : "暂无通知";
 });
 
-// 用户权限列表
 const userPerms = computed(() => userStore.userInfo?.perms || []);
-
-// 是否已登录
 const isLogged = computed(() => isLoggedIn());
-
 const hasAnyPerm = computed(() => userPerms.value.length > 0);
 
-// 默认菜单（未登录时显示）
+/** 默认菜单（未登录时显示） */
 const defaultNavList = computed(() => {
-  const result: { icon: string; title: string; url: string; perm: string }[] = [];
+  const result: NavItem[] = [];
   for (const group of menuConfig) {
     for (const item of group.children) {
       result.push(item);
-      if (result.length >= 4) {
-        return result;
-      }
+      if (result.length >= 4) return result;
     }
   }
   return result;
 });
 
-// 快捷入口：已登录按权限过滤，未登录显示默认菜单
+/** 快捷入口：已登录按权限过滤，未登录显示默认菜单 */
 const quickNavList = computed(() => {
-  if (!isLogged.value || !hasAnyPerm.value) {
-    return defaultNavList.value;
-  }
-  const result: { icon: string; title: string; url: string; perm: string }[] = [];
+  if (!isLogged.value || !hasAnyPerm.value) return defaultNavList.value;
+  const result: NavItem[] = [];
   for (const group of menuConfig) {
     for (const item of group.children) {
-      if (hasPermission(item.perm)) {
-        result.push(item);
-      }
-      if (result.length >= 4) {
-        return result;
-      }
+      if (hasPermission(item.perm)) result.push(item);
+      if (result.length >= 4) return result;
     }
   }
   return result;
@@ -191,28 +174,15 @@ const quickNavList = computed(() => {
 const chartData = ref({});
 const chartOpts = ref({
   padding: [20, 0, 20, 0],
-  xAxis: {
-    fontSize: 10,
-    rotateLabel: true,
-    rotateAngle: 30,
-  },
-  yAxis: {
-    disabled: true,
-  },
+  xAxis: { fontSize: 10, rotateLabel: true, rotateAngle: 30 },
+  yAxis: { disabled: true },
   extra: {
-    area: {
-      type: "curve",
-      opacity: 0.2,
-      addLine: true,
-      width: 2,
-      gradient: true,
-      activeType: "hollow",
-    },
+    area: { type: "curve", opacity: 0.2, addLine: true, width: 2, gradient: true, activeType: "hollow" },
   },
 });
 
+/** 加载通知公告 */
 async function loadNoticeData() {
-  // 未登录时不调用通知接口
   if (!isLogged.value) {
     noticeList.value = [];
     return;
@@ -225,36 +195,30 @@ async function loadNoticeData() {
   }
 }
 
-async function loadVisitOverviewData() {
-  try {
-    visitOverviewData.value = await LogAPI.getVisitOverview();
-  } catch {
-    // ignore
-  }
+/** 加载访问概览统计 */
+function loadVisitOverviewData() {
+  LogAPI.getVisitOverview().then((data) => (visitOverviewData.value = data)).catch(() => {});
 }
 
+/** 加载访问趋势图表 */
 async function loadVisitTrendData() {
   const endDate = dayjs().format("YYYY-MM-DD");
-  const startDate = dayjs()
-    .subtract(recentDaysRange.value - 1, "day")
-    .format("YYYY-MM-DD");
-
+  const startDate = dayjs().subtract(recentDaysRange.value - 1, "day").format("YYYY-MM-DD");
   try {
     const data: VisitTrend = await LogAPI.getVisitTrend({ startDate, endDate });
-    chartData.value = JSON.parse(
-      JSON.stringify({
-        categories: (data.dates || []).map((d) => dayjs(d).format("MM-DD")),
-        series: [
-          { name: "访客数", data: data.uvList || [] },
-          { name: "浏览量", data: data.pvList || [] },
-        ],
-      })
-    );
+    chartData.value = JSON.parse(JSON.stringify({
+      categories: (data.dates || []).map((d) => dayjs(d).format("MM-DD")),
+      series: [
+        { name: "访客数", data: data.uvList || [] },
+        { name: "浏览量", data: data.pvList || [] },
+      ],
+    }));
   } catch {
     chartData.value = { categories: [], series: [] };
   }
 }
 
+/** 快捷导航点击（未登录跳转登录） */
 function handleNavClickWithGuard(item: NavItem) {
   if (!isLogged.value || !hasAnyPerm.value) {
     uni.navigateTo({ url: "/pages/login/index" });
@@ -263,10 +227,12 @@ function handleNavClickWithGuard(item: NavItem) {
   handleNavClick(item);
 }
 
+/** 跳转通知公告列表 */
 function handleNoticeClick() {
-  router.push({ path: "/pages/work/notice/index" });
+  uni.navigateTo({ url: "/pages/work/notice/index" });
 }
 
+/** 切换趋势时间范围 */
 function switchRange(value: number) {
   if (recentDaysRange.value === value) return;
   recentDaysRange.value = value;
@@ -279,20 +245,11 @@ onReady(() => {
   loadVisitTrendData();
 });
 
-// 每次页面显示时刷新数据（登录后跳转回来也能更新）
 onShow(() => {
   loadVisitOverviewData();
   loadVisitTrendData();
 });
 </script>
-
-<route lang="json">
-{
-  "name": "home",
-  "style": { "navigationStyle": "custom" },
-  "layout": "tabbar"
-}
-</route>
 
 <style lang="scss" scoped>
 .hero-fade {
@@ -311,17 +268,27 @@ onShow(() => {
   );
 }
 
-:deep(.swiper-box),
-:deep(.swiper-box .wd-swiper__item),
-:deep(.swiper-box image) {
+::deep(.swiper-box),
+::deep(.swiper-box .wd-swiper__item),
+::deep(.swiper-box image) {
   height: 420rpx;
 }
 
-.chart-header {
+.chart-wrapper {
+  box-sizing: border-box;
+  background: var(--color-bg);
+  border: 1rpx solid var(--color-border);
+  border-radius: 16rpx;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.chart-wrapper .chart-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24rpx;
+  padding: 24rpx 20rpx;
 }
 
 .chart-header__title {

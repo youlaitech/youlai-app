@@ -32,6 +32,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "network",
+  style: { navigationBarTitleText: "网络测试" },
+});
+
 import { onLoad } from "@dcloudio/uni-app";
 
 const result = ref<number | null>(null);
@@ -83,15 +88,6 @@ onLoad(() => {
   uni.setNavigationBarTitle({ title: "网络测试" });
 });
 </script>
-
-<route lang="json">
-{
-  "name": "network",
-  "style": {
-    "navigationBarTitleText": "网络测试"
-  }
-}
-</route>
 
 <style lang="scss" scoped>
 .result-card {

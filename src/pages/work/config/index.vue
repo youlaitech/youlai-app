@@ -91,6 +91,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "config",
+  style: { navigationBarTitleText: "系统配置" },
+});
+
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
 import { FormRules } from "@wot-ui/ui/components/wd-form/types";
@@ -249,11 +254,4 @@ onLoad(() => {
 export default { options: { styleIsolation: "shared" } };
 </script>
 
-<route lang="json">
-{
-  "name": "config",
-  "style": {
-    "navigationBarTitleText": "系统配置"
-  }
-}
-</route>
+

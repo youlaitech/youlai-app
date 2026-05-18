@@ -242,16 +242,15 @@
   </view>
 </template>
 
-<route lang="json">
-{
-  "name": "login",
-  "style": { "navigationStyle": "custom", "navigationBarTitleText": "" }
-}
-</route>
-
 <script lang="ts" setup>
+definePage({
+  name: "login",
+  style: { navigationStyle: "custom", navigationBarTitleText: "" },
+});
+
 import { onLoad, onShow } from "@dcloudio/uni-app";
 import { useToast, useDialog } from "@wot-ui/ui";
+
 import { useUserStore } from "@/store/modules/user";
 import { useCountdown } from "@/composables/useCountdown";
 import AuthAPI from "@/api/auth";

@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { Storage } from "@/utils/storage";
 import { THEME_MODE_KEY, THEME_COLOR_KEY } from "@/constants";
 import type { ThemeColorOption, ThemeMode } from "@/composables/types/theme";
+import type { ConfigProviderThemeVars } from "@wot-ui/ui";
 import { themeColorOptions } from "@/composables/types/theme";
 
 /**
@@ -73,12 +74,12 @@ export const useThemeStore = defineStore("theme", () => {
   };
 
   /** 主题变量（计算属性，根据模式动态切换） */
-  const themeVars = computed(() => {
+  const themeVars = computed<ConfigProviderThemeVars>(() => {
     const base = { colorTheme: currentThemeColor.value.primary };
     if (theme.value === "dark") {
-      return { ...base, ...darkThemeVars };
+      return { ...base, ...darkThemeVars } as ConfigProviderThemeVars;
     }
-    return base;
+    return base as ConfigProviderThemeVars;
   });
 
   // ==========================================================================

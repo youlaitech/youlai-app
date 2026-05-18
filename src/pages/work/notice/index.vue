@@ -155,6 +155,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "notice",
+  style: { navigationBarTitleText: "通知公告" },
+});
+
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
 import { FormRules } from "@wot-ui/ui/components/wd-form/types";
@@ -403,14 +408,7 @@ onLoad(() => {
 export default { options: { styleIsolation: "shared" } };
 </script>
 
-<route lang="json">
-{
-  "name": "notice",
-  "style": {
-    "navigationBarTitleText": "通知公告"
-  }
-}
-</route>
+
 
 <style lang="scss" scoped>
 .notice-card__main {

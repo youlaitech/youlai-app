@@ -110,6 +110,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "theme",
+  style: { navigationBarTitleText: "主题设置" },
+});
+
 import { useTheme } from "@/composables/useTheme";
 import { useToast, useDialog } from "@wot-ui/ui";
 
@@ -225,14 +230,7 @@ onShow(() => {
 });
 </script>
 
-<route lang="json">
-{
-  "name": "theme",
-  "style": {
-    "navigationBarTitleText": "主题设置"
-  }
-}
-</route>
+
 
 <style lang="scss" scoped>
 .color-option {

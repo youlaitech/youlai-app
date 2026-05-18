@@ -5,6 +5,11 @@
 </template>
 
 <script setup lang="ts">
+definePage({
+  name: "webview",
+  style: { navigationBarTitleText: "网页" },
+});
+
 import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 
@@ -24,9 +29,4 @@ onLoad((query: any) => {
 }
 </style>
 
-<route lang="json">
-{
-  "name": "webview",
-  "style": { "navigationBarTitleText": "网页" }
-}
-</route>
+
