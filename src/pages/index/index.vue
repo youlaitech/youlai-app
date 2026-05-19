@@ -251,6 +251,14 @@ onShow(() => {
 });
 </script>
 
+<style lang="scss">
+.swiper-box,
+.swiper-box .wd-swiper__item,
+.swiper-box image {
+  height: 420rpx;
+}
+</style>
+
 <style lang="scss" scoped>
 .hero-fade {
   position: absolute;
@@ -266,12 +274,6 @@ onShow(() => {
     var(--color-bg-secondary) 60%,
     var(--color-bg-secondary) 100%
   );
-}
-
-::deep(.swiper-box),
-::deep(.swiper-box .wd-swiper__item),
-::deep(.swiper-box image) {
-  height: 420rpx;
 }
 
 .chart-wrapper {
