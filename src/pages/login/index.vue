@@ -34,69 +34,84 @@
         </view>
 
         <!-- 表单区域 -->
-        <view v-if="loginMode !== 'WECHAT'" class="login__form">
+        <wd-form
+          v-if="loginMode !== 'WECHAT'"
+          ref="loginFormRef"
+          :model="formData"
+          :schema="formSchema"
+          error-type="message"
+          hide-asterisk
+        >
           <!-- 用户名/手机号 -->
-          <view class="login__form-item login__field">
-            <wd-icon name="user" size="20" color="var(--color-text-placeholder)" />
-            <input
-              v-model="formData.username"
-              class="login__field-input"
-              :placeholder="loginMode === 'PASSWORD' ? '请输入用户名' : '请输入手机号'"
-              :maxlength="loginMode === 'PASSWORD' ? 50 : 11"
-            />
-          </view>
+          <wd-form-item prop="username" layout="vertical">
+            <view class="login__field">
+              <wd-icon name="user" size="20" color="var(--color-text-placeholder)" />
+              <input
+                v-model="formData.username"
+                class="login__field-input"
+                :placeholder="loginMode === 'PASSWORD' ? '请输入用户名' : '请输入手机号'"
+                :maxlength="loginMode === 'PASSWORD' ? 50 : 11"
+              />
+            </view>
+          </wd-form-item>
 
           <!-- 密码 -->
-          <view v-if="loginMode === 'PASSWORD'" class="login__form-item login__field">
-            <wd-icon name="lock" size="20" color="var(--color-text-placeholder)" />
-            <input
-              v-model="formData.password"
-              class="login__field-input"
-              placeholder="请输入密码"
-              :maxlength="50"
-              password
-              @confirm="handleLogin"
-            />
-          </view>
+          <wd-form-item v-if="loginMode === 'PASSWORD'" prop="password" layout="vertical">
+            <view class="login__field">
+              <wd-icon name="lock" size="20" color="var(--color-text-placeholder)" />
+              <input
+                v-model="formData.password"
+                class="login__field-input"
+                placeholder="请输入密码"
+                :maxlength="50"
+                password
+                @confirm="handleLogin"
+              />
+            </view>
+          </wd-form-item>
 
           <!-- 图形验证码（密码登录时显示） -->
-          <view v-if="loginMode === 'PASSWORD'" class="login__form-item login__field">
-            <wd-icon name="code-square" size="20" color="var(--color-text-placeholder)" />
-            <input
-              v-model="formData.captchaCode"
-              class="login__field-input"
-              placeholder="请输入验证码"
-              :maxlength="6"
-              @confirm="handleLogin"
-            />
-            <image
-              v-if="captchaBase64"
-              class="login__captcha-img"
-              :src="captchaBase64"
-              mode="aspectFit"
-              @click="fetchCaptcha"
-            />
-          </view>
+          <wd-form-item v-if="loginMode === 'PASSWORD'" prop="captchaCode" layout="vertical">
+            <view class="login__field">
+              <wd-icon name="code-square" size="20" color="var(--color-text-placeholder)" />
+              <input
+                v-model="formData.captchaCode"
+                class="login__field-input"
+                placeholder="请输入验证码"
+                :maxlength="6"
+                @confirm="handleLogin"
+              />
+              <image
+                v-if="captchaBase64"
+                class="login__captcha-img"
+                :src="captchaBase64"
+                mode="aspectFit"
+                @click="fetchCaptcha"
+              />
+            </view>
+          </wd-form-item>
 
           <!-- 短信验证码 -->
-          <view v-else class="login__form-item login__field">
-            <wd-icon name="lock" size="20" color="var(--color-text-placeholder)" />
-            <input
-              v-model="formData.code"
-              class="login__field-input"
-              placeholder="请输入验证码"
-              type="number"
-              :maxlength="6"
-              @confirm="handleLogin"
-            />
-            <view
-              class="login__code-btn"
-              :class="smsCountdown > 0 ? 'login__code-btn--disabled' : 'login__code-btn--active'"
-              @click="handleSendCode"
-            >
-              {{ smsCountdown > 0 ? `${smsCountdown}s` : "获取验证码" }}
+          <wd-form-item v-if="loginMode === 'SMS'" prop="code" layout="vertical">
+            <view class="login__field">
+              <wd-icon name="lock" size="20" color="var(--color-text-placeholder)" />
+              <input
+                v-model="formData.code"
+                class="login__field-input"
+                placeholder="请输入验证码"
+                type="number"
+                :maxlength="6"
+                @confirm="handleLogin"
+              />
+              <view
+                class="login__code-btn"
+                :class="smsCountdown > 0 ? 'login__code-btn--disabled' : 'login__code-btn--active'"
+                @click="handleSendCode"
+              >
+                {{ smsCountdown > 0 ? `${smsCountdown}s` : "获取验证码" }}
+              </view>
             </view>
-          </view>
+          </wd-form-item>
 
           <!-- 演示环境提示 -->
           <view v-if="loginMode === 'SMS'" class="login__form-item login__demo-hint">
@@ -119,7 +134,7 @@
               {{ loginMode === "PASSWORD" ? "验证码登录" : "密码登录" }}
             </text>
           </view>
-        </view>
+        </wd-form>
 
         <!-- #ifdef MP-WEIXIN -->
         <!-- 微信登录区域 -->
@@ -250,6 +265,7 @@ definePage({
 
 import { onLoad, onShow } from "@dcloudio/uni-app";
 import { useToast, useDialog } from "@wot-ui/ui";
+import type { FormSchema } from "@wot-ui/ui/components/wd-form/types";
 
 import { useUserStore } from "@/store/modules/user";
 import { useCountdown } from "@/composables/useCountdown";
@@ -258,6 +274,7 @@ import AuthAPI from "@/api/auth";
 const toast = useToast();
 const dialog = useDialog("policy-box");
 const userStore = useUserStore();
+const loginFormRef = ref();
 
 // 导航栏尺寸
 const statusBarHeight = ref(20);
@@ -309,15 +326,33 @@ const loginModeDesc = computed(() => {
 
 const isValidMobile = (mobile: string) => /^1\d{10}$/.test((mobile || "").trim());
 
-const canSubmit = computed(() => {
-  if (loginMode.value === "PASSWORD") {
-    return (formData.value.username || "").trim() && (formData.value.password || "").trim();
-  }
-  if (loginMode.value === "SMS") {
-    return isValidMobile(formData.value.username) && (formData.value.code || "").trim();
-  }
-  return false;
-});
+// 表单校验规则
+const formSchema = computed<FormSchema>(() => ({
+  validate(model) {
+    const issues: { path: string[]; message: string }[] = [];
+    if (loginMode.value === "PASSWORD") {
+      if (!(model.username || "").trim()) {
+        issues.push({ path: ["username"], message: "请输入用户名" });
+      }
+      if (!(model.password || "").trim()) {
+        issues.push({ path: ["password"], message: "请输入密码" });
+      }
+      if (!(model.captchaCode || "").trim()) {
+        issues.push({ path: ["captchaCode"], message: "请输入验证码" });
+      }
+    } else if (loginMode.value === "SMS") {
+      if (!(model.username || "").trim()) {
+        issues.push({ path: ["username"], message: "请输入手机号" });
+      } else if (!isValidMobile(model.username)) {
+        issues.push({ path: ["username"], message: "请输入正确的手机号" });
+      }
+      if (!(model.code || "").trim()) {
+        issues.push({ path: ["code"], message: "请输入验证码" });
+      }
+    }
+    return issues;
+  },
+}));
 
 // 图形验证码
 const fetchCaptcha = async () => {
@@ -379,7 +414,6 @@ const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode = "") => {
 // 表单登录
 async function doFormLogin() {
   if (isLoading.value) return;
-  if (isLoading.value) return;
   isLoading.value = true;
   try {
     if (loginMode.value === "PASSWORD") {
@@ -407,13 +441,9 @@ async function doFormLogin() {
 }
 
 const handleLogin = async () => {
-  // 先校验表单必填项
-  if (!canSubmit.value) {
-    toast.error(
-      loginMode.value === "PASSWORD" ? "请输入用户名和密码" : "请输入正确的手机号和验证码"
-    );
-    return;
-  }
+  // 先校验表单必填项（内联提示，不再弹窗）
+  const { valid } = await loginFormRef.value?.validate();
+  if (!valid) return;
   // 再校验隐私协议
   if (!isAgreePolicy.value) {
     openPolicyDialog("FORM");
@@ -746,6 +776,40 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
   &:first-child {
     margin-top: 0;
   }
+}
+
+// 覆盖 wd-form-item 默认样式，仅用于校验和错误提示
+:deep(.wd-form-item) {
+  padding: 0 !important;
+  margin-top: 32rpx;
+  background: transparent;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+// 垂直布局下隐藏左侧区域（无标题时）
+:deep(.wd-form-item .wd-cell__left) {
+  display: none;
+}
+
+:deep(.wd-form-item .wd-cell__wrapper) {
+  flex-direction: column;
+}
+
+:deep(.wd-form-item .wd-cell__right) {
+  width: 100%;
+}
+
+// 错误提示：独占一行，显示在输入框下方
+:deep(.wd-form-item__error-message) {
+  display: block !important;
+  width: 100% !important;
+  padding: 8rpx 0 0 !important;
+  font-size: 24rpx !important;
+  line-height: 1.5 !important;
+  color: var(--color-danger) !important;
 }
 
 // 输入框行

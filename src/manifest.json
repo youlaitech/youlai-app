@@ -48,9 +48,7 @@
       "ignoreDevUnusedFiles": false,
       "ignoreUploadUnusedFiles": false
     },
-    "usingComponents": true,
-    "darkMode": true,
-    "themeLocation": "theme.json"
+    "usingComponents": true
   },
   "mp-alipay": {
     "usingComponents": true
@@ -65,8 +63,5 @@
     "enable": false
   },
   "vueVersion": "3",
-  "h5": {
-    "darkmode": true,
-    "themeLocation": "theme.json"
-  }
+  "h5": {}
 }
