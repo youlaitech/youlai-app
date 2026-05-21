@@ -38,6 +38,7 @@ declare module 'vue' {
     WdFab: typeof import('@wot-ui/ui/components/wd-fab/wd-fab.vue')['default']
     WdForm: typeof import('@wot-ui/ui/components/wd-form/wd-form.vue')['default']
     WdFormItem: typeof import('@wot-ui/ui/components/wd-form-item/wd-form-item.vue')['default']
+    WdGap: typeof import('@wot-ui/ui/components/wd-gap/wd-gap.vue')['default']
     WdGrid: typeof import('@wot-ui/ui/components/wd-grid/wd-grid.vue')['default']
     WdGridItem: typeof import('@wot-ui/ui/components/wd-grid-item/wd-grid-item.vue')['default']
     WdIcon: typeof import('@wot-ui/ui/components/wd-icon/wd-icon.vue')['default']

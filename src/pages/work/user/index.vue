@@ -71,7 +71,7 @@
             </view>
             <text class="user-card__role">{{ item.roleNames }} · {{ item.deptName }}</text>
           </view>
-          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" plain>
+          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" variant="plain">
             {{ item.status === 1 ? "正常" : "禁用" }}
           </wd-tag>
         </view>
@@ -116,36 +116,41 @@
         <view class="popup-title">
           {{ formData.id ? "编辑用户" : "新增用户" }}
         </view>
-        <wd-form ref="formRef" :model="formData" :rules="rules">
-          <wd-cell-group border>
+        <wd-form ref="formRef" :model="formData" :schema="rules">
+          <wd-form-item prop="username" title="用户名" required>
             <wd-input
               v-model="formData.username"
-              label="用户名"
+              placeholder="请输入用户名"
               :readonly="!!formData.id"
-              required
             />
-            <wd-input v-model="formData.nickname" label="昵称" required />
+          </wd-form-item>
+          <wd-form-item prop="nickname" title="昵称" required>
+            <wd-input v-model="formData.nickname" placeholder="请输入昵称" />
+          </wd-form-item>
+          <wd-form-item prop="deptId" title="部门" required>
             <wd-cascader
               v-model="deptSelected"
-              label="部门"
               :columns="deptColumns"
               :column-change="handleDeptColumnChange"
-              required
               :display-format="displayDeptFormat"
               @confirm="handleDeptConfirm"
             />
+          </wd-form-item>
+          <wd-form-item prop="roleIds" title="角色" required>
             <wd-select-picker
               v-model="formData.roleIds"
-              label="角色"
               :columns="roleOptions"
-              required
             />
-            <wd-input v-model="formData.mobile" label="手机号" />
-            <wd-input v-model="formData.email" label="邮箱" />
-            <wd-cell title="状态">
-              <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
-            </wd-cell>
-          </wd-cell-group>
+          </wd-form-item>
+          <wd-form-item prop="mobile" title="手机号">
+            <wd-input v-model="formData.mobile" placeholder="请输入手机号" />
+          </wd-form-item>
+          <wd-form-item prop="email" title="邮箱">
+            <wd-input v-model="formData.email" placeholder="请输入邮箱" />
+          </wd-form-item>
+          <wd-form-item prop="status" title="状态">
+            <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
+          </wd-form-item>
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeUserDialog">取消</wd-button>
@@ -155,7 +160,7 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <wd-fab v-if="hasPermission('sys:user:create') && !dialog.visible" @click="openUserDialog()" />
+    <wd-fab :expandable="false" :gap="{ bottom: 100 }" @click="openUserDialog()" />
 
     <!-- 操作菜单 -->
     <wd-action-sheet
@@ -170,18 +175,12 @@
       <view class="p-4">
         <view class="popup-title">重置密码</view>
         <wd-form ref="resetPwdFormRef" :model="resetPwdForm">
-          <wd-cell-group border>
+          <wd-form-item prop="password" title="新密码" required>
             <wd-input
               v-model="resetPwdForm.password"
-              label="新密码"
               placeholder="请输入新密码（至少6位）"
-              prop="password"
-              :rules="[
-                { required: true, message: '请输入新密码' },
-                { pattern: /^.{6,}$/, message: '密码至少需要6位字符' },
-              ]"
             />
-          </wd-cell-group>
+          </wd-form-item>
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="resetPwdDialog.visible = false">取消</wd-button>
@@ -206,7 +205,7 @@ definePage({
 
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
-import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { toFormSchema } from "@/utils/form";
 import { useQueue, useToast, useDialog } from "@wot-ui/ui";
 import UserAPI, { type UserPageQuery, UserItem, UserForm } from "@/api/user";
 import RoleAPI from "@/api/role";
@@ -288,12 +287,12 @@ const handleDeptConfirm = ({ value, selectedItems }: any) => {
   formData.deptId = value[value.length - 1];
 };
 
-const rules: FormRules = {
+const rules = toFormSchema({
   username: [{ required: true, message: "请输入用户名" }],
   nickname: [{ required: true, message: "请输入昵称" }],
   roleIds: [{ required: true, message: "请选择角色" }],
   deptId: [{ required: true, message: "请选择部门" }],
-};
+});
 
 // 排序切换
 const handleSortChange = ({ value }: { value: string | number }) => {
@@ -478,8 +477,8 @@ function showUserActions(item: UserItem) {
   actionSheetVisible.value = true;
 }
 
-function handleActionSelect({ value }: { value: string }) {
-  pendingAction.value[value]?.();
+function handleActionSelect({ item }: { item: any }) {
+  pendingAction.value[item.name]?.();
 }
 
 // 打开重置密码弹窗

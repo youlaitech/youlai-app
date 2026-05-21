@@ -136,6 +136,7 @@ declare global {
   const theme: typeof import('../composables/types/theme')['theme']
   const themeColorOptions: typeof import('../composables/useTheme')['themeColorOptions']
   const themeVars: typeof import('../composables/types/theme')['themeVars']
+  const toFormSchema: typeof import('../utils/form')['toFormSchema']
   const toRaw: typeof import('vue')['toRaw']
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
@@ -337,6 +338,7 @@ declare module 'vue' {
     readonly store: UnwrapRef<typeof import('../store/index')['store']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
     readonly themeColorOptions: UnwrapRef<typeof import('../composables/useTheme')['themeColorOptions']>
+    readonly toFormSchema: UnwrapRef<typeof import('../utils/form')['toFormSchema']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>

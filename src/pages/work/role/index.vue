@@ -25,7 +25,7 @@
             </view>
             <text class="role-card__code">{{ item.code }}</text>
           </view>
-          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" plain>
+          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" variant="plain">
             {{ item.status === 1 ? "正常" : "禁用" }}
           </wd-tag>
         </view>
@@ -70,23 +70,25 @@
         <view class="popup-title">
           {{ formData.id ? "编辑角色" : "新增角色" }}
         </view>
-        <wd-form ref="formRef" :model="formData" :rules="rules">
-          <wd-cell-group border>
-            <wd-input v-model="formData.name" label="角色名称" required />
-            <wd-input v-model="formData.code" label="角色编码" required />
+        <wd-form ref="formRef" :model="formData" :schema="rules">
+          <wd-form-item prop="name" title="角色名称" required>
+            <wd-input v-model="formData.name" placeholder="请输入角色名称" />
+          </wd-form-item>
+          <wd-form-item prop="code" title="角色编码" required>
+            <wd-input v-model="formData.code" placeholder="请输入角色编码" />
+          </wd-form-item>
+          <wd-form-item prop="dataScope" title="数据权限" required>
             <wd-select-picker
               v-model="formData.dataScope"
-              label="数据权限"
               :columns="dataScopeOptions"
-              required
             />
-            <wd-cell title="状态">
-              <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
-            </wd-cell>
-            <wd-cell title="排序">
-              <wd-input-number v-model="formData.sort" :min="0" />
-            </wd-cell>
-          </wd-cell-group>
+          </wd-form-item>
+          <wd-form-item prop="status" title="状态">
+            <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
+          </wd-form-item>
+          <wd-form-item prop="sort" title="排序">
+            <wd-input-number v-model="formData.sort" :min="0" />
+          </wd-form-item>
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeRoleDialog">取消</wd-button>
@@ -96,7 +98,7 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <wd-fab v-if="hasPermission('sys:role:create') && !dialog.visible" @click="openRoleDialog()" />
+    <wd-fab v-if="hasPermission('sys:role:create') && !dialog.visible" :expandable="false" :gap="{ bottom: 32 }" @click="openRoleDialog()" />
 
     <!-- 操作菜单 -->
     <wd-action-sheet
@@ -116,7 +118,7 @@ definePage({
 
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
-import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { toFormSchema } from "@/utils/form";
 import { useToast, useDialog } from "@wot-ui/ui";
 import RoleAPI, { type RolePageQuery, RoleItem, RoleForm } from "@/api/role";
 import { hasPermission } from "@/utils/permission";
@@ -155,11 +157,11 @@ const dataScopeOptions = ref<Record<string, any>[]>([
   { label: "自定义部门数据", value: 5 },
 ]);
 
-const rules: FormRules = {
+const rules = toFormSchema({
   name: [{ required: true, message: "请输入角色名称" }],
   code: [{ required: true, message: "请输入角色编码" }],
   dataScope: [{ required: true, message: "请选择数据权限" }],
-};
+});
 
 // 搜索触发
 const handleSearch = () => loadRoleList();
@@ -225,16 +227,17 @@ function closeRoleDialog() {
 }
 
 // 操作菜单分发
-function handleActionSelect({ value }: { value: string }) {
-  const item = currentActionItem.value;
+function handleActionSelect({ item }: { item: any }) {
+  const value = item.name;
+  const role = currentActionItem.value;
   if (value === "编辑") {
-    openRoleDialog(item.id);
+    openRoleDialog(role.id);
   } else if (value === "分配权限") {
-    handleAssignPerm(item.id);
+    handleAssignPerm(role.id);
   } else if (value === "删除") {
     messageBox({
       title: "确认删除",
-      msg: `确定要删除角色「${item.name}」吗？`,
+      msg: `确定要删除角色「${role.name}」吗？`,
       type: "warning",
     }).then(async () => {
       await RoleAPI.deleteByIds(String(item.id));

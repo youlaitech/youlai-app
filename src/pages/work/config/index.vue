@@ -51,22 +51,27 @@
         <view class="popup-title">
           {{ formData.id ? "编辑配置" : "新增配置" }}
         </view>
-        <wd-form ref="formRef" :model="formData" :rules="rules">
-          <wd-cell-group border>
-            <wd-input v-model="formData.configName" label="配置名称" required />
-            <wd-input v-model="formData.configKey" label="配置键名" required />
-            <wd-input v-model="formData.configValue" label="配置键值" required />
+        <wd-form ref="formRef" :model="formData" :schema="rules">
+          <wd-form-item prop="configName" title="配置名称" required>
+            <wd-input v-model="formData.configName" placeholder="请输入配置名称" />
+          </wd-form-item>
+          <wd-form-item prop="configKey" title="配置键名" required>
+            <wd-input v-model="formData.configKey" placeholder="请输入配置键名" />
+          </wd-form-item>
+          <wd-form-item prop="configValue" title="配置键值" required>
+            <wd-input v-model="formData.configValue" placeholder="请输入配置键值" />
+          </wd-form-item>
+          <wd-form-item prop="remark" title="描述">
             <wd-textarea
               v-model="formData.remark"
-              label="描述"
               placeholder="请输入配置描述"
               :maxlength="100"
               show-word-limit
             />
-          </wd-cell-group>
+          </wd-form-item>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" plain @click="closeConfigDialog">取消</wd-button>
+          <wd-button type="info" variant="plain" @click="closeConfigDialog">取消</wd-button>
           <wd-button type="primary" :loading="isSubmitting" @click="submitConfigForm">
             保存
           </wd-button>
@@ -77,6 +82,8 @@
     <!-- 浮动新增按钮 -->
     <wd-fab
       v-if="hasPermission('sys:config:create') && !dialog.visible"
+      :expandable="false"
+      :gap="{ bottom: 32 }"
       @click="openConfigDialog()"
     />
 
@@ -98,7 +105,7 @@ definePage({
 
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
-import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { toFormSchema } from "@/utils/form";
 import { useToast, useDialog } from "@wot-ui/ui";
 import ConfigAPI, { type ConfigPageQuery, ConfigItem, ConfigForm } from "@/api/config";
 import { hasPermission } from "@/utils/permission";
@@ -128,11 +135,11 @@ const initialFormData: ConfigForm = {
 
 const formData = reactive<ConfigForm>({ ...initialFormData });
 
-const rules: FormRules = {
+const rules = toFormSchema({
   configName: [{ required: true, message: "请输入配置名称" }],
   configKey: [{ required: true, message: "请输入配置键名" }],
   configValue: [{ required: true, message: "请输入配置键值" }],
-};
+});
 
 // 搜索触发
 const handleSearch = () => loadConfigList();
@@ -198,17 +205,18 @@ function closeConfigDialog() {
 }
 
 // 操作菜单分发
-function handleActionSelect({ value }: { value: string }) {
-  const item = currentActionItem.value;
+function handleActionSelect({ item }: { item: any }) {
+  const value = item.name;
+  const configItem = currentActionItem.value;
   if (value === "编辑") {
-    openConfigDialog(item.id);
+    openConfigDialog(configItem.id);
   } else if (value === "删除") {
     messageBox({
       title: "确认删除",
-      msg: `确定要删除配置「${item.configName}」吗？`,
+      msg: `确定要删除配置「${configItem.configName}」吗？`,
       type: "warning",
     }).then(async () => {
-      await ConfigAPI.deleteById(item.id!);
+      await ConfigAPI.deleteById(configItem.id!);
       toast.success("删除成功");
       loadConfigList();
     });

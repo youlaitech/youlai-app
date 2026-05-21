@@ -23,7 +23,7 @@
             </view>
             <text class="text-24rpx color-text-secondary">字典编码：{{ item.dictCode }}</text>
           </view>
-          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" plain>
+          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" variant="plain">
             {{ item.status === 1 ? "启用" : "禁用" }}
           </wd-tag>
         </view>
@@ -54,21 +54,24 @@
         <view class="popup-title">
           {{ formData.id ? "编辑字典" : "新增字典" }}
         </view>
-        <wd-form ref="formRef" :model="formData" :rules="rules">
-          <wd-cell-group border>
-            <wd-input v-model="formData.name" label="字典名称" required />
-            <wd-input v-model="formData.dictCode" label="字典编码" required />
-            <wd-cell title="状态">
-              <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
-            </wd-cell>
+        <wd-form ref="formRef" :model="formData" :schema="rules">
+          <wd-form-item prop="name" title="字典名称" required>
+            <wd-input v-model="formData.name" placeholder="请输入字典名称" />
+          </wd-form-item>
+          <wd-form-item prop="dictCode" title="字典编码" required>
+            <wd-input v-model="formData.dictCode" placeholder="请输入字典编码" />
+          </wd-form-item>
+          <wd-form-item prop="status" title="状态">
+            <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
+          </wd-form-item>
+          <wd-form-item prop="remark" title="备注">
             <wd-textarea
               v-model="formData.remark"
-              label="备注"
               placeholder="请输入备注"
               :maxlength="100"
               show-word-limit
             />
-          </wd-cell-group>
+          </wd-form-item>
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeDictDialog">取消</wd-button>
@@ -84,7 +87,7 @@
       @select="handleActionSelect"
     />
 
-    <wd-fab v-if="hasPermission('sys:dict:create') && !dialog.visible" @click="openDictDialog()" />
+    <wd-fab v-if="hasPermission('sys:dict:create') && !dialog.visible" :expandable="false" :gap="{ bottom: 32 }" @click="openDictDialog()" />
   </view>
 </template>
 
@@ -97,7 +100,7 @@ definePage({
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { useRouter } from "uni-mini-router";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
-import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { toFormSchema } from "@/utils/form";
 import { useToast, useDialog } from "@wot-ui/ui";
 import DictAPI, { type DictTypeForm, type DictTypePageQuery, type DictTypeItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
@@ -124,10 +127,10 @@ const initialFormData: DictTypeForm = {
 
 const formData = reactive<DictTypeForm>({ ...initialFormData });
 
-const rules: FormRules = {
+const rules = toFormSchema({
   name: [{ required: true, message: "请输入字典名称" }],
   dictCode: [{ required: true, message: "请输入字典编码" }],
-};
+});
 
 const handleSearch = () => loadDictTypeList();
 
@@ -241,8 +244,8 @@ function showDictActions(item: DictTypeItem) {
   actionSheetVisible.value = true;
 }
 
-function handleActionSelect({ value }: { value: string }) {
-  pendingAction.value[value]?.();
+function handleActionSelect({ item }: { item: any }) {
+  pendingAction.value[item.name]?.();
 }
 
 onReachBottom(() => {

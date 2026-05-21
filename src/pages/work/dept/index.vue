@@ -43,36 +43,38 @@
         <view class="popup-title">
           {{ formData.id ? "编辑部门" : "新增部门" }}
         </view>
-        <wd-form ref="formRef" :model="formData" :rules="rules">
-          <wd-cell-group border>
+        <wd-form ref="formRef" :model="formData" :schema="rules">
+          <wd-form-item prop="parentId" title="上级部门" required>
             <wd-cascader
               v-model="parentSelected"
-              label="上级部门"
               :columns="parentColumns"
               :column-change="handleParentColumnChange"
-              required
               :display-format="displayParentFormat"
               @confirm="handleParentConfirm"
             />
-            <wd-input v-model="formData.name" label="部门名称" required />
-            <wd-input v-model="formData.code" label="部门编号" required />
-            <wd-cell title="排序">
-              <wd-input-number v-model="formData.sort" :min="0" />
-            </wd-cell>
-            <wd-cell title="状态">
-              <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
-            </wd-cell>
-          </wd-cell-group>
+          </wd-form-item>
+          <wd-form-item prop="name" title="部门名称" required>
+            <wd-input v-model="formData.name" placeholder="请输入部门名称" />
+          </wd-form-item>
+          <wd-form-item prop="code" title="部门编号" required>
+            <wd-input v-model="formData.code" placeholder="请输入部门编号" />
+          </wd-form-item>
+          <wd-form-item prop="sort" title="排序">
+            <wd-input-number v-model="formData.sort" :min="0" />
+          </wd-form-item>
+          <wd-form-item prop="status" title="状态">
+            <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
+          </wd-form-item>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" plain @click="closeDeptDialog">取消</wd-button>
+          <wd-button type="info" variant="plain" @click="closeDeptDialog">取消</wd-button>
           <wd-button type="primary" :loading="isSubmitting" @click="submitDeptForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <wd-fab v-if="hasPermission('sys:dept:create') && !dialog.visible" @click="openDeptDialog()" />
+    <wd-fab v-if="hasPermission('sys:dept:create') && !dialog.visible" :expandable="false" :gap="{ bottom: 32 }" @click="openDeptDialog()" />
 
     <!-- 操作菜单 -->
     <wd-action-sheet
@@ -91,7 +93,7 @@ definePage({
 });
 
 import { onLoad } from "@dcloudio/uni-app";
-import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { toFormSchema } from "@/utils/form";
 import { useToast, useDialog } from "@wot-ui/ui";
 import DeptAPI, { type DeptQuery, DeptItem, DeptForm } from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
@@ -184,11 +186,11 @@ const handleParentConfirm = ({ value }: any) => {
   formData.parentId = Number(value[value.length - 1]) || 0;
 };
 
-const rules: FormRules = {
+const rules = toFormSchema({
   name: [{ required: true, message: "请输入部门名称" }],
   code: [{ required: true, message: "请输入部门编号" }],
   parentId: [{ required: true, message: "请选择上级部门" }],
-};
+});
 
 // 搜索触发
 const handleSearch = () => loadDeptList();
@@ -205,7 +207,8 @@ function loadDeptList() {
 }
 
 // 操作菜单分发
-function handleActionSelect({ value }: { value: string }) {
+function handleActionSelect({ item }: { item: any }) {
+  const value = item.name;
   const dept = currentActionItem.value;
   if (value === "新增子部门") {
     handleAddChild(dept);

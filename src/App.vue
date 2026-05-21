@@ -9,3 +9,7 @@ onLaunch(() => {
 
 onShow(() => {});
 </script>
+
+<style lang="scss">
+@use "@wot-ui/ui/styles/theme/index.scss" as *;
+</style>

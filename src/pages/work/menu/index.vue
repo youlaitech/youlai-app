@@ -52,51 +52,44 @@
           {{ formData.id ? "编辑菜单" : "新增菜单" }}
         </view>
         <scroll-view scroll-y class="max-h-60vh">
-          <wd-form ref="formRef" :model="formData" :rules="rules">
-            <wd-cell-group border>
+          <wd-form ref="formRef" :model="formData" :schema="rules">
+            <wd-form-item prop="parentId" title="上级菜单" required>
               <wd-cascader
                 v-model="parentSelected"
-                label="上级菜单"
                 :columns="parentColumns"
                 :column-change="handleParentColumnChange"
-                required
                 :display-format="displayParentFormat"
                 @confirm="handleParentConfirm"
               />
-              <wd-input v-model="formData.name" label="菜单名称" required />
-              <wd-cell title="菜单类型" required>
-                <wd-radio-group v-model="formData.type" size="small" type="button">
-                  <wd-radio value="C">目录</wd-radio>
-                  <wd-radio value="M">菜单</wd-radio>
-                  <wd-radio value="B">按钮</wd-radio>
-                </wd-radio-group>
-              </wd-cell>
-              <wd-input
-                v-if="formData.type !== 'B'"
-                v-model="formData.routePath"
-                label="路由路径"
-                placeholder="system 或 /system"
-              />
-              <wd-input
-                v-if="formData.type === 'M'"
-                v-model="formData.component"
-                label="组件路径"
-                placeholder="system/menu/index"
-              />
-              <wd-input
-                v-if="formData.type === 'B'"
-                v-model="formData.perm"
-                label="权限标识"
-                placeholder="sys:menu:create"
-              />
-              <wd-input v-model="formData.icon" label="图标" />
-              <wd-cell title="排序">
-                <wd-input-number v-model="formData.sort!" :min="0" />
-              </wd-cell>
-              <wd-cell title="状态">
-                <wd-switch v-model="formData.visible" :active-value="1" :inactive-value="0" />
-              </wd-cell>
-            </wd-cell-group>
+            </wd-form-item>
+            <wd-form-item prop="name" title="菜单名称" required>
+              <wd-input v-model="formData.name" placeholder="请输入菜单名称" />
+            </wd-form-item>
+            <wd-form-item prop="type" title="菜单类型" required>
+              <wd-radio-group v-model="formData.type" size="small" type="button">
+                <wd-radio value="C">目录</wd-radio>
+                <wd-radio value="M">菜单</wd-radio>
+                <wd-radio value="B">按钮</wd-radio>
+              </wd-radio-group>
+            </wd-form-item>
+            <wd-form-item v-if="formData.type !== 'B'" prop="routePath" title="路由路径">
+              <wd-input v-model="formData.routePath" placeholder="system 或 /system" />
+            </wd-form-item>
+            <wd-form-item v-if="formData.type === 'M'" prop="component" title="组件路径">
+              <wd-input v-model="formData.component" placeholder="system/menu/index" />
+            </wd-form-item>
+            <wd-form-item v-if="formData.type === 'B'" prop="perm" title="权限标识">
+              <wd-input v-model="formData.perm" placeholder="sys:menu:create" />
+            </wd-form-item>
+            <wd-form-item prop="icon" title="图标">
+              <wd-input v-model="formData.icon" placeholder="请输入图标名" />
+            </wd-form-item>
+            <wd-form-item prop="sort" title="排序">
+              <wd-input-number v-model="formData.sort!" :min="0" />
+            </wd-form-item>
+            <wd-form-item prop="visible" title="状态">
+              <wd-switch v-model="formData.visible" :active-value="1" :inactive-value="0" />
+            </wd-form-item>
           </wd-form>
         </scroll-view>
         <view class="popup-actions">
@@ -107,7 +100,7 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <wd-fab v-if="hasPermission('sys:menu:create') && !dialog.visible" @click="openMenuDialog()" />
+    <wd-fab v-if="hasPermission('sys:menu:create') && !dialog.visible" :expandable="false" :gap="{ bottom: 32 }" @click="openMenuDialog()" />
 
     <!-- 操作菜单 -->
     <wd-action-sheet
@@ -126,7 +119,7 @@ definePage({
 });
 
 import { onLoad } from "@dcloudio/uni-app";
-import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { toFormSchema } from "@/utils/form";
 import { useToast, useDialog } from "@wot-ui/ui";
 import MenuAPI, { type MenuQuery, MenuItem, MenuForm } from "@/api/menu";
 import { hasPermission } from "@/utils/permission";
@@ -250,11 +243,11 @@ const handleParentConfirm = ({ value }: any) => {
   formData.parentId = String(value[value.length - 1]) || "0";
 };
 
-const rules: FormRules = {
+const rules = toFormSchema({
   name: [{ required: true, message: "请输入菜单名称" }],
   type: [{ required: true, message: "请选择菜单类型" }],
   parentId: [{ required: true, message: "请选择上级菜单" }],
-};
+});
 
 const handleSearch = () => loadMenuList();
 
@@ -265,7 +258,8 @@ function loadMenuList() {
 }
 
 // 操作菜单分发
-function handleActionSelect({ value }: { value: string }) {
+function handleActionSelect({ item }: { item: any }) {
+  const value = item.name;
   const menu = currentActionItem.value;
   if (value === "新增子菜单") {
     handleAddChild(menu);

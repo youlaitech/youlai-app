@@ -25,7 +25,7 @@
               字典值：{{ item.value }} · 排序：{{ item.sort }}
             </text>
           </view>
-          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" plain>
+          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" variant="plain">
             {{ item.status === 1 ? "启用" : "禁用" }}
           </wd-tag>
         </view>
@@ -56,24 +56,27 @@
         <view class="popup-title">
           {{ formData.id ? "编辑字典数据" : "新增字典数据" }}
         </view>
-        <wd-form ref="formRef" :model="formData" :rules="rules">
-          <wd-cell-group border>
-            <wd-input v-model="formData.label" label="字典项标签" required />
-            <wd-input v-model="formData.value" label="字典项值" required />
-            <wd-cell title="状态">
-              <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
-            </wd-cell>
-            <wd-cell title="排序">
-              <wd-input-number v-model="formData.sort" :min="0" />
-            </wd-cell>
+        <wd-form ref="formRef" :model="formData" :schema="rules">
+          <wd-form-item prop="label" title="字典项标签" required>
+            <wd-input v-model="formData.label" placeholder="请输入字典项标签" />
+          </wd-form-item>
+          <wd-form-item prop="value" title="字典项值" required>
+            <wd-input v-model="formData.value" placeholder="请输入字典项值" />
+          </wd-form-item>
+          <wd-form-item prop="status" title="状态">
+            <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
+          </wd-form-item>
+          <wd-form-item prop="sort" title="排序">
+            <wd-input-number v-model="formData.sort" :min="0" />
+          </wd-form-item>
+          <wd-form-item prop="remark" title="备注">
             <wd-textarea
               v-model="formData.remark"
-              label="备注"
               placeholder="请输入备注"
               :maxlength="100"
               show-word-limit
             />
-          </wd-cell-group>
+          </wd-form-item>
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeItemDialog">取消</wd-button>
@@ -91,6 +94,8 @@
 
     <wd-fab
       v-if="hasPermission('sys:dict-item:create') && !dialog.visible"
+      :expandable="false"
+      :gap="{ bottom: 32 }"
       @click="openItemDialog()"
     />
   </view>
@@ -104,7 +109,7 @@ definePage({
 
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
-import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { toFormSchema } from "@/utils/form";
 import { useToast, useDialog } from "@wot-ui/ui";
 import DictAPI, { type DictItemForm, type DictItemPageQuery, type DictDataItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
@@ -136,10 +141,10 @@ const initialFormData: DictItemForm = {
 
 const formData = reactive<DictItemForm>({ ...initialFormData });
 
-const rules: FormRules = {
+const rules = toFormSchema({
   label: [{ required: true, message: "请输入字典项标签" }],
   value: [{ required: true, message: "请输入字典项值" }],
-};
+});
 
 const handleSearch = () => loadItemList();
 
@@ -259,8 +264,8 @@ function showItemActions(item: DictDataItem) {
   actionSheetVisible.value = true;
 }
 
-function handleActionSelect({ value }: { value: string }) {
-  pendingAction.value[value]?.();
+function handleActionSelect({ item }: { item: any }) {
+  pendingAction.value[item.name]?.();
 }
 
 onReachBottom(() => {

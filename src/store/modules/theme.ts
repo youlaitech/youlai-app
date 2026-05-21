@@ -29,49 +29,11 @@ export const useThemeStore = defineStore("theme", () => {
 
   /**
    * 深色主题变量（仅在 dark 模式下注入）
+   * 注意：Wot UI v2 内置了完整的暗黑模式，不需要手动覆盖各个组件变量。
+   * 只需在 ConfigProvider 上设置 theme="dark" + 引入官方主题 SCSS 即可。
+   * 这里只保留颜色名映射，供自定义 CSS 类使用。
    */
-  const darkThemeVars = {
-    darkBackground: "#1f2937",
-    darkBackground2: "#111827",
-    darkBackground3: "#1e293b",
-    darkBackground4: "#374151",
-    darkBackground5: "#4b5563",
-    darkBackground6: "#6b7280",
-    darkBackground7: "#9ca3af",
-    darkColor: "#f9fafb",
-    darkColor2: "#9ca3af",
-    darkColor3: "#6b7280",
-    filledOppo: "#1f2937",
-    cardBg: "#1f2937",
-    cardBorderColor: "#374151",
-    cardTitleColor: "#f9fafb",
-    cardContentColor: "#9ca3af",
-    gridItemBg: "#1f2937",
-    gridItemTextColor: "#f9fafb",
-    gridItemIconColor: "#9ca3af",
-    cellBg: "#1f2937",
-    popupBg: "#1f2937",
-    searchBg: "#1f2937",
-    searchInputBg: "#374151",
-    inputBg: "#374151",
-    textareaBg: "#374151",
-    pickerBg: "#1f2937",
-    dialogBg: "#1f2937",
-    actionSheetBg: "#1f2937",
-    tabsNavBg: "#1f2937",
-    tabbarBg: "#1f2937",
-    navbarBg: "#1f2937",
-    buttonNormalBg: "#374151",
-    borderMain: "#374151",
-    borderLight: "#4b5563",
-    textMain: "#f9fafb",
-    textSecondary: "#9ca3af",
-    textPlaceholder: "#6b7280",
-    iconMain: "#f9fafb",
-    iconSecondary: "#9ca3af",
-    baseBlack: "#1f2937",
-    baseWhite: "#f9fafb",
-  };
+  const darkThemeVars = {};
 
   /** 主题变量（计算属性，根据模式动态切换） */
   const themeVars = computed<ConfigProviderThemeVars>(() => {

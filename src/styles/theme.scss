@@ -19,7 +19,6 @@ page {
   --z-dialog: 500;
   --z-toast: 600;
   --z-navbar: 700;
-  --z-fab: 800;
 
   // -----------------------------------------------------------------------
   // 主题色
@@ -84,19 +83,10 @@ page {
   --shadow-lg: 0 20rpx 30rpx rgba(0, 0, 0, 0.1);
 
   // -----------------------------------------------------------------------
-  // wot-design-uni 组件库变量
+  // 以下只保留主色调自定义，其余交给 Wot UI 官方主题
   // -----------------------------------------------------------------------
   --wot-color-theme: var(--color-primary);
-  --wot-color-success: var(--color-success);
-  --wot-color-warning: var(--color-warning);
-  --wot-color-danger: var(--color-danger);
-  --wot-button-normal-bg: var(--color-bg);
-  --wot-color-bg: var(--color-bg);
-  --wot-color-bg-light: var(--color-bg-secondary);
-  --wot-color-text: var(--color-text);
-  --wot-color-text-secondary: var(--color-text-secondary);
-  --wot-color-text-placeholder: var(--color-text-placeholder);
-  --wot-color-border: var(--color-border);
+  --wot-fab-z-index: 999;
 
   // -----------------------------------------------------------------------
   // 间距规范（8rpx 网格基数）
@@ -183,20 +173,7 @@ page {
   --shadow-lg: 0 20rpx 30rpx rgba(0, 0, 0, 0.4);
 
   // -----------------------------------------------------------------------
-  // wot-design-uni 组件库变量
+  // 以下只保留主色调自定义，其余交给 Wot UI 官方暗黑模式
   // -----------------------------------------------------------------------
   --wot-color-theme: var(--color-primary);
-  --wot-color-success: var(--color-success);
-  --wot-color-warning: var(--color-warning);
-  --wot-color-danger: var(--color-danger);
-  --wot-button-normal-bg: var(--color-bg-secondary);
-  --wot-color-bg: var(--color-bg);
-  --wot-color-bg-light: var(--color-bg-secondary);
-  --wot-color-text: var(--color-text);
-  --wot-color-text-secondary: var(--color-text-secondary);
-  --wot-color-text-placeholder: var(--color-text-placeholder);
-  --wot-color-border: var(--color-border);
-  --wot-radio-button-bg: var(--color-bg-tertiary);
-  --wot-radio-button-checked-bg: var(--color-primary);
-  --wot-radio-label-color: var(--color-text);
 }

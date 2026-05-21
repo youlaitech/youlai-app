@@ -27,7 +27,7 @@
               {{ item.publisherName || "系统管理员" }}
             </text>
           </view>
-          <wd-tag :type="getStatusType(item.publishStatus)" plain>
+          <wd-tag :type="getStatusType(item.publishStatus)" variant="plain">
             {{ getStatusText(item.publishStatus) }}
           </wd-tag>
         </view>
@@ -106,30 +106,31 @@
         <view class="popup-title">
           {{ formData.id ? "编辑通知" : "新增通知" }}
         </view>
-        <wd-form ref="formRef" :model="formData" :rules="formRules">
-          <wd-cell-group border>
-            <wd-input v-model="formData.title" label="标题" required placeholder="请输入通知标题" />
-            <wd-cell title="优先级">
-              <wd-radio-group v-model="formData.level" type="button">
-                <wd-radio value="L">低</wd-radio>
-                <wd-radio value="M">中</wd-radio>
-                <wd-radio value="H">高</wd-radio>
-              </wd-radio-group>
-            </wd-cell>
-            <wd-cell title="目标类型">
-              <wd-radio-group v-model="formData.targetType" type="button">
-                <wd-radio :value="1">全体</wd-radio>
-                <wd-radio :value="2">指定用户</wd-radio>
-              </wd-radio-group>
-            </wd-cell>
+        <wd-form ref="formRef" :model="formData" :schema="formRules">
+          <wd-form-item prop="title" title="标题" required>
+            <wd-input v-model="formData.title" placeholder="请输入通知标题" />
+          </wd-form-item>
+          <wd-form-item prop="level" title="优先级">
+            <wd-radio-group v-model="formData.level" type="button">
+              <wd-radio value="L">低</wd-radio>
+              <wd-radio value="M">中</wd-radio>
+              <wd-radio value="H">高</wd-radio>
+            </wd-radio-group>
+          </wd-form-item>
+          <wd-form-item prop="targetType" title="目标类型">
+            <wd-radio-group v-model="formData.targetType" type="button">
+              <wd-radio :value="1">全体</wd-radio>
+              <wd-radio :value="2">指定用户</wd-radio>
+            </wd-radio-group>
+          </wd-form-item>
+          <wd-form-item prop="content" title="内容">
             <wd-textarea
               v-model="formData.content"
-              label="内容"
               placeholder="请输入通知内容"
               :maxlength="500"
               show-word-limit
             />
-          </wd-cell-group>
+          </wd-form-item>
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeNoticeForm">取消</wd-button>
@@ -149,6 +150,8 @@
 
     <wd-fab
       v-if="hasPermission('sys:notice:create') && !formDialog.visible && !detailDialog.visible"
+      :expandable="false"
+      :gap="{ bottom: 32 }"
       @click="openNoticeForm()"
     />
   </view>
@@ -162,7 +165,7 @@ definePage({
 
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
-import { FormRules } from "@wot-ui/ui/components/wd-form/types";
+import { toFormSchema } from "@/utils/form";
 import { useToast, useDialog } from "@wot-ui/ui";
 import NoticeAPI, {
   type NoticePageQuery,
@@ -197,9 +200,9 @@ const initialFormData: NoticeForm = {
 };
 const formData = reactive<NoticeForm>({ ...initialFormData });
 
-const formRules: FormRules = {
+const formRules = toFormSchema({
   title: [{ required: true, message: "请输入通知标题" }],
-};
+});
 
 // 获取状态样式
 const getStatusType = (
@@ -387,8 +390,8 @@ function showNoticeActions(item: NoticeItem) {
   actionSheetVisible.value = true;
 }
 
-function handleActionSelect({ value }: { value: string }) {
-  pendingAction.value[value]?.();
+function handleActionSelect({ item }: { item: any }) {
+  pendingAction.value[item.name]?.();
 }
 
 onReachBottom(() => {

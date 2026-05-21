@@ -720,18 +720,18 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 16rpx;
-  margin-bottom: 72rpx;
+  margin-top: 8rpx;
+  margin-bottom: 40rpx;
 }
 
 .login__logo {
-  width: 160rpx;
-  height: 160rpx;
-  margin-bottom: 32rpx;
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 20rpx;
 }
 
 .login__brand-name {
-  font-size: 40rpx;
+  font-size: 36rpx;
   font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--color-text);
@@ -739,8 +739,9 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 
 .login__card {
   width: 100%;
-  padding: 64rpx;
+  padding: 44rpx;
   background-color: var(--color-bg);
+  border: 2rpx solid var(--color-border-light);
   border-radius: 48rpx;
   box-shadow: 0 20rpx 50rpx -10rpx rgba(0, 0, 0, 0.1);
 
@@ -753,25 +754,25 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 
 // 卡片头部
 .login__card-head {
-  margin-bottom: 64rpx;
+  margin-bottom: 36rpx;
   text-align: center;
 }
 
 .login__card-title {
-  font-size: 48rpx;
+  font-size: 40rpx;
   font-weight: 700;
   color: var(--color-text);
 }
 
 .login__card-subtitle {
   display: block;
-  margin-top: 16rpx;
-  font-size: 28rpx;
+  margin-top: 8rpx;
+  font-size: 26rpx;
   color: var(--color-text-secondary);
 }
 
 .login__form-item {
-  margin-top: 32rpx;
+  margin-top: 28rpx;
 
   &:first-child {
     margin-top: 0;
@@ -781,7 +782,7 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 // 覆盖 wd-form-item 默认样式，仅用于校验和错误提示
 :deep(.wd-form-item) {
   padding: 0 !important;
-  margin-top: 32rpx;
+  margin-top: 28rpx;
   background: transparent;
 
   &:first-child {
@@ -816,7 +817,7 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 .login__field {
   display: flex;
   align-items: center;
-  height: 96rpx;
+  height: 88rpx;
   padding: 0 32rpx;
   background-color: var(--color-bg-secondary);
   border-radius: 24rpx;
@@ -842,7 +843,7 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 96rpx;
+  height: 88rpx;
   font-size: 32rpx;
   font-weight: 600;
   color: var(--color-text-inverse);
@@ -884,7 +885,7 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 .login__mode-switch {
   display: flex;
   justify-content: center;
-  padding-top: 32rpx;
+  padding-top: 24rpx;
 }
 
 .login__mode-switch-text {
@@ -903,7 +904,7 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 .login__divider {
   display: flex;
   align-items: center;
-  margin: 48rpx 0;
+  margin: 32rpx 0;
 }
 
 .login__divider-line {
@@ -925,8 +926,8 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 }
 
 .login__wx-icon {
-  width: 80rpx;
-  height: 80rpx;
+  width: 72rpx;
+  height: 72rpx;
 
   &:active {
     transform: scale(0.95);
@@ -937,8 +938,8 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 32rpx;
-  margin-top: 48rpx;
+  padding-top: 24rpx;
+  margin-top: 32rpx;
   border-top: 2rpx solid var(--color-border-light);
 }
 
@@ -977,5 +978,30 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
   color: var(--color-warning);
   background-color: var(--color-warning-light);
   border-radius: 8rpx;
+}
+</style>
+
+<style lang="scss">
+/* 暗黑模式覆盖 - 非 scoped，因 .wot-theme-dark 位于页面根元素 */
+
+.wot-theme-dark {
+  .login__card {
+    background-color: #252d3a;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20rpx 50rpx -10rpx rgba(0, 0, 0, 0.4);
+  }
+
+  .login__divider-line {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .login__field {
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .login__navbar-btn {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
 }
 </style>
