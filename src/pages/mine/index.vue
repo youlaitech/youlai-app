@@ -95,7 +95,7 @@
           </view>
         </view>
 
-        <view class="quick-cards">
+        <view v-if="isLogin" class="quick-cards">
           <view class="quick-card" @click="openProfile">
             <view class="quick-card__icon quick-card__icon--info">
               <wd-icon name="user" size="28" color="var(--color-primary)" />
