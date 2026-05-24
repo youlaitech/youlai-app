@@ -212,7 +212,7 @@ import { getAccessToken } from "@/utils/auth";
 import { formatBytes } from "@/utils/format";
 
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 
 const userStore = useUserStore();
 const themeStore = useThemeStore();
@@ -391,10 +391,10 @@ const handleClearCache = async () => {
 
 const handleLogout = async () => {
   try {
-    await messageBox({
+    await confirm({
       title: "提示",
       msg: "确定要退出登录吗？",
-      type: "warning",
+      headerImage: "warning",
     });
     userStore.logout();
     toast.success("已退出登录");
