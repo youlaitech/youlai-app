@@ -87,10 +87,6 @@
 </template>
 
 <script lang="ts" setup>
-definePage({
-  name: "dept",
-  style: { navigationBarTitleText: "部门管理" },
-});
 
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form";
@@ -99,8 +95,14 @@ import DeptAPI, { type DeptQuery, DeptItem, DeptForm } from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
 import CustomTree from "@/components/custom-tree/index.vue";
 
+  definePage({
+    name: "dept",
+    style: { navigationBarTitleText: "部门管理" },
+  });
+
+
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 const formRef = ref();
 const isSubmitting = ref(false);
 
@@ -215,10 +217,10 @@ function handleActionSelect({ item }: { item: any }) {
   } else if (value === "编辑") {
     openDeptDialog(dept);
   } else if (value === "删除") {
-    messageBox({
+    confirm({
       title: "确认删除",
       msg: `确定要删除部门「${dept.name}」吗？`,
-      type: "warning",
+      headerImage: "warning",
     }).then(async () => {
       await DeptAPI.deleteByIds(String(dept.id));
       toast.success("删除成功");
@@ -284,7 +286,7 @@ async function openDeptDialog(dept?: DeptItem) {
         const columns: OptionType[][] = [firstColumn];
         let currentLevel = data;
         for (let i = 0; i < path.length - 1; i++) {
-          const found = currentLevel.find((item) => String(item.value) === path[i]);
+          const found = currentLevel.find((item: any) => String(item.value) === path[i]);
           if (found && found.children) {
             columns.push(found.children);
             currentLevel = found.children;

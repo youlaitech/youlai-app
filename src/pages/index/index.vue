@@ -92,11 +92,7 @@
 </template>
 
 <script setup lang="ts">
-definePage({
-  name: "home",
-  style: { navigationStyle: "custom" },
-  layout: "tabbar",
-});
+
 
 import { computed, ref } from "vue";
 import dayjs from "dayjs";
@@ -108,6 +104,12 @@ import { isLoggedIn } from "@/utils/auth";
 import { hasPermission } from "@/utils/permission";
 import LogAPI, { type VisitOverview, type VisitTrend } from "@/api/log";
 import NoticeAPI, { type NoticeItem } from "@/api/notice";
+
+  definePage({
+    name: "home",
+    style: { navigationStyle: "custom" },
+    layout: "tabbar",
+  });
 
 interface NavItem {
   icon: string;

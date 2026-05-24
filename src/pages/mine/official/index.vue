@@ -21,12 +21,14 @@
 </template>
 
 <script lang="ts" setup>
+
+
+  import { onLoad } from "@dcloudio/uni-app";
+
 definePage({
   name: "official",
   style: { navigationBarTitleText: "公众号" },
 });
-
-import { onLoad } from "@dcloudio/uni-app";
 
 onLoad(() => {
   uni.setNavigationBarTitle({ title: "公众号" });

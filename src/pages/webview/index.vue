@@ -5,13 +5,15 @@
 </template>
 
 <script setup lang="ts">
+
+
+  import { ref } from "vue";
+  import { onLoad } from "@dcloudio/uni-app";
+
 definePage({
   name: "webview",
   style: { navigationBarTitleText: "网页" },
 });
-
-import { ref } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
 
 const url = ref("");
 

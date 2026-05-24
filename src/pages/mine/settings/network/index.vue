@@ -32,12 +32,14 @@
 </template>
 
 <script lang="ts" setup>
+
+import { onLoad } from "@dcloudio/uni-app";
+
 definePage({
   name: "network",
   style: { navigationBarTitleText: "网络测试" },
 });
 
-import { onLoad } from "@dcloudio/uni-app";
 
 const result = ref<number | null>(null);
 const isTesting = ref(false);
