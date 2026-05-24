@@ -115,7 +115,7 @@ import DictAPI, { type DictItemForm, type DictItemPageQuery, type DictDataItem }
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 
 const dictCode = ref<string>("");
 const pageTitle = ref<string>("字典数据");
@@ -238,10 +238,10 @@ function showItemActions(item: DictDataItem) {
     actions.push({ name: "删除", color: "var(--color-danger)" });
     actionMap["删除"] = async () => {
       try {
-        await messageBox({
+        await confirm({
           title: "确认删除",
           msg: `确定要删除字典数据「${item.label}」吗？`,
-          type: "warning",
+          headerImage: "warning",
         });
         if (item.id) {
           await DictAPI.deleteItems(dictCode.value, String(item.id));
@@ -276,7 +276,7 @@ onReachBottom(() => {
   }
 });
 
-onLoad((query) => {
+  onLoad((query: any) => {
   dictCode.value = String((query as any)?.dictCode || "");
   pageTitle.value = String((query as any)?.title || "字典数据");
   if (pageTitle.value) {

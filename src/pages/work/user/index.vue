@@ -213,7 +213,7 @@ import DeptAPI from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 const { closeOutside } = useQueue();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
@@ -339,7 +339,7 @@ function resetUserFilter() {
 function fetchUserList() {
   loadMoreState.value = "loading";
   UserAPI.getPage(queryParams)
-    .then((data) => {
+    .then((data: any) => {
       pageData.value = data.list;
       total.value = data.total;
       queryParams.pageNum++;
@@ -453,10 +453,10 @@ function showUserActions(item: UserItem) {
     actions.push({ name: "删除", color: "var(--color-danger)" });
     actionMap["删除"] = async () => {
       try {
-        await messageBox({
+        await confirm({
           title: "确认删除",
           msg: `确定要删除用户「${item.nickname}」吗？`,
-          type: "warning",
+          headerImage: "warning",
         });
         await UserAPI.deleteByIds(String(item.id));
         toast.success("删除成功");

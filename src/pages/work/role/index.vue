@@ -124,7 +124,7 @@ import RoleAPI, { type RolePageQuery, RoleItem, RoleForm } from "@/api/role";
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
 const isSubmitting = ref(false);
@@ -235,10 +235,10 @@ function handleActionSelect({ item }: { item: any }) {
   } else if (value === "分配权限") {
     handleAssignPerm(role.id);
   } else if (value === "删除") {
-    messageBox({
+    confirm({
       title: "确认删除",
       msg: `确定要删除角色「${role.name}」吗？`,
-      type: "warning",
+      headerImage: "warning",
     }).then(async () => {
       await RoleAPI.deleteByIds(String(item.id));
       toast.success("删除成功");

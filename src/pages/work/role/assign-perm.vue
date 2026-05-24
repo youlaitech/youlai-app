@@ -76,16 +76,17 @@
 </template>
 
 <script lang="ts" setup>
-definePage({
-  name: "role-assign-perm",
-  style: { navigationBarTitleText: "分配权限" },
-});
 
 import { onLoad } from "@dcloudio/uni-app";
 import MenuAPI, { type MenuItem } from "@/api/menu";
 import RoleAPI from "@/api/role";
 import CustomTree from "@/components/custom-tree/index.vue";
 import type { TreeOption } from "@/components/custom-tree/index.vue";
+
+  definePage({
+    name: "role-assign-perm",
+    style: { navigationBarTitleText: "分配权限" },
+  });
 
 const toast = useToast();
 const isSubmitting = ref(false);

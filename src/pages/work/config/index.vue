@@ -111,7 +111,7 @@ import ConfigAPI, { type ConfigPageQuery, ConfigItem, ConfigForm } from "@/api/c
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
 const isSubmitting = ref(false);
@@ -154,7 +154,7 @@ function loadConfigList() {
 function fetchConfigList() {
   loadMoreState.value = "loading";
   ConfigAPI.getPage(queryParams)
-    .then((data) => {
+    .then((data: any) => {
       pageData.value = data.list;
       total.value = data.total;
       queryParams.pageNum++;
@@ -211,10 +211,10 @@ function handleActionSelect({ item }: { item: any }) {
   if (value === "编辑") {
     openConfigDialog(configItem.id);
   } else if (value === "删除") {
-    messageBox({
+    confirm({
       title: "确认删除",
       msg: `确定要删除配置「${configItem.configName}」吗？`,
-      type: "warning",
+      headerImage: "warning",
     }).then(async () => {
       await ConfigAPI.deleteById(configItem.id!);
       toast.success("删除成功");

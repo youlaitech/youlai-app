@@ -176,7 +176,7 @@ import NoticeAPI, {
 import { hasPermission } from "@/utils/permission";
 
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
 const isSubmitting = ref(false);
@@ -335,7 +335,7 @@ function showNoticeActions(item: NoticeItem) {
       actions.push({ name: "删除", color: "var(--color-danger)" });
       actionMap["删除"] = async () => {
         try {
-          await messageBox({
+          await confirm({
             title: "确认删除",
             msg: `确定要删除通知「${item.title}」吗？`,
             type: "warning",
@@ -352,7 +352,7 @@ function showNoticeActions(item: NoticeItem) {
       actions.push({ name: "发布" });
       actionMap["发布"] = async () => {
         try {
-          await messageBox({
+          await confirm({
             title: "确认发布",
             msg: `确定要发布通知「${item.title}」吗？`,
             type: "warning",
@@ -370,7 +370,7 @@ function showNoticeActions(item: NoticeItem) {
       actions.push({ name: "撤回", color: "var(--color-warning)" });
       actionMap["撤回"] = async () => {
         try {
-          await messageBox({
+          await confirm({
             title: "确认撤回",
             msg: `确定要撤回通知「${item.title}」吗？`,
             type: "warning",

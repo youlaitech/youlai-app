@@ -107,7 +107,7 @@ import { hasPermission } from "@/utils/permission";
 
 const router = useRouter();
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 const loadMoreState = ref<LoadMoreState>("loading");
 const formRef = ref();
 const isSubmitting = ref(false);
@@ -218,10 +218,10 @@ function showDictActions(item: DictTypeItem) {
     actions.push({ name: "删除", color: "var(--color-danger)" });
     actionMap["删除"] = async () => {
       try {
-        await messageBox({
+        await confirm({
           title: "确认删除",
           msg: `确定要删除字典「${item.name}」吗？`,
-          type: "warning",
+          headerImage: "warning",
         });
         if (item.id) {
           await DictAPI.deleteByIds(String(item.id));

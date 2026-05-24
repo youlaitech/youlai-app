@@ -126,7 +126,7 @@ import { hasPermission } from "@/utils/permission";
 import CustomTree from "@/components/custom-tree/index.vue";
 
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 const formRef = ref();
 const isSubmitting = ref(false);
 
@@ -154,7 +154,7 @@ const initialFormData: MenuForm = {
 const formData = reactive<MenuForm>({ ...initialFormData });
 
 // 转换为树组件数据格式
-const treeData = computed(() => menuList.value.map((menu) => transformMenuToTree(menu)));
+  const treeData = computed(() => menuList.value.map((menu: MenuItem) => transformMenuToTree(menu)));
 
 function transformMenuToTree(menu: MenuItem): any {
   return {
@@ -166,7 +166,7 @@ function transformMenuToTree(menu: MenuItem): any {
     icon: menu.icon,
     visible: menu.visible,
     perm: menu.perm,
-    children: menu.children?.map((child) => transformMenuToTree(child)) || [],
+    children: menu.children?.map((child: MenuItem) => transformMenuToTree(child)) || [],
   };
 }
 
@@ -252,7 +252,7 @@ const rules = toFormSchema({
 const handleSearch = () => loadMenuList();
 
 function loadMenuList() {
-  MenuAPI.getList(queryParams).then((data) => {
+  MenuAPI.getList(queryParams).then((data: any) => {
     menuList.value = data;
   });
 }
@@ -266,10 +266,10 @@ function handleActionSelect({ item }: { item: any }) {
   } else if (value === "编辑") {
     openMenuDialog(menu);
   } else if (value === "删除") {
-    messageBox({
+    confirm({
       title: "确认删除",
       msg: `确定要删除菜单「${menu.name}」吗？`,
-      type: "warning",
+      headerImage: "warning",
     }).then(async () => {
       await MenuAPI.deleteById(menu.id!);
       toast.success("删除成功");
@@ -336,7 +336,7 @@ async function openMenuDialog(menu?: MenuItem) {
         const columns: OptionType[][] = [firstColumn];
         let currentLevel = data;
         for (let i = 0; i < path.length - 1; i++) {
-          const found = currentLevel.find((item) => String(item.value) === String(path[i]));
+          const found = currentLevel.find((item: any) => String(item.value) === String(path[i]));
           if (found && found.children && found.children.length > 0) {
             columns.push(found.children);
             currentLevel = found.children;
