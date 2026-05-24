@@ -24,64 +24,66 @@
                   <wd-icon name="camera" size="40" color="var(--color-text-placeholder)" />
                   <text class="avatar-picker__hint">选择头像</text>
                 </view>
-              </view> <!-- #ifdef MP-WEIXIN -->
+
+                <!-- #ifdef MP-WEIXIN -->
             </button>
             <!-- #endif -->
             <!-- #ifndef MP-WEIXIN -->
           </view>
           <!-- #endif -->
         </view>
-
-        <!-- 昵称 -->
-        <view class="profile-form__section">
-          <view class="profile-form__label">
-            昵称
-            <text class="profile-form__required">*</text>
-          </view>
-          <!-- #ifdef MP-WEIXIN -->
-          <input v-model="profileForm.nickname" type="nickname" class="profile-form__nickname-input" placeholder="请输入昵称" :maxlength="20" />
-          <!-- #endif -->
-          <!-- #ifndef MP-WEIXIN -->
-          <wd-input v-model="profileForm.nickname" placeholder="请输入昵称" prop="nickname" :rules="rules.nickname"
-            custom-class="profile-form__nickname-input" />
-          <!-- #endif -->
-        </view>
-
-        <!-- 性别 -->
-        <view class="profile-form__section">
-          <view class="profile-form__label">性别</view>
-          <wd-radio-group v-model="profileForm.gender" type="button" class="gender-group">
-            <wd-radio :value="1" class="gender-radio">男</wd-radio>
-            <wd-radio :value="2" class="gender-radio">女</wd-radio>
-          </wd-radio-group>
-        </view>
-
-        <!-- 手机号 -->
-        <view class="profile-form__section">
-          <view class="profile-form__label">
-            手机号
-            <text class="profile-form__required">*</text>
-          </view>
-          <wd-input v-model="profileForm.mobile" placeholder="请输入手机号" prop="mobile" custom-class="profile-form__nickname-input" />
-        </view>
-      </wd-form>
     </view>
 
-    <!-- 底部 -->
-    <view class="profile-footer">
-      <wd-button class="profile-footer__submit" type="primary" size="large" block :disabled="!canComplete || isLoading" :loading="isLoading"
-        @click="handleComplete">
-        完成
-      </wd-button>
-      <view class="profile-footer__skip" @click="handleSkip">
-        <text>暂时跳过</text>
+    <!-- 昵称 -->
+    <view class="profile-form__section">
+      <view class="profile-form__label">
+        昵称
+        <text class="profile-form__required">*</text>
       </view>
+      <!-- #ifdef MP-WEIXIN -->
+      <input v-model="profileForm.nickname" type="nickname" class="profile-form__nickname-input" placeholder="请输入昵称" :maxlength="20" />
+      <!-- #endif -->
+      <!-- #ifndef MP-WEIXIN -->
+      <wd-input v-model="profileForm.nickname" placeholder="请输入昵称" prop="nickname" :rules="rules.nickname"
+        custom-class="profile-form__nickname-input" />
+      <!-- #endif -->
     </view>
 
-    <!-- 头像裁剪 -->
-    <wd-img-cropper v-model="cropperVisible" :img-src="originalImageSrc" @confirm="handleAvatarConfirm" />
+    <!-- 性别 -->
+    <view class="profile-form__section">
+      <view class="profile-form__label">性别</view>
+      <wd-radio-group v-model="profileForm.gender" type="button" class="gender-group">
+        <wd-radio :value="1" class="gender-radio">男</wd-radio>
+        <wd-radio :value="2" class="gender-radio">女</wd-radio>
+      </wd-radio-group>
+    </view>
 
-    <wd-toast />
+    <!-- 手机号 -->
+    <view class="profile-form__section">
+      <view class="profile-form__label">
+        手机号
+        <text class="profile-form__required">*</text>
+      </view>
+      <wd-input v-model="profileForm.mobile" placeholder="请输入手机号" prop="mobile" custom-class="profile-form__nickname-input" />
+    </view>
+    </wd-form>
+  </view>
+
+  <!-- 底部 -->
+  <view class="profile-footer">
+    <wd-button class="profile-footer__submit" type="primary" size="large" block :disabled="!canComplete || isLoading" :loading="isLoading"
+      @click="handleComplete">
+      完成
+    </wd-button>
+    <view class="profile-footer__skip" @click="handleSkip">
+      <text>暂时跳过</text>
+    </view>
+  </view>
+
+  <!-- 头像裁剪 -->
+  <wd-img-cropper v-model="cropperVisible" :img-src="originalImageSrc" @confirm="handleAvatarConfirm" />
+
+  <wd-toast />
   </view>
 </template>
 
