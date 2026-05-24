@@ -1,17 +1,63 @@
+<div align="center">
+
+# youlai-app
+
+**基于 uni-app、Vue 3、TypeScript 和 Wot UI 的移动端跨平台应用模板**
+
+[![Vue](https://img.shields.io/badge/Vue-3.5-42b883?logo=vue.js)](https://vuejs.org/)
+[![uni-app](https://img.shields.io/badge/uni--app-3.x-2b9939)](https://uniapp.dcloud.net.cn/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript)](https://www.typescriptlang.org/)
+[![Wot UI](https://img.shields.io/badge/Wot%20UI-2.x-4f8cff)](https://wot-ui.cn/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE)
+
+[在线预览](https://app.youlai.tech) | [项目文档](https://www.youlai.tech/docs/app/) | [配套后端](https://www.youlai.tech/docs/server/) | [PC 管理端](https://www.youlai.tech/docs/web/)
+
+</div>
+
 ## 项目介绍
 
-基于 uni-app + Vue 3 + TypeScript 移动端跨平台开发模板，集成了 ESLint、Prettier、Stylelint、Husky 和 Commitlint 等工具，确保代码规范与质量。
+**youlai-app** 是有来开源生态的移动端项目，面向 H5、微信小程序和 App 等多端场景，适合用作企业中后台、会员中心、移动工作台、小程序业务端的二次开发基础。
 
-## 项目截图
+项目和 [vue3-element-admin](https://gitee.com/youlaiorg/vue3-element-admin)、[youlai-boot](https://gitee.com/youlaiorg/youlai-boot) 使用同一套接口规范，可直接对接 Java / Node.js / Go / Python / PHP / C# 等多种后端实现。
 
-![](https://www.youlai.tech/storage/blog/2025/04/30/app.jpg)
+## 核心特性
 
-## 项目文档
+- **跨端开发**：一套代码支持 H5、微信小程序、App 等平台。
+- **Vue 3 技术栈**：基于 Vue 3、TypeScript、Pinia、Vite 和 uni-app。
+- **Wot UI 组件库**：移动端组件风格统一，适合快速搭建业务页面。
+- **自动化能力**：集成页面路由、组件自动导入、API 自动导入等常用工程能力。
+- **规范化工程**：内置 ESLint、Prettier、Stylelint、Husky、Commitlint。
+- **生态联动**：可与 `vue3-element-admin` 和有来多语言后端无缝配套使用。
 
-- [官方文档](https://www.youlai.tech/docs/app/)
-- [从0到1构建 UniApp + Vue3 + TypeScript 移动端跨平台开源脚手架](https://juejin.cn/post/7448963032993038376)
+## 系统预览
 
-## 项目启动
+<table align="center">
+  <tr>
+    <td><img alt="APP 预览 1" width="200" src="./docs/images/preview/app-01.png"></td>
+    <td><img alt="APP 预览 2" width="200" src="./docs/images/preview/app-02.png"></td>
+    <td><img alt="APP 预览 3" width="200" src="./docs/images/preview/app-03.png"></td>
+    <td><img alt="APP 预览 4" width="200" src="./docs/images/preview/app-04.png"></td>
+  </tr>
+</table>
+
+## 在线体验
+
+| 类型 | 地址 |
+|:-----|:-----|
+| H5 预览 | [https://app.youlai.tech](https://app.youlai.tech) |
+| 官方文档 | [https://www.youlai.tech/docs/app/](https://www.youlai.tech/docs/app/) |
+| PC 管理端 | [https://vue.youlai.tech](https://vue.youlai.tech) |
+| Apifox 接口文档 | [https://www.apifox.cn/apidoc/shared-195e783f-4d85-4235-a038-eec696de4ea5](https://www.apifox.cn/apidoc/shared-195e783f-4d85-4235-a038-eec696de4ea5) |
+
+默认账号：`admin` / `123456`
+
+## 快速开始
+
+### 环境要求
+
+- Node.js 18+
+- pnpm 8+
+- 微信开发者工具（运行微信小程序时需要）
 
 ### 安装依赖
 
@@ -25,74 +71,121 @@ pnpm install
 pnpm run dev:h5
 ```
 
-访问 [http://localhost:4096](http://localhost:4096)
+启动后访问 [http://localhost:4096](http://localhost:4096)。
 
-### 微信小程序启动
+### H5 打包
 
-#### 1. 编译项目
+```bash
+pnpm run build:h5
+```
+
+构建产物默认输出到 `dist/build/h5`，可部署到 Nginx、OSS、静态站点托管等服务。
+
+## 微信小程序
+
+### 开发调试
 
 ```bash
 pnpm run dev:mp-weixin
 ```
 
-编译完成后，会在 `dist/dev/mp-weixin` 目录下生成微信小程序代码。
+编译完成后，使用微信开发者工具导入 `dist/dev/mp-weixin` 目录。
 
-#### 2. 导入项目到微信开发者工具
+### 生产打包
 
-- 打开**微信开发者工具**
-- 点击 **"导入项目"**
-- 选择项目根目录下的 `dist/dev/mp-weixin` 文件夹
-- 填写 AppID（没有可以选择测试号）
-
-#### 3. 配置微信开发者工具（⚠️ 重要）
-
-在微信开发者工具中，点击右上角的 **"详情"** → **"本地设置"**，确保以下配置：
-
-- ✅ **不校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书** - 必须勾选（开发环境）
-- ✅ **ES6 转 ES5** - 建议勾选
-- ❌ **过滤无依赖文件** - **必须取消勾选**（否则会导致组件无法加载）
-- ❌ **上传时过滤无依赖文件** - 建议取消勾选
-
-#### 4. 首次运行或遇到组件加载问题
-
-如果遇到组件无法加载或页面报错，请执行以下操作：
-
-1. **清除缓存**：点击菜单 `工具` → `清除缓存` → `全部清除`
-2. **重新编译**：点击工具栏的 **"编译"** 按钮
-3. **重新载入项目配置**：点击菜单 `项目` → `重新载入项目配置`
-
-如果问题依然存在，尝试：
-
-- 关闭微信开发者工具
-- 重新打开并导入项目
-
-## 组件结构
-
-项目组件分为以下几类：
-
-- **基础组件**：`src/components` 下的通用组件
-- **业务组件**：`src/components/business` 下的业务相关组件
-  - `WechatProfile.vue`: 微信小程序环境下的头像、昵称和性别选择组件
-
-使用业务组件：
-
-```vue
-<template>
-  <WechatProfile v-model="profileData" @change="onProfileChange" />
-</template>
-
-<script lang="ts" setup>
-import { ref } from "vue";
-import { WechatProfile } from "@/components/business";
-
-const profileData = ref({
-  avatar: "",
-  nickname: "",
-  gender: 1,
-});
-
-const onProfileChange = (data) => {
-  console.log("个人资料变更:", data);
-};
-</script>
+```bash
+pnpm run build:mp-weixin
 ```
+
+构建产物默认输出到 `dist/build/mp-weixin`，在微信开发者工具中导入后即可预览、上传和提交审核。
+
+### 微信开发者工具配置
+
+导入项目后，进入右上角 **详情** → **本地设置**，建议开发环境按以下方式配置：
+
+- 勾选 **不校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书**。
+- 勾选 **ES6 转 ES5**。
+- 取消勾选 **过滤无依赖文件**，避免部分组件无法加载。
+- 如遇组件加载异常，可依次尝试清除缓存、重新编译、重新载入项目配置。
+
+## 常用命令
+
+| 命令 | 说明 |
+|:-----|:-----|
+| `pnpm run dev:h5` | 启动 H5 开发服务 |
+| `pnpm run build:h5` | 构建 H5 生产包 |
+| `pnpm run dev:mp-weixin` | 编译微信小程序开发包 |
+| `pnpm run build:mp-weixin` | 构建微信小程序生产包 |
+| `pnpm run dev:app` | 启动 App 开发编译 |
+| `pnpm run build:app` | 构建 App 生产包 |
+| `pnpm run type-check` | TypeScript 类型检查 |
+| `pnpm run lint:eslint` | ESLint 检查并修复 |
+| `pnpm run lint:prettier` | Prettier 格式化 |
+| `pnpm run lint:stylelint` | Stylelint 检查并修复 |
+
+## 目录结构
+
+```text
+youlai-app/
+├── docs/                         # README 预览图、二维码等文档资源
+├── public/                       # 静态资源
+├── src/
+│   ├── api/                      # 接口请求
+│   ├── components/               # 通用组件和业务组件
+│   ├── composables/              # 组合式函数
+│   ├── config/                   # 项目配置
+│   ├── constants/                # 常量定义
+│   ├── enums/                    # 枚举定义
+│   ├── layouts/                  # 页面布局
+│   ├── pages/                    # 页面文件
+│   ├── router/                   # 路由配置
+│   ├── static/                   # 应用静态资源
+│   ├── store/                    # Pinia 状态管理
+│   ├── styles/                   # 全局样式
+│   ├── types/                    # 类型声明
+│   ├── utils/                    # 工具函数
+│   ├── App.vue                   # 应用入口组件
+│   ├── main.ts                   # 应用入口文件
+│   ├── manifest.json             # uni-app 应用配置
+│   └── pages.json                # 页面和导航配置
+├── package.json                  # 依赖和脚本
+├── pages.config.ts               # 页面生成配置
+├── unocss.config.ts              # UnoCSS 配置
+└── vite.config.ts                # Vite 配置
+```
+
+## 配套生态
+
+| 项目 | 技术栈 | 说明 |
+|:-----|:-------|:-----|
+| [vue3-element-admin](https://gitee.com/youlaiorg/vue3-element-admin) | Vue 3 + Element Plus | PC 管理端 |
+| [youlai-boot](https://gitee.com/youlaiorg/youlai-boot) | Spring Boot | Java 后端 |
+| [youlai-nest](https://gitee.com/youlaiorg/youlai-nest) | NestJS + TypeORM | Node.js 后端 |
+| [youlai-gin](https://gitee.com/youlaiorg/youlai-gin) | Go + Gorm | Go 后端 |
+| [youlai-django](https://gitee.com/youlaiorg/youlai-django) | Django + DRF | Python 后端 |
+| [youlai-think](https://gitee.com/youlaiorg/youlai-think) | ThinkPHP 8 | PHP 后端 |
+| [youlai-aspnet](https://gitee.com/youlaiorg/youlai-aspnet) | ASP.NET Core | C# 后端 |
+
+## 联系我们
+
+如果这个项目对你有帮助，欢迎关注公众号、体验小程序，也可以添加作者微信交流技术、问题反馈、二次开发和商务合作。
+
+<p align="center">
+  <img src="./docs/images/qr/wechat-offical.png" height="180" alt="有来技术公众号">
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="./docs/images/qr/wechat-mp.jpg" height="180" alt="有来技术小程序">
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="./docs/images/qr/wechat-personal.png" height="180" alt="作者微信">
+</p>
+<p align="center">
+  <sub>公众号「有来技术」</sub>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <sub>有来技术小程序</sub>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <sub>添加作者微信</sub>
+</p>
+<p align="center"><em>技术交流 · 问题反馈 · 二开定制 · 商务合作</em></p>
+
+## 开源协议
+
+本项目基于 [Apache License 2.0](LICENSE) 开源，可免费用于商业项目。
