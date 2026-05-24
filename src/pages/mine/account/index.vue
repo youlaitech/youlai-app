@@ -172,7 +172,7 @@ import UserAPI, {
 } from "@/api/user";
 
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 
 const validatorConfirmPassword = (value: string) => {
   if (!value) {
@@ -225,10 +225,10 @@ const { countdown: emailCountdown, start: startEmailCountdown } = useCountdown(6
 
 const handleUnbindWechat = async () => {
   try {
-    await messageBox({
+    await confirm({
       title: "提示",
       msg: "确定要解绑微信吗？解绑后将无法使用微信小程序登录",
-      type: "warning",
+      headerImage: "warning",
     });
     await UserAPI.unbindSocial("WECHAT_MINI");
     toast.success("解绑成功");

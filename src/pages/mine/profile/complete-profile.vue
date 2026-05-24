@@ -126,7 +126,7 @@ import UserAPI, { type UserProfileForm } from "@/api/user";
 import FileAPI, { type FileInfo } from "@/api/file";
 
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 const userStore = useUserStore();
 
 const redirect = ref("/pages/index/index");
@@ -258,7 +258,7 @@ const handleComplete = async () => {
 
 const handleSkip = async () => {
   try {
-    await messageBox({ title: "提示", msg: "跳过信息完善可能会影响部分功能使用，确定要跳过吗？", type: "warning" });
+    await confirm({ title: "提示", msg: "跳过信息完善可能会影响部分功能使用，确定要跳过吗？", headerImage: "warning" });
     uni.reLaunch({ url: redirect.value });
   } catch {
     // 用户取消

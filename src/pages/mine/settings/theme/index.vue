@@ -122,7 +122,7 @@ import { useToast, useDialog } from "@wot-ui/ui";
 const { isDark, themeVars, themeColorOptions, toggleTheme, setThemeColor } = useTheme();
 
 const toast = useToast();
-const { messageBox } = useDialog();
+  const { confirm } = useDialog();
 
 // 创建响应式的计算属性
 const isDarkMode = computed(() => isDark.value);
@@ -195,7 +195,7 @@ const applyCustomColor = () => {
 // 重置为默认主题
 const handleResetTheme = async () => {
   try {
-    await messageBox({ title: "确认重置", msg: "确定要重置为默认主题吗？", type: "warning" });
+    await confirm({ title: "确认重置", msg: "确定要重置为默认主题吗？", headerImage: "warning" });
     setThemeColor(themeColorOptions[0]);
     customColor.value = themeColorOptions[0].primary;
     toast.success("已重置为默认主题");
