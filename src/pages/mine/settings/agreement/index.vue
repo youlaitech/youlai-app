@@ -20,10 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-definePage({
-  name: "theme",
-  style: { navigationBarTitleText: "用户协议" },
-});
+
 
 const activeNames = ref(["0"]); // 默认展开第一项
 
@@ -59,6 +56,11 @@ const agreementContent = [
       "我们保留随时修改本协议的权利。协议修改后，如果您继续使用本应用服务，即视为您已接受修改后的协议。我们建议您定期查看本协议以了解任何变更。",
   },
 ];
+
+  definePage({
+    name: "theme",
+    style: { navigationBarTitleText: "用户协议" },
+  });
 
 // 同意协议
 const handleAgree = () => {

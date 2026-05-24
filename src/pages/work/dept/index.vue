@@ -87,10 +87,6 @@
 </template>
 
 <script lang="ts" setup>
-definePage({
-  name: "dept",
-  style: { navigationBarTitleText: "部门管理" },
-});
 
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form";
@@ -98,6 +94,12 @@ import { useToast, useDialog } from "@wot-ui/ui";
 import DeptAPI, { type DeptQuery, DeptItem, DeptForm } from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
 import CustomTree from "@/components/custom-tree/index.vue";
+
+  definePage({
+    name: "dept",
+    style: { navigationBarTitleText: "部门管理" },
+  });
+
 
 const toast = useToast();
   const { confirm } = useDialog();

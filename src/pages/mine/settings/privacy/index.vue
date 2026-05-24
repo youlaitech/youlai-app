@@ -20,10 +20,6 @@
 </template>
 
 <script lang="ts" setup>
-definePage({
-  name: "privacy",
-  style: { navigationBarTitleText: "隐私政策" },
-});
 
 const activeNames = ref(["0"]); // 默认展开第一项
 
@@ -74,6 +70,12 @@ const privacyContent = [
       "如果您对本隐私政策有任何疑问、意见或建议，或在使用我们的服务过程中遇到任何与个人信息保护相关的问题，欢迎通过以下方式与我们联系。我们将在15个工作日内回复您的请求。",
   },
 ];
+
+  definePage({
+    name: "privacy",
+    style: { navigationBarTitleText: "隐私政策" },
+  });
+
 
 // 同意隐私政策
 const handleAgree = () => {

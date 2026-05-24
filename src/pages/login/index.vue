@@ -258,10 +258,6 @@
 </template>
 
 <script lang="ts" setup>
-definePage({
-  name: "login",
-  style: { navigationStyle: "custom", navigationBarTitleText: "" },
-});
 
 import { onLoad, onShow } from "@dcloudio/uni-app";
 import { useToast, useDialog } from "@wot-ui/ui";
@@ -270,6 +266,11 @@ import type { FormSchema } from "@wot-ui/ui/components/wd-form/types";
 import { useUserStore } from "@/store/modules/user";
 import { useCountdown } from "@/composables/useCountdown";
 import AuthAPI from "@/api/auth";
+
+  definePage({
+    name: "login",
+    style: { navigationStyle: "custom", navigationBarTitleText: "" },
+  });
 
 const toast = useToast();
 const dialog = useDialog("policy-box");
