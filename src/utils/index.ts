@@ -5,11 +5,12 @@
  * @returns
  */
 const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number) => {
-  let timer: number | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
   return function (this: any, ...args: Parameters<T>) {
-    if (timer) clearTimeout(timer);
+    if (timer !== null) clearTimeout(timer);
     timer = setTimeout(() => {
       fn.apply(this, args);
+      timer = null;
     }, delay);
   };
 };
