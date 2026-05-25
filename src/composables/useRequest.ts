@@ -212,7 +212,7 @@ export interface UsePaginationReturn<T> {
  * @param options 配置选项
  */
 export function usePagination<T>(
-  requestFn: (params: PaginationParams) => Promise<PageResult<T[]>>,
+  requestFn: (params: PaginationParams) => Promise<PageResult<T>>,
   options: UsePaginationOptions<T> = {}
 ): UsePaginationReturn<T> {
   const { pageSize = 10, initialData = [], onSuccess, onError } = options;
