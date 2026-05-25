@@ -124,7 +124,7 @@ export interface DeptForm {
   /** 父部门ID */
   parentId: number;
   /** 排序 */
-  sort?: number;
+  sort: number;
   /** 状态(1:启用；0：禁用) */
   status?: number;
 }

@@ -187,6 +187,15 @@ export function useNavbar(options: UseNavbarOptions = {}): UseNavbarReturn {
       }
     } catch (e) {
       console.warn("获取胶囊按钮位置失败，使用默认值", e);
+      // 兜底：设置合理的默认胶囊按钮尺寸
+      menuButton.value = {
+        width: 87,
+        height: 32,
+        top: statusBarHeight.value + 6,
+        right: windowWidth.value - 10,
+        bottom: statusBarHeight.value + 38,
+        left: windowWidth.value - 97,
+      };
     }
   };
   // #endif
@@ -194,14 +203,7 @@ export function useNavbar(options: UseNavbarOptions = {}): UseNavbarReturn {
   // 初始化
   const init = () => {
     try {
-      // 优先使用新版 API（uni.getWindowInfo），降级到 uni.getSystemInfoSync
-      let systemInfo: UniApp.GetSystemInfoSyncSuccess;
-      try {
-        // @ts-expect-error uni.getWindowInfo 是新版 API
-        systemInfo = uni.getWindowInfo?.() || uni.getSystemInfoSync();
-      } catch {
-        systemInfo = uni.getSystemInfoSync();
-      }
+      const systemInfo = uni.getSystemInfoSync();
 
       statusBarHeight.value = systemInfo.statusBarHeight || 0;
       safeAreaBottom.value = systemInfo.safeAreaInsets?.bottom || 0;

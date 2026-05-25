@@ -112,8 +112,9 @@ export interface DictItemForm {
   dictCode?: string;
   label?: string;
   value?: string;
-  sort?: number;
+  sort: number;
   status?: number;
+  remark?: string;
 }
 
 export interface DictDataItem {
@@ -123,4 +124,5 @@ export interface DictDataItem {
   value?: string;
   sort?: number;
   status?: number;
+  remark?: string;
 }

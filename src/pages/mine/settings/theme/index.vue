@@ -101,7 +101,7 @@
   });
 
   // 使用主题组合函数
-  const { isDark, themeVars, themeColorOptions, toggleTheme, setThemeColor } = useTheme();
+  const { isDark, themeColorOptions, toggleTheme, setThemeColor } = useTheme();
 
   const toast = useToast();
   const { confirm } = useDialog();
@@ -115,7 +115,7 @@
 
   // 当前选中的主题色
   const currentThemeColor = computed(() => {
-    return themeVars.colorTheme || themeColorOptions[0].primary;
+    return themeColorOptions[0].primary;
   });
 
   // 选择预设颜色

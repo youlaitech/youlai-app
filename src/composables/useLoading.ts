@@ -1,4 +1,4 @@
-import { ref, computed } from "vue";
+import { type Ref, type ComputedRef } from "vue";
 
 /**
  * 加载状态管理
@@ -35,11 +35,11 @@ export interface UseLoadingOptions {
 
 export interface UseLoadingReturn {
   /** 是否处于加载状态 */
-  isLoading: ReturnType<typeof computed<boolean>>;
+  isLoading: ComputedRef<boolean>;
   /** 加载计数（支持并发） */
-  loadingCount: ReturnType<typeof ref<number>>;
+  loadingCount: Ref<number>;
   /** 当前加载消息 */
-  message: ReturnType<typeof ref<string>>;
+  message: Ref<string>;
   /** 开始加载 */
   start: (msg?: string) => void;
   /** 结束加载 */

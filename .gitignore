@@ -26,6 +26,7 @@ launch.json
 pnpm-lock.yaml
 
 
+.vscode
 .claude/
 .cursor/
 .windsurf/
