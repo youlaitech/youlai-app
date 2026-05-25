@@ -34,3 +34,7 @@ export const themeColorOptions: ThemeColorOption[] = [
   { name: "紫罗兰", value: "purple", primary: "#8A2BE2" },
   { name: "朱砂红", value: "red", primary: "#FF4757" },
 ];
+
+export interface ProviderThemeVars extends ConfigProviderThemeVars {
+  colorTheme: string;
+}
