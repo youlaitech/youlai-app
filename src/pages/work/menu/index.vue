@@ -34,10 +34,11 @@
         </view>
         <scroll-view scroll-y class="max-h-60vh">
           <wd-form ref="formRef" :model="formData" :schema="rules">
-            <wd-form-item prop="parentId" title="上级菜单" required>
-              <wd-cascader v-model="parentSelected" :columns="parentColumns" :column-change="handleParentColumnChange"
-                :display-format="displayParentFormat" @confirm="handleParentConfirm" />
-            </wd-form-item>
+            <!-- 上级菜单选择：触发交 wd-form-item，选择器只负责弹出 -->
+            <wd-form-item title="上级菜单" prop="parentId" required is-link
+              :value="parentLabel" placeholder="请选择上级菜单" @click="showParentPicker = true" />
+            <wd-cascader v-model="parentSelected" v-model:visible="showParentPicker" :options="parentOptions"
+              :lazy-load="handleParentLazyLoad" :display-format="displayParentFormat" @confirm="handleParentConfirm" />
             <wd-form-item prop="name" title="菜单名称" required>
               <wd-input v-model="formData.name" placeholder="请输入菜单名称" />
             </wd-form-item>
@@ -167,9 +168,10 @@
   }
 
   // 上级菜单选择器
+  const showParentPicker = ref(false);
   const parentSelected = ref<(string | number)[]>([]);
-  const parentColumns = ref<OptionType[][]>([]);
   const parentOptions = ref<OptionType[]>([]);
+  const parentLabel = ref("");
 
   const displayParentFormat = (selectedItems: Record<string, any>[]) => {
     if (!selectedItems || selectedItems.length === 0) return "";
@@ -197,7 +199,8 @@
     return null;
   }
 
-  const handleParentColumnChange = ({ selectedItem, resolve, finish }: any) => {
+  // v2 Cascader 懒加载
+  const handleParentLazyLoad = ({ selectedItem, resolve, finish }: any) => {
     if (String(selectedItem?.value) === "0") {
       finish();
       return;
@@ -210,9 +213,10 @@
     }
   };
 
-  const handleParentConfirm = ({ value }: any) => {
+  const handleParentConfirm = ({ value, selectedItems }: any) => {
     parentSelected.value = value;
     formData.parentId = String(value[value.length - 1]) || "0";
+    parentLabel.value = selectedItems.map((item: any) => item.label).join("/");
   };
 
   const rules = toFormSchema({
@@ -289,12 +293,11 @@
     formRef.value?.reset();
     Object.assign(formData, initialFormData);
     parentSelected.value = [];
+    parentLabel.value = "";
     dialog.visible = true;
 
     const data = await MenuAPI.getOptions(true);
-    parentOptions.value = data;
-    const firstColumn: OptionType[] = [{ value: "0", label: "顶级菜单" }, ...data];
-    parentColumns.value = [firstColumn];
+    parentOptions.value = [{ value: "0", label: "顶级菜单" }, ...data];
 
     if (menu) {
       formData.id = menu.id;
@@ -305,18 +308,6 @@
         const path = findMenuPath(data, String(form.parentId));
         if (path) {
           parentSelected.value = path;
-          const columns: OptionType[][] = [firstColumn];
-          let currentLevel = data;
-          for (let i = 0; i < path.length - 1; i++) {
-            const found = currentLevel.find((item: any) => String(item.value) === String(path[i]));
-            if (found && found.children && found.children.length > 0) {
-              columns.push(found.children);
-              currentLevel = found.children;
-            } else {
-              break;
-            }
-          }
-          parentColumns.value = columns;
         } else {
           parentSelected.value = [String(form.parentId)];
         }

@@ -44,15 +44,11 @@
           {{ formData.id ? "编辑部门" : "新增部门" }}
         </view>
         <wd-form ref="formRef" :model="formData" :schema="rules">
-          <wd-form-item prop="parentId" title="上级部门" required>
-            <wd-cascader
-              v-model="parentSelected"
-              :columns="parentColumns"
-              :column-change="handleParentColumnChange"
-              :display-format="displayParentFormat"
-              @confirm="handleParentConfirm"
-            />
-          </wd-form-item>
+          <!-- 上级部门选择：触发交 wd-form-item，选择器只负责弹出 -->
+          <wd-form-item title="上级部门" prop="parentId" required is-link
+            :value="parentLabel" placeholder="请选择上级部门" @click="showParentPicker = true" />
+          <wd-cascader v-model="parentSelected" v-model:visible="showParentPicker" :options="parentOptions"
+            :lazy-load="handleParentLazyLoad" :display-format="displayParentFormat" @confirm="handleParentConfirm" />
           <wd-form-item prop="name" title="部门名称" required>
             <wd-input v-model="formData.name" placeholder="请输入部门名称" />
           </wd-form-item>
@@ -60,7 +56,7 @@
             <wd-input v-model="formData.code" placeholder="请输入部门编号" />
           </wd-form-item>
           <wd-form-item prop="sort" title="排序">
-            <wd-input-number v-model="formData.sort" :min="0" />
+            <wd-input-number v-model="formData.sort!" :min="0" />
           </wd-form-item>
           <wd-form-item prop="status" title="状态">
             <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
@@ -140,9 +136,10 @@ function transformDeptToTree(dept: DeptItem): any {
 }
 
 // 上级部门选择器
+const showParentPicker = ref(false);
 const parentSelected = ref<(string | number)[]>([]);
-const parentColumns = ref<OptionType[][]>([]);
 const parentOptions = ref<OptionType[]>([]);
+const parentLabel = ref("");
 
 // 格式化上级部门展示
 const displayParentFormat = (selectedItems: OptionType[]) => {
@@ -168,8 +165,8 @@ function findDeptPath(data: OptionType[], targetId: string, path: string[] = [])
   return null;
 }
 
-// 上级部门列变化
-const handleParentColumnChange = ({ selectedItem, resolve, finish }: any) => {
+// v2 Cascader 懒加载
+const handleParentLazyLoad = ({ selectedItem, resolve, finish }: any) => {
   if (String(selectedItem?.value) === "0") {
     finish();
     return;
@@ -183,9 +180,10 @@ const handleParentColumnChange = ({ selectedItem, resolve, finish }: any) => {
 };
 
 // 上级部门确认选择
-const handleParentConfirm = ({ value }: any) => {
+const handleParentConfirm = ({ value, selectedItems }: any) => {
   parentSelected.value = value;
   formData.parentId = Number(value[value.length - 1]) || 0;
+  parentLabel.value = selectedItems.map((item: any) => item.label).join("/");
 };
 
 const rules = toFormSchema({
@@ -267,12 +265,11 @@ async function openDeptDialog(dept?: DeptItem) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
   parentSelected.value = [];
+  parentLabel.value = "";
   dialog.visible = true;
 
   const data = await DeptAPI.getOptions();
-  parentOptions.value = data;
-  const firstColumn: OptionType[] = [{ value: "0", label: "顶级部门" }, ...data];
-  parentColumns.value = [firstColumn];
+  parentOptions.value = [{ value: "0", label: "顶级部门" }, ...data];
 
   if (dept) {
     formData.id = dept.id;
@@ -283,16 +280,6 @@ async function openDeptDialog(dept?: DeptItem) {
       const path = findDeptPath(data, String(form.parentId));
       if (path) {
         parentSelected.value = path;
-        const columns: OptionType[][] = [firstColumn];
-        let currentLevel = data;
-        for (let i = 0; i < path.length - 1; i++) {
-          const found = currentLevel.find((item: any) => String(item.value) === path[i]);
-          if (found && found.children) {
-            columns.push(found.children);
-            currentLevel = found.children;
-          }
-        }
-        parentColumns.value = columns;
       } else {
         parentSelected.value = [String(form.parentId)];
       }

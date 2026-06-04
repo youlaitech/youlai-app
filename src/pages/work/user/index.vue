@@ -85,13 +85,17 @@
           <wd-form-item prop="nickname" title="昵称" required>
             <wd-input v-model="formData.nickname" placeholder="请输入昵称" />
           </wd-form-item>
-          <wd-form-item prop="deptId" title="部门" required>
-            <wd-cascader v-model="deptSelected" :columns="deptColumns" :column-change="handleDeptColumnChange"
-              :display-format="displayDeptFormat" @confirm="handleDeptConfirm" />
-          </wd-form-item>
-          <wd-form-item prop="roleIds" title="角色" required>
-            <wd-select-picker v-model="formData.roleIds" :columns="roleOptions" />
-          </wd-form-item>
+          <!-- 部门选择：触发交 wd-form-item，选择器只负责弹出 -->
+          <wd-form-item title="部门" prop="deptId" required is-link
+            :value="deptLabel" placeholder="请选择部门" @click="showDeptPicker = true" />
+          <wd-cascader v-model="deptSelected" v-model:visible="showDeptPicker" :options="deptOptions"
+            :lazy-load="handleDeptLazyLoad" :display-format="displayDeptFormat" @confirm="handleDeptConfirm" />
+
+          <!-- 角色选择：触发交 wd-form-item，选择器只负责弹出 -->
+          <wd-form-item title="角色" prop="roleIds" required is-link
+            :value="roleLabel" placeholder="请选择角色" @click="showRolePicker = true" />
+          <wd-select-picker v-model="formData.roleIds" v-model:visible="showRolePicker" :columns="roleOptions"
+            @confirm="handleRoleConfirm" />
           <wd-form-item prop="mobile" title="手机号">
             <wd-input v-model="formData.mobile" placeholder="请输入手机号" />
           </wd-form-item>
@@ -186,9 +190,14 @@
   const roleOptions = ref<Record<string, any>[]>([]);
   const deptOptions = ref<OptionType[]>([]);
 
-  // 部门多列选择器数据
+  // 部门选择器状态
+  const showDeptPicker = ref(false);
   const deptSelected = ref<(string | number)[]>([]);
-  const deptColumns = ref<Record<string, any>[][]>([]);
+  const deptLabel = ref("");
+
+  // 角色选择器状态
+  const showRolePicker = ref(false);
+  const roleLabel = ref("");
 
   // 格式化部门展示
   const displayDeptFormat = (selectedItems: Record<string, any>[]) => {
@@ -210,8 +219,8 @@
     return null;
   }
 
-  // 部门列变化（动态加载子部门）
-  const handleDeptColumnChange = ({ selectedItem, resolve, finish }: any) => {
+  // v2 Cascader 懒加载
+  const handleDeptLazyLoad = ({ selectedItem, resolve, finish }: any) => {
     const children = selectedItem.children;
     if (children && children.length > 0) {
       resolve(children);
@@ -223,8 +232,13 @@
   // 部门确认选择
   const handleDeptConfirm = ({ value, selectedItems }: any) => {
     deptSelected.value = value;
-    // 取最后一个选中的部门ID
     formData.deptId = value[value.length - 1];
+    deptLabel.value = selectedItems.map((item: any) => item.label).join("/");
+  };
+
+  // 角色确认选择
+  const handleRoleConfirm = ({ selectedItems }: any) => {
+    roleLabel.value = selectedItems.map((item: any) => item.label).join("、");
   };
 
   const rules = toFormSchema({
@@ -297,6 +311,8 @@
     formRef.value?.reset();
     Object.assign(formData, initialFormData);
     deptSelected.value = [];
+    deptLabel.value = "";
+    roleLabel.value = "";
     dialog.visible = true;
     roleOptions.value = await RoleAPI.getOptions();
     const deptData = await DeptAPI.getOptions();
@@ -306,31 +322,22 @@
       formData.id = id;
       const data = await UserAPI.getFormData(id);
       Object.assign(formData, data, { id });
-      // 编辑时回显部门选择（需要完整路径和预加载所有层级数据）
+      // 编辑时回显部门
       if (data.deptId) {
         const path = findDeptPath(deptData, String(data.deptId));
         if (path) {
           deptSelected.value = path;
-          // 预加载所有层级的 columns
-          const columns: any[] = [deptData];
-          let currentLevel = deptData;
-          for (let i = 0; i < path.length - 1; i++) {
-            const found = currentLevel.find((item: any) => item.value === path[i]);
-            if (found && found.children) {
-              columns.push(found.children);
-              currentLevel = found.children;
-            }
-          }
-          deptColumns.value = columns;
         } else {
           deptSelected.value = [String(data.deptId)];
-          deptColumns.value = [deptData];
         }
-      } else {
-        deptColumns.value = [deptData];
       }
-    } else {
-      deptColumns.value = [deptData];
+      // 回显角色
+      if (data.roleIds && data.roleIds.length > 0) {
+        const names = roleOptions.value
+          .filter((r: any) => data.roleIds.includes(r.value))
+          .map((r: any) => r.label);
+        roleLabel.value = names.join("、");
+      }
     }
   }
 

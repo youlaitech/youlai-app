@@ -58,9 +58,11 @@
           <wd-form-item prop="code" title="角色编码" required>
             <wd-input v-model="formData.code" placeholder="请输入角色编码" />
           </wd-form-item>
-          <wd-form-item prop="dataScope" title="数据权限" required>
-            <wd-select-picker v-model="formData.dataScope" :columns="dataScopeOptions" />
-          </wd-form-item>
+          <!-- 数据权限选择：触发交 wd-form-item，选择器只负责弹出 -->
+          <wd-form-item title="数据权限" prop="dataScope" required is-link
+            :value="dataScopeLabel" placeholder="请选择数据权限" @click="showDataScopePicker = true" />
+          <wd-select-picker v-model="formData.dataScope" v-model:visible="showDataScopePicker"
+            :columns="dataScopeOptions" @confirm="handleDataScopeConfirm" />
           <wd-form-item prop="status" title="状态">
             <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
           </wd-form-item>
@@ -123,6 +125,18 @@
   };
 
   const formData = reactive<RoleForm>({ ...initialFormData });
+
+  // 数据权限选择器状态
+  const showDataScopePicker = ref(false);
+  const dataScopeLabel = computed(() => {
+    const opt = dataScopeOptions.value.find((o) => o.value === formData.dataScope);
+    return opt?.label || "";
+  });
+
+  // 数据权限确认
+  const handleDataScopeConfirm = () => {
+    // label 由 computed 自动计算
+  };
 
   const dataScopeOptions = ref<Record<string, any>[]>([
     { label: "全部数据", value: 1 },
