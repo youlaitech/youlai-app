@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import { Storage } from "@/utils/storage";
 import { THEME_MODE_KEY, THEME_COLOR_KEY } from "@/constants";
 import type { ProviderThemeVars, ThemeColorOption, ThemeMode } from "@/composables/types/theme";
-import type { ConfigProviderThemeVars } from "@wot-ui/ui";
 import { themeColorOptions } from "@/composables/types/theme";
 
 /**

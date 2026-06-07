@@ -21,9 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-
-
-  import { onLoad } from "@dcloudio/uni-app";
+import { onLoad } from "@dcloudio/uni-app";
 
 definePage({
   name: "official",
@@ -38,8 +36,8 @@ onLoad(() => {
 <style lang="scss" scoped>
 .brand {
   display: flex;
-  align-items: center;
   gap: 20rpx;
+  align-items: center;
   padding: 28rpx;
   background: var(--color-bg);
   border-radius: 20rpx;
@@ -70,8 +68,8 @@ onLoad(() => {
 }
 
 .tip {
-  margin-top: 20rpx;
   padding: 20rpx;
+  margin-top: 20rpx;
   font-size: 26rpx;
   line-height: 1.6;
   color: var(--color-text);
@@ -80,8 +78,8 @@ onLoad(() => {
 }
 
 .qrcode-card {
-  margin-top: 24rpx;
   padding: 28rpx;
+  margin-top: 24rpx;
   background: var(--color-bg);
   border-radius: 20rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
@@ -94,8 +92,8 @@ onLoad(() => {
 
 .qrcode-hint {
   margin-top: 20rpx;
-  text-align: center;
   font-size: 26rpx;
   color: var(--color-text-secondary);
+  text-align: center;
 }
 </style>

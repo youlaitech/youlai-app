@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from "vue";
+import { ref } from "vue";
 
 definePage({
   name: "monitor",
@@ -21,5 +21,3 @@ const monitorUrl = ref("http://localhost:9090/wallboard");
   height: 100vh;
 }
 </style>
-
-

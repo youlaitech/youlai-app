@@ -92,8 +92,6 @@
 </template>
 
 <script setup lang="ts">
-
-
 import { computed, ref } from "vue";
 import dayjs from "dayjs";
 import { onReady, onShow } from "@dcloudio/uni-app";
@@ -105,11 +103,11 @@ import { hasPermission } from "@/utils/permission";
 import LogAPI, { type VisitOverview, type VisitTrend } from "@/api/log";
 import NoticeAPI, { type NoticeItem } from "@/api/notice";
 
-  definePage({
-    name: "home",
-    style: { navigationStyle: "custom" },
-    layout: "tabbar",
-  });
+definePage({
+  name: "home",
+  style: { navigationStyle: "custom" },
+  layout: "tabbar",
+});
 
 interface NavItem {
   icon: string;
@@ -124,9 +122,7 @@ const { handleNavClick } = useNavigation();
 const current = ref(0);
 const recentDaysRange = ref(7);
 
-const swiperList = ref([
-  "https://www.youlai.tech/storage/youlai/bg02.png"
-]);
+const swiperList = ref(["https://www.youlai.tech/storage/youlai/bg02.png"]);
 
 /** 访问概览数据 */
 const visitOverviewData = ref<VisitOverview>({
@@ -179,7 +175,14 @@ const chartOpts = ref({
   xAxis: { fontSize: 10, rotateLabel: true, rotateAngle: 30 },
   yAxis: { disabled: true },
   extra: {
-    area: { type: "curve", opacity: 0.2, addLine: true, width: 2, gradient: true, activeType: "hollow" },
+    area: {
+      type: "curve",
+      opacity: 0.2,
+      addLine: true,
+      width: 2,
+      gradient: true,
+      activeType: "hollow",
+    },
   },
 });
 
@@ -199,22 +202,28 @@ async function loadNoticeData() {
 
 /** 加载访问概览统计 */
 function loadVisitOverviewData() {
-  LogAPI.getVisitOverview().then((data) => (visitOverviewData.value = data)).catch(() => {});
+  LogAPI.getVisitOverview()
+    .then((data) => (visitOverviewData.value = data))
+    .catch(() => {});
 }
 
 /** 加载访问趋势图表 */
 async function loadVisitTrendData() {
   const endDate = dayjs().format("YYYY-MM-DD");
-  const startDate = dayjs().subtract(recentDaysRange.value - 1, "day").format("YYYY-MM-DD");
+  const startDate = dayjs()
+    .subtract(recentDaysRange.value - 1, "day")
+    .format("YYYY-MM-DD");
   try {
     const data: VisitTrend = await LogAPI.getVisitTrend({ startDate, endDate });
-    chartData.value = JSON.parse(JSON.stringify({
-      categories: (data.dates || []).map((d) => dayjs(d).format("MM-DD")),
-      series: [
-        { name: "访客数", data: data.uvList || [] },
-        { name: "浏览量", data: data.pvList || [] },
-      ],
-    }));
+    chartData.value = JSON.parse(
+      JSON.stringify({
+        categories: (data.dates || []).map((d) => dayjs(d).format("MM-DD")),
+        series: [
+          { name: "访客数", data: data.uvList || [] },
+          { name: "浏览量", data: data.pvList || [] },
+        ],
+      })
+    );
   } catch {
     chartData.value = { categories: [], series: [] };
   }
@@ -280,18 +289,18 @@ onShow(() => {
 
 .chart-wrapper {
   box-sizing: border-box;
+  overflow: hidden;
   background: var(--color-bg);
   border: 1rpx solid var(--color-border);
   border-radius: 16rpx;
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
 }
 
 .chart-wrapper .chart-header {
   display: flex;
+  gap: 24rpx;
   align-items: center;
   justify-content: space-between;
-  gap: 24rpx;
   padding: 24rpx 20rpx;
 }
 

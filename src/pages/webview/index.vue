@@ -5,10 +5,8 @@
 </template>
 
 <script setup lang="ts">
-
-
-  import { ref } from "vue";
-  import { onLoad } from "@dcloudio/uni-app";
+import { ref } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
 
 definePage({
   name: "webview",
@@ -30,5 +28,3 @@ onLoad((query: any) => {
   height: 100vh;
 }
 </style>
-
-
