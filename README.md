@@ -171,11 +171,11 @@ youlai-app/
 如果这个项目对你有帮助，欢迎关注公众号、体验小程序，也可以添加作者微信交流技术、问题反馈、二次开发和商务合作。
 
 <p align="center">
-  <img src="./docs/images/qr/wechat-offical.png" height="180" alt="有来技术公众号">
+  <img src="./docs/images/qrcode/wechat-official.png" height="180" alt="有来技术公众号">
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="./docs/images/qr/wechat-mp.jpg" height="180" alt="有来技术小程序">
+  <img src="./docs/images/qrcode/wechat-mp.jpg" height="180" alt="有来技术小程序">
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="./docs/images/qr/wechat-personal.png" height="180" alt="作者微信">
+  <img src="./docs/images/qrcode/wechat-personal.png" height="180" alt="作者微信">
 </p>
 <p align="center">
   <sub>公众号「有来技术」</sub>
