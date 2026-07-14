@@ -47,9 +47,11 @@ export default [
           PageResult: "readonly", // 分页结果数据类型
           PageQuery: "readonly", // 分页查询数据类型
           OptionType: "readonly", // 选项类型
+          definePage: "readonly", // uni-pages 页面宏
           getCurrentPages: "readonly", // uni-app 全局 API
           wx: "readonly", // 微信小程序 API
           useToast: "readonly", // wot-design-uni
+          useDialog: "readonly", // wot-design-uni
           useMessage: "readonly", // wot-design-uni
           useNotify: "readonly", // wot-design-uni
         },

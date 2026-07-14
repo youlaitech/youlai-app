@@ -45,10 +45,23 @@
         </view>
         <wd-form ref="formRef" :model="formData" :schema="rules">
           <!-- 上级部门选择：触发交 wd-form-item，选择器只负责弹出 -->
-          <wd-form-item title="上级部门" prop="parentId" required is-link
-            :value="parentLabel" placeholder="请选择上级部门" @click="showParentPicker = true" />
-          <wd-cascader v-model="parentSelected" v-model:visible="showParentPicker" :options="parentOptions"
-            :lazy-load="handleParentLazyLoad" :display-format="displayParentFormat" @confirm="handleParentConfirm" />
+          <wd-form-item
+            title="上级部门"
+            prop="parentId"
+            required
+            is-link
+            :value="parentLabel"
+            placeholder="请选择上级部门"
+            @click="showParentPicker = true"
+          />
+          <wd-cascader
+            v-model="parentSelected"
+            v-model:visible="showParentPicker"
+            :options="parentOptions"
+            :lazy-load="handleParentLazyLoad"
+            :display-format="displayParentFormat"
+            @confirm="handleParentConfirm"
+          />
           <wd-form-item prop="name" title="部门名称" required>
             <wd-input v-model="formData.name" placeholder="请输入部门名称" />
           </wd-form-item>
@@ -70,7 +83,12 @@
     </wd-popup>
 
     <!-- 浮动新增按钮 -->
-    <wd-fab v-if="hasPermission('sys:dept:create') && !dialog.visible" :expandable="false" :gap="{ bottom: 32 }" @click="openDeptDialog()" />
+    <wd-fab
+      v-if="hasPermission('sys:dept:create') && !dialog.visible"
+      :expandable="false"
+      :gap="{ bottom: 32 }"
+      @click="openDeptDialog()"
+    />
 
     <!-- 操作菜单 -->
     <wd-action-sheet
@@ -83,7 +101,6 @@
 </template>
 
 <script lang="ts" setup>
-
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form";
 import { useToast, useDialog } from "@wot-ui/ui";
@@ -91,14 +108,13 @@ import DeptAPI, { type DeptQuery, DeptItem, DeptForm } from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
 import CustomTree from "@/components/custom-tree/index.vue";
 
-  definePage({
-    name: "dept",
-    style: { navigationBarTitleText: "部门管理" },
-  });
-
+definePage({
+  name: "dept",
+  style: { navigationBarTitleText: "部门管理" },
+});
 
 const toast = useToast();
-  const { confirm } = useDialog();
+const { confirm } = useDialog();
 const formRef = ref();
 const isSubmitting = ref(false);
 
@@ -328,14 +344,12 @@ onLoad(() => {
 export default { options: { styleIsolation: "shared" } };
 </script>
 
-
-
 <style lang="scss" scoped>
 .dept-node {
   display: flex;
   flex: 1;
-  align-items: center;
   gap: 16rpx;
+  align-items: center;
 }
 
 .dept-node__id {

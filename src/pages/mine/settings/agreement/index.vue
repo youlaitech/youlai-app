@@ -20,8 +20,6 @@
 </template>
 
 <script lang="ts" setup>
-
-
 const activeNames = ref(["0"]); // 默认展开第一项
 
 const agreementContent = [
@@ -57,10 +55,10 @@ const agreementContent = [
   },
 ];
 
-  definePage({
-    name: "theme",
-    style: { navigationBarTitleText: "用户协议" },
-  });
+definePage({
+  name: "theme",
+  style: { navigationBarTitleText: "用户协议" },
+});
 
 // 同意协议
 const handleAgree = () => {
@@ -86,7 +84,7 @@ const handleAgree = () => {
 }
 
 .agreement__action {
-  margin-top: 48rpx;
   padding: 0 32rpx;
+  margin-top: 48rpx;
 }
 </style>

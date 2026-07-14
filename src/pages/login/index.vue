@@ -258,7 +258,6 @@
 </template>
 
 <script lang="ts" setup>
-
 import { onLoad, onShow } from "@dcloudio/uni-app";
 import { useToast, useDialog } from "@wot-ui/ui";
 import type { FormSchema } from "@wot-ui/ui/components/wd-form/types";
@@ -267,10 +266,10 @@ import { useUserStore } from "@/store/modules/user";
 import { useCountdown } from "@/composables/useCountdown";
 import AuthAPI from "@/api/auth";
 
-  definePage({
-    name: "login",
-    style: { navigationStyle: "custom", navigationBarTitleText: "" },
-  });
+definePage({
+  name: "login",
+  style: { navigationStyle: "custom", navigationBarTitleText: "" },
+});
 
 const toast = useToast();
 const dialog = useDialog("policy-box");
@@ -443,8 +442,8 @@ async function doFormLogin() {
 
 const handleLogin = async () => {
   // 先校验表单必填项（内联提示，不再弹窗）
-  const { valid } = await loginFormRef.value?.validate();
-  if (!valid) return;
+  const validateResult = await loginFormRef.value?.validate();
+  if (!validateResult?.valid) return;
   // 再校验隐私协议
   if (!isAgreePolicy.value) {
     openPolicyDialog("FORM");
@@ -655,8 +654,8 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 .login__navbar {
   position: fixed;
   top: 0;
-  left: 0;
   right: 0;
+  left: 0;
   z-index: var(--z-navbar);
   padding: 0 32rpx;
 }
@@ -706,8 +705,8 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 .login__navbar-title {
   font-size: 32rpx;
   font-weight: 600;
-  letter-spacing: 0.08em;
   color: var(--color-text);
+  letter-spacing: 0.08em;
 }
 
 .login__body {
@@ -734,8 +733,8 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 .login__brand-name {
   font-size: 36rpx;
   font-weight: 600;
-  letter-spacing: 0.05em;
   color: var(--color-text);
+  letter-spacing: 0.05em;
 }
 
 .login__card {
@@ -922,8 +921,8 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 
 .login__oauth-row {
   display: flex;
-  justify-content: center;
   gap: 64rpx;
+  justify-content: center;
 }
 
 .login__wx-icon {
@@ -963,8 +962,8 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
   margin-bottom: 48rpx;
   font-size: 36rpx;
   font-weight: 600;
-  text-align: center;
   color: var(--color-text);
+  text-align: center;
 }
 
 .login__demo-hint {

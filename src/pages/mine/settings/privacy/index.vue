@@ -20,7 +20,6 @@
 </template>
 
 <script lang="ts" setup>
-
 const activeNames = ref(["0"]); // 默认展开第一项
 
 const privacyContent = [
@@ -71,11 +70,10 @@ const privacyContent = [
   },
 ];
 
-  definePage({
-    name: "privacy",
-    style: { navigationBarTitleText: "隐私政策" },
-  });
-
+definePage({
+  name: "privacy",
+  style: { navigationBarTitleText: "隐私政策" },
+});
 
 // 同意隐私政策
 const handleAgree = () => {
@@ -101,7 +99,7 @@ const handleAgree = () => {
 }
 
 .privacy__action {
-  margin-top: 48rpx;
   padding: 0 32rpx;
+  margin-top: 48rpx;
 }
 </style>

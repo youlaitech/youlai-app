@@ -153,7 +153,9 @@ function createSseConnection(options: UseSseOptions = {}) {
         bindEvent(eventName);
       }
     }
-    eventHandlers.get(eventName)!.add(handler);
+    const handlers = eventHandlers.get(eventName);
+    if (!handlers) return () => {};
+    handlers.add(handler);
     log(`已订阅事件: ${eventName}`);
 
     return () => {

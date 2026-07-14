@@ -1,18 +1,33 @@
 <template>
   <view class="page page--padding">
     <view>
-      <wd-search v-model="queryParams.keywords" placeholder="搜索日志内容" hide-cancel @search="handleSearch" />
+      <wd-search
+        v-model="queryParams.keywords"
+        placeholder="搜索日志内容"
+        hide-cancel
+        @search="handleSearch"
+      />
     </view>
 
     <!-- 日志列表 -->
     <view class="mt-16rpx">
-      <wd-card v-for="item in pageData" :key="item.id" custom-class="item-card" @click="openLogDetail(item)">
+      <wd-card
+        v-for="item in pageData"
+        :key="item.id"
+        custom-class="item-card"
+        @click="openLogDetail(item)"
+      >
         <!-- 主信息行 -->
         <view class="flex-start">
           <view class="flex-1">
             <view class="flex-start mt-12rpx">
               <text class="font-bold text-32rpx">{{ item.operatorName }}</text>
-              <wd-tag plain size="small" class="ml-16rpx" :type="item.status === 1 ? 'success' : 'danger'">
+              <wd-tag
+                plain
+                size="small"
+                class="ml-16rpx"
+                :type="item.status === 1 ? 'success' : 'danger'"
+              >
                 {{ item.status === 1 ? "成功" : "失败" }}
               </wd-tag>
             </view>
@@ -33,8 +48,11 @@
         <!-- 元信息行 -->
         <view class="flex-between mt-16rpx">
           <text class="text-24rpx color-text-placeholder">{{ item.createTime }}</text>
-          <view class="w-64rpx h-64rpx flex-center rounded-full" hover-class="bg-[var(--color-text-placeholder)]/16"
-            @click.stop="openLogDetail(item)">
+          <view
+            class="w-64rpx h-64rpx flex-center rounded-full"
+            hover-class="bg-[var(--color-text-placeholder)]/16"
+            @click.stop="openLogDetail(item)"
+          >
             <wd-icon name="view" size="16" class="color-text-secondary" />
           </view>
         </view>
@@ -45,7 +63,12 @@
     </view>
 
     <!-- 详情弹窗 -->
-    <wd-popup v-model="detailDialog.visible" position="bottom" custom-class="popup-bottom" @close="closeLogDetail">
+    <wd-popup
+      v-model="detailDialog.visible"
+      position="bottom"
+      custom-class="popup-bottom"
+      @close="closeLogDetail"
+    >
       <view class="p-4">
         <view class="popup-title">日志详情</view>
         <wd-cell-group border>
@@ -78,77 +101,74 @@
 </template>
 
 <script lang="ts" setup>
+import { onLoad, onReachBottom } from "@dcloudio/uni-app";
+import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
+import LogAPI, { type LogPageQuery, LogItem } from "@/api/log";
 
-  import { onLoad, onReachBottom } from "@dcloudio/uni-app";
-  import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
-  import LogAPI, { type LogPageQuery, LogItem } from "@/api/log";
+definePage({
+  name: "log",
+  style: { navigationBarTitleText: "系统日志" },
+});
 
-  definePage({
-    name: "log",
-    style: { navigationBarTitleText: "系统日志" },
-  });
+const loadMoreState = ref<LoadMoreState>("loading");
 
-  const loadMoreState = ref<LoadMoreState>("loading");
+const queryParams = reactive<LogPageQuery>({ pageNum: 1, pageSize: 10 });
+const total = ref(0);
+const pageData = ref<LogItem[]>([]);
 
-  const queryParams = reactive<LogPageQuery>({ pageNum: 1, pageSize: 10 });
-  const total = ref(0);
-  const pageData = ref<LogItem[]>([]);
+const logDetail = ref<LogItem>({});
+const detailDialog = reactive({ visible: false });
 
-  const logDetail = ref<LogItem>({});
-  const detailDialog = reactive({ visible: false });
+// 搜索触发
+const handleSearch = () => loadLogList();
 
-  // 搜索触发
-  const handleSearch = () => loadLogList();
+// 加载列表
+function loadLogList() {
+  queryParams.pageNum = 1;
+  fetchLogList();
+}
 
-  // 加载列表
-  function loadLogList() {
-    queryParams.pageNum = 1;
-    fetchLogList();
-  }
-
-  // 分页加载列表
-  function fetchLogList() {
-    loadMoreState.value = "loading";
-    LogAPI.getPage(queryParams)
-      .then((data) => {
-        pageData.value = data.list;
-        total.value = data.total;
-        queryParams.pageNum++;
-      })
-      .catch(() => {
-        pageData.value = [];
-      })
-      .finally(() => {
-        loadMoreState.value = "finished";
-      });
-  }
-
-  // 打开详情弹窗
-  function openLogDetail(item: LogItem) {
-    logDetail.value = item;
-    detailDialog.visible = true;
-  }
-
-  // 关闭详情弹窗
-  function closeLogDetail() {
-    detailDialog.visible = false;
-  }
-
-  onReachBottom(() => {
-    if (queryParams.pageNum * queryParams.pageSize < total.value) {
-      fetchLogList();
-    } else {
+// 分页加载列表
+function fetchLogList() {
+  loadMoreState.value = "loading";
+  LogAPI.getPage(queryParams)
+    .then((data) => {
+      pageData.value = data.list;
+      total.value = data.total;
+      queryParams.pageNum++;
+    })
+    .catch(() => {
+      pageData.value = [];
+    })
+    .finally(() => {
       loadMoreState.value = "finished";
-    }
-  });
+    });
+}
 
-  onLoad(() => {
-    loadLogList();
-  });
+// 打开详情弹窗
+function openLogDetail(item: LogItem) {
+  logDetail.value = item;
+  detailDialog.visible = true;
+}
+
+// 关闭详情弹窗
+function closeLogDetail() {
+  detailDialog.visible = false;
+}
+
+onReachBottom(() => {
+  if (queryParams.pageNum * queryParams.pageSize < total.value) {
+    fetchLogList();
+  } else {
+    loadMoreState.value = "finished";
+  }
+});
+
+onLoad(() => {
+  loadLogList();
+});
 </script>
 
 <script lang="ts">
-  export default { options: { styleIsolation: "shared" } };
+export default { options: { styleIsolation: "shared" } };
 </script>
-
-

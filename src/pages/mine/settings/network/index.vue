@@ -32,14 +32,12 @@
 </template>
 
 <script lang="ts" setup>
-
 import { onLoad } from "@dcloudio/uni-app";
 
 definePage({
   name: "network",
   style: { navigationBarTitleText: "网络测试" },
 });
-
 
 const result = ref<number | null>(null);
 const isTesting = ref(false);
@@ -93,10 +91,10 @@ onLoad(() => {
 
 <style lang="scss" scoped>
 .result-card {
-  background: var(--color-bg);
-  border-radius: 16rpx;
-  border: 1rpx solid var(--color-border);
   overflow: hidden;
+  background: var(--color-bg);
+  border: 1rpx solid var(--color-border);
+  border-radius: 16rpx;
 
   &__header {
     padding: 24rpx;
@@ -107,8 +105,8 @@ onLoad(() => {
 
   &__row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     padding: 24rpx;
 
     & + & {
