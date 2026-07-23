@@ -51,6 +51,16 @@ export interface WxMaBindMobileData {
   smsCode: string;
 }
 
+/** APP 端扫码相关接口（scan/confirm/cancel）的响应 */
+export interface QrCodeScanResult {
+  /** 当前票据状态，APP 端扫码后流转为 SCANNED → CONFIRMED / CANCELED */
+  status: "SCANNED" | "CONFIRMED" | "CANCELED";
+  /** 脱敏昵称，scan 成功后返回，用于确认页展示请求登录的用户 */
+  nickname?: string;
+  /** 头像 URL，scan 成功后返回 */
+  avatar?: string;
+}
+
 const AuthAPI = {
   /**
    * 获取图形验证码
@@ -167,6 +177,47 @@ const AuthAPI = {
       url: `${AUTH_BASE_URL}/refresh-token`,
       method: "POST",
       data: { refreshToken },
+    });
+  },
+
+  // ============ 扫码登录 ============
+
+  /**
+   * 标记已扫码
+   *
+   * 把当前 APP 登录用户与票据绑定，PC 端 status 随即进入 SCANNED 并展示头像昵称
+   */
+  qrScan(ticket: string): Promise<QrCodeScanResult> {
+    return request<QrCodeScanResult>({
+      url: `${AUTH_BASE_URL}/qr-code/scan`,
+      method: "POST",
+      data: { ticket },
+    });
+  },
+
+  /**
+   * 确认登录
+   *
+   * 真正的授权动作，授权后 PC 端 status 进入 CONFIRMED，可换取会话令牌
+   */
+  qrConfirm(ticket: string): Promise<QrCodeScanResult> {
+    return request<QrCodeScanResult>({
+      url: `${AUTH_BASE_URL}/qr-code/confirm`,
+      method: "POST",
+      data: { ticket },
+    });
+  },
+
+  /**
+   * 取消登录
+   *
+   * 撤回本次扫码，PC 端 status 进入 CANCELED
+   */
+  qrCancel(ticket: string): Promise<QrCodeScanResult> {
+    return request<QrCodeScanResult>({
+      url: `${AUTH_BASE_URL}/qr-code/cancel`,
+      method: "POST",
+      data: { ticket },
     });
   },
 };

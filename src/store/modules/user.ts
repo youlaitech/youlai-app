@@ -80,6 +80,31 @@ export const useUserStore = defineStore("user", () => {
   };
 
   // ==========================================================================
+  // 扫码登录方法
+  // ==========================================================================
+
+  /**
+   * 标记已扫码
+   */
+  const qrScan = async (ticket: string) => {
+    return await AuthAPI.qrScan(ticket);
+  };
+
+  /**
+   * 确认 PC 端登录
+   */
+  const qrConfirm = async (ticket: string) => {
+    return await AuthAPI.qrConfirm(ticket);
+  };
+
+  /**
+   * 取消 PC 端登录
+   */
+  const qrCancel = async (ticket: string) => {
+    return await AuthAPI.qrCancel(ticket);
+  };
+
+  // ==========================================================================
   // 用户信息方法
   // ==========================================================================
 
@@ -140,6 +165,9 @@ export const useUserStore = defineStore("user", () => {
     loginByWxMa,
     loginByWxMaPhone,
     bindMobileForWxMa,
+    qrScan,
+    qrConfirm,
+    qrCancel,
     logout,
     getInfo,
     checkSession,

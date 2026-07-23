@@ -21,7 +21,7 @@
     <view class="login__body" :style="{ paddingTop: `${statusBarHeight + navBarHeight + 4}px` }">
       <!-- Logo -->
       <view class="login__brand">
-        <image class="login__logo" src="/static/logo.png" mode="aspectFit" />
+        <image class="login__logo" src="/logo.png" mode="aspectFit" />
         <text class="login__brand-name">youlai-app</text>
       </view>
 
@@ -442,10 +442,18 @@ async function doFormLogin() {
 
 const handleLogin = async () => {
   // 先校验表单必填项（内联提示，不再弹窗）
+  console.log("[handleLogin] loginFormRef.value:", !!loginFormRef.value);
+  console.log("[handleLogin] captchaCode:", JSON.stringify(formData.value.captchaCode));
+  console.log("[handleLogin] isAgreePolicy:", isAgreePolicy.value);
   const validateResult = await loginFormRef.value?.validate();
-  if (!validateResult?.valid) return;
+  console.log("[handleLogin] validateResult:", JSON.stringify(validateResult));
+  if (!validateResult?.valid) {
+    console.log("[handleLogin] 表单校验未通过，early return");
+    return;
+  }
   // 再校验隐私协议
   if (!isAgreePolicy.value) {
+    console.log("[handleLogin] 进入协议弹窗分支");
     openPolicyDialog("FORM");
     return;
   }

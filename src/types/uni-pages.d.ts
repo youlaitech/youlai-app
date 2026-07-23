@@ -7,6 +7,7 @@ type _LocationUrl =
   "/pages/index/index" |
   "/pages/login/index" |
   "/pages/mine/index" |
+  "/pages/qr-code-confirm/index" |
   "/pages/webview/index" |
   "/pages/work/index" |
   "/pages/mine/about/index" |

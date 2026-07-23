@@ -81,7 +81,7 @@
           />
           <view class="community-card__mask" />
           <view class="community-card__logo">
-            <image src="/static/logo.png" mode="aspectFit" class="w-full h-full" />
+            <image src="/logo.png" mode="aspectFit" class="w-full h-full" />
           </view>
           <view class="community-card__body">
             <view class="community-card__title-row">
@@ -129,6 +129,16 @@
             <view class="menu-row__main">
               <text class="menu-row__title">网络检测</text>
               <text class="menu-row__desc">检测接口连通性</text>
+            </view>
+            <wd-icon name="right" size="16" color="var(--color-text-placeholder)" />
+          </view>
+          <view v-if="isLogin" class="menu-row" @click="handleScan">
+            <view class="menu-row__icon menu-row__icon--info">
+              <wd-icon name="search" size="18" color="var(--color-primary)" />
+            </view>
+            <view class="menu-row__main">
+              <text class="menu-row__title">扫一扫</text>
+              <text class="menu-row__desc">扫描二维码登录 PC</text>
             </view>
             <wd-icon name="right" size="16" color="var(--color-text-placeholder)" />
           </view>
@@ -375,6 +385,25 @@ const handleClearCache = async () => {
     });
   } finally {
     isClearing.value = false;
+  }
+};
+
+// 扫一扫：扫描 PC 端二维码后跳转确认页
+const handleScan = async () => {
+  if (!isLogin.value) {
+    navigateToLogin();
+    return;
+  }
+  try {
+    const res = await uni.scanCode({ scanType: ["qrCode"] });
+    const ticket = (res.result || "").trim();
+    if (!ticket) {
+      uni.showToast({ title: "无效的二维码", icon: "none" });
+      return;
+    }
+    router.push({ path: "/pages/qr-code-confirm/index", query: { ticket: encodeURIComponent(ticket) } });
+  } catch {
+    // 用户取消扫码，静默处理
   }
 };
 

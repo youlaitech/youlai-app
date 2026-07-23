@@ -210,6 +210,15 @@
       "style": {
         "navigationBarTitleText": "字典数据"
       }
+    },
+    {
+      "path": "pages/qr-code-confirm/index",
+      "type": "page",
+      "name": "qr-code-confirm",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": ""
+      }
     }
   ],
   "subPackages": [],
