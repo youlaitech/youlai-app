@@ -1,6 +1,6 @@
 <div align="center">
 
-# <img alt="youlai-app" width="28" src="./public/logo.png" align="center"> youlai-app
+# <img alt="youlai-app" height="32" valign="middle" src="./public/logo.png"> youlai-app
 
 **基于 uni-app、Vue 3、TypeScript 和 Wot UI 的移动端跨平台应用模板**
 
@@ -166,26 +166,29 @@ youlai-app/
 | [youlai-think](https://gitee.com/youlaiorg/youlai-think) | ThinkPHP 8 | PHP 后端 |
 | [youlai-aspnet](https://gitee.com/youlaiorg/youlai-aspnet) | ASP.NET Core | C# 后端 |
 
-## 联系我们
+## 技术合作
 
-如果这个项目对你有帮助，欢迎关注公众号、体验小程序，也可以添加作者微信交流技术、问题反馈、二次开发和商务合作。
+本项目采用 [Apache License 2.0](LICENSE) 开源，可免费商用。欢迎在 [Issue](https://gitee.com/youlaiorg/youlai-app/issues) 提交问题或反馈，也欢迎提交 [Pull Request](https://gitee.com/youlaiorg/youlai-app/pulls) 共建。
 
-<p align="center">
-  <img src="./public/images/qrcode/wechat-official.jpg" height="180" alt="有来技术公众号">
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="./public/images/qrcode/wechat-mp.jpg" height="180" alt="有来技术小程序">
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="./public/images/qrcode/wechat-personal.png" height="180" alt="作者微信">
-</p>
-<p align="center">
-  <sub>公众号「有来技术」</sub>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <sub>有来技术小程序</sub>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <sub>添加作者微信</sub>
-</p>
-<p align="center"><em>技术交流 · 问题反馈 · 二开定制 · 商务合作</em></p>
+如需技术支持、商务合作、二次开发、项目定制或私有化部署，可联系作者微信（见下方二维码）。
 
-## 开源协议
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="./public/images/qrcode/wechat-official.jpg" height="180" alt="公众号「有来技术」"><br>
+      <sub>公众号「有来技术」</sub>
+    </td>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td align="center">
+      <img src="./public/images/qrcode/wechat-mp.jpg" height="180" alt="小程序「有来技术」"><br>
+      <sub>小程序「有来技术」</sub>
+    </td>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td align="center">
+      <img src="./public/images/qrcode/wechat-personal.png" height="180" alt="添加作者微信"><br>
+      <sub>添加作者微信</sub>
+    </td>
+  </tr>
+</table>
 
-本项目基于 [Apache License 2.0](LICENSE) 开源，可免费用于商业项目。
+<p align="center"><em>技术交流 · 问题反馈 · 商务合作</em></p>
