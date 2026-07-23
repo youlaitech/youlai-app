@@ -1,6 +1,6 @@
 <div align="center">
 
-# <img alt="youlai-app" width="28" src="./public/logo.png" style="vertical-align: middle"> youlai-app
+# <img alt="youlai-app" width="28" src="./public/logo.png" align="center"> youlai-app
 
 **基于 uni-app、Vue 3、TypeScript 和 Wot UI 的移动端跨平台应用模板**
 
