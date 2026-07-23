@@ -104,7 +104,6 @@
     <view class="profile-footer">
       <wd-button
         class="profile-footer__submit"
-        type="primary"
         size="large"
         block
         :disabled="!canComplete || isLoading"

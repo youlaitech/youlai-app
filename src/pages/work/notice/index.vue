@@ -27,7 +27,7 @@
               {{ item.publisherName || "系统管理员" }}
             </text>
           </view>
-          <wd-tag :type="getStatusType(item.publishStatus)" variant="plain">
+          <wd-tag :type="getStatusType(item.publishStatus)">
             {{ getStatusText(item.publishStatus) }}
           </wd-tag>
         </view>
@@ -134,7 +134,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeNoticeForm">取消</wd-button>
-          <wd-button type="primary" :loading="isSubmitting" @click="submitNoticeForm">
+          <wd-button :loading="isSubmitting" @click="submitNoticeForm">
             保存
           </wd-button>
         </view>

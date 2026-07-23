@@ -55,11 +55,11 @@
       <wd-cell>
         <template #default>
           <view class="flex items-center justify-center gap-24rpx py-12rpx">
-            <wd-button type="primary" size="small">主要按钮</wd-button>
+            <wd-button size="small">主要按钮</wd-button>
             <text class="text-28rpx font-500" :style="{ color: currentThemeColor }">
               主题色文本
             </text>
-            <wd-tag type="primary" size="small">标签</wd-tag>
+            <wd-tag type="primary" size="small" variant="filled">标签</wd-tag>
           </view>
         </template>
       </wd-cell>
@@ -67,7 +67,7 @@
 
     <!-- 操作按钮 -->
     <view class="mt-32rpx">
-      <wd-button type="primary" plain size="large" block @click="handleResetTheme">
+      <wd-button plain size="large" block @click="handleResetTheme">
         重置为默认主题
       </wd-button>
     </view>
@@ -102,7 +102,7 @@
 
         <view class="popup-actions">
           <wd-button type="info" plain @click="showCustomColorInput = false">取消</wd-button>
-          <wd-button type="primary" @click="applyCustomColor">应用</wd-button>
+          <wd-button @click="applyCustomColor">应用</wd-button>
         </view>
       </view>
     </wd-popup>

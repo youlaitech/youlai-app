@@ -176,4 +176,8 @@ page {
   // 以下只保留主色调自定义，其余交给 Wot UI 官方暗黑模式
   // -----------------------------------------------------------------------
   --wot-color-theme: var(--color-primary);
+
+  // Wot UI 的 card / cell / input / grid / popup 等 40+ 组件默认用纯黑填充，
+  // 与项目 --color-bg（深蓝灰）产生色差。统一指向项目主背景。
+  --wot-filled-oppo: var(--color-bg);
 }

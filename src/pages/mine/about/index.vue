@@ -2,7 +2,7 @@
   <view class="page page--padding">
     <wd-card>
       <view class="about__header">
-        <image class="about__logo" src="/logo.png" mode="aspectFit" />
+        <image class="about__logo" src="/static/images/logo.png" mode="aspectFit" />
         <view class="about__info">
           <text class="about__app-title">youlai-app</text>
           <text class="about__app-version">版本 {{ version }}</text>
@@ -172,7 +172,7 @@
           {{ currentProject.summary }}
         </view>
         <view class="about__popup-action">
-          <wd-button type="primary" block @click="goCurrentProjectRepo">去仓库</wd-button>
+          <wd-button block @click="goCurrentProjectRepo">去仓库</wd-button>
         </view>
       </view>
     </wd-popup>

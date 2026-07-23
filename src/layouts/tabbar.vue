@@ -1,6 +1,6 @@
 <template>
   <view :class="`wot-theme-${theme}`" :style="themeCSSVars">
-    <wd-config-provider :theme-vars="themeVars" :theme="theme === 'dark' ? 'dark' : ''">
+    <wd-config-provider :theme-vars="themeVars" :theme="theme === 'dark' ? 'dark' : ''" :button="{ type: 'primary' }" :tag="{ variant: 'plain' }">
       <slot />
       <wd-tabbar
         v-model="active"

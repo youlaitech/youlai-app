@@ -103,7 +103,7 @@
         </scroll-view>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeMenuDialog">取消</wd-button>
-          <wd-button type="primary" :loading="isSubmitting" @click="submitMenuForm">保存</wd-button>
+          <wd-button :loading="isSubmitting" @click="submitMenuForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>

@@ -77,7 +77,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeDeptDialog">取消</wd-button>
-          <wd-button type="primary" :loading="isSubmitting" @click="submitDeptForm">保存</wd-button>
+          <wd-button :loading="isSubmitting" @click="submitDeptForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>

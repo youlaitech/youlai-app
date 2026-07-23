@@ -25,7 +25,7 @@
               字典值：{{ item.value }} · 排序：{{ item.sort }}
             </text>
           </view>
-          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" variant="plain">
+          <wd-tag :type="item.status === 1 ? 'success' : 'danger'">
             {{ item.status === 1 ? "启用" : "禁用" }}
           </wd-tag>
         </view>
@@ -80,7 +80,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeItemDialog">取消</wd-button>
-          <wd-button type="primary" :loading="isSubmitting" @click="submitItemForm">保存</wd-button>
+          <wd-button :loading="isSubmitting" @click="submitItemForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>

@@ -74,7 +74,7 @@
           />
         </wd-cell-group>
         <view class="p-24rpx">
-          <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
+          <wd-button size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
       <wd-form
@@ -104,6 +104,7 @@
           >
             <template #suffix>
               <wd-button
+                type=""
                 plain
                 :disabled="mobileCountdown > 0"
                 @click="handleSendVerificationCode('MOBILE')"
@@ -114,7 +115,7 @@
           </wd-input>
         </wd-cell-group>
         <view class="p-24rpx">
-          <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
+          <wd-button size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
       <wd-form
@@ -144,6 +145,7 @@
           >
             <template #suffix>
               <wd-button
+                type=""
                 plain
                 :disabled="emailCountdown > 0"
                 @click="handleSendVerificationCode('EMAIL')"
@@ -154,7 +156,7 @@
           </wd-input>
         </wd-cell-group>
         <view class="p-24rpx">
-          <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
+          <wd-button size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
     </wd-popup>

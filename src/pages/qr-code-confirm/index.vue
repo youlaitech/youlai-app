@@ -12,14 +12,14 @@
 
     <view class="qr-confirm__body" :style="{ paddingTop: `${statusBarHeight + navBarHeight + 24}px` }">
       <view class="qr-confirm__card">
-        <image class="qr-confirm__logo" src="/logo.png" mode="aspectFit" />
+        <image class="qr-confirm__logo" src="/static/images/logo.png" mode="aspectFit" />
         <text class="qr-confirm__tip">PC 端扫码登录</text>
         <text class="qr-confirm__user">{{ scanResult?.nickname || "未知用户" }}</text>
         <text class="qr-confirm__hint">是否确认在 PC 端登录？</text>
 
         <view class="qr-confirm__actions">
           <wd-button type="error" plain block @click="handleCancel">取消登录</wd-button>
-          <wd-button type="primary" block :loading="isLoading" @click="handleConfirm">确认登录</wd-button>
+          <wd-button block :loading="isLoading" @click="handleConfirm">确认登录</wd-button>
         </view>
       </view>
     </view>

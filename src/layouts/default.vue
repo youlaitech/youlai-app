@@ -21,6 +21,8 @@ export default {
     :theme-vars="themeVars"
     :custom-class="theme === 'dark' ? 'dark' : ''"
     :theme="theme === 'dark' ? 'dark' : ''"
+    :button="{ type: 'primary' }"
+    :tag="{ variant: 'plain' }"
   >
     <slot />
     <wd-notify />

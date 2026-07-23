@@ -96,7 +96,7 @@
     "@dcloudio/uni-quickapp-webview": "3.0.0-4020420240722002",
     "@uni-helper/uni-use": "^0.19.15",
     "@vueuse/core": "9.13.0",
-    "@wot-ui/ui": "2.0.8",
+    "@wot-ui/ui": "^2.2.0",
     "dayjs": "^1.11.13",
     "pinia": "^2.3.1",
     "vue": "^3.5.22",

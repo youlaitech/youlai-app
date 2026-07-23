@@ -68,7 +68,7 @@
           </wd-cell>
         </wd-cell-group>
         <view class="edit-form__submit">
-          <wd-button type="primary" size="large" block @click="handleSubmit">提交</wd-button>
+          <wd-button size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
     </wd-popup>

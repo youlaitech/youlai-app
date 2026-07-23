@@ -34,7 +34,7 @@
               <cu-date-query v-model="queryParams.createTime" label="创建时间" />
               <view class="popup-actions">
                 <wd-button type="info" variant="plain" @click="resetUserFilter">重置</wd-button>
-                <wd-button type="primary" @click="applyUserFilter">查询</wd-button>
+                <wd-button @click="applyUserFilter">查询</wd-button>
               </view>
             </view>
           </wd-drop-menu-item>
@@ -71,7 +71,7 @@
             </view>
             <text class="user-card__role">{{ item.roleNames }} · {{ item.deptName }}</text>
           </view>
-          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" variant="plain">
+          <wd-tag :type="item.status === 1 ? 'success' : 'danger'">
             {{ item.status === 1 ? "正常" : "禁用" }}
           </wd-tag>
         </view>
@@ -174,7 +174,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeUserDialog">取消</wd-button>
-          <wd-button type="primary" :loading="isSubmitting" @click="submitUserForm">保存</wd-button>
+          <wd-button :loading="isSubmitting" @click="submitUserForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -204,7 +204,6 @@
             取消
           </wd-button>
           <wd-button
-            type="primary"
             :loading="resetPwdDialog.isSubmitting"
             @click="handleResetPassword"
           >

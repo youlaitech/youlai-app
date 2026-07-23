@@ -14,7 +14,7 @@
     </wd-collapse>
 
     <view class="agreement__action">
-      <wd-button type="primary" block @click="handleAgree">我已阅读并同意</wd-button>
+      <wd-button block @click="handleAgree">我已阅读并同意</wd-button>
     </view>
   </view>
 </template>

@@ -72,7 +72,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeConfigDialog">取消</wd-button>
-          <wd-button type="primary" :loading="isSubmitting" @click="submitConfigForm">
+          <wd-button :loading="isSubmitting" @click="submitConfigForm">
             保存
           </wd-button>
         </view>

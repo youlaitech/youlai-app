@@ -23,7 +23,7 @@
             </view>
             <text class="text-24rpx color-text-secondary">字典编码：{{ item.dictCode }}</text>
           </view>
-          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" variant="plain">
+          <wd-tag :type="item.status === 1 ? 'success' : 'danger'">
             {{ item.status === 1 ? "启用" : "禁用" }}
           </wd-tag>
         </view>
@@ -75,7 +75,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeDictDialog">取消</wd-button>
-          <wd-button type="primary" :loading="isSubmitting" @click="submitDictForm">保存</wd-button>
+          <wd-button :loading="isSubmitting" @click="submitDictForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>

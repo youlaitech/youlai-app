@@ -65,7 +65,7 @@
             </view>
 
             <view v-if="!isLogin" class="profile-card__action" @click.stop="navigateToLogin()">
-              <wd-button custom-class="profile-card__button" size="small" type="primary">
+              <wd-button custom-class="profile-card__button" size="small">
                 立即登录
               </wd-button>
             </view>
@@ -81,7 +81,7 @@
           />
           <view class="community-card__mask" />
           <view class="community-card__logo">
-            <image src="/logo.png" mode="aspectFit" class="w-full h-full" />
+            <image src="/static/images/logo.png" mode="aspectFit" class="w-full h-full" />
           </view>
           <view class="community-card__body">
             <view class="community-card__title-row">

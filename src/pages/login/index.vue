@@ -21,7 +21,7 @@
     <view class="login__body" :style="{ paddingTop: `${statusBarHeight + navBarHeight + 4}px` }">
       <!-- Logo -->
       <view class="login__brand">
-        <image class="login__logo" src="/logo.png" mode="aspectFit" />
+        <image class="login__logo" src="/static/images/logo.png" mode="aspectFit" />
         <text class="login__brand-name">youlai-app</text>
       </view>
 
@@ -120,7 +120,7 @@
 
           <!-- 登录按钮 -->
           <view class="login__form-item">
-            <wd-button type="primary" block :loading="isLoading" @click="handleLogin">
+            <wd-button block :loading="isLoading" @click="handleLogin">
               登 录
             </wd-button>
           </view>
@@ -243,7 +243,7 @@
             <text class="login__demo-hint-text">演示环境验证码：123456</text>
           </view>
 
-          <wd-button type="primary" block :loading="isBindLoading" @click="handleBindMobile">
+          <wd-button block :loading="isBindLoading" @click="handleBindMobile">
             确认绑定
           </wd-button>
         </view>

@@ -25,7 +25,7 @@
             </view>
             <text class="role-card__code">{{ item.code }}</text>
           </view>
-          <wd-tag :type="item.status === 1 ? 'success' : 'danger'" variant="plain">
+          <wd-tag :type="item.status === 1 ? 'success' : 'danger'">
             {{ item.status === 1 ? "正常" : "禁用" }}
           </wd-tag>
         </view>
@@ -102,7 +102,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeRoleDialog">取消</wd-button>
-          <wd-button type="primary" :loading="isSubmitting" @click="submitRoleForm">保存</wd-button>
+          <wd-button :loading="isSubmitting" @click="submitRoleForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
