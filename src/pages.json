@@ -212,9 +212,9 @@
       }
     },
     {
-      "path": "pages/qr-code-confirm/index",
+      "path": "pages/mine/scan-confirm/index",
       "type": "page",
-      "name": "qr-code-confirm",
+      "name": "scan-confirm",
       "style": {
         "navigationStyle": "custom",
         "navigationBarTitleText": ""

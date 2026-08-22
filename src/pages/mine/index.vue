@@ -134,7 +134,7 @@
           </view>
           <view v-if="isLogin" class="menu-row" @click="handleScan">
             <view class="menu-row__icon menu-row__icon--info">
-              <wd-icon name="search" size="18" color="var(--color-primary)" />
+              <wd-icon name="scan" size="18" color="var(--color-info)" />
             </view>
             <view class="menu-row__main">
               <text class="menu-row__title">扫一扫</text>
@@ -401,7 +401,7 @@ const handleScan = async () => {
       uni.showToast({ title: "无效的二维码", icon: "none" });
       return;
     }
-    router.push({ path: "/pages/qr-code-confirm/index", query: { ticket: encodeURIComponent(ticket) } });
+    router.push({ path: "/pages/mine/scan-confirm/index", query: { ticket: encodeURIComponent(ticket) } });
   } catch {
     // 用户取消扫码，静默处理
   }
