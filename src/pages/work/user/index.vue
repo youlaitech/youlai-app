@@ -48,7 +48,7 @@
         v-for="item in pageData"
         :key="item.id"
         custom-class="item-card"
-        @click="openUserDialog(item.id)"
+        @click="openUserDialog(item)"
       >
         <!-- 主信息行 -->
         <view class="flex-start">
@@ -141,8 +141,7 @@
             v-model="deptSelected"
             v-model:visible="showDeptPicker"
             :options="deptOptions"
-            :lazy-load="handleDeptLazyLoad"
-            :display-format="displayDeptFormat"
+            text-key="label"
             @confirm="handleDeptConfirm"
           />
 
@@ -219,6 +218,7 @@
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
 import { toFormSchema } from "@/utils/form";
+import { findOptionChain } from "@/utils/tree";
 import { useQueue, useToast, useDialog } from "@wot-ui/ui";
 import UserAPI, { type UserPageQuery, UserItem, UserForm } from "@/api/user";
 import RoleAPI from "@/api/role";
@@ -266,48 +266,17 @@ const deptOptions = ref<OptionType[]>([]);
 
 // 部门选择器状态
 const showDeptPicker = ref(false);
-const deptSelected = ref<(string | number)[]>([]);
+const deptSelected = ref<string | number>("");
 const deptLabel = ref("");
 
 // 角色选择器状态
 const showRolePicker = ref(false);
 const roleLabel = ref("");
 
-// 格式化部门展示
-const displayDeptFormat = (selectedItems: Record<string, any>[]) => {
-  return selectedItems.map((item) => item.label).join("/");
-};
-
-// 查找部门在树中的完整路径
-function findDeptPath(data: any[], targetId: string, path: string[] = []): string[] | null {
-  for (const item of data) {
-    const currentPath = [...path, item.value];
-    if (item.value === targetId) {
-      return currentPath;
-    }
-    if (item.children && item.children.length > 0) {
-      const found = findDeptPath(item.children, targetId, currentPath);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
-// v2 Cascader 懒加载
-const handleDeptLazyLoad = ({ selectedItem, resolve, finish }: any) => {
-  const children = selectedItem.children;
-  if (children && children.length > 0) {
-    resolve(children);
-  } else {
-    finish();
-  }
-};
-
 // 部门确认选择
-const handleDeptConfirm = ({ value, selectedItems }: any) => {
-  deptSelected.value = value;
-  formData.deptId = value[value.length - 1];
-  deptLabel.value = selectedItems.map((item: any) => item.label).join("/");
+const handleDeptConfirm = ({ value, selectedOptions }: any) => {
+  formData.deptId = value;
+  deptLabel.value = selectedOptions.map((item: any) => item.label).join("/");
 };
 
 // 角色确认选择
@@ -381,10 +350,10 @@ function fetchUserList() {
 }
 
 // 打开弹窗（新增/编辑）
-async function openUserDialog(id?: number) {
+async function openUserDialog(user?: UserItem) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
-  deptSelected.value = [];
+  deptSelected.value = "";
   deptLabel.value = "";
   roleLabel.value = "";
   dialog.visible = true;
@@ -392,18 +361,15 @@ async function openUserDialog(id?: number) {
   const deptData = await DeptAPI.getOptions();
   deptOptions.value = deptData;
 
-  if (id) {
-    formData.id = id;
-    const data = await UserAPI.getFormData(id);
-    Object.assign(formData, data, { id });
-    // 编辑时回显部门
+  if (user) {
+    formData.id = user.id;
+    const data = await UserAPI.getFormData(user.id);
+    Object.assign(formData, data, { id: user.id });
+    // 编辑时回显部门；部门已删除或禁用时不在选项树中，回退到列表行的部门名
     if (data.deptId) {
-      const path = findDeptPath(deptData, String(data.deptId));
-      if (path) {
-        deptSelected.value = path;
-      } else {
-        deptSelected.value = [String(data.deptId)];
-      }
+      deptSelected.value = data.deptId;
+      const chain = findOptionChain(deptData, data.deptId);
+      deptLabel.value = chain ? chain.map((option) => option.label).join("/") : user.deptName || "";
     }
     // 回显角色
     if (data.roleIds && data.roleIds.length > 0) {
@@ -466,7 +432,7 @@ function showUserActions(item: UserItem) {
   // 编辑
   if (hasPermission("sys:user:update")) {
     actions.push({ name: "编辑" });
-    actionMap["编辑"] = () => openUserDialog(item.id);
+    actionMap["编辑"] = () => openUserDialog(item);
   }
 
   // 删除

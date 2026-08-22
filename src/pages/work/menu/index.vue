@@ -67,8 +67,7 @@
               v-model="parentSelected"
               v-model:visible="showParentPicker"
               :options="parentOptions"
-              :lazy-load="handleParentLazyLoad"
-              :display-format="displayParentFormat"
+              text-key="label"
               @confirm="handleParentConfirm"
             />
             <wd-form-item prop="name" title="菜单名称" required>
@@ -129,6 +128,7 @@
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form";
+import { findOptionChain } from "@/utils/tree";
 import { useToast, useDialog } from "@wot-ui/ui";
 import MenuAPI, { type MenuQuery, MenuItem, MenuForm } from "@/api/menu";
 import { hasPermission } from "@/utils/permission";
@@ -210,54 +210,15 @@ function getMenuTypeText(type?: string | number) {
 
 // 上级菜单选择器
 const showParentPicker = ref(false);
-const parentSelected = ref<(string | number)[]>([]);
+const parentSelected = ref<string | number>("");
 const parentOptions = ref<OptionType[]>([]);
 const parentLabel = ref("");
 
-const displayParentFormat = (selectedItems: Record<string, any>[]) => {
-  if (!selectedItems || selectedItems.length === 0) return "";
-  return selectedItems
-    .map((item) => item?.label)
-    .filter((label) => !!label)
-    .join("/");
-};
-
-function findMenuPath(
-  data: Record<string, any>[],
-  targetId: string,
-  path: (string | number)[] = []
-): (string | number)[] | null {
-  for (const item of data) {
-    const currentPath = [...path, item.value];
-    if (String(item.value) === targetId) {
-      return currentPath;
-    }
-    if (item.children && item.children.length > 0) {
-      const found = findMenuPath(item.children, targetId, currentPath);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
-// v2 Cascader 懒加载
-const handleParentLazyLoad = ({ selectedItem, resolve, finish }: any) => {
-  if (String(selectedItem?.value) === "0") {
-    finish();
-    return;
-  }
-  const children = selectedItem.children;
-  if (children && children.length > 0) {
-    resolve(children);
-  } else {
-    finish();
-  }
-};
-
-const handleParentConfirm = ({ value, selectedItems }: any) => {
+// 上级菜单确认选择
+const handleParentConfirm = ({ value, selectedOptions }: any) => {
   parentSelected.value = value;
-  formData.parentId = String(value[value.length - 1]) || "0";
-  parentLabel.value = selectedItems.map((item: any) => item.label).join("/");
+  formData.parentId = String(value) || "0";
+  parentLabel.value = selectedOptions.map((item: any) => item.label).join("/");
 };
 
 const rules = toFormSchema({
@@ -333,34 +294,39 @@ function handleNodeAction(node: any) {
 async function openMenuDialog(menu?: MenuItem) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
-  parentSelected.value = [];
+  parentSelected.value = "";
   parentLabel.value = "";
   dialog.visible = true;
 
   const data = await MenuAPI.getOptions(true);
   parentOptions.value = [{ value: "0", label: "顶级菜单" }, ...data];
 
-  if (menu) {
+  if (menu?.id) {
     formData.id = menu.id;
-    const form = await MenuAPI.getFormData(menu.id!);
+    const form = await MenuAPI.getFormData(menu.id);
     Object.assign(formData, form, { id: menu.id });
 
-    if (form.parentId && String(form.parentId) !== "0") {
-      const path = findMenuPath(data, String(form.parentId));
-      if (path) {
-        parentSelected.value = path;
-      } else {
-        parentSelected.value = [String(form.parentId)];
-      }
+    // 编辑时回显上级菜单
+    if (String(form.parentId) === "0") {
+      parentSelected.value = "0";
+      parentLabel.value = "顶级菜单";
+    } else if (form.parentId) {
+      parentSelected.value = form.parentId;
+      const chain = findOptionChain(data, form.parentId);
+      parentLabel.value = chain ? chain.map((option) => option.label).join("/") : "";
     }
   }
 }
 
-// 新增子菜单
+// 新增子菜单：按新增流程打开弹窗，并预设上级菜单
 function handleAddChild(menu: MenuItem) {
-  openMenuDialog({ id: undefined, parentId: menu.id } as MenuItem);
+  openMenuDialog();
   formData.parentId = menu.id!;
-  parentSelected.value = [menu.id!];
+  parentSelected.value = menu.id!;
+  parentLabel.value =
+    findOptionChain(treeData.value, menu.id!)?.map((option) => option.label).join("/") ||
+    menu.name ||
+    "";
 }
 
 // 提交表单

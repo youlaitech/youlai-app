@@ -58,8 +58,7 @@
             v-model="parentSelected"
             v-model:visible="showParentPicker"
             :options="parentOptions"
-            :lazy-load="handleParentLazyLoad"
-            :display-format="displayParentFormat"
+            text-key="label"
             @confirm="handleParentConfirm"
           />
           <wd-form-item prop="name" title="部门名称" required>
@@ -103,6 +102,7 @@
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form";
+import { findOptionChain } from "@/utils/tree";
 import { useToast, useDialog } from "@wot-ui/ui";
 import DeptAPI, { type DeptQuery, DeptItem, DeptForm } from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
@@ -153,53 +153,15 @@ function transformDeptToTree(dept: DeptItem): any {
 
 // 上级部门选择器
 const showParentPicker = ref(false);
-const parentSelected = ref<(string | number)[]>([]);
+const parentSelected = ref<string | number>("");
 const parentOptions = ref<OptionType[]>([]);
 const parentLabel = ref("");
 
-// 格式化上级部门展示
-const displayParentFormat = (selectedItems: OptionType[]) => {
-  if (!selectedItems || selectedItems.length === 0) return "";
-  return selectedItems
-    .map((item) => item?.label)
-    .filter((label) => !!label)
-    .join("/");
-};
-
-// 查找部门在树中的完整路径
-function findDeptPath(data: OptionType[], targetId: string, path: string[] = []): string[] | null {
-  for (const item of data) {
-    const currentPath = [...path, String(item.value)];
-    if (String(item.value) === targetId) {
-      return currentPath;
-    }
-    if (item.children && item.children.length > 0) {
-      const found = findDeptPath(item.children, targetId, currentPath);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
-// v2 Cascader 懒加载
-const handleParentLazyLoad = ({ selectedItem, resolve, finish }: any) => {
-  if (String(selectedItem?.value) === "0") {
-    finish();
-    return;
-  }
-  const children = selectedItem.children;
-  if (children && children.length > 0) {
-    resolve(children);
-  } else {
-    finish();
-  }
-};
-
 // 上级部门确认选择
-const handleParentConfirm = ({ value, selectedItems }: any) => {
+const handleParentConfirm = ({ value, selectedOptions }: any) => {
   parentSelected.value = value;
-  formData.parentId = Number(value[value.length - 1]) || 0;
-  parentLabel.value = selectedItems.map((item: any) => item.label).join("/");
+  formData.parentId = Number(value) || 0;
+  parentLabel.value = selectedOptions.map((item: any) => item.label).join("/");
 };
 
 const rules = toFormSchema({
@@ -280,34 +242,39 @@ function handleNodeAction(node: any) {
 async function openDeptDialog(dept?: DeptItem) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
-  parentSelected.value = [];
+  parentSelected.value = "";
   parentLabel.value = "";
   dialog.visible = true;
 
   const data = await DeptAPI.getOptions();
   parentOptions.value = [{ value: "0", label: "顶级部门" }, ...data];
 
-  if (dept) {
+  if (dept?.id) {
     formData.id = dept.id;
-    const form = await DeptAPI.getFormData(dept.id!);
+    const form = await DeptAPI.getFormData(dept.id);
     Object.assign(formData, form, { id: dept.id });
 
-    if (form.parentId && form.parentId !== 0) {
-      const path = findDeptPath(data, String(form.parentId));
-      if (path) {
-        parentSelected.value = path;
-      } else {
-        parentSelected.value = [String(form.parentId)];
-      }
+    // 编辑时回显上级部门
+    if (form.parentId === 0) {
+      parentSelected.value = "0";
+      parentLabel.value = "顶级部门";
+    } else if (form.parentId) {
+      parentSelected.value = form.parentId;
+      const chain = findOptionChain(data, form.parentId);
+      parentLabel.value = chain ? chain.map((option) => option.label).join("/") : "";
     }
   }
 }
 
-// 新增子部门
+// 新增子部门：按新增流程打开弹窗，并预设上级部门
 function handleAddChild(dept: DeptItem) {
-  openDeptDialog({ id: undefined, parentId: dept.id } as DeptItem);
+  openDeptDialog();
   formData.parentId = dept.id!;
-  parentSelected.value = [String(dept.id)];
+  parentSelected.value = dept.id!;
+  parentLabel.value =
+    findOptionChain(treeData.value, dept.id!)?.map((option) => option.label).join("/") ||
+    dept.name ||
+    "";
 }
 
 // 提交表单
