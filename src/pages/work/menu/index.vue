@@ -77,11 +77,15 @@
               <wd-radio-group v-model="formData.type" size="small" type="button">
                 <wd-radio value="C">目录</wd-radio>
                 <wd-radio value="M">菜单</wd-radio>
+                <wd-radio value="E">外链</wd-radio>
                 <wd-radio value="B">按钮</wd-radio>
               </wd-radio-group>
             </wd-form-item>
-            <wd-form-item v-if="formData.type !== 'B'" prop="routePath" title="路由路径">
+            <wd-form-item v-if="formData.type === 'C' || formData.type === 'M'" prop="routePath" title="路由路径">
               <wd-input v-model="formData.routePath" placeholder="system 或 /system" />
+            </wd-form-item>
+            <wd-form-item v-if="formData.type === 'E'" prop="externalUrl" title="外链地址">
+              <wd-input v-model="formData.externalUrl" placeholder="https://example.com" />
             </wd-form-item>
             <wd-form-item v-if="formData.type === 'M'" prop="component" title="组件路径">
               <wd-input v-model="formData.component" placeholder="system/menu/index" />
@@ -159,6 +163,7 @@ const initialFormData: MenuForm = {
   type: "M",
   routePath: undefined,
   component: undefined,
+  externalUrl: undefined,
   perm: undefined,
   icon: undefined,
   sort: 1,
@@ -196,6 +201,7 @@ function getMenuTypeTag(type?: string | number): "primary" | "success" | "warnin
   const map: Record<string, "primary" | "success" | "warning" | "danger"> = {
     C: "warning",
     M: "success",
+    E: "primary",
     B: "danger",
   };
   const key = String(normalizeMenuType(type) || "M");
@@ -203,7 +209,7 @@ function getMenuTypeTag(type?: string | number): "primary" | "success" | "warnin
 }
 
 function getMenuTypeText(type?: string | number) {
-  const map: Record<string, string> = { C: "目录", M: "菜单", B: "按钮" };
+  const map: Record<string, string> = { C: "目录", M: "菜单", E: "外链", B: "按钮" };
   const key = String(normalizeMenuType(type) || "M");
   return map[key] || "菜单";
 }
@@ -329,12 +335,34 @@ function handleAddChild(menu: MenuItem) {
     "";
 }
 
+// 按类型清理无关字段，避免误提交
+function normalizeMenuPayload() {
+  const payload: MenuForm = { ...formData };
+
+  if (payload.type === "E") {
+    payload.routePath = undefined;
+    payload.component = undefined;
+    payload.perm = undefined;
+  } else {
+    payload.externalUrl = undefined;
+  }
+
+  if (payload.type === "B") {
+    payload.routePath = undefined;
+    payload.component = undefined;
+    payload.icon = undefined;
+  }
+
+  return payload;
+}
+
 // 提交表单
 function submitMenuForm() {
   formRef.value.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     isSubmitting.value = true;
-    const action = formData.id ? MenuAPI.update(formData.id, formData) : MenuAPI.add(formData);
+    const payload = normalizeMenuPayload();
+    const action = formData.id ? MenuAPI.update(formData.id, payload) : MenuAPI.add(payload);
     action
       .then(() => {
         toast.success("操作成功");

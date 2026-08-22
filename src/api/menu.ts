@@ -74,6 +74,8 @@ export interface MenuItem {
   component?: string;
   /** 创建时间 */
   createTime?: Date;
+  /** 外链地址 */
+  externalUrl?: string;
   /** 图标 */
   icon?: string;
   /** 菜单ID */
@@ -114,6 +116,8 @@ export interface MenuForm {
   component?: string;
   /** 权限标识 */
   perm?: string;
+  /** 外链地址 */
+  externalUrl?: string;
   /** 图标 */
   icon?: string;
   /** 排序 */
