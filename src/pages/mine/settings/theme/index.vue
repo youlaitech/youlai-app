@@ -67,9 +67,7 @@
 
     <!-- 操作按钮 -->
     <view class="mt-32rpx">
-      <wd-button plain size="large" block @click="handleResetTheme">
-        重置为默认主题
-      </wd-button>
+      <wd-button plain size="large" block @click="handleResetTheme">重置为默认主题</wd-button>
     </view>
 
     <!-- 自定义颜色输入弹窗 -->

@@ -104,9 +104,10 @@ import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form";
 import { findOptionChain } from "@/utils/tree";
 import { useToast, useDialog } from "@wot-ui/ui";
+import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
 import DeptAPI, { type DeptQuery, DeptItem, DeptForm } from "@/api/dept";
 import { hasPermission } from "@/utils/permission";
-import CustomTree from "@/components/custom-tree/index.vue";
+import CustomTree, { type TreeOption } from "@/components/custom-tree/index.vue";
 
 definePage({
   name: "dept",
@@ -140,10 +141,10 @@ const formData = reactive<DeptForm>({ ...initialFormData });
 // 转换为树组件数据格式
 const treeData = computed(() => deptList.value.map((dept) => transformDeptToTree(dept)));
 
-function transformDeptToTree(dept: DeptItem): any {
+function transformDeptToTree(dept: DeptItem): TreeOption {
   return {
     value: String(dept.id),
-    label: dept.name,
+    label: dept.name ?? "",
     id: dept.id,
     name: dept.name,
     status: dept.status,
@@ -158,10 +159,16 @@ const parentOptions = ref<OptionType[]>([]);
 const parentLabel = ref("");
 
 // 上级部门确认选择
-const handleParentConfirm = ({ value, selectedOptions }: any) => {
+const handleParentConfirm = ({
+  value,
+  selectedOptions,
+}: {
+  value: string | number;
+  selectedOptions: CascaderOption[];
+}) => {
   parentSelected.value = value;
   formData.parentId = Number(value) || 0;
-  parentLabel.value = selectedOptions.map((item: any) => item.label).join("/");
+  parentLabel.value = selectedOptions.map((item) => String(item.label ?? "")).join("/");
 };
 
 const rules = toFormSchema({
@@ -185,7 +192,7 @@ function loadDeptList() {
 }
 
 // 操作菜单分发
-function handleActionSelect({ item }: { item: any }) {
+function handleActionSelect({ item }: { item: { name: string } }) {
   const value = item.name;
   const dept = currentActionItem.value;
   if (value === "新增子部门") {
@@ -206,7 +213,7 @@ function handleActionSelect({ item }: { item: any }) {
 }
 
 // 处理节点操作按钮点击
-function handleNodeAction(node: any) {
+function handleNodeAction(node: TreeOption) {
   const dept: DeptItem = {
     id: node.id,
     name: node.label,
@@ -272,7 +279,9 @@ function handleAddChild(dept: DeptItem) {
   formData.parentId = dept.id!;
   parentSelected.value = dept.id!;
   parentLabel.value =
-    findOptionChain(treeData.value, dept.id!)?.map((option) => option.label).join("/") ||
+    findOptionChain(treeData.value, dept.id!)
+      ?.map((option) => option.label)
+      .join("/") ||
     dept.name ||
     "";
 }

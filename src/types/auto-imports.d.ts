@@ -37,12 +37,14 @@ declare global {
   const dict: typeof import('../api/dict')['default']
   const effectScope: typeof import('vue')['effectScope']
   const file: typeof import('../api/file')['default']
+  const findOptionChain: typeof import('../utils/tree')['findOptionChain']
   const formatBytes: typeof import('../utils/format')['formatBytes']
   const formatNumber: typeof import('../utils/format')['formatNumber']
   const getAccessToken: typeof import('../utils/auth')['getAccessToken']
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
+  const getErrorMessage: typeof import('../utils/index')['getErrorMessage']
   const getRefreshToken: typeof import('../utils/auth')['getRefreshToken']
   const getToken: typeof import('../utils/storage')['getToken']
   const getUserInfo: typeof import('../utils/storage')['getUserInfo']
@@ -188,6 +190,7 @@ declare global {
   const useRoute: typeof import('uni-mini-router')['useRoute']
   const useRouter: typeof import('uni-mini-router')['useRouter']
   const useScanCode: typeof import('@uni-helper/uni-use')['useScanCode']
+  const useScanLogin: typeof import('../composables/useScanLogin')['useScanLogin']
   const useScreenBrightness: typeof import('@uni-helper/uni-use')['useScreenBrightness']
   const useSelectorQuery: typeof import('@uni-helper/uni-use')['useSelectorQuery']
   const useSlots: typeof import('vue')['useSlots']
@@ -253,12 +256,14 @@ declare module 'vue' {
     readonly dict: UnwrapRef<typeof import('../api/dict')['default']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly file: UnwrapRef<typeof import('../api/file')['default']>
+    readonly findOptionChain: UnwrapRef<typeof import('../utils/tree')['findOptionChain']>
     readonly formatBytes: UnwrapRef<typeof import('../utils/format')['formatBytes']>
     readonly formatNumber: UnwrapRef<typeof import('../utils/format')['formatNumber']>
     readonly getAccessToken: UnwrapRef<typeof import('../utils/auth')['getAccessToken']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly getErrorMessage: UnwrapRef<typeof import('../utils/index')['getErrorMessage']>
     readonly getRefreshToken: UnwrapRef<typeof import('../utils/auth')['getRefreshToken']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hasAllPermissions: UnwrapRef<typeof import('../utils/permission')['hasAllPermissions']>
@@ -360,6 +365,7 @@ declare module 'vue' {
     readonly useRequest: UnwrapRef<typeof import('../composables/useRequest')['useRequest']>
     readonly useRoute: UnwrapRef<typeof import('uni-mini-router')['useRoute']>
     readonly useRouter: UnwrapRef<typeof import('uni-mini-router')['useRouter']>
+    readonly useScanLogin: UnwrapRef<typeof import('../composables/useScanLogin')['useScanLogin']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSse: UnwrapRef<typeof import('../composables/useSse')['useSse']>
     readonly useTabbar: UnwrapRef<typeof import('../composables/useTabbar')['useTabbar']>

@@ -254,7 +254,7 @@ function closeRoleDialog() {
 }
 
 // 操作菜单分发
-function handleActionSelect({ item }: { item: any }) {
+function handleActionSelect({ item }: { item: { name: string } }) {
   const value = item.name;
   const role = currentActionItem.value;
   if (value === "编辑") {
@@ -267,7 +267,7 @@ function handleActionSelect({ item }: { item: any }) {
       msg: `确定要删除角色「${role.name}」吗？`,
       headerImage: "warning",
     }).then(async () => {
-      await RoleAPI.deleteByIds(String(item.id));
+      await RoleAPI.deleteByIds(String(role.id));
       toast.success("删除成功");
       loadRoleList();
     });

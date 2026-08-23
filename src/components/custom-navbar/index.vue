@@ -30,8 +30,9 @@
       </view>
 
       <view class="custom-navbar__right" :style="{ width: rightWidth + 'px' }">
-        <view class="custom-navbar__capsule-space" :style="{ width: capsuleSpaceWidth + 'px' }" />
         <slot name="right" />
+        <!-- 微信端胶囊按钮占位，保证插槽内容不会顶到胶囊下方 -->
+        <view class="custom-navbar__capsule-space" :style="{ width: capsuleSpaceWidth + 'px' }" />
       </view>
     </view>
   </view>

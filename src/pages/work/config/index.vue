@@ -72,9 +72,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeConfigDialog">取消</wd-button>
-          <wd-button :loading="isSubmitting" @click="submitConfigForm">
-            保存
-          </wd-button>
+          <wd-button :loading="isSubmitting" @click="submitConfigForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -154,7 +152,7 @@ function loadConfigList() {
 function fetchConfigList() {
   loadMoreState.value = "loading";
   ConfigAPI.getPage(queryParams)
-    .then((data: any) => {
+    .then((data) => {
       pageData.value = data.list;
       total.value = data.total;
       queryParams.pageNum++;
@@ -205,7 +203,7 @@ function closeConfigDialog() {
 }
 
 // 操作菜单分发
-function handleActionSelect({ item }: { item: any }) {
+function handleActionSelect({ item }: { item: { name: string } }) {
   const value = item.name;
   const configItem = currentActionItem.value;
   if (value === "编辑") {

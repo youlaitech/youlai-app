@@ -35,6 +35,7 @@
 import { onLoad } from "@dcloudio/uni-app";
 import { useToast } from "@wot-ui/ui";
 import { useUserStore } from "@/store/modules/user";
+import { getErrorMessage } from "@/utils";
 import type { QrCodeScanResult } from "@/api/auth";
 
 definePage({
@@ -61,8 +62,8 @@ const scanResult = ref<QrCodeScanResult | null>(null);
 const markScanned = async (code: string) => {
   try {
     scanResult.value = await userStore.qrScan(code);
-  } catch (error: any) {
-    toast.error(error?.message || "二维码无效或已过期");
+  } catch (error) {
+    toast.error(getErrorMessage(error, "二维码无效或已过期"));
     setTimeout(() => uni.navigateBack(), TOAST_DURATION);
   }
 };
@@ -75,8 +76,8 @@ const handleConfirm = async () => {
     await userStore.qrConfirm(ticket.value);
     toast.success("已确认登录");
     setTimeout(() => uni.navigateBack(), TOAST_DURATION);
-  } catch (error: any) {
-    toast.error(error?.message || "确认失败");
+  } catch (error) {
+    toast.error(getErrorMessage(error, "确认失败"));
   } finally {
     isLoading.value = false;
   }
@@ -96,7 +97,7 @@ const handleCancel = async () => {
   }
 };
 
-onLoad((options: any) => {
+onLoad((options) => {
   const code = options?.ticket ? decodeURIComponent(options.ticket) : "";
   if (!code) {
     toast.error("二维码无效");

@@ -3,9 +3,22 @@ import { getAccessToken } from "@/utils/auth";
 import { createRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
 
+/** virtual:uni-pages 生成的页面路由描述 */
+interface PageMetaRoute {
+  path: string;
+  meta?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+/** 分包路由描述 */
+interface SubPackageRoute {
+  root: string;
+  pages: PageMetaRoute[];
+}
+
 // 生成路由配置
 function generateRoutes() {
-  const routes = pages.map((page: { path: string; [key: string]: any }) => {
+  const routes = pages.map((page: PageMetaRoute) => {
     const newPath = `/${page.path}`;
     const meta = page.meta ?? undefined;
     return { ...page, path: newPath, meta };
@@ -13,8 +26,8 @@ function generateRoutes() {
 
   // 处理分包路由
   if (subPackages && subPackages.length > 0) {
-    subPackages.forEach((subPackage: { root: string; pages: any[] }) => {
-      const subRoutes = subPackage.pages.map((page: any) => {
+    subPackages.forEach((subPackage: SubPackageRoute) => {
+      const subRoutes = subPackage.pages.map((page) => {
         const newPath = `/${subPackage.root}/${page.path}`;
         const meta = page.meta ?? undefined;
         return { ...page, path: newPath, meta };

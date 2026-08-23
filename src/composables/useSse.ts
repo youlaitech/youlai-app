@@ -9,7 +9,7 @@ export interface UseSseOptions {
   maxReconnectAttempts?: number;
 }
 
-type EventHandler = (data: any) => void;
+type EventHandler = (data: unknown) => void;
 
 export enum SseConnectionState {
   DISCONNECTED = "DISCONNECTED",
@@ -44,8 +44,8 @@ function createSseConnection(options: UseSseOptions = {}) {
 
   const eventHandlers = new Map<string, Set<EventHandler>>();
 
-  const log = (...args: any[]) => config.debug && console.log("[SSE]", ...args);
-  const logError = (...args: any[]) => console.error("[SSE]", ...args);
+  const log = (...args: unknown[]) => config.debug && console.log("[SSE]", ...args);
+  const logError = (...args: unknown[]) => console.error("[SSE]", ...args);
 
   const clearTimer = (timer: typeof connectionTimeoutTimer) => {
     if (timer) {

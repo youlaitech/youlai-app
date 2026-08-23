@@ -133,6 +133,7 @@ import { ref, reactive, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { useDialog, useToast } from "@wot-ui/ui";
 import { useUserStore } from "@/store";
+import { getErrorMessage } from "@/utils";
 import UserAPI, { type UserProfileForm } from "@/api/user";
 import FileAPI, { type FileInfo } from "@/api/file";
 
@@ -165,7 +166,7 @@ const canComplete = computed(() => {
   return profileForm.nickname && profileForm.mobile;
 });
 
-onLoad((options: any) => {
+onLoad((options) => {
   if (options?.redirect) {
     redirect.value = decodeURIComponent(options.redirect);
   }
@@ -173,11 +174,21 @@ onLoad((options: any) => {
   if (userInfo) {
     profileForm.nickname = userInfo.nickname || "";
     profileForm.avatar = userInfo.avatar || "";
-    profileForm.gender = (userInfo as any).gender || 1;
+    profileForm.gender = userInfo.gender || 1;
   }
 });
 
-const onChooseAvatar = async (e: any) => {
+/** 微信头像选择按钮回调事件（open-type="chooseAvatar"） */
+interface WxChooseAvatarEvent {
+  detail: { avatarUrl: string };
+}
+
+/** wd-img-cropper 裁剪确认事件 */
+interface ImgCropperConfirmEvent {
+  tempFilePath: string;
+}
+
+const onChooseAvatar = async (e: WxChooseAvatarEvent) => {
   try {
     const { avatarUrl } = e.detail;
     toast.loading("上传中...");
@@ -220,7 +231,7 @@ const chooseAvatar = () => {
   // #endif
 };
 
-const handleAvatarConfirm = async (event: any) => {
+const handleAvatarConfirm = async (event: ImgCropperConfirmEvent) => {
   try {
     const { tempFilePath } = event;
     toast.loading("上传中...");
@@ -260,8 +271,8 @@ const handleComplete = async () => {
     setTimeout(() => {
       uni.reLaunch({ url: redirect.value });
     }, 1000);
-  } catch (error: any) {
-    toast.error(error?.message || "完善信息失败");
+  } catch (error) {
+    toast.error(getErrorMessage(error, "完善信息失败"));
   } finally {
     isLoading.value = false;
   }

@@ -292,8 +292,8 @@ export interface UserForm {
   mobile?: string;
   /** 昵称 */
   nickname?: string;
-  /** 角色ID集合 */
-  roleIds: number[];
+  /** 角色ID集合（后端 Long 序列化为字符串，兼容数字） */
+  roleIds: (number | string)[];
   /** 用户状态(1:正常;0:禁用) */
   status?: number;
   /** 用户名 */

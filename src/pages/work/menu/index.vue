@@ -81,7 +81,11 @@
                 <wd-radio value="B">按钮</wd-radio>
               </wd-radio-group>
             </wd-form-item>
-            <wd-form-item v-if="formData.type === 'C' || formData.type === 'M'" prop="routePath" title="路由路径">
+            <wd-form-item
+              v-if="formData.type === 'C' || formData.type === 'M'"
+              prop="routePath"
+              title="路由路径"
+            >
               <wd-input v-model="formData.routePath" placeholder="system 或 /system" />
             </wd-form-item>
             <wd-form-item v-if="formData.type === 'E'" prop="externalUrl" title="外链地址">
@@ -136,7 +140,8 @@ import { findOptionChain } from "@/utils/tree";
 import { useToast, useDialog } from "@wot-ui/ui";
 import MenuAPI, { type MenuQuery, MenuItem, MenuForm } from "@/api/menu";
 import { hasPermission } from "@/utils/permission";
-import CustomTree from "@/components/custom-tree/index.vue";
+import CustomTree, { type TreeOption } from "@/components/custom-tree/index.vue";
+import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
 
 definePage({
   name: "menu",
@@ -175,10 +180,10 @@ const formData = reactive<MenuForm>({ ...initialFormData });
 // 转换为树组件数据格式
 const treeData = computed(() => menuList.value.map((menu: MenuItem) => transformMenuToTree(menu)));
 
-function transformMenuToTree(menu: MenuItem): any {
+function transformMenuToTree(menu: MenuItem): TreeOption {
   return {
-    value: menu.id,
-    label: menu.name,
+    value: menu.id ?? "",
+    label: menu.name ?? "",
     id: menu.id,
     name: menu.name,
     type: menu.type,
@@ -221,10 +226,16 @@ const parentOptions = ref<OptionType[]>([]);
 const parentLabel = ref("");
 
 // 上级菜单确认选择
-const handleParentConfirm = ({ value, selectedOptions }: any) => {
+const handleParentConfirm = ({
+  value,
+  selectedOptions,
+}: {
+  value: string | number;
+  selectedOptions: CascaderOption[];
+}) => {
   parentSelected.value = value;
   formData.parentId = String(value) || "0";
-  parentLabel.value = selectedOptions.map((item: any) => item.label).join("/");
+  parentLabel.value = selectedOptions.map((item) => String(item.label ?? "")).join("/");
 };
 
 const rules = toFormSchema({
@@ -236,13 +247,13 @@ const rules = toFormSchema({
 const handleSearch = () => loadMenuList();
 
 function loadMenuList() {
-  MenuAPI.getList(queryParams).then((data: any) => {
+  MenuAPI.getList(queryParams).then((data) => {
     menuList.value = data;
   });
 }
 
 // 操作菜单分发
-function handleActionSelect({ item }: { item: any }) {
+function handleActionSelect({ item }: { item: { name: string } }) {
   const value = item.name;
   const menu = currentActionItem.value;
   if (value === "新增子菜单") {
@@ -263,7 +274,7 @@ function handleActionSelect({ item }: { item: any }) {
 }
 
 // 处理节点操作按钮点击
-function handleNodeAction(node: any) {
+function handleNodeAction(node: TreeOption) {
   const menu: MenuItem = {
     id: node.id,
     name: node.label,
@@ -330,7 +341,9 @@ function handleAddChild(menu: MenuItem) {
   formData.parentId = menu.id!;
   parentSelected.value = menu.id!;
   parentLabel.value =
-    findOptionChain(treeData.value, menu.id!)?.map((option) => option.label).join("/") ||
+    findOptionChain(treeData.value, menu.id!)
+      ?.map((option) => option.label)
+      .join("/") ||
     menu.name ||
     "";
 }

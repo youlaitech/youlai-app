@@ -202,10 +202,7 @@
           <wd-button type="info" variant="plain" @click="resetPwdDialog.visible = false">
             取消
           </wd-button>
-          <wd-button
-            :loading="resetPwdDialog.isSubmitting"
-            @click="handleResetPassword"
-          >
+          <wd-button :loading="resetPwdDialog.isSubmitting" @click="handleResetPassword">
             确认
           </wd-button>
         </view>
@@ -217,6 +214,7 @@
 <script lang="ts" setup>
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { LoadMoreState } from "@wot-ui/ui/components/wd-loadmore/types";
+import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
 import { toFormSchema } from "@/utils/form";
 import { findOptionChain } from "@/utils/tree";
 import { useQueue, useToast, useDialog } from "@wot-ui/ui";
@@ -261,7 +259,7 @@ const initialFormData: UserForm = {
 };
 
 const formData = reactive<UserForm>({ ...initialFormData });
-const roleOptions = ref<Record<string, any>[]>([]);
+const roleOptions = ref<OptionType[]>([]);
 const deptOptions = ref<OptionType[]>([]);
 
 // 部门选择器状态
@@ -274,14 +272,25 @@ const showRolePicker = ref(false);
 const roleLabel = ref("");
 
 // 部门确认选择
-const handleDeptConfirm = ({ value, selectedOptions }: any) => {
-  formData.deptId = value;
-  deptLabel.value = selectedOptions.map((item: any) => item.label).join("/");
+const handleDeptConfirm = ({
+  value,
+  selectedOptions,
+}: {
+  value: string | number;
+  selectedOptions: CascaderOption[];
+}) => {
+  formData.deptId = Number(value);
+  deptLabel.value = selectedOptions.map((item) => String(item.label ?? "")).join("/");
 };
 
 // 角色确认选择
-const handleRoleConfirm = ({ selectedItems }: any) => {
-  roleLabel.value = selectedItems.map((item: any) => item.label).join("、");
+const handleRoleConfirm = ({
+  selectedItems,
+}: {
+  value: (string | number)[];
+  selectedItems: OptionType[];
+}) => {
+  roleLabel.value = selectedItems.map((item) => item.label).join("、");
 };
 
 const rules = toFormSchema({
@@ -336,7 +345,7 @@ function resetUserFilter() {
 function fetchUserList() {
   loadMoreState.value = "loading";
   UserAPI.getPage(queryParams)
-    .then((data: any) => {
+    .then((data) => {
       pageData.value = data.list;
       total.value = data.total;
       queryParams.pageNum++;
@@ -371,11 +380,12 @@ async function openUserDialog(user?: UserItem) {
       const chain = findOptionChain(deptData, data.deptId);
       deptLabel.value = chain ? chain.map((option) => option.label).join("/") : user.deptName || "";
     }
-    // 回显角色
+    // 回显角色（roleIds 与选项 value 统一转字符串比较，兼容数字/字符串ID）
     if (data.roleIds && data.roleIds.length > 0) {
+      const roleIds = data.roleIds.map(String);
       const names = roleOptions.value
-        .filter((r: any) => data.roleIds.includes(r.value))
-        .map((r: any) => r.label);
+        .filter((r) => roleIds.includes(String(r.value)))
+        .map((r) => r.label);
       roleLabel.value = names.join("、");
     }
   }
@@ -464,7 +474,7 @@ function showUserActions(item: UserItem) {
   actionSheetVisible.value = true;
 }
 
-function handleActionSelect({ item }: { item: any }) {
+function handleActionSelect({ item }: { item: { name: string } }) {
   pendingAction.value[item.name]?.();
 }
 

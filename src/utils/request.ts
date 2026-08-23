@@ -68,9 +68,13 @@ function request<T = any>(options: RequestOptions): Promise<T> {
       header,
       timeout: options.timeout || 30000,
       responseType: options.responseType,
-      success: (res: any) => {
-        const serverCode = res?.data?.code;
-        const serverMsg = res?.data?.msg || res?.data?.message;
+      success: (res: UniApp.RequestSuccessCallbackResult) => {
+        // 后端统一响应体（data 在泛型 T 下无法精确描述，这里只取业务层字段）
+        const body = res?.data as
+          | { code?: string; msg?: string; message?: string; data?: unknown }
+          | undefined;
+        const serverCode = body?.code;
+        const serverMsg = body?.msg || body?.message;
 
         // 令牌无效/过期（业务码 A023x 或 HTTP 401）：清除 token 并跳转登录页（防抖）
         const isTokenError =
@@ -94,7 +98,7 @@ function request<T = any>(options: RequestOptions): Promise<T> {
         // HTTP 成功：校验业务码
         if (res.statusCode >= 200 && res.statusCode < 300) {
           if (!serverCode || serverCode === ApiCode.SUCCESS) {
-            resolve(res.data.data);
+            resolve(body?.data as T);
           } else {
             reject(new RequestError(serverMsg || "请求失败", res.statusCode, serverCode));
           }

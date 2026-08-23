@@ -163,7 +163,7 @@ function fetchItemList() {
 
   loadMoreState.value = "loading";
   DictAPI.getItemPage(dictCode.value, queryParams)
-    .then((data: any) => {
+    .then((data) => {
       pageData.value = data.list;
       total.value = data.total;
       queryParams.pageNum++;
@@ -264,7 +264,7 @@ function showItemActions(item: DictDataItem) {
   actionSheetVisible.value = true;
 }
 
-function handleActionSelect({ item }: { item: any }) {
+function handleActionSelect({ item }: { item: { name: string } }) {
   pendingAction.value[item.name]?.();
 }
 
@@ -276,9 +276,9 @@ onReachBottom(() => {
   }
 });
 
-onLoad((query: any) => {
-  dictCode.value = String((query as any)?.dictCode || "");
-  pageTitle.value = String((query as any)?.title || "字典数据");
+onLoad((query) => {
+  dictCode.value = String(query?.dictCode || "");
+  pageTitle.value = String(query?.title || "字典数据");
   if (pageTitle.value) {
     uni.setNavigationBarTitle({ title: pageTitle.value });
   }

@@ -71,7 +71,7 @@
 import { ref, computed, watch } from "vue";
 
 export interface TreeOption {
-  [key: string]: any;
+  [key: string]: unknown;
   value: string;
   label: string;
   children?: TreeOption[];
@@ -163,7 +163,7 @@ const flatNodes = computed(() => {
       result.push({
         ...node,
         value: String(node[props.valueKey]),
-        label: node[props.labelKey],
+        label: node[props.labelKey] as string,
         level,
         hasChildren: !!(children && children.length > 0),
         raw: node,

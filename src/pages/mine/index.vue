@@ -11,6 +11,11 @@
         :show-back="false"
         :placeholder="false"
       >
+        <template #left>
+          <view v-if="isLogin" class="mine-navbar__scan" aria-label="扫一扫" @click="scanLogin">
+            <wd-icon name="scan" size="40rpx" color="var(--color-text-inverse)" />
+          </view>
+        </template>
         <template #center>
           <text class="mine-navbar__title">个人中心</text>
         </template>
@@ -65,9 +70,7 @@
             </view>
 
             <view v-if="!isLogin" class="profile-card__action" @click.stop="navigateToLogin()">
-              <wd-button custom-class="profile-card__button" size="small">
-                立即登录
-              </wd-button>
+              <wd-button custom-class="profile-card__button" size="small">立即登录</wd-button>
             </view>
           </view>
         </view>
@@ -129,16 +132,6 @@
             <view class="menu-row__main">
               <text class="menu-row__title">网络检测</text>
               <text class="menu-row__desc">检测接口连通性</text>
-            </view>
-            <wd-icon name="right" size="16" color="var(--color-text-placeholder)" />
-          </view>
-          <view v-if="isLogin" class="menu-row" @click="handleScan">
-            <view class="menu-row__icon menu-row__icon--info">
-              <wd-icon name="scan" size="18" color="var(--color-info)" />
-            </view>
-            <view class="menu-row__main">
-              <text class="menu-row__title">扫一扫</text>
-              <text class="menu-row__desc">扫描二维码登录 PC</text>
             </view>
             <wd-icon name="right" size="16" color="var(--color-text-placeholder)" />
           </view>
@@ -211,6 +204,7 @@ import { onShow } from "@dcloudio/uni-app";
 import { useUserStore, useThemeStore } from "@/store";
 import { useRouter } from "uni-mini-router";
 import { useNavbar } from "@/composables/useNavbar";
+import { useScanLogin } from "@/composables/useScanLogin";
 import { getAccessToken } from "@/utils/auth";
 import { formatBytes } from "@/utils/format";
 
@@ -388,24 +382,8 @@ const handleClearCache = async () => {
   }
 };
 
-// 扫一扫：扫描 PC 端二维码后跳转确认页
-const handleScan = async () => {
-  if (!isLogin.value) {
-    navigateToLogin();
-    return;
-  }
-  try {
-    const res = await uni.scanCode({ scanType: ["qrCode"] });
-    const ticket = (res.result || "").trim();
-    if (!ticket) {
-      uni.showToast({ title: "无效的二维码", icon: "none" });
-      return;
-    }
-    router.push({ path: "/pages/mine/scan-confirm/index", query: { ticket: encodeURIComponent(ticket) } });
-  } catch {
-    // 用户取消扫码，静默处理
-  }
-};
+// 扫一扫：扫描 PC 端二维码后跳转确认页（逻辑收敛在 useScanLogin）
+const { scanLogin } = useScanLogin();
 
 // 有来技术公众号
 const openOfficialAccount = () => {
@@ -453,6 +431,20 @@ const openOfficialAccount = () => {
   font-weight: 600;
   color: var(--color-text-inverse);
   letter-spacing: 2rpx;
+}
+
+/* 扫码入口：渐变背景上的白色图标，64rpx 圆形热区 */
+.mine-navbar__scan {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+
+  &:active {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
 }
 
 .profile-tag {

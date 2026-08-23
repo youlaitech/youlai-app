@@ -2,7 +2,6 @@ import { checkLogin } from "@/utils/auth";
 
 interface NavItem {
   url?: string;
-  [key: string]: any;
 }
 
 export function useNavigation() {

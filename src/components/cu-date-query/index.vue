@@ -63,7 +63,7 @@ const handleConfirm = () => {
     const startDate = dayjs(dateRange.value[0]).format("YYYY-MM-DD");
     const endDate = dayjs(dateRange.value[1]).format("YYYY-MM-DD");
 
-    let newVal: any = [startDate, endDate];
+    let newVal: string | string[] = [startDate, endDate];
 
     // #ifdef MP-WEIXIN
     newVal = `${startDate},${endDate}`;

@@ -10,7 +10,9 @@
       <view class="action-bar">
         <view class="action-bar__left">
           <wd-button type="" size="small" variant="plain" @click="handleSelectAll">全选</wd-button>
-          <wd-button type="" size="small" variant="plain" @click="handleClearAll">取消全选</wd-button>
+          <wd-button type="" size="small" variant="plain" @click="handleClearAll">
+            取消全选
+          </wd-button>
         </view>
       </view>
     </view>

@@ -15,8 +15,8 @@ definePage({
 
 const url = ref("");
 
-onLoad((query: any) => {
-  if (query.url) {
+onLoad((query) => {
+  if (query?.url) {
     url.value = decodeURIComponent(query.url);
   }
 });

@@ -120,9 +120,7 @@
 
           <!-- 登录按钮 -->
           <view class="login__form-item">
-            <wd-button block :loading="isLoading" @click="handleLogin">
-              登 录
-            </wd-button>
+            <wd-button block :loading="isLoading" @click="handleLogin">登 录</wd-button>
           </view>
 
           <!-- 切换登录方式 -->
@@ -243,9 +241,7 @@
             <text class="login__demo-hint-text">演示环境验证码：123456</text>
           </view>
 
-          <wd-button block :loading="isBindLoading" @click="handleBindMobile">
-            确认绑定
-          </wd-button>
+          <wd-button block :loading="isBindLoading" @click="handleBindMobile">确认绑定</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -264,6 +260,7 @@ import type { FormSchema } from "@wot-ui/ui/components/wd-form/types";
 
 import { useUserStore } from "@/store/modules/user";
 import { useCountdown } from "@/composables/useCountdown";
+import { getErrorMessage } from "@/utils";
 import AuthAPI from "@/api/auth";
 
 definePage({
@@ -432,8 +429,8 @@ async function doFormLogin() {
     await userStore.getInfo();
     toast.success("登录成功");
     setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
-  } catch (error: any) {
-    toast.error(error?.message || "登录失败");
+  } catch (error) {
+    toast.error(getErrorMessage(error, "登录失败"));
     if (loginMode.value === "PASSWORD") fetchCaptcha();
   } finally {
     isLoading.value = false;
@@ -475,13 +472,18 @@ const handleSendCode = async () => {
     await AuthAPI.sendSmsLoginCode(mobile);
     toast.success("验证码已发送");
     startSmsCountdown();
-  } catch (error: any) {
-    toast.error(error?.message || "发送失败");
+  } catch (error) {
+    toast.error(getErrorMessage(error, "发送失败"));
   }
 };
 
 // 微信登录
-const handleWechatPhoneLogin = async (e: any) => {
+/** 微信手机号快捷填充按钮回调事件 */
+interface WxPhoneLoginEvent {
+  detail: { code?: string };
+}
+
+const handleWechatPhoneLogin = async (e: WxPhoneLoginEvent) => {
   const phoneCode = e.detail.code;
   if (!isAgreePolicy.value) {
     openPolicyDialog("WECHAT_PHONE", phoneCode);
@@ -518,7 +520,7 @@ const handleWechatSilentLogin = async () => {
   isLoading.value = true;
   try {
     const { code } = await uni.login();
-    const result: any = await userStore.loginByWxMa(code);
+    const result = await userStore.loginByWxMa(code);
     if (result.needBindMobile && result.openid) {
       wechatOpenid.value = result.openid;
       showBindMobilePopup.value = true;
@@ -527,8 +529,8 @@ const handleWechatSilentLogin = async () => {
       toast.success("登录成功");
       setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
     }
-  } catch (error: any) {
-    toast.error(error?.message || "微信登录失败");
+  } catch (error) {
+    toast.error(getErrorMessage(error, "微信登录失败"));
   } finally {
     isLoading.value = false;
   }
@@ -546,8 +548,8 @@ const handleSendBindCode = async () => {
     await AuthAPI.sendSmsLoginCode(mobile);
     toast.success("验证码已发送");
     startBindSmsCountdown();
-  } catch (error: any) {
-    toast.error(error?.message || "发送失败");
+  } catch (error) {
+    toast.error(getErrorMessage(error, "发送失败"));
   }
 };
 
@@ -575,8 +577,8 @@ const handleBindMobile = async () => {
     resetBindForm();
     toast.success("绑定成功");
     setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
-  } catch (error: any) {
-    toast.error(error?.message || "绑定失败");
+  } catch (error) {
+    toast.error(getErrorMessage(error, "绑定失败"));
   } finally {
     isBindLoading.value = false;
   }
@@ -597,7 +599,7 @@ const handleBack = () => {
 };
 
 // 生命周期
-onLoad((options: any) => {
+onLoad((options) => {
   const fromQuery = options?.redirect ? decodeURIComponent(options.redirect) : "";
   if (fromQuery && fromQuery !== "/pages/login/index") redirect.value = fromQuery;
   uni.setNavigationBarTitle({ title: "" });

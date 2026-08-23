@@ -134,9 +134,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeNoticeForm">取消</wd-button>
-          <wd-button :loading="isSubmitting" @click="submitNoticeForm">
-            保存
-          </wd-button>
+          <wd-button :loading="isSubmitting" @click="submitNoticeForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -390,7 +388,7 @@ function showNoticeActions(item: NoticeItem) {
   actionSheetVisible.value = true;
 }
 
-function handleActionSelect({ item }: { item: any }) {
+function handleActionSelect({ item }: { item: { name: string } }) {
   pendingAction.value[item.name]?.();
 }
 

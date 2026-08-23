@@ -65,7 +65,7 @@ function getCurrentPagePath(): string {
 
   const currentPage = pages[pages.length - 1];
   const route = currentPage.route || "";
-  const options = (currentPage as any).options || {};
+  const options = (currentPage as { options?: Record<string, string> }).options || {};
 
   const query = Object.entries(options)
     .map(([key, value]) => `${key}=${value}`)

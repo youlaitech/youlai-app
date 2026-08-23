@@ -99,7 +99,12 @@ function handleAvatarUpload() {
   });
 }
 // 头像裁剪完成
-function handleAvatarConfirm(event: any) {
+/** wd-img-cropper 裁剪确认事件 */
+interface ImgCropperConfirmEvent {
+  tempFilePath: string;
+}
+
+function handleAvatarConfirm(event: ImgCropperConfirmEvent) {
   const { tempFilePath } = event;
   FileAPI.upload(tempFilePath).then((fileInfo: FileInfo) => {
     const avatarForm: UserProfileForm = {

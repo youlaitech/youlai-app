@@ -7,7 +7,6 @@ type _LocationUrl =
   "/pages/index/index" |
   "/pages/login/index" |
   "/pages/mine/index" |
-  "/pages/mine/scan-confirm/index" |
   "/pages/webview/index" |
   "/pages/work/index" |
   "/pages/mine/about/index" |
@@ -15,6 +14,7 @@ type _LocationUrl =
   "/pages/mine/official/index" |
   "/pages/mine/profile/complete-profile" |
   "/pages/mine/profile/index" |
+  "/pages/mine/scan-confirm/index" |
   "/pages/mine/settings/index" |
   "/pages/work/config/index" |
   "/pages/work/dept/index" |

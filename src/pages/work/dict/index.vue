@@ -147,7 +147,7 @@ function loadDictTypeList() {
 function fetchDictTypeList() {
   loadMoreState.value = "loading";
   DictAPI.getPage(queryParams)
-    .then((data: any) => {
+    .then((data) => {
       pageData.value = data.list;
       total.value = data.total;
       queryParams.pageNum++;
@@ -249,7 +249,7 @@ function showDictActions(item: DictTypeItem) {
   actionSheetVisible.value = true;
 }
 
-function handleActionSelect({ item }: { item: any }) {
+function handleActionSelect({ item }: { item: { name: string } }) {
   pendingAction.value[item.name]?.();
 }
 
