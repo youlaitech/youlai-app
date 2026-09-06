@@ -1,8 +1,31 @@
 import { defineStore } from "pinia";
 import { Storage } from "@/utils/storage";
 import { THEME_MODE_KEY, THEME_COLOR_KEY } from "@/constants";
-import type { ProviderThemeVars, ThemeColorOption, ThemeMode } from "@/composables/types/theme";
-import { themeColorOptions } from "@/composables/types/theme";
+import type { ConfigProviderThemeVars } from "@wot-ui/ui";
+
+/** 主题色选项 */
+export interface ThemeColorOption {
+  name: string;
+  value: string;
+  primary: string;
+}
+
+/** 主题类型 */
+export type ThemeMode = "light" | "dark";
+
+/** 预定义的主题色选项 */
+export const themeColorOptions: ThemeColorOption[] = [
+  { name: "默认蓝", value: "blue", primary: "#4d80f0" },
+  { name: "活力橙", value: "orange", primary: "#FF7D00" },
+  { name: "薄荷绿", value: "green", primary: "#07C160" },
+  { name: "樱花粉", value: "pink", primary: "#FF69B4" },
+  { name: "紫罗兰", value: "purple", primary: "#8A2BE2" },
+  { name: "朱砂红", value: "red", primary: "#FF4757" },
+];
+
+interface ProviderThemeVars extends ConfigProviderThemeVars {
+  colorTheme: string;
+}
 
 /**
  * 主题状态管理 Store
@@ -27,21 +50,12 @@ export const useThemeStore = defineStore("theme", () => {
   );
 
   /**
-   * 深色主题变量（仅在 dark 模式下注入）
-   * 注意：Wot UI v2 内置了完整的暗黑模式，不需要手动覆盖各个组件变量。
-   * 只需在 ConfigProvider 上设置 theme="dark" + 引入官方主题 SCSS 即可。
-   * 这里只保留颜色名映射，供自定义 CSS 类使用。
+   * 主题变量：Wot UI v2 内置完整暗黑模式（ConfigProvider theme="dark" + 官方主题 SCSS），
+   * 无需手动覆盖组件变量，这里只注入主题色
    */
-  const darkThemeVars = {};
-
-  /** 主题变量（计算属性，根据模式动态切换） */
-  const themeVars = computed<ProviderThemeVars>(() => {
-    const base = { colorTheme: currentThemeColor.value.primary };
-    if (theme.value === "dark") {
-      return { ...base, ...darkThemeVars } as ProviderThemeVars;
-    }
-    return base as ProviderThemeVars;
-  });
+  const themeVars = computed<ProviderThemeVars>(() => ({
+    colorTheme: currentThemeColor.value.primary,
+  }));
 
   // ==========================================================================
   // 计算属性
@@ -49,27 +63,6 @@ export const useThemeStore = defineStore("theme", () => {
 
   /** 是否为暗黑模式 */
   const isDark = computed(() => theme.value === "dark");
-
-  /**
-   * 将 themeVars 转换为 CSS 变量内联样式字符串
-   * light 模式下只注入主题色，避免覆盖 Wot UI 默认亮色样式
-   * dark 模式下注入完整的深色变量覆盖
-   */
-  const kebabCase = (str: string) =>
-    str
-      .replace(/^./, (s) => s.toLowerCase())
-      .replace(/([a-z])([A-Z])/g, "$1-$2")
-      .replace(/(\d)/g, "-$1")
-      .toLowerCase();
-
-  const themeCSSVars = computed(() => {
-    if (theme.value === "light") {
-      return `--wot-color-theme:${themeVars.value.colorTheme};`;
-    }
-    return Object.entries(themeVars.value)
-      .map(([key, val]) => `--wot-${kebabCase(key)}:${val}`)
-      .join(";");
-  });
 
   // ==========================================================================
   // 方法
@@ -125,7 +118,6 @@ export const useThemeStore = defineStore("theme", () => {
 
     // 计算属性
     isDark,
-    themeCSSVars,
 
     // 方法
     toggleTheme,

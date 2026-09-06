@@ -11,12 +11,8 @@ const ConfigAPI = {
       data: queryParams,
     });
   },
-  /**
-   * 获取系统配置表单数据
-   *
-   * @param id ConfigID
-   * @returns Config表单数据
-   */
+
+  /** 获取系统配置表单数据 */
   getFormData(id: number) {
     return request<ConfigForm>({
       url: `${CONFIG_BASE_URL}/${id}/form`,
@@ -24,8 +20,8 @@ const ConfigAPI = {
     });
   },
 
-  /** 添加系统配置*/
-  add(data: ConfigForm) {
+  /** 新增系统配置 */
+  create(data: ConfigForm) {
     return request({
       url: `${CONFIG_BASE_URL}`,
       method: "POST",
@@ -33,12 +29,7 @@ const ConfigAPI = {
     });
   },
 
-  /**
-   * 更新系统配置
-   *
-   * @param id ConfigID
-   * @param data Config表单数据
-   */
+  /** 更新系统配置 */
   update(id: number, data: ConfigForm) {
     return request({
       url: `${CONFIG_BASE_URL}/${id}`,
@@ -50,55 +41,37 @@ const ConfigAPI = {
   /**
    * 删除系统配置
    *
-   * @param ids 系统配置ID
+   * @param ids 系统配置ID，多个以英文逗号(,)分隔
    */
-  deleteById(id: number) {
+  deleteByIds(ids: string) {
     return request({
-      url: `${CONFIG_BASE_URL}/${id}`,
+      url: `${CONFIG_BASE_URL}/${ids}`,
       method: "DELETE",
-    });
-  },
-
-  refreshCache() {
-    return request({
-      url: `${CONFIG_BASE_URL}/refresh`,
-      method: "PUT",
     });
   },
 };
 
 export default ConfigAPI;
 
-/** $系统配置分页查询参数 */
+/** 系统配置分页查询参数 */
 export interface ConfigPageQuery extends PageQuery {
-  /** 搜索关键字 */
   keywords?: string;
 }
 
 /** 系统配置表单对象 */
 export interface ConfigForm {
-  /** 主键 */
   id?: number;
-  /** 配置名称 */
   configName?: string;
-  /** 配置键 */
   configKey?: string;
-  /** 配置值 */
   configValue?: string;
-  /** 描述、备注 */
   remark?: string;
 }
 
 /** 系统配置分页对象 */
 export interface ConfigItem {
-  /** 主键 */
   id?: number;
-  /** 配置名称 */
   configName?: string;
-  /** 配置键 */
   configKey?: string;
-  /** 配置值 */
   configValue?: string;
-  /** 描述、备注 */
   remark?: string;
 }

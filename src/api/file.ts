@@ -1,4 +1,5 @@
-﻿import { getAccessToken } from "@/utils/auth";
+import { getAccessToken } from "@/utils/auth";
+import { RequestError } from "@/utils/request";
 import { ApiCode } from "@/enums/api-code-enum";
 
 // H5 使用 VITE_APP_BASE_API 作为代理路径，其他平台使用 VITE_APP_API_URL 作为请求路径
@@ -14,9 +15,9 @@ const FileAPI = {
   uploadUrl: baseApi + "/api/v1/files",
 
   /**
-   * 上传文件
+   * 上传文件（uni.uploadFile 专用通道，鉴权与错误语义与统一请求层保持一致）
    *
-   * @param filePath
+   * @param filePath 本地文件路径
    */
   upload(filePath: string): Promise<FileInfo> {
     return new Promise((resolve, reject) => {
@@ -29,33 +30,23 @@ const FileAPI = {
         },
         formData: {},
         success: (response) => {
-          const resData = JSON.parse(response.data) as ResponseData<FileInfo>;
-          // 业务状态码 00000 表示成功
+          let resData: ResponseData<FileInfo>;
+          try {
+            resData = JSON.parse(response.data) as ResponseData<FileInfo>;
+          } catch {
+            reject(new RequestError("文件上传响应解析失败", response.statusCode));
+            return;
+          }
           if (resData.code === ApiCode.SUCCESS) {
             resolve(resData.data);
           } else {
-            // 其他业务处理失败
-            uni.showToast({
-              title: resData.msg || "文件上传失败",
-              icon: "none",
-            });
-            reject({
-              message: resData.msg || "业务处理失败",
-              code: resData.code,
-            });
+            reject(
+              new RequestError(resData.msg || "文件上传失败", response.statusCode, resData.code)
+            );
           }
         },
         fail: (error) => {
-          console.log("fail error", error);
-          uni.showToast({
-            title: "文件上传请求失败",
-            icon: "none",
-            duration: 2000,
-          });
-          reject({
-            message: "文件上传请求失败",
-            error,
-          });
+          reject(new RequestError(error.errMsg || "文件上传请求失败", 0));
         },
       });
     });

@@ -1,11 +1,6 @@
 <template>
-  <view :class="`wot-theme-${theme}`" :style="themeCSSVars">
-    <wd-config-provider
-      :theme-vars="themeVars"
-      :theme="theme === 'dark' ? 'dark' : ''"
-      :button="{ type: 'primary' }"
-      :tag="{ variant: 'plain' }"
-    >
+  <app-provider>
+    <view class="page page--tabbar">
       <slot />
       <wd-tabbar
         v-model="active"
@@ -22,22 +17,13 @@
           :icon="item.icon"
         />
       </wd-tabbar>
-      <wd-notify />
-      <wd-toast />
-      <wd-dialog />
-    </wd-config-provider>
-  </view>
+    </view>
+  </app-provider>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from "vue";
+import { ref, nextTick } from "vue";
 import { onShow } from "@dcloudio/uni-app";
-import { useThemeStore } from "@/store";
-
-const themeStore = useThemeStore();
-const theme = computed(() => themeStore.theme);
-const themeVars = computed(() => themeStore.themeVars);
-const themeCSSVars = computed(() => themeStore.themeCSSVars);
 
 /** tabbar 配置：name 与页面路径一一对应 */
 const tabbarList = [
@@ -83,7 +69,7 @@ onShow(() => {
 export default {
   options: {
     addGlobalClass: true,
-    virtualHost: false,
+    virtualHost: true,
     styleIsolation: "shared",
   },
 };

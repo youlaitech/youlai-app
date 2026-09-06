@@ -1,5 +1,4 @@
-﻿import { useUserStore } from "@/store/modules/user";
-import { Storage } from "./storage";
+﻿import { Storage } from "./storage";
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/constants";
 
 /**
@@ -14,9 +13,6 @@ import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/constants";
  *    if (!isLoggedIn()) {
  *      // 处理未登录逻辑，不会自动跳转
  *    }
- *
- * 3. 强制要求登录：
- *    requireLogin(); // 清除无效状态并跳转到登录页
  */
 
 /**
@@ -33,22 +29,6 @@ export function getAccessToken(): string | null {
  */
 export function setAccessToken(token: string): void {
   Storage.set(ACCESS_TOKEN_KEY, token);
-}
-
-/**
- * 获取刷新令牌
- * @returns 返回刷新令牌，如果不存在则返回null
- */
-export function getRefreshToken(): string | null {
-  return Storage.get<string>(REFRESH_TOKEN_KEY) || null;
-}
-
-/**
- * 设置刷新令牌
- * @param token 刷新令牌
- */
-export function setRefreshToken(token: string): void {
-  Storage.set(REFRESH_TOKEN_KEY, token);
 }
 
 /**
@@ -101,23 +81,4 @@ export function checkLogin(silent: boolean = false): boolean {
  */
 export function isLoggedIn(): boolean {
   return !!getAccessToken();
-}
-
-/**
- * 强制用户登录，清除无效的登录状态
- */
-export function requireLogin(): void {
-  const userStore = useUserStore();
-  const accessToken = getAccessToken();
-
-  if (!accessToken || !userStore.userInfo) {
-    // 清除可能存在的无效状态
-    clearTokens();
-    userStore.logout();
-
-    // 跳转到登录页
-    uni.reLaunch({
-      url: "/pages/login/index",
-    });
-  }
 }

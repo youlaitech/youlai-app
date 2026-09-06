@@ -1,49 +1,16 @@
-﻿/**
- * API响应码枚举
+/**
+ * API 响应码枚举
+ *
+ * 与后端 ResultCode 对齐（youlai-boot common/result/ResultCode.java），
+ * 仅收录前端实际消费的响应码
  */
 export const enum ApiCode {
-  /**
-   * 成功
-   */
+  /** 成功 */
   SUCCESS = "00000",
 
-  /**
-   * 通用错误
-   */
-  ERROR = "B0001",
+  /** 访问令牌无效或已过期 */
+  ACCESS_TOKEN_INVALID = "A0230",
 
-  /**
-   * 令牌无效或过期
-   */
-  TOKEN_INVALID = "A0230",
-
-  /**
-   * 令牌已过期
-   */
-  TOKEN_EXPIRED = "A0231",
-
-  /**
-   * 未授权访问
-   */
-  UNAUTHORIZED = "A0232",
-
-  /**
-   * 禁止访问
-   */
-  FORBIDDEN = "A0233",
-
-  /**
-   * 参数校验失败
-   */
-  PARAM_INVALID = "A0400",
-
-  /**
-   * 资源不存在
-   */
-  NOT_FOUND = "A0404",
-
-  /**
-   * 服务器内部错误
-   */
-  INTERNAL_ERROR = "B0500",
+  /** 刷新令牌无效或已过期 */
+  REFRESH_TOKEN_INVALID = "A0231",
 }

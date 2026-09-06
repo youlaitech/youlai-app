@@ -1,4 +1,4 @@
-﻿import request from "@/utils/request";
+import request from "@/utils/request";
 
 const AUTH_BASE_URL = "/api/v1/auth";
 const WXMA_AUTH_BASE_URL = "/api/v1/wxma/auth";
@@ -62,9 +62,7 @@ export interface QrCodeScanResult {
 }
 
 const AuthAPI = {
-  /**
-   * 获取图形验证码
-   */
+  /** 获取图形验证码 */
   getCaptcha(): Promise<Captcha> {
     return request<Captcha>({
       url: `${AUTH_BASE_URL}/captcha`,
@@ -72,9 +70,7 @@ const AuthAPI = {
     });
   },
 
-  /**
-   * 账号密码登录
-   */
+  /** 账号密码登录 */
   login(data: LoginData): Promise<LoginResult> {
     return request<LoginResult>({
       url: `${AUTH_BASE_URL}/login`,
@@ -96,9 +92,7 @@ const AuthAPI = {
     });
   },
 
-  /**
-   * 短信验证码登录
-   */
+  /** 短信验证码登录 */
   loginBySms(data: SmsLoginData): Promise<LoginResult> {
     const mobileSafe = encodeURIComponent(data.mobile);
     const codeSafe = encodeURIComponent(data.code);
@@ -149,34 +143,11 @@ const AuthAPI = {
     });
   },
 
-  /**
-   * 检查会话有效性
-   */
-  checkSession(): Promise<{ valid: boolean }> {
-    return request<{ valid: boolean }>({
-      url: `${AUTH_BASE_URL}/check-session`,
-      method: "GET",
-    });
-  },
-
-  /**
-   * 登出
-   */
+  /** 登出 */
   logout() {
     return request({
       url: `${AUTH_BASE_URL}/logout`,
       method: "DELETE",
-    });
-  },
-
-  /**
-   * 刷新令牌
-   */
-  refreshToken(refreshToken: string): Promise<{ accessToken: string; expiresIn: number }> {
-    return request<{ accessToken: string; expiresIn: number }>({
-      url: `${AUTH_BASE_URL}/refresh-token`,
-      method: "POST",
-      data: { refreshToken },
     });
   },
 

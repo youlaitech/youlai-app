@@ -1,4 +1,4 @@
-﻿// pages.config.ts
+// pages.config.ts
 import { defineUniPages } from "@uni-helper/vite-plugin-uni-pages";
 
 export default defineUniPages({
@@ -14,14 +14,10 @@ export default defineUniPages({
     backgroundColorBottom: "@bgColorBottom",
     enablePullDownRefresh: false,
     onReachBottomDistance: 50,
-    animationType: "pop-in",
-    animationDuration: 300,
   },
 
   tabBar: {
     custom: true,
-    customize: true,
-    overlay: true,
     height: "0",
     color: "@tabColor",
     selectedColor: "@tabSelectedColor",

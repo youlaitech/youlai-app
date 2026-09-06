@@ -12,12 +12,7 @@ const NoticeAPI = {
     });
   },
 
-  /**
-   * 获取通知公告表单数据
-   *
-   * @param id NoticeID
-   * @returns Notice表单数据
-   */
+  /** 获取通知公告表单数据 */
   getFormData(id: number) {
     return request<NoticeForm>({
       url: `${NOTICE_BASE_URL}/${id}/form`,
@@ -25,13 +20,8 @@ const NoticeAPI = {
     });
   },
 
-  /**
-   * 添加通知公告
-   *
-   * @param data Notice表单数据
-   * @returns
-   */
-  add(data: NoticeForm) {
+  /** 新增通知公告 */
+  create(data: NoticeForm) {
     return request({
       url: `${NOTICE_BASE_URL}`,
       method: "POST",
@@ -39,12 +29,7 @@ const NoticeAPI = {
     });
   },
 
-  /**
-   * 更新通知公告
-   *
-   * @param id NoticeID
-   * @param data Notice表单数据
-   */
+  /** 更新通知公告 */
   update(id: number, data: NoticeForm) {
     return request({
       url: `${NOTICE_BASE_URL}/${id}`,
@@ -54,9 +39,9 @@ const NoticeAPI = {
   },
 
   /**
-   * 批量删除通知公告，多个以英文逗号(,)分割
+   * 批量删除通知公告
    *
-   * @param ids 通知公告ID字符串，多个以英文逗号(,)分割
+   * @param ids 通知公告ID，多个以英文逗号(,)分隔
    */
   deleteByIds(ids: string) {
     return request({
@@ -65,12 +50,7 @@ const NoticeAPI = {
     });
   },
 
-  /**
-   * 发布通知
-   *
-   * @param id 被发布的通知公告id
-   * @returns
-   */
+  /** 发布通知 */
   publish(id: number) {
     return request({
       url: `${NOTICE_BASE_URL}/${id}/publish`,
@@ -78,12 +58,7 @@ const NoticeAPI = {
     });
   },
 
-  /**
-   * 撤回通知
-   *
-   * @param id 撤回的通知id
-   * @returns
-   */
+  /** 撤回通知 */
   revoke(id: number) {
     return request({
       url: `${NOTICE_BASE_URL}/${id}/revoke`,
@@ -91,23 +66,11 @@ const NoticeAPI = {
     });
   },
 
-  /**
-   * 查看通知
-   *
-   * @param id
-   */
+  /** 查看通知详情 */
   getDetail(id: string) {
     return request<NoticeDetail>({
       url: `${NOTICE_BASE_URL}/${id}/detail`,
       method: "GET",
-    });
-  },
-
-  /* 全部已读 */
-  readAll() {
-    return request({
-      url: `${NOTICE_BASE_URL}/read-all`,
-      method: "PUT",
     });
   },
 
@@ -125,7 +88,6 @@ export default NoticeAPI;
 
 /** 通知公告分页查询参数 */
 export interface NoticePageQuery extends PageQuery {
-  /** 标题 */
   title?: string;
   /** 发布状态(0：未发布，1：已发布，-1：已撤回) */
   publishStatus?: number;
@@ -136,9 +98,7 @@ export interface NoticePageQuery extends PageQuery {
 /** 通知公告表单对象 */
 export interface NoticeForm {
   id?: number;
-  /** 通知标题 */
   title?: string;
-  /** 通知内容 */
   content?: string;
   /** 通知类型 */
   type?: number;
@@ -153,13 +113,10 @@ export interface NoticeForm {
 /** 通知公告分页对象 */
 export interface NoticeItem {
   id: string;
-  /** 通知标题 */
   title?: string;
-  /** 通知内容 */
   content?: string;
   /** 通知类型 */
   type?: number;
-  /** 发布人 */
   publisherName?: string;
   /** 优先级(0-低 1-中 2-高) */
   priority?: number;
@@ -167,36 +124,22 @@ export interface NoticeItem {
   targetType?: number;
   /** 发布状态(0-未发布 1已发布 2已撤回) */
   publishStatus?: number;
-  /** 发布时间 */
   publishTime?: Date;
-  /** 撤回时间 */
   revokeTime?: Date;
   /** 优先级(L-低 M-中 H-高) */
   level?: string | number;
 }
 
 export interface NoticeDetail {
-  /** 通知ID */
   id?: string;
-
-  /** 通知标题 */
   title?: string;
-
-  /** 通知内容 */
   content?: string;
-
   /** 通知类型 */
   type?: number;
-
-  /** 发布人 */
   publisherName?: string;
-
   /** 优先级(L-低 M-中 H-高) */
   level?: string;
-
-  /** 发布时间 */
   publishTime?: Date;
-
-  /** 发布状态 */
+  /** 发布状态(0-未发布 1-已发布 2-已撤回) */
   publishStatus?: number;
 }

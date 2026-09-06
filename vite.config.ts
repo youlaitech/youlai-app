@@ -1,4 +1,4 @@
-﻿import { defineConfig, type UserConfig, type ConfigEnv, loadEnv } from "vite";
+import { defineConfig, type UserConfig, type ConfigEnv, loadEnv } from "vite";
 import uni from "@dcloudio/vite-plugin-uni";
 import AutoImport from "unplugin-auto-import/vite";
 import UniLayouts from "@uni-helper/vite-plugin-uni-layouts";
@@ -13,10 +13,10 @@ import { kebabCase } from "@uni-helper/vite-plugin-uni-components";
 
 /**
  * 自定义 Wot UI v2 组件解析器
- * 
+ *
  * 由于 @wot-ui/ui v2 的包名和路径发生了变化，需要自定义 resolver
  * 官方迁移文档: https://wot-ui.cn/guide/migration-v2.html#vite-插件自动导入
- * 
+ *
  * @returns ComponentResolver
  */
 function WotUIResolver(): ComponentResolver {
@@ -90,6 +90,7 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
       Components({
         resolvers: [WotUIResolver()],
         dirs: ["src/components"],
+        dts: "src/types/components.d.ts",
       }),
 
       AutoImport({

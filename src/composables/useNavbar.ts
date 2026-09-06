@@ -154,6 +154,18 @@ export function useNavbar(options: UseNavbarOptions = {}): UseNavbarReturn {
   };
 
   const setMenuButtonRectWithRetry = (maxRetry = 6, delayMs = 50) => {
+    // 兜底：合理的默认胶囊按钮尺寸，避免导航栏高度为 0
+    const applyDefaultMenuButton = () => {
+      menuButton.value = {
+        width: 87,
+        height: 32,
+        top: statusBarHeight.value + 6,
+        right: windowWidth.value - 10,
+        bottom: statusBarHeight.value + 38,
+        left: windowWidth.value - 97,
+      };
+    };
+
     try {
       const rect = uni.getMenuButtonBoundingClientRect();
 
@@ -174,28 +186,10 @@ export function useNavbar(options: UseNavbarOptions = {}): UseNavbarReturn {
           setMenuButtonRectWithRetry(maxRetry - 1, delayMs);
         }, delayMs);
       } else {
-        console.warn("getMenuButtonBoundingClientRect 返回值无效，使用默认值");
-        // 兜底：设置合理的默认胶囊按钮尺寸，避免导航栏高度为 0
-        menuButton.value = {
-          width: 87,
-          height: 32,
-          top: statusBarHeight.value + 6,
-          right: windowWidth.value - 10,
-          bottom: statusBarHeight.value + 38,
-          left: windowWidth.value - 97,
-        };
+        applyDefaultMenuButton();
       }
-    } catch (e) {
-      console.warn("获取胶囊按钮位置失败，使用默认值", e);
-      // 兜底：设置合理的默认胶囊按钮尺寸
-      menuButton.value = {
-        width: 87,
-        height: 32,
-        top: statusBarHeight.value + 6,
-        right: windowWidth.value - 10,
-        bottom: statusBarHeight.value + 38,
-        left: windowWidth.value - 97,
-      };
+    } catch {
+      applyDefaultMenuButton();
     }
   };
   // #endif
@@ -214,8 +208,8 @@ export function useNavbar(options: UseNavbarOptions = {}): UseNavbarReturn {
       // 微信小程序：获取胶囊按钮位置
       setMenuButtonRectWithRetry();
       // #endif
-    } catch (e) {
-      console.warn("获取系统信息失败", e);
+    } catch {
+      // 各字段已有声明处默认值兜底
     }
   };
 

@@ -30,20 +30,21 @@ body {
 }
 /* #endif */
 
-// 页面容器
+// 页面容器体系（由 layout 注入，页面模板零标记）：
+// 1. default layout 自动包裹 .page —— 标准内容页：内边距 16rpx/32rpx、画布底色、满屏高
+// 2. tabbar layout 自动包裹 .page.page--tabbar —— tab 页：全出血 + 底部 tabbar 高度补偿
+// 3. blank layout 不包裹 —— 全出血页（登录/扫码确认/webview/监控）在 definePage 声明 layout: "blank"，
+//    页面自行管理背景与高度；状态栏/胶囊避让统一用 custom-navbar 的 placeholder
+// 4. 唯一例外：work 页在 tabbar layout 下需要横向内边距，用工具类包裹（见该页注释）
 .page {
   box-sizing: border-box;
   min-height: 100vh;
+  padding: 16rpx 32rpx 0;
   background-color: var(--color-bg-secondary);
 }
 
-.page--padding {
-  box-sizing: border-box;
-  padding: 16rpx 32rpx 0;
-}
-
 .page--tabbar {
-  padding-bottom: calc(100rpx + env(safe-area-inset-bottom));
+  padding: 0 0 calc(var(--wot-tabbar-height, 50px) + env(safe-area-inset-bottom));
 }
 
 // 筛选栏
@@ -56,11 +57,11 @@ body {
   background: var(--color-bg);
   border-radius: 16rpx;
 
-  :deep(.wd-drop-menu) {
+  .wd-drop-menu {
     flex: 1;
   }
 
-  :deep(.wd-drop-menu-item) {
+  .wd-drop-menu-item {
     flex: 1;
   }
 }
@@ -83,25 +84,6 @@ body {
   }
 }
 
-// 渐变背景
-.gradient-bg {
-  &--primary {
-    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-bg) 100%);
-  }
-
-  &--success {
-    background: linear-gradient(135deg, var(--color-success-light) 0%, var(--color-bg) 100%);
-  }
-
-  &--warning {
-    background: linear-gradient(135deg, var(--color-warning-light) 0%, var(--color-bg) 100%);
-  }
-
-  &--danger {
-    background: linear-gradient(135deg, var(--color-danger-light) 0%, var(--color-bg) 100%);
-  }
-}
-
 // 底部弹窗圆角
 .popup-bottom {
   border-radius: 24rpx 24rpx 0 0;
@@ -119,6 +101,47 @@ body {
   font-weight: bold;
   color: var(--wot-text-main);
   text-align: center;
+}
+
+// 列表页悬浮新增按钮（wd-fab 的 trigger 插槽）
+.work-fab-trigger {
+  display: flex;
+  gap: 8rpx;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  padding: 0 44rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  background: var(--color-primary);
+  border-radius: 999rpx;
+  box-shadow: var(--shadow-lg);
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.96);
+  }
+}
+
+// 列表卡片右侧圆形图标操作按钮（88rpx 触控热区，配合 hover-class="item-action--hover"）
+.item-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+}
+
+.item-action--hover {
+  background: rgba(var(--color-text-placeholder-rgb, 148, 163, 184), 0.16);
+}
+
+// 列表卡片底部时间戳
+.item-time {
+  font-size: 24rpx;
+  color: var(--color-text-placeholder);
 }
 
 

@@ -17,7 +17,6 @@ import { USER_INFO_KEY } from "@/constants";
  * - 用户登录/登出
  * - 用户信息管理
  * - 多种登录方式支持（密码、短信、微信小程序）
- * - 会话状态检查
  */
 
 export const useUserStore = defineStore("user", () => {
@@ -109,18 +108,6 @@ export const useUserStore = defineStore("user", () => {
   // ==========================================================================
 
   /**
-   * 检查会话状态
-   */
-  const checkSession = async (): Promise<boolean> => {
-    try {
-      const result = await AuthAPI.checkSession();
-      return result.valid;
-    } catch {
-      return false;
-    }
-  };
-
-  /**
    * 获取用户信息
    */
   const getInfo = async () => {
@@ -170,7 +157,6 @@ export const useUserStore = defineStore("user", () => {
     qrCancel,
     logout,
     getInfo,
-    checkSession,
     isUserInfoComplete,
   };
 });

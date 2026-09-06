@@ -1,4 +1,6 @@
 import { getAccessToken, clearTokens } from "./auth";
+import { Storage } from "./storage";
+import { USER_INFO_KEY } from "@/constants";
 import { ApiCode } from "@/enums/api-code-enum";
 
 // 401 跳转防抖锁，避免并发请求多次跳转登录页
@@ -21,11 +23,11 @@ export class RequestError extends Error {
   }
 }
 
-// 请求配置
-interface RequestOptions<T = any> {
+// 请求配置：TData 为请求体数据类型，响应类型由 request 的泛型指定
+interface RequestOptions<TData = unknown> {
   url: string;
   method: "GET" | "POST" | "PUT" | "DELETE";
-  data?: T;
+  data?: TData;
   header?: Record<string, string>;
   timeout?: number;
   responseType?: "text" | "arraybuffer";
@@ -37,8 +39,10 @@ interface RequestOptions<T = any> {
  * - 无 token 则直接发送请求，由后端判断是否需要认证
  * - 401 时清除 token 并跳转登录页
  */
-function request<T = any>(options: RequestOptions): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
+function request<TResponse = any, TData = unknown>(
+  options: RequestOptions<TData>
+): Promise<TResponse> {
+  return new Promise<TResponse>((resolve, reject) => {
     // 构建请求头
     const header = Object.assign({}, options.header || {});
 
@@ -64,24 +68,28 @@ function request<T = any>(options: RequestOptions): Promise<T> {
     uni.request({
       url: requestUrl,
       method: options.method,
-      data: options.data,
+      data: options.data as Record<string, any> | string | ArrayBuffer | undefined,
       header,
       timeout: options.timeout || 30000,
       responseType: options.responseType,
       success: (res: UniApp.RequestSuccessCallbackResult) => {
-        // 后端统一响应体（data 在泛型 T 下无法精确描述，这里只取业务层字段）
+        // 后端统一响应体：只取业务层字段
         const body = res?.data as
           | { code?: string; msg?: string; message?: string; data?: unknown }
           | undefined;
         const serverCode = body?.code;
         const serverMsg = body?.msg || body?.message;
 
-        // 令牌无效/过期（业务码 A023x 或 HTTP 401）：清除 token 并跳转登录页（防抖）
+        // 令牌无效/过期（业务码 A0230/A0231 或 HTTP 401）：清除会话并跳转登录页（防抖）
         const isTokenError =
-          (res.statusCode >= 200 && res.statusCode < 300 && serverCode?.startsWith("A023")) ||
+          (res.statusCode >= 200 &&
+            res.statusCode < 300 &&
+            (serverCode === ApiCode.ACCESS_TOKEN_INVALID ||
+              serverCode === ApiCode.REFRESH_TOKEN_INVALID)) ||
           res.statusCode === 401;
         if (isTokenError) {
           clearTokens();
+          Storage.remove(USER_INFO_KEY);
           if (!isRedirecting401) {
             isRedirecting401 = true;
             uni.navigateTo({
@@ -91,14 +99,20 @@ function request<T = any>(options: RequestOptions): Promise<T> {
               },
             });
           }
-          reject(new RequestError(serverMsg || "未授权，请重新登录", 401, serverCode || "A0230"));
+          reject(
+            new RequestError(
+              serverMsg || "未授权，请重新登录",
+              401,
+              serverCode || ApiCode.ACCESS_TOKEN_INVALID
+            )
+          );
           return;
         }
 
         // HTTP 成功：校验业务码
         if (res.statusCode >= 200 && res.statusCode < 300) {
           if (!serverCode || serverCode === ApiCode.SUCCESS) {
-            resolve(body?.data as T);
+            resolve(body?.data as TResponse);
           } else {
             reject(new RequestError(serverMsg || "请求失败", res.statusCode, serverCode));
           }

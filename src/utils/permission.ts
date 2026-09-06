@@ -1,42 +1,21 @@
 import { useUserStore } from "@/store";
 import { ROLE_ROOT, PERM_ALL } from "@/constants";
 
-type AccessType = "perm" | "role";
-type CheckMode = "some" | "every";
+/**
+ * 判断当前用户是否拥有指定权限点（任一命中即可，根角色或通配权限直接放行）
+ */
+export function hasPermission(perm: string | string[]): boolean {
+  if (!perm) return false;
 
-function checkAccess(type: AccessType, keys: string | string[], mode: CheckMode = "some"): boolean {
-  if (!keys) return false;
-
-  const keyArray = Array.isArray(keys) ? keys : [keys];
-  if (keyArray.length === 0) return false;
+  const keys = Array.isArray(perm) ? perm : [perm];
+  if (keys.length === 0) return false;
 
   const userInfo = useUserStore().userInfo;
   if (!userInfo) return false;
 
   const { roles = [], perms = [] } = userInfo;
+  if (roles.includes(ROLE_ROOT) || keys.includes(PERM_ALL)) return true;
+  if (perms.length === 0) return false;
 
-  if (roles.includes(ROLE_ROOT)) return true;
-
-  if (type === "perm" && keyArray.includes(PERM_ALL)) return true;
-
-  const userKeys = type === "perm" ? perms : roles;
-  if (!userKeys || userKeys.length === 0) return false;
-
-  return keyArray[mode]((key) => userKeys.includes(key));
-}
-
-export function hasPermission(perm: string | string[]): boolean {
-  return checkAccess("perm", perm, "some");
-}
-
-export function hasRole(role: string | string[]): boolean {
-  return checkAccess("role", role, "some");
-}
-
-export function hasAllPermissions(perms: string | string[]): boolean {
-  return checkAccess("perm", perms, "every");
-}
-
-export function hasAllRoles(roles: string | string[]): boolean {
-  return checkAccess("role", roles, "every");
+  return keys.some((key) => perms.includes(key));
 }

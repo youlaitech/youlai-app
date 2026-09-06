@@ -5,9 +5,10 @@ interface NavItem {
 }
 
 export function useNavigation() {
+  const toast = useToast();
   const handleNavClick = (item: NavItem) => {
     if (!item.url) {
-      uni.showToast({ title: "功能开发中", icon: "none" });
+      toast.info("功能开发中");
       return;
     }
 
@@ -28,7 +29,7 @@ export function useNavigation() {
     uni.navigateTo({
       url: item.url,
       fail: () => {
-        uni.showToast({ title: "页面不存在", icon: "none" });
+        toast.info("页面不存在");
       },
     });
   };

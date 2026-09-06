@@ -7,17 +7,18 @@ import { checkLogin } from "@/utils/auth";
  * 未登录时跳转登录页，用户取消扫码静默处理。
  */
 export function useScanLogin() {
+  const toast = useToast();
   const scanLogin = async () => {
     if (!checkLogin()) return;
     try {
       const res = await uni.scanCode({ scanType: ["qrCode"] });
       const ticket = (res.result || "").trim();
       if (!ticket) {
-        uni.showToast({ title: "无效的二维码", icon: "none" });
+        toast.info("无效的二维码");
         return;
       }
       uni.navigateTo({
-        url: `/pages/mine/scan-confirm/index?ticket=${encodeURIComponent(ticket)}`,
+        url: `/subPages/mine/scan-confirm/index?ticket=${encodeURIComponent(ticket)}`,
       });
     } catch {
       // 用户取消扫码，静默处理

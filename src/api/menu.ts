@@ -30,7 +30,7 @@ const MenuAPI = {
   },
 
   /** 新增菜单 */
-  add(data: MenuForm) {
+  create(data: MenuForm) {
     return request({
       url: `${MENU_BASE_URL}`,
       method: "POST",
@@ -47,10 +47,14 @@ const MenuAPI = {
     });
   },
 
-  /** 删除菜单 */
-  deleteById(id: string) {
+  /**
+   * 删除菜单
+   *
+   * @param ids 菜单ID，多个以英文逗号(,)分隔
+   */
+  deleteByIds(ids: string) {
     return request({
-      url: `${MENU_BASE_URL}/${id}`,
+      url: `${MENU_BASE_URL}/${ids}`,
       method: "DELETE",
     });
   },
@@ -60,37 +64,23 @@ export default MenuAPI;
 
 /** 菜单查询参数 */
 export interface MenuQuery {
-  /** 搜索关键字 */
   keywords?: string;
-  /** 状态 */
   visible?: number;
 }
 
 /** 菜单类型 */
 export interface MenuItem {
-  /** 子菜单 */
   children?: MenuItem[];
-  /** 组件路径 */
   component?: string;
-  /** 创建时间 */
   createTime?: Date;
-  /** 外链地址 */
   externalUrl?: string;
-  /** 图标 */
   icon?: string;
-  /** 菜单ID */
   id?: string;
-  /** 菜单名称 */
   name?: string;
-  /** 父菜单ID */
   parentId?: string;
-  /** 权限标识 */
   perm?: string;
-  /** 路由名称 */
   routeName?: string;
-  /** 路由路径 */
   routePath?: string;
-  /** 排序 */
   sort?: number;
   /** 状态(1:显示；0:隐藏) */
   visible?: number;
@@ -102,25 +92,16 @@ export interface MenuItem {
 export interface MenuForm {
   /** 菜单ID(新增不填) */
   id?: string;
-  /** 菜单名称 */
   name?: string;
-  /** 父菜单ID */
   parentId: string;
   /** 菜单类型(C:目录；M:菜单；B:按钮) */
   type: string | number;
-  /** 路由名称 */
   routeName?: string;
-  /** 路由路径 */
   routePath?: string;
-  /** 组件路径 */
   component?: string;
-  /** 权限标识 */
   perm?: string;
-  /** 外链地址 */
   externalUrl?: string;
-  /** 图标 */
   icon?: string;
-  /** 排序 */
   sort?: number;
   /** 状态(1:显示；0:隐藏) */
   visible?: number;

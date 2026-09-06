@@ -1,6 +1,9 @@
-﻿import type { ThemeColorOption, ThemeMode } from "@/composables/types/theme";
-import { themeColorOptions } from "@/composables/types/theme";
-import { useThemeStore } from "@/store";
+import {
+  useThemeStore,
+  themeColorOptions,
+  type ThemeColorOption,
+  type ThemeMode,
+} from "@/store/modules/theme";
 
 export function useTheme() {
   const store = useThemeStore();
@@ -28,9 +31,8 @@ export function useTheme() {
     store.initTheme();
   }
 
-  // 注意：全局主题管理已在App.vue中处理
-  // 包括：系统主题监听、导航栏颜色同步等
-  // 组件中一般不需要再调用initTheme()，除非有特殊需求
+  // 全局主题初始化已在 App.vue onLaunch 中完成（导航栏颜色同步），
+  // 组件中一般无需再调用 initTheme()
 
   return {
     theme: computed(() => store.theme),
@@ -46,6 +48,4 @@ export function useTheme() {
   };
 }
 
-// 导出类型和常量供外部使用
 export type { ThemeColorOption, ThemeMode };
-export { themeColorOptions };

@@ -1,5 +1,5 @@
-<template>
-  <view class="page page--tabbar">
+﻿<template>
+  <view>
     <!-- 轮播图 -->
     <view class="relative">
       <wd-swiper v-model:current="current" custom-class="swiper-box" :list="swiperList" autoplay />
@@ -240,7 +240,7 @@ function handleNavClickWithGuard(item: NavItem) {
 
 /** 跳转通知公告列表 */
 function handleNoticeClick() {
-  uni.navigateTo({ url: "/pages/work/notice/index" });
+  uni.navigateTo({ url: "/subPages/work/notice/index" });
 }
 
 /** 切换趋势时间范围 */
@@ -252,16 +252,16 @@ function switchRange(value: number) {
 
 onReady(() => {
   loadNoticeData();
-  loadVisitOverviewData();
-  loadVisitTrendData();
 });
 
+// onShow 首次进入同样触发，统一在此加载统计数据（切回 tab 时自动刷新）
 onShow(() => {
   loadVisitOverviewData();
   loadVisitTrendData();
 });
 </script>
 
+<!-- 非 scoped：覆盖 wd-swiper 内部节点高度 -->
 <style lang="scss">
 .swiper-box,
 .swiper-box .wd-swiper__item,

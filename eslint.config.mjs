@@ -29,6 +29,7 @@ export default [
       "**/qiun-**/**",
       "**/auto-imports.d.ts",
       "src/types/auto-imports.d.ts",
+      "src/types/components.d.ts",
     ],
   },
   // 检查文件的配置

@@ -1,29 +1,32 @@
 <template>
-  <custom-navbar title="工作台" :show-back="false" />
-  <view class="page page--tabbar" :style="{ padding: `${navbar.totalHeight.value + 8}px 32rpx 0` }">
-    <template v-for="(item, index) in visibleGridList" :key="index">
-      <wd-card :title="item.title">
-        <wd-grid clickable :column="4">
-          <wd-grid-item
-            v-for="(child, childIndex) in item.children"
-            :key="childIndex"
-            use-slot
-            @click="handleNavClick(child)"
-          >
-            <view class="work-grid__icon p-2">
-              <image class="w-72rpx h-72rpx rounded-8rpx" :src="child.icon" />
-            </view>
-            <view class="work-grid__label">{{ child.title }}</view>
-          </wd-grid-item>
-        </wd-grid>
-      </wd-card>
-    </template>
+  <view>
+    <custom-navbar title="工作台" :show-back="false" placeholder />
+    <!-- tabbar 壳为全出血（index/mine 的沉浸式头需要贴边），工作台网格用工具类补齐
+         横向 32rpx / 顶部 16rpx，与 default 壳的 .page 内边距保持一致 -->
+    <view class="px-32rpx pt-16rpx">
+      <template v-for="(item, index) in visibleGridList" :key="index">
+        <wd-card :title="item.title">
+          <wd-grid clickable :column="4">
+            <wd-grid-item
+              v-for="(child, childIndex) in item.children"
+              :key="childIndex"
+              use-slot
+              @click="handleNavClick(child)"
+            >
+              <view class="work-grid__icon p-2">
+                <image class="w-72rpx h-72rpx rounded-8rpx" :src="child.icon" />
+              </view>
+              <view class="work-grid__label">{{ child.title }}</view>
+            </wd-grid-item>
+          </wd-grid>
+        </wd-card>
+      </template>
+    </view>
   </view>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useNavbar } from "@/composables/useNavbar";
 import { useNavigation } from "@/composables/useNavigation";
 import { menuConfig } from "@/config/menu";
 import { hasPermission as checkPermission } from "@/utils/permission";
@@ -37,7 +40,6 @@ definePage({
   layout: "tabbar",
 });
 
-const navbar = useNavbar();
 const { handleNavClick } = useNavigation();
 
 // 检查是否有权限

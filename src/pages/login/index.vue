@@ -1,27 +1,21 @@
 <template>
-  <view class="page login">
+  <view class="login">
     <!-- 背景装饰 -->
     <view class="login__decoration">
       <view class="login__circle login__circle--1" />
       <view class="login__circle login__circle--2" />
     </view>
 
-    <!-- 导航栏 -->
-    <view class="login__navbar" :style="{ paddingTop: `${statusBarHeight}px` }">
-      <view class="login__navbar-bar" :style="{ height: `${navBarHeight}px` }">
-        <view class="login__navbar-btn" hover-class="login__navbar-btn--active" @click="handleBack">
-          <text class="login__navbar-icon">‹</text>
-        </view>
-        <view class="login__navbar-title" />
-        <view class="login__navbar-placeholder" />
-      </view>
-    </view>
+    <!-- 导航栏：透明悬浮于渐变背景上，返回逻辑由组件内聚（栈空时回首页） -->
+    <custom-navbar bg-color="transparent" placeholder />
 
     <!-- 主内容 -->
-    <view class="login__body" :style="{ paddingTop: `${statusBarHeight + navBarHeight + 4}px` }">
+    <view class="login__body">
       <!-- Logo -->
       <view class="login__brand">
-        <image class="login__logo" src="/static/images/logo.png" mode="aspectFit" />
+        <view class="login__logo-box">
+          <image class="login__logo" src="/static/images/logo.png" mode="aspectFit" />
+        </view>
         <text class="login__brand-name">youlai-app</text>
       </view>
 
@@ -193,95 +187,46 @@
       </view>
     </view>
 
-    <!-- 绑定手机号弹窗 -->
-    <wd-popup
+    <!-- 绑定手机号弹窗（微信静默登录用户首次使用） -->
+    <bind-mobile-popup
+      ref="bindMobilePopupRef"
       v-model="showBindMobilePopup"
-      position="bottom"
-      closable
-      custom-class="popup-bottom"
-      @close="resetBindForm"
-    >
-      <view class="login__bind-panel">
-        <text class="login__bind-panel-title">绑定手机号</text>
+      @success="afterLoginSuccess"
+    />
 
-        <view class="login__form">
-          <view class="login__field">
-            <wd-icon name="phone" size="20" color="var(--color-text-placeholder)" />
-            <input
-              v-model="bindMobileForm.mobile"
-              class="login__field-input"
-              placeholder="请输入手机号"
-              type="number"
-              :maxlength="11"
-            />
-          </view>
-
-          <view class="login__field">
-            <wd-icon name="lock" size="20" color="var(--color-text-placeholder)" />
-            <input
-              v-model="bindMobileForm.code"
-              class="login__field-input"
-              placeholder="请输入验证码"
-              type="number"
-              :maxlength="6"
-            />
-            <view
-              class="login__code-btn"
-              :class="
-                bindSmsCountdown > 0 ? 'login__code-btn--disabled' : 'login__code-btn--active'
-              "
-              @click="handleSendBindCode"
-            >
-              {{ bindSmsCountdown > 0 ? `${bindSmsCountdown}s` : "获取验证码" }}
-            </view>
-          </view>
-
-          <!-- 演示环境提示 -->
-          <view class="login__demo-hint">
-            <text class="login__demo-hint-text">演示环境验证码：123456</text>
-          </view>
-
-          <wd-button block :loading="isBindLoading" @click="handleBindMobile">确认绑定</wd-button>
-        </view>
-      </view>
-    </wd-popup>
-
-    <!-- 协议确认弹窗 -->
+    <!-- 协议确认弹窗（useDialog("policy-box") 定向挂载，不能走全局实例） -->
     <wd-dialog selector="policy-box" root-portal />
-
-    <wd-toast />
   </view>
 </template>
 
 <script lang="ts" setup>
-import { onLoad, onShow } from "@dcloudio/uni-app";
+import { onLoad } from "@dcloudio/uni-app";
 import { useToast, useDialog } from "@wot-ui/ui";
 import type { FormSchema } from "@wot-ui/ui/components/wd-form/types";
 
 import { useUserStore } from "@/store/modules/user";
-import { useCountdown } from "@/composables/useCountdown";
+import { useSmsCode, isValidMobile } from "@/composables/useSmsCode";
 import { getErrorMessage } from "@/utils";
 import AuthAPI from "@/api/auth";
+import BindMobilePopup from "./components/bind-mobile-popup.vue";
 
 definePage({
   name: "login",
   style: { navigationStyle: "custom", navigationBarTitleText: "" },
+  layout: "blank",
 });
 
 const toast = useToast();
 const dialog = useDialog("policy-box");
 const userStore = useUserStore();
 const loginFormRef = ref();
-
-// 导航栏尺寸
-const statusBarHeight = ref(20);
-const navBarHeight = ref(44);
+const bindMobilePopupRef = ref<InstanceType<typeof BindMobilePopup>>();
 
 // 表单状态
 const isLoading = ref(false);
 const isAgreePolicy = ref(false);
 const loginMode = ref<"PASSWORD" | "SMS" | "WECHAT">("PASSWORD");
-const { countdown: smsCountdown, start: startSmsCountdown } = useCountdown(60);
+const { countdown: smsCountdown, send: sendCode, reset: resetSmsCountdown } = useSmsCode();
 
 const formData = ref({
   username: "admin",
@@ -297,16 +242,8 @@ const isCaptchaLoading = ref(false);
 
 const redirect = ref("/pages/index/index");
 
-// 绑定手机号
+// 绑定手机号弹窗显隐（openid 由弹窗 open 方法传入）
 const showBindMobilePopup = ref(false);
-const isBindLoading = ref(false);
-const { countdown: bindSmsCountdown, start: startBindSmsCountdown } = useCountdown(60);
-const wechatOpenid = ref("");
-
-const bindMobileForm = ref({
-  mobile: "18888888888",
-  code: "",
-});
 
 const pendingLoginAction = ref<"FORM" | "WECHAT_PHONE" | null>(null);
 const pendingWechatPhoneCode = ref("");
@@ -320,8 +257,6 @@ const loginModeDesc = computed(() => {
   };
   return modeMap[loginMode.value];
 });
-
-const isValidMobile = (mobile: string) => /^1\d{10}$/.test((mobile || "").trim());
 
 // 表单校验规则
 const formSchema = computed<FormSchema>(() => ({
@@ -369,6 +304,7 @@ const fetchCaptcha = async () => {
 
 // 切换登录方式
 const toggleLoginMode = () => {
+  resetSmsCountdown();
   if (loginMode.value === "PASSWORD") {
     loginMode.value = "SMS";
     formData.value.username = "18888888888";
@@ -426,9 +362,8 @@ async function doFormLogin() {
         code: formData.value.code,
       });
     }
-    await userStore.getInfo();
     toast.success("登录成功");
-    setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
+    await afterLoginSuccess();
   } catch (error) {
     toast.error(getErrorMessage(error, "登录失败"));
     if (loginMode.value === "PASSWORD") fetchCaptcha();
@@ -439,18 +374,12 @@ async function doFormLogin() {
 
 const handleLogin = async () => {
   // 先校验表单必填项（内联提示，不再弹窗）
-  console.log("[handleLogin] loginFormRef.value:", !!loginFormRef.value);
-  console.log("[handleLogin] captchaCode:", JSON.stringify(formData.value.captchaCode));
-  console.log("[handleLogin] isAgreePolicy:", isAgreePolicy.value);
   const validateResult = await loginFormRef.value?.validate();
-  console.log("[handleLogin] validateResult:", JSON.stringify(validateResult));
   if (!validateResult?.valid) {
-    console.log("[handleLogin] 表单校验未通过，early return");
     return;
   }
   // 再校验隐私协议
   if (!isAgreePolicy.value) {
-    console.log("[handleLogin] 进入协议弹窗分支");
     openPolicyDialog("FORM");
     return;
   }
@@ -458,23 +387,7 @@ const handleLogin = async () => {
 };
 
 const handleSendCode = async () => {
-  if (smsCountdown.value > 0) return;
-  const mobile = formData.value.username.trim();
-  if (!mobile) {
-    toast.error("请输入手机号");
-    return;
-  }
-  if (!isValidMobile(mobile)) {
-    toast.error("请输入正确的手机号");
-    return;
-  }
-  try {
-    await AuthAPI.sendSmsLoginCode(mobile);
-    toast.success("验证码已发送");
-    startSmsCountdown();
-  } catch (error) {
-    toast.error(getErrorMessage(error, "发送失败"));
-  }
+  await sendCode(formData.value.username);
 };
 
 // 微信登录
@@ -505,9 +418,8 @@ async function doWechatPhoneLogin(phoneCode: string) {
   try {
     const { code: loginCode } = await uni.login();
     await userStore.loginByWxMaPhone({ loginCode, phoneCode });
-    await userStore.getInfo();
     toast.success("登录成功");
-    setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
+    await afterLoginSuccess();
   } catch {
     toast.info("正在尝试其他登录方式...");
     await handleWechatSilentLogin();
@@ -522,12 +434,10 @@ const handleWechatSilentLogin = async () => {
     const { code } = await uni.login();
     const result = await userStore.loginByWxMa(code);
     if (result.needBindMobile && result.openid) {
-      wechatOpenid.value = result.openid;
+      bindMobilePopupRef.value?.open(result.openid);
       showBindMobilePopup.value = true;
     } else if (result.accessToken) {
-      await userStore.getInfo();
-      toast.success("登录成功");
-      setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
+      await afterLoginSuccess();
     }
   } catch (error) {
     toast.error(getErrorMessage(error, "微信登录失败"));
@@ -536,91 +446,31 @@ const handleWechatSilentLogin = async () => {
   }
 };
 
-// 绑定手机号
-const handleSendBindCode = async () => {
-  if (bindSmsCountdown.value > 0) return;
-  const mobile = bindMobileForm.value.mobile.trim();
-  if (!isValidMobile(mobile)) {
-    toast.error("请输入正确的手机号");
-    return;
-  }
-  try {
-    await AuthAPI.sendSmsLoginCode(mobile);
-    toast.success("验证码已发送");
-    startBindSmsCountdown();
-  } catch (error) {
-    toast.error(getErrorMessage(error, "发送失败"));
-  }
-};
-
-const resetBindForm = () => {
-  bindMobileForm.value = { mobile: "", code: "" };
-  bindSmsCountdown.value = 0;
-};
-
-const handleBindMobile = async () => {
-  if (isBindLoading.value) return;
-  const { mobile, code } = bindMobileForm.value;
-  if (!isValidMobile(mobile)) {
-    toast.error("请输入正确的手机号");
-    return;
-  }
-  if (!code.trim()) {
-    toast.error("请输入验证码");
-    return;
-  }
-  isBindLoading.value = true;
-  try {
-    await userStore.bindMobileForWxMa({ openid: wechatOpenid.value, mobile, smsCode: code });
-    await userStore.getInfo();
-    showBindMobilePopup.value = false;
-    resetBindForm();
-    toast.success("绑定成功");
-    setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
-  } catch (error) {
-    toast.error(getErrorMessage(error, "绑定失败"));
-  } finally {
-    isBindLoading.value = false;
-  }
-};
+/** 绑定手机号成功后的会话初始化与跳转 */
+async function afterLoginSuccess() {
+  await userStore.getInfo();
+  setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
+}
 
 const navigateToAgreement = (type: string) => {
   const url =
-    type === "user" ? "/pages/mine/settings/agreement/index" : "/pages/mine/settings/privacy/index";
+    type === "user"
+      ? "/subPages/mine/settings/agreement/index"
+      : "/subPages/mine/settings/privacy/index";
   uni.navigateTo({ url });
-};
-
-const handleBack = () => {
-  if (getCurrentPages().length > 1) {
-    uni.navigateBack();
-    return;
-  }
-  uni.reLaunch({ url: "/pages/index/index" });
 };
 
 // 生命周期
 onLoad((options) => {
   const fromQuery = options?.redirect ? decodeURIComponent(options.redirect) : "";
   if (fromQuery && fromQuery !== "/pages/login/index") redirect.value = fromQuery;
-  uni.setNavigationBarTitle({ title: "" });
-  const systemInfo = uni.getSystemInfoSync();
-  statusBarHeight.value = systemInfo.statusBarHeight || 20;
-  navBarHeight.value = 44;
-  // #ifdef MP-WEIXIN
-  const menuButton = uni.getMenuButtonBoundingClientRect();
-  navBarHeight.value = menuButton.height + (menuButton.top - statusBarHeight.value) * 2;
-  // #endif
-  // #ifndef MP-WEIXIN
-  if (loginMode.value === "WECHAT") loginMode.value = "PASSWORD";
-  // #endif
   fetchCaptcha();
 });
-
-onShow(() => uni.setNavigationBarTitle({ title: "" }));
 </script>
 
 <style lang="scss" scoped>
 .login {
+  min-height: 100vh;
   background: linear-gradient(
     135deg,
     var(--color-bg-tertiary) 0%,
@@ -661,64 +511,6 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
   }
 }
 
-.login__navbar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  z-index: var(--z-navbar);
-  padding: 0 32rpx;
-}
-
-.login__navbar-bar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.login__navbar-btn,
-.login__navbar-placeholder {
-  position: absolute;
-  top: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 72rpx;
-  height: 72rpx;
-  transform: translateY(-50%);
-}
-
-.login__navbar-btn {
-  left: 0;
-  background-color: var(--color-glass);
-  border: 2rpx solid var(--color-border-glass);
-  border-radius: 999rpx;
-
-  &--active {
-    opacity: 0.8;
-  }
-}
-
-.login__navbar-placeholder {
-  right: 0;
-}
-
-.login__navbar-icon {
-  margin-top: -4rpx;
-  font-size: 44rpx;
-  font-weight: 500;
-  line-height: 1;
-  color: var(--color-text);
-}
-
-.login__navbar-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--color-text);
-  letter-spacing: 0.08em;
-}
-
 .login__body {
   display: flex;
   flex-direction: column;
@@ -730,18 +522,30 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 8rpx;
-  margin-bottom: 40rpx;
+  margin-top: 24rpx;
+  margin-bottom: 32rpx;
 }
 
-.login__logo {
+.login__logo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 120rpx;
   height: 120rpx;
   margin-bottom: 20rpx;
+  background: var(--color-bg);
+  border: 1rpx solid var(--color-border);
+  border-radius: 28rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.login__logo {
+  width: 72rpx;
+  height: 72rpx;
 }
 
 .login__brand-name {
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: var(--color-text);
   letter-spacing: 0.05em;
@@ -769,7 +573,7 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 }
 
 .login__card-title {
-  font-size: 40rpx;
+  font-size: 36rpx;
   font-weight: 700;
   color: var(--color-text);
 }
@@ -963,19 +767,6 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
   color: var(--color-primary);
 }
 
-.login__bind-panel {
-  padding: 48rpx;
-}
-
-.login__bind-panel-title {
-  display: block;
-  margin-bottom: 48rpx;
-  font-size: 36rpx;
-  font-weight: 600;
-  color: var(--color-text);
-  text-align: center;
-}
-
 .login__demo-hint {
   display: flex;
   justify-content: center;
@@ -1007,11 +798,6 @@ onShow(() => uni.setNavigationBarTitle({ title: "" }));
 
   .login__field {
     background-color: rgba(255, 255, 255, 0.06);
-  }
-
-  .login__navbar-btn {
-    background-color: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.08);
   }
 }
 </style>

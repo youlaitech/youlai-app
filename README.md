@@ -65,6 +65,8 @@
 pnpm install
 ```
 
+> **提示**：`src/pages.json` 是构建产物（由 `pages.config.json` 与各页面的 `definePage` 宏生成），不随仓库提交。克隆项目后如需使用 HBuilderX 等依赖该文件的工具，请先运行一次任意构建或启动命令（如 `pnpm run dev:h5`）生成。请勿手工编辑该文件：页面路由请修改对应页面的 `definePage`，全局配置（tabBar、globalStyle 等）请修改根目录 `pages.config.json`。
+
 ### H5 启动
 
 ```bash

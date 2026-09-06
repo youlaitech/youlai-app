@@ -1,7 +1,5 @@
 <template>
-  <view class="page">
-    <web-view :src="url" />
-  </view>
+  <web-view :src="url" />
 </template>
 
 <script setup lang="ts">
@@ -11,6 +9,7 @@ import { onLoad } from "@dcloudio/uni-app";
 definePage({
   name: "webview",
   style: { navigationBarTitleText: "网页" },
+  layout: "blank",
 });
 
 const url = ref("");
@@ -21,10 +20,3 @@ onLoad((query) => {
   }
 });
 </script>
-
-<style lang="scss" scoped>
-.page {
-  width: 100%;
-  height: 100vh;
-}
-</style>
