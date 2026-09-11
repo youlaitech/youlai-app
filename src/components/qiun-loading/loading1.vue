@@ -35,20 +35,20 @@ export default {
 }
 .container .shape.shape1 {
   left: 0;
-  background-color: #1890ff;
+  background-color: var(--color-primary);
 }
 .container .shape.shape2 {
   right: 0;
-  background-color: #91cb74;
+  background-color: var(--color-success);
 }
 .container .shape.shape3 {
   bottom: 0;
-  background-color: #fac858;
+  background-color: var(--color-warning);
 }
 .container .shape.shape4 {
   right: 0;
   bottom: 0;
-  background-color: #ee6666;
+  background-color: var(--color-danger);
 }
 
 .loading1 .shape1 {

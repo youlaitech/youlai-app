@@ -46,7 +46,7 @@
               />
               <wd-icon
                 v-else
-                name="click"
+                name="tag"
                 size="16"
                 :color="checked ? 'var(--color-primary)' : 'var(--color-text-secondary)'"
               />
@@ -66,7 +66,7 @@
         </template>
       </custom-tree>
 
-      <wd-empty v-if="menuTree.length === 0" icon="search" tip="暂无菜单数据" />
+      <wd-empty v-if="menuTree.length === 0" icon="search-line" tip="暂无菜单数据" />
     </scroll-view>
 
     <!-- 固定底部操作栏 -->
@@ -157,7 +157,7 @@ function handleCancel() {
 async function handleSubmit() {
   isSubmitting.value = true;
   try {
-    await RoleAPI.updateRoleMenus(roleId.value, checkedKeys.value.map(Number));
+    await RoleAPI.assignMenus(roleId.value, checkedKeys.value.map(Number));
     toast.success("保存成功");
     uni.navigateBack();
   } finally {
@@ -171,7 +171,7 @@ async function loadData() {
     // 并行加载菜单列表和角色已有权限
     const [menus, roleMenuIds, roleForm] = await Promise.all([
       MenuAPI.getList(),
-      RoleAPI.getRoleMenuIds(roleId.value),
+      RoleAPI.getMenuIds(roleId.value),
       RoleAPI.getFormData(roleId.value),
     ]);
     menuList.value = menus;
@@ -199,7 +199,7 @@ export default { options: { styleIsolation: "shared" } };
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
 }
 
 .header {
@@ -208,7 +208,7 @@ export default { options: { styleIsolation: "shared" } };
   align-items: center;
   justify-content: space-between;
   padding: 12rpx 24rpx;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
   border-bottom: 2rpx solid var(--color-border-light);
 }
 
@@ -243,7 +243,7 @@ export default { options: { styleIsolation: "shared" } };
 .tree-container {
   flex: 1;
   height: 0; // 重要：让 flex + scroll-view 生效
-  background: var(--color-bg);
+  background: var(--color-bg-card);
 }
 
 .node-content {
@@ -282,7 +282,7 @@ export default { options: { styleIsolation: "shared" } };
   flex-shrink: 0;
   gap: 24rpx;
   padding: 24rpx;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
   box-shadow: 0 -2rpx 16rpx rgba(0, 0, 0, 0.05);
 }
 

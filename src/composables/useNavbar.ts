@@ -7,7 +7,7 @@ import { ref, computed, type Ref, type ComputedRef } from "vue";
  *
  * 重要说明：
  * 1. CSS 变量 --status-bar-height 在某些情况下不准确（小程序端固定 25px）
- * 2. 推荐使用 uni.getSystemInfoSync().statusBarHeight 动态获取
+ * 2. 使用 uni.getWindowInfo().statusBarHeight 动态获取
  * 3. 微信小程序需要考虑胶囊按钮位置
  * 4. H5 没有状态栏，statusBarHeight 为 0
  *
@@ -197,12 +197,15 @@ export function useNavbar(options: UseNavbarOptions = {}): UseNavbarReturn {
   // 初始化
   const init = () => {
     try {
-      const systemInfo = uni.getSystemInfoSync();
+      const windowInfo =
+        typeof uni.getWindowInfo === "function" ? uni.getWindowInfo() : uni.getSystemInfoSync();
+      const deviceInfo =
+        typeof uni.getDeviceInfo === "function" ? uni.getDeviceInfo() : uni.getSystemInfoSync();
 
-      statusBarHeight.value = systemInfo.statusBarHeight || 0;
-      safeAreaBottom.value = systemInfo.safeAreaInsets?.bottom || 0;
-      windowWidth.value = systemInfo.windowWidth || 375;
-      platform.value = systemInfo.platform || "";
+      statusBarHeight.value = windowInfo.statusBarHeight || 0;
+      safeAreaBottom.value = windowInfo.safeAreaInsets?.bottom || 0;
+      windowWidth.value = windowInfo.windowWidth || 375;
+      platform.value = deviceInfo.platform || "";
 
       // #ifdef MP-WEIXIN
       // 微信小程序：获取胶囊按钮位置

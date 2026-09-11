@@ -19,9 +19,9 @@
       >
         <!-- 自定义节点内容：ID + 名称 + 状态 -->
         <template #content="{ node }">
-          <view class="dept-node">
-            <text class="dept-node__id">{{ node.id }}</text>
-            <text class="dept-node__name">{{ node.name }}</text>
+          <view class="flex-1 flex-start gap-16rpx">
+            <text class="w-120rpx text-24rpx color-text-secondary">{{ node.id }}</text>
+            <text class="flex-1 truncate">{{ node.name }}</text>
             <wd-tag :type="node.status === 1 ? 'success' : 'danger'" size="small">
               {{ node.status === 1 ? "正常" : "禁用" }}
             </wd-tag>
@@ -29,7 +29,7 @@
         </template>
       </CustomTree>
 
-      <wd-empty v-if="deptList.length === 0" icon="search" tip="暂无数据" />
+      <wd-empty v-if="deptList.length === 0" icon="search-line" tip="暂无数据" />
     </view>
 
     <!-- 弹窗表单 -->
@@ -89,8 +89,7 @@
     >
       <template #trigger>
         <view class="work-fab-trigger" @click="openDeptDialog()">
-          <wd-icon name="plus" size="16" color="var(--color-text-inverse)" />
-          <text>新增</text>
+          <wd-icon name="plus" size="20" color="var(--color-text-inverse)" />
         </view>
       </template>
     </wd-fab>
@@ -107,7 +106,7 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { toFormSchema } from "@/utils/form";
+import { toFormSchema } from "@/utils/form-schema";
 import { findOptionChain } from "@/utils/tree";
 import { useToast } from "@wot-ui/ui";
 import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
@@ -306,25 +305,3 @@ onLoad(() => {
 <script lang="ts">
 export default { options: { styleIsolation: "shared" } };
 </script>
-
-<style lang="scss" scoped>
-.dept-node {
-  display: flex;
-  flex: 1;
-  gap: 16rpx;
-  align-items: center;
-}
-
-.dept-node__id {
-  width: 120rpx;
-  font-size: 24rpx;
-  color: var(--color-text-secondary);
-}
-
-.dept-node__name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-</style>

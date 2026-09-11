@@ -32,9 +32,8 @@
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { useToast } from "@wot-ui/ui";
-import { useUserStore } from "@/store/modules/user";
-import { getErrorMessage } from "@/utils";
-import type { QrCodeScanResult } from "@/api/auth";
+import { getErrorMessage } from "@/utils/error";
+import AuthAPI, { type QrCodeScanResult } from "@/api/auth";
 
 definePage({
   name: "scan-confirm",
@@ -43,7 +42,6 @@ definePage({
 });
 
 const toast = useToast();
-const userStore = useUserStore();
 
 // toast 停留时长，读完提示再返回上一页
 const TOAST_DURATION = 800;
@@ -60,7 +58,7 @@ const scanResult = ref<QrCodeScanResult | null>(null);
 // 进入页面先标记已扫码，让 PC 端立即显示「已扫码」并展示头像/昵称
 const markScanned = async (code: string) => {
   try {
-    scanResult.value = await userStore.qrScan(code);
+    scanResult.value = await AuthAPI.markQrLoginScanned(code);
   } catch (error) {
     toast.error(getErrorMessage(error, "二维码无效或已过期"));
     setTimeout(() => uni.navigateBack(), TOAST_DURATION);
@@ -72,7 +70,7 @@ const handleConfirm = async () => {
   if (isLoading.value) return;
   isLoading.value = true;
   try {
-    await userStore.qrConfirm(ticket.value);
+    await AuthAPI.confirmQrLogin(ticket.value);
     toast.success("已确认登录");
     setTimeout(() => uni.navigateBack(), TOAST_DURATION);
   } catch (error) {
@@ -87,7 +85,7 @@ const handleCancel = async () => {
   if (isCancelling.value) return;
   isCancelling.value = true;
   try {
-    await userStore.qrCancel(ticket.value);
+    await AuthAPI.cancelQrLogin(ticket.value);
     toast.info("已取消登录");
   } catch {
     // 取消失败不影响返回
@@ -111,7 +109,7 @@ onLoad((options) => {
 <style lang="scss" scoped>
 .scan-confirm {
   min-height: 100vh;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
 
   &__body {
     display: flex;
@@ -126,10 +124,10 @@ onLoad((options) => {
     align-items: center;
     width: 100%;
     padding: 64rpx 48rpx;
-    background: var(--color-bg);
+    background: var(--color-bg-card);
     border: 2rpx solid var(--color-border-light);
     border-radius: 32rpx;
-    box-shadow: 0 20rpx 50rpx -10rpx rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-float);
   }
 
   &__logo {

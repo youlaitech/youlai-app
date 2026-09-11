@@ -331,7 +331,7 @@ watch(
 
 <style lang="scss" scoped>
 .custom-tree {
-  background: var(--color-bg);
+  background: var(--color-bg-card);
 }
 
 .custom-tree-node {
@@ -340,11 +340,11 @@ watch(
     align-items: center;
     min-height: 88rpx;
     padding-right: 24rpx;
-    background: var(--color-bg);
+    background: var(--color-bg-card);
     border-bottom: 2rpx solid var(--color-border-light);
 
     &:active {
-      background: var(--color-bg-secondary);
+      background: var(--color-fill-2);
     }
   }
 

@@ -1,4 +1,4 @@
-﻿import { pages, subPackages } from "virtual:uni-pages";
+import { pages, subPackages } from "virtual:uni-pages";
 import { getAccessToken } from "@/utils/auth";
 import { createRouter } from "uni-mini-router";
 import { useUserStore } from "@/store";
@@ -73,7 +73,7 @@ router.beforeEach(async (to, from, next) => {
     const userStore = useUserStore();
     if (!userStore.userInfo) {
       try {
-        await userStore.getInfo();
+        await userStore.loadUserInfo();
       } catch {
         next(false);
         userStore.logout();

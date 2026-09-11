@@ -21,7 +21,7 @@ const RoleAPI = {
   },
 
   /** 获取角色的菜单ID集合 */
-  getRoleMenuIds(roleId: number) {
+  getMenuIds(roleId: number) {
     return request<number[]>({
       url: `${ROLE_BASE_URL}/${roleId}/menu-ids`,
       method: "GET",
@@ -29,11 +29,11 @@ const RoleAPI = {
   },
 
   /** 分配菜单权限 */
-  updateRoleMenus(roleId: number, data: number[]) {
+  assignMenus(roleId: number, menuIds: number[]) {
     return request({
       url: `${ROLE_BASE_URL}/${roleId}/menus`,
       method: "PUT",
-      data: data,
+      data: menuIds,
     });
   },
 

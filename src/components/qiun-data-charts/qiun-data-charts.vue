@@ -556,21 +556,24 @@ export default {
       }
       this.cid = id;
     }
-    const systemInfo = uni.getSystemInfoSync();
-    if (systemInfo.platform === "windows" || systemInfo.platform === "mac") {
+    const deviceInfo =
+      typeof uni.getDeviceInfo === "function" ? uni.getDeviceInfo() : uni.getSystemInfoSync();
+    const windowInfo =
+      typeof uni.getWindowInfo === "function" ? uni.getWindowInfo() : uni.getSystemInfoSync();
+    if (deviceInfo.platform === "windows" || deviceInfo.platform === "mac") {
       this.inWin = true;
     }
     // #ifdef MP-WEIXIN
     this.inWx = true;
     if (
       this.canvas2d === false ||
-      systemInfo.platform === "windows" ||
-      systemInfo.platform === "mac"
+      deviceInfo.platform === "windows" ||
+      deviceInfo.platform === "mac"
     ) {
       this.type2d = false;
     } else {
       this.type2d = true;
-      this.pixel = systemInfo.pixelRatio;
+      this.pixel = windowInfo.pixelRatio;
     }
     // #endif
     //非微信小程序端强制关闭canvas2d模式
@@ -585,7 +588,7 @@ export default {
     // #endif
     // #ifdef MP-ALIPAY
     this.inAli = true;
-    this.pixel = systemInfo.pixelRatio;
+    this.pixel = windowInfo.pixelRatio;
     // #endif
     // #ifdef MP-BAIDU
     this.inBd = true;

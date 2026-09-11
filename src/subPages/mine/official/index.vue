@@ -2,13 +2,13 @@
   <view>
     <view class="brand">
       <image src="/static/images/logo.png" class="brand__logo" mode="aspectFit" />
-      <view class="brand__text">
+      <view class="flex-1 min-w-0">
         <view class="brand__title">有来技术</view>
         <view class="brand__desc">让开源项目更加易用</view>
       </view>
     </view>
 
-    <view class="tip">
+    <view class="official-tip">
       长按识别下方二维码，关注「有来技术」公众号，获取最新技术分享和项目动态。
     </view>
 
@@ -39,20 +39,15 @@ onLoad(() => {
   gap: 20rpx;
   align-items: center;
   padding: 28rpx;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
   border-radius: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .brand__logo {
   width: 96rpx;
   height: 96rpx;
   border-radius: 20rpx;
-}
-
-.brand__text {
-  flex: 1;
-  min-width: 0;
 }
 
 .brand__title {
@@ -67,22 +62,22 @@ onLoad(() => {
   color: var(--color-text-secondary);
 }
 
-.tip {
+.official-tip {
   padding: 20rpx;
   margin-top: 20rpx;
   font-size: 26rpx;
   line-height: 1.6;
   color: var(--color-text);
-  background: var(--color-bg-tertiary);
+  background: var(--color-fill-1);
   border-radius: 16rpx;
 }
 
 .qrcode-card {
   padding: 28rpx;
   margin-top: 24rpx;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
   border-radius: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .qrcode-card__img {

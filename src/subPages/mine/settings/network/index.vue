@@ -1,12 +1,12 @@
 <template>
   <view>
-    <view class="network__tip">
+    <view class="py-24rpx px-32rpx">
       <text class="network__tip-text">
         温馨提示：点击下方「开始测试」按钮，即可自动检测当前网络延迟。
       </text>
     </view>
 
-    <view class="network__action">
+    <view class="px-32rpx">
       <wd-button block plain @click="startTest">开始测试</wd-button>
     </view>
 
@@ -15,16 +15,16 @@
       <text class="network__loading-text">正在测试中...</text>
     </view>
 
-    <view v-if="result !== null" class="network__result">
+    <view v-if="result !== null" class="px-32rpx">
       <view class="result-card">
         <view class="result-card__header">测试结果</view>
         <view class="result-card__row">
           <text style="color: var(--color-text-secondary)">网络延迟</text>
-          <text :class="['network__delay', statusColor]">{{ result }}ms</text>
+          <text :class="['text-36rpx font-600', statusColor]">{{ result }}ms</text>
         </view>
         <view class="result-card__row">
           <text style="color: var(--color-text-secondary)">网络状态</text>
-          <text :class="['network__status', statusColor]">{{ statusText }}</text>
+          <text :class="['font-500', statusColor]">{{ statusText }}</text>
         </view>
       </view>
     </view>
@@ -36,7 +36,7 @@ import { onLoad } from "@dcloudio/uni-app";
 
 definePage({
   name: "network",
-  style: { navigationBarTitleText: "网络测试" },
+  style: { navigationBarTitleText: "网络检测" },
 });
 
 const result = ref<number | null>(null);
@@ -92,7 +92,7 @@ onLoad(() => {
 <style lang="scss" scoped>
 .result-card {
   overflow: hidden;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
   border: 1rpx solid var(--color-border);
   border-radius: 16rpx;
 
@@ -115,17 +115,9 @@ onLoad(() => {
   }
 }
 
-.network__tip {
-  padding: 24rpx 32rpx;
-}
-
 .network__tip-text {
   font-size: 24rpx;
   color: var(--color-text-placeholder);
-}
-
-.network__action {
-  padding: 0 32rpx;
 }
 
 .network__loading {
@@ -139,34 +131,5 @@ onLoad(() => {
   margin-top: 16rpx;
   font-size: 24rpx;
   color: var(--color-text-secondary);
-}
-
-.network__result {
-  padding: 0 32rpx;
-}
-
-.network__delay {
-  font-size: 36rpx;
-  font-weight: 600;
-}
-
-.network__status {
-  font-weight: 500;
-}
-
-.color-success {
-  color: var(--color-success);
-}
-
-.color-primary {
-  color: var(--color-primary);
-}
-
-.color-warning {
-  color: var(--color-warning);
-}
-
-.color-danger {
-  color: var(--color-danger);
 }
 </style>

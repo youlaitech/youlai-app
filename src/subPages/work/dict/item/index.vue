@@ -10,12 +10,7 @@
     </view>
 
     <view class="mt-16rpx">
-      <wd-card
-        v-for="item in pageData"
-        :key="item.id"
-        custom-class="item-card"
-        @click="openItemDialog(item.id)"
-      >
+      <wd-card v-for="item in dictItems" :key="item.id" @click="openItemDialog(item.id)">
         <view class="flex-start">
           <view class="flex-1">
             <view class="flex-start">
@@ -42,8 +37,8 @@
         </view>
       </wd-card>
 
-      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="loadItemList" />
-      <wd-empty v-else-if="total === 0" icon="search" tip="暂无数据" />
+      <wd-loadmore v-if="loadMoreState !== 'idle'" :state="loadMoreState" @reload="retry" />
+      <wd-empty v-else-if="total === 0" icon="search-line" tip="暂无数据" />
     </view>
 
     <wd-popup
@@ -98,8 +93,7 @@
     >
       <template #trigger>
         <view class="work-fab-trigger" @click="openItemDialog()">
-          <wd-icon name="plus" size="16" color="var(--color-text-inverse)" />
-          <text>新增</text>
+          <wd-icon name="plus" size="20" color="var(--color-text-inverse)" />
         </view>
       </template>
     </wd-fab>
@@ -108,11 +102,11 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { toFormSchema } from "@/utils/form";
+import { toFormSchema } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
 import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
 import { usePagedList } from "@/composables/usePagedList";
-import DictAPI, { type DictItemForm, type DictItemPageQuery, type DictDataItem } from "@/api/dict";
+import DictAPI, { type DictItemForm, type DictItemPageQuery, type DictItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
 
 definePage({
@@ -137,7 +131,13 @@ const dialog = reactive({ visible: false });
  * 分页加载（触底加载 + 下拉刷新统一由 usePagedList 维护）
  * dictCode 尚未就绪（onLoad 取参前）时返回空页
  */
-const { pageData, total, loadMoreState, reload } = usePagedList(
+const {
+  items: dictItems,
+  total,
+  loadMoreState,
+  reload,
+  retry,
+} = usePagedList(
   (query: DictItemPageQuery) =>
     dictCode.value
       ? DictAPI.getItemPage(dictCode.value, query)
@@ -214,7 +214,7 @@ function closeItemDialog() {
   Object.assign(formData, initialFormData);
 }
 
-function showItemActions(item: DictDataItem) {
+function showItemActions(item: DictItem) {
   const menus: ActionMenuOption[] = [];
 
   if (hasPermission("sys:dict-item:update")) {

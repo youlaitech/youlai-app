@@ -56,22 +56,23 @@ const emit = defineEmits<{
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: var(--z-sticky);
+  z-index: var(--z-mask);
   background: linear-gradient(
     90deg,
-    var(--color-glass) 0%,
-    var(--color-glass-light) 55%,
-    var(--color-glass) 100%
+    var(--color-media-mask) 0%,
+    var(--color-media-mask-light) 55%,
+    var(--color-media-mask) 100%
   );
 }
 
 .community-card__logo {
   position: relative;
+  z-index: var(--z-content);
   box-sizing: border-box;
   width: 84rpx;
   height: 84rpx;
   padding: 10rpx;
-  background: var(--color-bg-alpha-95);
+  background: var(--color-bg-card-alpha-95);
   border: 1rpx solid var(--color-border-glass);
   border-radius: 20rpx;
   box-shadow: var(--shadow-sm);
@@ -79,12 +80,14 @@ const emit = defineEmits<{
 
 .community-card__body {
   position: relative;
+  z-index: var(--z-content);
   flex: 1;
   min-width: 0;
 }
 
 .community-card__arrow {
   position: relative;
+  z-index: var(--z-content);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,19 +101,24 @@ const emit = defineEmits<{
   display: flex;
   gap: 16rpx;
   align-items: center;
+  margin-top: 14rpx;
 }
 
 .community-card__title {
-  display: block;
-  margin-top: 14rpx;
+  flex-shrink: 0;
   font-size: 32rpx;
   font-weight: 600;
+  line-height: 1;
   color: var(--color-text);
   letter-spacing: 0.4rpx;
 }
 
+/* wd-tag 外层是自定义组件节点，压掉其行高避免与标题错位 */
 .community-card__tag {
-  margin-top: 14rpx;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  line-height: 1;
 }
 
 .community-card__desc {

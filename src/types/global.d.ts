@@ -1,4 +1,4 @@
-﻿// 全局类型声明文件
+// 全局类型声明文件
 // 自动引入 virtual 模块类型
 
 /// <reference types="@uni-helper/vite-plugin-uni-pages/client" />
@@ -52,7 +52,7 @@ declare global {
   /**
    * 响应数据
    */
-  interface ResponseData<T = any> {
+  interface ApiResponse<T = any> {
     code: string;
     data: T;
     msg: string;

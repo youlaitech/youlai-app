@@ -4,7 +4,7 @@ const USER_BASE_URL = "/api/v1/users";
 
 const UserAPI = {
   /** 获取当前登录用户信息 */
-  getUserInfo(): Promise<UserInfo> {
+  getCurrentUser(): Promise<UserInfo> {
     return request<UserInfo>({
       url: `${USER_BASE_URL}/me`,
       method: "GET",

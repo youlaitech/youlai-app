@@ -1,14 +1,14 @@
 <template>
   <view>
     <!-- 头部 -->
-    <view class="complete-profile__hero">
+    <view class="mb-60rpx text-center">
       <view class="complete-profile__hero-title">完善个人信息</view>
       <view class="complete-profile__hero-subtitle">为了给您提供更好的服务，请完善以下信息</view>
     </view>
 
     <!-- 表单 -->
     <view class="profile-form">
-      <wd-form ref="profileFormRef" :model="profileForm">
+      <wd-form ref="profileFormRef" :model="profileForm" :schema="formRules">
         <!-- 头像 -->
         <view class="profile-form__section">
           <view class="profile-form__label">头像</view>
@@ -68,8 +68,6 @@
           <wd-input
             v-model="profileForm.nickname"
             placeholder="请输入昵称"
-            prop="nickname"
-            :rules="rules.nickname"
             custom-class="profile-form__nickname-input"
           />
           <!-- #endif -->
@@ -131,9 +129,15 @@ import { ref, reactive, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { useDialog, useToast } from "@wot-ui/ui";
 import { useUserStore } from "@/store";
-import { getErrorMessage } from "@/utils";
+import { getErrorMessage } from "@/utils/error";
+import { toFormSchema } from "@/utils/form-schema";
 import UserAPI, { type UserProfileForm } from "@/api/user";
 import FileAPI, { type FileInfo } from "@/api/file";
+
+definePage({
+  name: "complete-profile",
+  style: { navigationBarTitleText: "完善信息" },
+});
 
 const toast = useToast();
 const { confirm } = useDialog();
@@ -148,12 +152,14 @@ const profileForm = reactive<UserProfileForm & { mobile?: string }>({
   mobile: "",
 });
 
-const rules = {
+// 本页面为自定义布局（无 wd-form-item），校验结果以 toast 呈现
+const formRules = toFormSchema({
   nickname: [
     { required: true, message: "请输入昵称" },
-    { required: true, min: 2, max: 20, message: "昵称长度为2-20个字符" },
+    { min: 2, max: 20, message: "昵称长度为2-20个字符" },
   ],
-};
+  mobile: [{ required: true, pattern: /^1[3-9]\d{9}$/, message: "请填写正确的手机号" }],
+});
 
 const isLoading = ref(false);
 const cropperVisible = ref(false);
@@ -227,11 +233,9 @@ const handleAvatarConfirm = async (event: ImgCropperConfirmEvent) => {
 
 const handleComplete = async () => {
   try {
-    const { valid } = await profileFormRef.value.validate();
-    if (!valid) return;
-
-    if (!profileForm.mobile) {
-      toast.error("请输入手机号");
+    const { valid, errors } = await profileFormRef.value.validate();
+    if (!valid) {
+      toast.error(errors[0]?.message || "请完善表单信息");
       return;
     }
 
@@ -243,11 +247,9 @@ const handleComplete = async () => {
       gender: profileForm.gender,
     });
 
-    if (profileForm.mobile) {
-      await UserAPI.bindMobile({ mobile: profileForm.mobile });
-    }
+    await UserAPI.bindMobile({ mobile: profileForm.mobile });
 
-    await userStore.getInfo();
+    await userStore.loadUserInfo();
     toast.success("信息完善成功");
 
     setTimeout(() => {
@@ -275,11 +277,6 @@ const handleSkip = async () => {
 </script>
 
 <style lang="scss" scoped>
-.complete-profile__hero {
-  margin-bottom: 60rpx;
-  text-align: center;
-}
-
 .complete-profile__hero-title {
   margin-bottom: 20rpx;
   font-size: 48rpx;
@@ -296,7 +293,7 @@ const handleSkip = async () => {
 .profile-form {
   padding: 40rpx;
   margin-bottom: 40rpx;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
   border-radius: 24rpx;
   box-shadow: 0 8rpx 40rpx rgba(0, 0, 0, 0.1);
 
@@ -322,7 +319,7 @@ const handleSkip = async () => {
   &__nickname-input {
     :deep(.wd-input__inner) {
       padding: 24rpx 20rpx;
-      background: var(--color-bg-tertiary);
+      background: var(--color-fill-1);
       border: 1rpx solid var(--color-border-light);
       border-radius: 12rpx;
     }
@@ -365,7 +362,7 @@ const handleSkip = async () => {
     justify-content: center;
     width: 160rpx;
     height: 160rpx;
-    background: var(--color-bg-tertiary);
+    background: var(--color-fill-1);
     border: 2rpx dashed var(--color-border);
     border-radius: 50%;
   }

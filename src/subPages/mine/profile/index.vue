@@ -1,43 +1,37 @@
 <template>
   <view>
-    <view class="profile-content">
-      <view class="profile-content__card-area">
-        <wd-card v-if="userProfile">
-          <wd-cell-group border>
-            <wd-cell class="avatar-cell" title="头像" center is-link>
-              <view class="avatar-cell__avatar">
-                <view
-                  v-if="!userProfile.avatar"
-                  class="avatar-cell__img"
-                  @click="handleAvatarUpload"
-                >
-                  <wd-icon name="fill-camera" custom-class="avatar-cell__img-icon" />
-                </view>
-                <image
-                  v-if="userProfile.avatar"
-                  class="avatar-cell__img"
-                  :src="userProfile.avatar"
-                  mode="aspectFit"
-                  @click="handleAvatarUpload"
-                />
+    <view class="pt-20rpx">
+      <wd-card v-if="userProfile">
+        <wd-cell-group border>
+          <wd-cell title="头像" center is-link>
+            <view class="avatar-cell__avatar">
+              <view v-if="!userProfile.avatar" class="avatar-cell__img" @click="handleAvatarUpload">
+                <wd-icon name="camera-fill" custom-class="avatar-cell__img-icon" />
               </view>
-            </wd-cell>
-            <wd-cell title="昵称" :value="userProfile.nickname" is-link @click="openDialog()" />
-            <wd-cell
-              title="性别"
-              :value="userProfile.gender === 1 ? '男' : userProfile.gender === 2 ? '女' : '未知'"
-              is-link
-              @click="openDialog()"
-            />
-            <wd-cell title="用户名" :value="userProfile.username" />
-            <wd-cell title="部门" :value="userProfile.deptName" />
-            <wd-cell title="角色" :value="userProfile.roleNames" />
-            <view class="profile-last-cell-wrap">
-              <wd-cell title="创建日期" :value="userProfile.createTime" />
+              <image
+                v-if="userProfile.avatar"
+                class="avatar-cell__img"
+                :src="userProfile.avatar"
+                mode="aspectFit"
+                @click="handleAvatarUpload"
+              />
             </view>
-          </wd-cell-group>
-        </wd-card>
-      </view>
+          </wd-cell>
+          <wd-cell title="昵称" :value="userProfile.nickname" is-link @click="openDialog()" />
+          <wd-cell
+            title="性别"
+            :value="userProfile.gender === 1 ? '男' : userProfile.gender === 2 ? '女' : '未知'"
+            is-link
+            @click="openDialog()"
+          />
+          <wd-cell title="用户名" :value="userProfile.username" />
+          <wd-cell title="部门" :value="userProfile.deptName" />
+          <wd-cell title="角色" :value="userProfile.roleNames" />
+          <view class="profile-last-cell-wrap">
+            <wd-cell title="创建日期" :value="userProfile.createTime" />
+          </view>
+        </wd-cell-group>
+      </wd-card>
     </view>
 
     <!--头像裁剪-->
@@ -50,24 +44,29 @@
 
     <!--用户信息编辑弹出框-->
     <wd-popup v-if="dialogState.visible" v-model="dialogState.visible" position="bottom">
-      <wd-form ref="userProfileFormRef" :model="userProfileForm" custom-class="edit-form">
+      <wd-form
+        ref="userProfileFormRef"
+        :model="userProfileForm"
+        :schema="rules"
+        title-width="160rpx"
+        custom-class="pt-40rpx"
+      >
         <wd-cell-group border>
-          <wd-input
-            v-model="userProfileForm.nickname"
-            label="昵称"
-            label-width="160rpx"
-            placeholder="请输入昵称"
-            prop="nickname"
-            :rules="rules.nickname"
-          />
-          <wd-cell title="性别" title-width="160rpx" center prop="gender" :rules="rules.gender">
-            <wd-radio-group v-model="userProfileForm.gender" type="button" class="ef-radio-group">
+          <wd-form-item prop="nickname" title="昵称" required>
+            <wd-input v-model="userProfileForm.nickname" placeholder="请输入昵称" />
+          </wd-form-item>
+          <wd-form-item prop="gender" title="性别" required center>
+            <wd-radio-group
+              v-model="userProfileForm.gender"
+              type="button"
+              class="leading-none text-left"
+            >
               <wd-radio :value="1">男</wd-radio>
               <wd-radio :value="2">女</wd-radio>
             </wd-radio-group>
-          </wd-cell>
+          </wd-form-item>
         </wd-cell-group>
-        <view class="edit-form__submit">
+        <view class="p-24rpx">
           <wd-button size="large" block @click="handleSubmit">提交</wd-button>
         </view>
       </wd-form>
@@ -78,7 +77,13 @@
 import UserAPI, { type UserProfile, UserProfileForm } from "@/api/user";
 import FileAPI, { type FileInfo } from "@/api/file";
 import { checkLogin } from "@/utils/auth";
-import { getErrorMessage } from "@/utils";
+import { getErrorMessage } from "@/utils/error";
+import { toFormSchema } from "@/utils/form-schema";
+
+definePage({
+  name: "profile",
+  style: { navigationBarTitleText: "我的资料" },
+});
 
 const toast = useToast();
 const originalSrc = ref<string>(""); //选取的原图路径
@@ -126,7 +131,7 @@ function handleAvatarConfirm(event: ImgCropperConfirmEvent) {
 }
 
 // 本页面中所有的校验规则
-const rules = reactive({
+const rules = toFormSchema({
   nickname: [{ required: true, message: "请填写昵称" }],
   gender: [{ required: true, message: "请选择性别" }],
 });
@@ -192,28 +197,25 @@ function handleTouchMove(event: TouchEvent) {
 }
 </script>
 <style lang="scss" scoped>
-.avatar-cell {
-  :deep(.wd-cell__body) {
-    align-items: center;
-  }
+// 头像行内容较高，需显式居中
+:deep(.wd-cell__body) {
+  align-items: center;
 }
 
 .avatar-cell__avatar {
   display: flex;
   align-items: center;
-  justify-content: right;
+  // 小程序端不支持 justify-content: right
+  justify-content: flex-end;
+  width: 100%;
 }
 
 .avatar-cell__img {
   position: relative;
-  width: 160rpx;
-  height: 160rpx;
-  background-color: rgba(0, 0, 0, 0.04);
+  width: 112rpx;
+  height: 112rpx;
+  background-color: var(--color-fill-1);
   border-radius: 50%;
-}
-
-.profile-content__card-area {
-  padding-top: 20rpx;
 }
 
 .avatar-cell__img-icon {
@@ -221,18 +223,6 @@ function handleTouchMove(event: TouchEvent) {
   top: 50%;
   left: 50%;
   color: var(--color-text-inverse);
-}
-
-.edit-form {
-  padding-top: 40rpx;
-
-  &__submit {
-    padding: 24rpx;
-  }
-
-  .ef-radio-group {
-    line-height: 1;
-    text-align: left;
-  }
+  transform: translate(-50%, -50%);
 }
 </style>

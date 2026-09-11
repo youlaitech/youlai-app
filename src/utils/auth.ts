@@ -1,4 +1,4 @@
-﻿import { Storage } from "./storage";
+import { Storage } from "./storage";
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/constants";
 
 /**
@@ -9,10 +9,7 @@ import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/constants";
  * 1. 检查登录状态并自动跳转：
  *    if (!checkLogin()) return; // 未登录会自动跳转到登录页
  *
- * 2. 静默检查登录状态：
- *    if (!isLoggedIn()) {
- *      // 处理未登录逻辑，不会自动跳转
- *    }
+ * 2. 静默检查登录状态统一走 user store 的 isAuthenticated
  */
 
 /**
@@ -73,12 +70,4 @@ export function checkLogin(silent: boolean = false): boolean {
   }
 
   return false;
-}
-
-/**
- * 检查用户是否已登录（静默检查，不跳转）
- * @returns 返回用户是否已登录
- */
-export function isLoggedIn(): boolean {
-  return !!getAccessToken();
 }

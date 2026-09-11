@@ -5,7 +5,7 @@ page {
   font-size: 28rpx;
   line-height: 1.6;
   color: var(--color-text);
-  background-color: var(--color-bg);
+  background-color: var(--color-bg-page);
 }
 
 // H5 端字体平滑渲染
@@ -40,7 +40,7 @@ body {
   box-sizing: border-box;
   min-height: 100vh;
   padding: 16rpx 32rpx 0;
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-page);
 }
 
 .page--tabbar {
@@ -54,7 +54,7 @@ body {
   height: 72rpx;
   margin-top: 16rpx;
   overflow: hidden;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
   border-radius: 16rpx;
 
   .wd-drop-menu {
@@ -103,19 +103,16 @@ body {
   text-align: center;
 }
 
-// 列表页悬浮新增按钮（wd-fab 的 trigger 插槽）
+// 列表页悬浮新增按钮（wd-fab 的 trigger 插槽）：纯图标圆形按钮
 .work-fab-trigger {
   display: flex;
-  gap: 8rpx;
   align-items: center;
   justify-content: center;
-  height: 88rpx;
-  padding: 0 44rpx;
-  font-size: 28rpx;
-  font-weight: 600;
+  width: 96rpx;
+  height: 96rpx;
   color: var(--color-text-inverse);
   background: var(--color-primary);
-  border-radius: 999rpx;
+  border-radius: 50%;
   box-shadow: var(--shadow-lg);
 
   &:active {
@@ -135,12 +132,37 @@ body {
 }
 
 .item-action--hover {
-  background: rgba(var(--color-text-placeholder-rgb, 148, 163, 184), 0.16);
+  background: rgba(var(--color-text-placeholder-rgb), 0.16);
 }
 
 // 列表卡片底部时间戳
 .item-time {
   font-size: 24rpx;
+  color: var(--color-text-placeholder);
+}
+
+// 语义色工具类：unocss 只生成 bg-/text-/border- 前缀，color-* 系列统一在这里提供
+.color-primary {
+  color: var(--color-primary);
+}
+
+.color-success {
+  color: var(--color-success);
+}
+
+.color-warning {
+  color: var(--color-warning);
+}
+
+.color-danger {
+  color: var(--color-danger);
+}
+
+.color-text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.color-text-placeholder {
   color: var(--color-text-placeholder);
 }
 

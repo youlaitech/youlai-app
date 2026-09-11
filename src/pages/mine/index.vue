@@ -1,20 +1,13 @@
 <template>
   <view>
     <view class="mine-hero" :style="{ paddingTop: `${navbar.totalHeight.value}px` }">
-      <view class="mine-hero__bg" :style="{ background: headerBackground }" />
-
       <custom-navbar
-        bg-color="transparent"
+        :bg-color="isScrolled ? headerBackground : 'transparent'"
         title-color="var(--color-text-inverse)"
         icon-color="var(--color-text-inverse)"
         :show-back="false"
         :placeholder="false"
       >
-        <template #left>
-          <view v-if="isLogin" class="mine-navbar__scan" aria-label="扫一扫" @click="scanLogin">
-            <wd-icon name="scan" size="40rpx" color="var(--color-text-inverse)" />
-          </view>
-        </template>
         <template #center>
           <text class="mine-navbar__title">个人中心</text>
         </template>
@@ -22,25 +15,39 @@
 
       <view class="mine-hero__content">
         <profile-card
-          :is-login="isLogin"
+          :is-authenticated="isAuthenticated"
           :avatar="avatar"
           :name="displayName"
           :username="username"
           :dept-name="deptName"
           @profile="openProfile"
           @login="navigateToLogin"
-          @notifications="openNotifications"
+          @scan="scanLogin"
         />
 
-        <community-card @open="openOfficialAccount" />
+        <view class="community-slot">
+          <view class="community-slot__bg" :style="{ background: headerBackground }" />
+          <community-card @open="openOfficialAccount" />
+        </view>
 
-        <quick-cards v-if="isLogin" @profile="openProfile" @account="openAccount" />
+        <quick-cards v-if="isAuthenticated" @profile="openProfile" @account="openAccount" />
       </view>
     </view>
 
     <view class="mine-body">
       <menu-section title="系统工具" :items="toolMenus" @select="handleMenuSelect" />
       <menu-section title="帮助与支持" :items="helpMenus" @select="handleMenuSelect" />
+
+      <wd-button
+        v-if="isAuthenticated"
+        type="danger"
+        variant="plain"
+        size="large"
+        block
+        @click="confirmLogout"
+      >
+        退出登录
+      </wd-button>
     </view>
 
     <wd-loading
@@ -55,12 +62,14 @@
 
 <script lang="ts" setup>
 import { computed, ref } from "vue";
-import { onShow } from "@dcloudio/uni-app";
+import { onPageScroll, onShow } from "@dcloudio/uni-app";
+import { storeToRefs } from "pinia";
 import { useUserStore, useThemeStore } from "@/store";
 import { useRouter } from "uni-mini-router";
 import { useNavbar } from "@/composables/useNavbar";
 import { useScanLogin } from "@/composables/useScanLogin";
-import { formatBytes } from "@/utils/format";
+import { useLogout } from "@/composables/useLogout";
+import { useCacheCleaner } from "@/composables/useCacheCleaner";
 import ProfileCard from "./components/profile-card.vue";
 import CommunityCard from "./components/community-card.vue";
 import QuickCards from "./components/quick-cards.vue";
@@ -77,20 +86,26 @@ const themeStore = useThemeStore();
 const router = useRouter();
 const navbar = useNavbar({ hasTabbar: true });
 const { scanLogin } = useScanLogin();
-const toast = useToast();
+const { confirmLogout } = useLogout();
 
-const isLogin = computed(() => !!userStore.userInfo);
+/** 滚动后导航栏补上渐变背景，否则内容会从透明导航栏下穿过 */
+const isScrolled = ref(false);
+onPageScroll(({ scrollTop }) => {
+  isScrolled.value = scrollTop > 0;
+});
+
+const { isAuthenticated } = storeToRefs(userStore);
 const userInfo = computed(() => userStore.userInfo);
 const defaultAvatar = "/static/images/default-avatar.png";
 
 const avatar = computed(() =>
-  isLogin.value && userInfo.value?.avatar ? userInfo.value.avatar : defaultAvatar
+  isAuthenticated.value && userInfo.value?.avatar ? userInfo.value.avatar : defaultAvatar
 );
 const displayName = computed(() =>
-  isLogin.value ? userInfo.value?.nickname || "匿名用户" : "欢迎使用"
+  isAuthenticated.value ? userInfo.value?.nickname || "匿名用户" : "欢迎使用"
 );
 const username = computed(() => userInfo.value?.username || "未设置账号");
-const deptName = computed(() => (isLogin.value ? userInfo.value?.deptName || "" : ""));
+const deptName = computed(() => (isAuthenticated.value ? userInfo.value?.deptName || "" : ""));
 
 const headerBackground = computed(() => {
   const color = themeStore.themeVars.colorTheme || "var(--color-primary)";
@@ -100,32 +115,44 @@ const headerBackground = computed(() => {
 });
 
 const appVersion = ref("1.0.0");
-const isClearing = ref(false);
-const cacheSize = ref<string>("计算中...");
+const {
+  usageText: storageUsageText,
+  isClearing,
+  loadUsage: loadStorageUsage,
+  clear: clearCache,
+} = useCacheCleaner();
 
+// 常用功能在前，维护操作在后
 const toolMenus = computed<MenuItem[]>(() => [
-  { key: "network", icon: "tool", tone: "warning", title: "网络检测", desc: "检测接口连通性" },
+  {
+    key: "notice",
+    icon: "notification",
+    tone: "primary",
+    title: "消息通知",
+    desc: "查看系统通知与公告",
+  },
+  { key: "theme", icon: "settings", tone: "primary", title: "主题设置", desc: "主题色与明暗模式" },
+  {
+    key: "network",
+    icon: "wifi",
+    tone: "primary",
+    title: "网络检测",
+    desc: "检测网络与服务器连接",
+  },
   {
     key: "clear-cache",
     icon: "delete",
     tone: "danger",
     title: "清理缓存",
-    desc: "显示当前缓存大小",
-    value: cacheSize.value,
+    desc: "释放本地存储空间",
+    value: storageUsageText.value,
   },
 ]);
 
 const helpMenus = computed<MenuItem[]>(() => [
   {
-    key: "settings",
-    icon: "settings",
-    tone: "primary",
-    title: "系统设置",
-    desc: "主题、语言、通知等设置",
-  },
-  {
     key: "agreement",
-    icon: "safe",
+    icon: "file",
     tone: "success",
     title: "用户协议",
     desc: "了解产品使用规则",
@@ -141,15 +168,20 @@ const helpMenus = computed<MenuItem[]>(() => [
 ]);
 
 const menuRoutes: Record<string, string> = {
+  notice: "/subPages/work/notice/index",
   network: "/subPages/mine/settings/network/index",
-  settings: "/subPages/mine/settings/index",
+  theme: "/subPages/mine/settings/theme/index",
   agreement: "/subPages/mine/settings/agreement/index",
   about: "/subPages/mine/about/index",
 };
 
 function handleMenuSelect(key: string) {
   if (key === "clear-cache") {
-    handleClearCache();
+    clearCache();
+    return;
+  }
+  if (key === "notice" && !isAuthenticated.value) {
+    navigateToLogin();
     return;
   }
   const path = menuRoutes[key];
@@ -167,7 +199,7 @@ const navigateToLogin = () => {
 };
 
 const openProfile = () => {
-  if (!isLogin.value) {
+  if (!isAuthenticated.value) {
     navigateToLogin();
     return;
   }
@@ -176,19 +208,11 @@ const openProfile = () => {
 
 // 账号和安全
 const openAccount = () => {
-  if (!isLogin.value) {
+  if (!isAuthenticated.value) {
     navigateToLogin();
     return;
   }
   router.push({ path: "/subPages/mine/account/index" });
-};
-
-const openNotifications = () => {
-  if (!isLogin.value) {
-    navigateToLogin();
-    return;
-  }
-  toast.info("功能开发中");
 };
 
 // 有来技术公众号
@@ -203,10 +227,11 @@ const hasUserProfile = computed(() => {
   return !!(info && (info.userId || info.username || info.nickname));
 });
 
-const fetchUserInfoIfNeeded = async () => {
-  if (!isLogin.value || hasUserProfile.value) return;
+const loadUserInfoIfNeeded = async () => {
+  // 已登录但资料未加载时补拉（loadUserInfo），专治「token 在、userInfo 空」的断档态
+  if (!isAuthenticated.value || hasUserProfile.value) return;
   try {
-    await userStore.getInfo();
+    await userStore.loadUserInfo();
   } catch {
     // ignore
   }
@@ -219,54 +244,10 @@ const syncMiniProgramVersion = () => {
 };
 
 onShow(async () => {
-  await fetchUserInfoIfNeeded();
-  await fetchCacheSize();
+  await loadUserInfoIfNeeded();
+  await loadStorageUsage();
   syncMiniProgramVersion();
 });
-
-const fetchCacheSize = async () => {
-  try {
-    // #ifdef MP-WEIXIN
-    const res = await uni.getStorageInfo();
-    cacheSize.value = formatBytes(res.currentSize);
-    // #endif
-    // #ifdef H5
-    cacheSize.value = formatBytes(
-      Object.keys(localStorage).reduce((size, key) => size + localStorage[key].length, 0)
-    );
-    // #endif
-    if (!cacheSize.value) {
-      cacheSize.value = "0B";
-    }
-  } catch {
-    cacheSize.value = "获取失败";
-  }
-};
-
-const handleClearCache = async () => {
-  if (cacheSize.value === "获取失败") {
-    toast.info("获取缓存信息失败，请稍后重试");
-    return;
-  }
-  if (cacheSize.value === "0B") {
-    toast.info("暂无缓存需要清理");
-    return;
-  }
-  if (isClearing.value) {
-    return;
-  }
-
-  try {
-    isClearing.value = true;
-    await uni.clearStorage();
-    await fetchCacheSize();
-    toast.success("清理成功");
-  } catch {
-    toast.error("清理失败");
-  } finally {
-    isClearing.value = false;
-  }
-};
 </script>
 
 <style lang="scss" scoped>
@@ -276,12 +257,18 @@ const handleClearCache = async () => {
   overflow: visible;
 }
 
-.mine-hero__bg {
+/* 渐变以社区卡片为锚点：底边压在卡片中线、上沿穿到导航栏后面，形成卡片被背景分割的效果 */
+.community-slot {
+  position: relative;
+}
+
+.community-slot__bg {
   position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 520rpx;
+  right: -28rpx;
+  bottom: 50%;
+  left: -28rpx;
+  z-index: -1;
+  height: 800rpx;
   pointer-events: none;
 }
 
@@ -301,20 +288,6 @@ const handleClearCache = async () => {
   letter-spacing: 2rpx;
 }
 
-/* 扫码入口：渐变背景上的白色图标，64rpx 圆形热区 */
-.mine-navbar__scan {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 50%;
-
-  &:active {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-}
-
 .mine-body {
   position: relative;
   z-index: var(--z-base);
@@ -323,7 +296,7 @@ const handleClearCache = async () => {
   gap: 24rpx;
   padding: 0 28rpx 40rpx;
   margin-top: 0;
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-page);
   border-top-left-radius: 48rpx;
   border-top-right-radius: 48rpx;
 }
@@ -333,7 +306,7 @@ const handleClearCache = async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.72);
+  background: var(--color-overlay);
   border-radius: 24rpx;
 }
 </style>

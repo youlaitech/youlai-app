@@ -30,9 +30,9 @@ const FileAPI = {
         },
         formData: {},
         success: (response) => {
-          let resData: ResponseData<FileInfo>;
+          let resData: ApiResponse<FileInfo>;
           try {
-            resData = JSON.parse(response.data) as ResponseData<FileInfo>;
+            resData = JSON.parse(response.data) as ApiResponse<FileInfo>;
           } catch {
             reject(new RequestError("文件上传响应解析失败", response.statusCode));
             return;

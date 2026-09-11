@@ -52,7 +52,7 @@ const DictAPI = {
 
   /** 获取字典数据分页列表 */
   getItemPage(dictCode: string, queryParams: DictItemPageQuery) {
-    return request<PageResult<DictDataItem>>({
+    return request<PageResult<DictItem>>({
       url: `${DICT_BASE_URL}/${dictCode}/items`,
       method: "GET",
       data: queryParams,
@@ -141,7 +141,7 @@ export interface DictItemForm {
 }
 
 /** 字典数据分页对象 */
-export interface DictDataItem {
+export interface DictItem {
   id?: string;
   dictCode?: string;
   label?: string;

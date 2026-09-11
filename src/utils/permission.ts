@@ -14,7 +14,7 @@ export function hasPermission(perm: string | string[]): boolean {
   if (!userInfo) return false;
 
   const { roles = [], perms = [] } = userInfo;
-  if (roles.includes(ROLE_ROOT) || keys.includes(PERM_ALL)) return true;
+  if (roles.includes(ROLE_ROOT) || perms.includes(PERM_ALL)) return true;
   if (perms.length === 0) return false;
 
   return keys.some((key) => perms.includes(key));

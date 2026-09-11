@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <view>
     <view>
       <wd-search
@@ -11,12 +11,7 @@
 
     <!-- 通知列表 -->
     <view class="mt-16rpx">
-      <wd-card
-        v-for="item in pageData"
-        :key="item.id"
-        custom-class="item-card"
-        @click="openNoticeDetail(item)"
-      >
+      <wd-card v-for="item in notices" :key="item.id" @click="openNoticeDetail(item)">
         <!-- 主信息行 -->
         <view class="flex-start">
           <view class="notice-card__main">
@@ -41,7 +36,7 @@
             </text>
           </view>
           <view class="notice-card__detail">
-            <wd-icon name="warning" size="16" class="color-text-secondary" />
+            <wd-icon name="info-circle" size="16" class="color-text-secondary" />
             <text class="notice-card__detail-text">
               {{ getLevelText(item.level) }}
             </text>
@@ -61,8 +56,8 @@
         </view>
       </wd-card>
 
-      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="loadNoticeList" />
-      <wd-empty v-else-if="total === 0" icon="search" tip="暂无数据" />
+      <wd-loadmore v-if="loadMoreState !== 'idle'" :state="loadMoreState" @reload="retry" />
+      <wd-empty v-else-if="total === 0" icon="search-line" tip="暂无数据" />
     </view>
 
     <!-- 详情弹窗 -->
@@ -86,7 +81,7 @@
           <wd-cell title="发布人" :value="noticeDetail.publisherName" />
           <wd-cell title="发布时间" :value="String(noticeDetail.publishTime || '-')" />
         </wd-cell-group>
-        <view class="mt-4 p-4 bg-[var(--color-bg-secondary)] rounded-lg">
+        <view class="mt-4 p-4 bg-[var(--color-fill-1)] rounded-lg">
           <rich-text :nodes="noticeDetail.content" class="text-28rpx" />
         </view>
         <view class="popup-actions">
@@ -152,8 +147,7 @@
     >
       <template #trigger>
         <view class="work-fab-trigger" @click="openNoticeDialog()">
-          <wd-icon name="plus" size="16" color="var(--color-text-inverse)" />
-          <text>新增</text>
+          <wd-icon name="plus" size="20" color="var(--color-text-inverse)" />
         </view>
       </template>
     </wd-fab>
@@ -162,7 +156,7 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { toFormSchema } from "@/utils/form";
+import { toFormSchema } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
 import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
 import { usePagedList } from "@/composables/usePagedList";
@@ -188,7 +182,13 @@ const isSubmitting = ref(false);
 const queryParams = reactive<NoticePageQuery>({ pageNum: 1, pageSize: 10 });
 
 // 分页加载（触底加载 + 下拉刷新统一由 usePagedList 维护）
-const { pageData, total, loadMoreState, reload } = usePagedList(NoticeAPI.getPage, queryParams);
+const {
+  items: notices,
+  total,
+  loadMoreState,
+  reload,
+  retry,
+} = usePagedList(NoticeAPI.getPage, queryParams);
 
 const noticeDetail = ref<NoticeDetail>({});
 const detailDialog = reactive({ visible: false });

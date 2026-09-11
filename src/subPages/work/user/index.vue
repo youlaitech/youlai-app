@@ -56,27 +56,22 @@
 
     <!-- 用户列表：筛选→列表 16rpx -->
     <view class="mt-16rpx">
-      <wd-card
-        v-for="item in pageData"
-        :key="item.id"
-        custom-class="item-card"
-        @click="openUserDialog(item)"
-      >
-        <!-- 主信息行 -->
-        <view class="flex-start">
+      <wd-card v-for="item in users" :key="item.id" @click="openUserDialog(item)">
+        <!-- 主信息行：头像 + 昵称/角色部门 + 状态 -->
+        <view class="user-card__header">
           <image class="user-card__avatar" :src="item.avatar" mode="aspectFill" lazy-load />
           <view class="user-card__main">
-            <view class="flex-start mt-12rpx">
+            <view class="user-card__name-row">
               <text class="user-card__name">{{ item.nickname }}</text>
               <wd-icon
                 v-if="item.gender === 1"
-                name="gender-male"
+                name="man"
                 color="var(--color-primary)"
                 class="ml-8rpx"
               />
               <wd-icon
                 v-else-if="item.gender === 2"
-                name="gender-female"
+                name="woman"
                 color="var(--color-danger)"
                 class="ml-8rpx"
               />
@@ -88,19 +83,19 @@
           </wd-tag>
         </view>
 
-        <!-- 辅助信息行 -->
-        <view class="user-card__meta">
+        <!-- 联系方式 -->
+        <view class="user-card__contacts">
           <view v-if="item.mobile" class="user-card__contact">
             <wd-icon name="mobile" size="16" class="color-text-secondary" />
             <text class="user-card__contact-text">{{ item.mobile }}</text>
           </view>
           <view v-if="item.email" class="user-card__contact">
-            <wd-icon name="mail" size="16" class="color-text-secondary" />
+            <wd-icon name="email" size="16" class="color-text-secondary" />
             <text class="user-card__contact-text">{{ item.email }}</text>
           </view>
         </view>
 
-        <!-- 元信息行 -->
+        <!-- 创建时间 + 更多操作 -->
         <view class="user-card__footer">
           <text class="item-time">{{ item.createTime }}</text>
           <view
@@ -113,8 +108,8 @@
         </view>
       </wd-card>
 
-      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="loadUserList" />
-      <wd-empty v-else-if="total === 0" icon="search" tip="暂无数据" />
+      <wd-loadmore v-if="loadMoreState !== 'idle'" :state="loadMoreState" @reload="retry" />
+      <wd-empty v-else-if="total === 0" icon="search-line" tip="暂无数据" />
     </view>
 
     <!-- 弹窗表单 -->
@@ -185,7 +180,7 @@
         </wd-form>
         <view class="popup-actions">
           <wd-button type="info" variant="plain" @click="closeUserDialog">取消</wd-button>
-          <wd-button :loading="isSubmitting" @click="submitUserForm">保存</wd-button>
+          <wd-button :loading="isSubmitting" @click="handleUserSubmit">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -199,12 +194,11 @@
         !actionSheetVisible
       "
       :expandable="false"
-      :gap="{ bottom: 100 }"
+      :gap="{ bottom: 32 }"
     >
       <template #trigger>
         <view class="work-fab-trigger" @click="openUserDialog()">
-          <wd-icon name="plus" size="16" color="var(--color-text-inverse)" />
-          <text>新增</text>
+          <wd-icon name="plus" size="20" color="var(--color-text-inverse)" />
         </view>
       </template>
     </wd-fab>
@@ -221,7 +215,7 @@
     <wd-popup v-model="resetPwdDialog.visible" position="bottom" custom-class="popup-bottom">
       <view class="p-4">
         <view class="popup-title">重置密码</view>
-        <wd-form ref="resetPwdFormRef" :model="resetPwdForm">
+        <wd-form ref="resetPwdFormRef" :model="resetPwdForm" :schema="resetPwdRules">
           <wd-form-item prop="password" title="新密码" required>
             <wd-input v-model="resetPwdForm.password" placeholder="请输入新密码（至少6位）" />
           </wd-form-item>
@@ -243,7 +237,7 @@
 import { onLoad } from "@dcloudio/uni-app";
 import dayjs from "dayjs";
 import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
-import { toFormSchema } from "@/utils/form";
+import { toFormSchema } from "@/utils/form-schema";
 import { findOptionChain } from "@/utils/tree";
 import { useQueue, useToast } from "@wot-ui/ui";
 import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
@@ -356,7 +350,13 @@ const handleSortChange = ({ value }: { value: string | number }) => {
 const handleSearch = () => loadUserList();
 
 // 分页加载（触底加载 + 下拉刷新统一由 usePagedList 维护）
-const { pageData, total, loadMoreState, reload } = usePagedList(UserAPI.getPage, queryParams);
+const {
+  items: users,
+  total,
+  loadMoreState,
+  reload,
+  retry,
+} = usePagedList(UserAPI.getPage, queryParams);
 
 // 加载列表（回到第一页）
 function loadUserList() {
@@ -416,7 +416,7 @@ async function openUserDialog(user?: UserItem) {
 }
 
 // 提交表单
-function submitUserForm() {
+function handleUserSubmit() {
   formRef.value.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     isSubmitting.value = true;
@@ -519,6 +519,11 @@ export default { options: { styleIsolation: "shared" } };
 </script>
 
 <style lang="scss" scoped>
+.user-card__header {
+  display: flex;
+  align-items: center;
+}
+
 .user-card__avatar {
   flex-shrink: 0;
   width: 80rpx;
@@ -528,29 +533,46 @@ export default { options: { styleIsolation: "shared" } };
 
 .user-card__main {
   flex: 1;
+  min-width: 0;
   margin-left: 16rpx;
 }
 
+.user-card__name-row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
 .user-card__name {
+  overflow: hidden;
   font-size: 32rpx;
   font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .user-card__role {
+  display: block;
+  overflow: hidden;
   font-size: 24rpx;
   color: var(--color-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.user-card__meta {
+// 手机号与邮箱：一行放不下自动换行，单个超长时省略号截断
+.user-card__contacts {
   display: flex;
-  gap: 24rpx;
-  margin-top: 12rpx;
+  flex-wrap: wrap;
+  gap: 8rpx 24rpx;
+  margin-top: 16rpx;
 }
 
 .user-card__contact {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   min-width: 0;
+  max-width: 100%;
 }
 
 .user-card__contact-text {
@@ -566,6 +588,8 @@ export default { options: { styleIsolation: "shared" } };
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-top: 8rpx;
   margin-top: 16rpx;
+  border-top: 1rpx solid var(--color-border-light);
 }
 </style>

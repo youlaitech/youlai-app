@@ -9,11 +9,18 @@ export function useTheme() {
   const store = useThemeStore();
 
   /**
-   * 切换暗黑模式
-   * @param mode 指定主题模式，不传则自动切换
+   * 设置主题模式
+   * @param mode 目标主题模式
    */
-  function toggleTheme(mode?: ThemeMode) {
-    store.toggleTheme(mode);
+  function setThemeMode(mode: ThemeMode) {
+    store.setThemeMode(mode);
+  }
+
+  /**
+   * 在明暗两种模式间切换
+   */
+  function toggleThemeMode() {
+    store.toggleThemeMode();
   }
 
   /**
@@ -21,7 +28,7 @@ export function useTheme() {
    * @param option 主题色选项
    */
   function setThemeColor(option: ThemeColorOption) {
-    store.setCurrentThemeColor(option);
+    store.setThemeColor(option);
   }
 
   /**
@@ -35,15 +42,16 @@ export function useTheme() {
   // 组件中一般无需再调用 initTheme()
 
   return {
-    theme: computed(() => store.theme),
+    themeMode: computed(() => store.themeMode),
     isDark: computed(() => store.isDark),
-    currentThemeColor: computed(() => store.currentThemeColor),
+    selectedThemeColor: computed(() => store.selectedThemeColor),
     themeVars: store.themeVars,
 
     themeColorOptions,
 
     initTheme,
-    toggleTheme,
+    setThemeMode,
+    toggleThemeMode,
     setThemeColor,
   };
 }

@@ -10,6 +10,7 @@ export default {
     // attributify autocomplete
     presetWeappAttributify(),
   ],
+  // 只保留实际复用的组合；语义色直接用 color-* 类，其余交给 presetWeapp 自带规则
   shortcuts: [
     {
       "flex-center": "flex justify-center items-center",
@@ -17,22 +18,7 @@ export default {
       "flex-start": "flex justify-start items-center",
       "flex-end": "flex justify-end items-center",
       "flex-between": "flex justify-between items-center",
-      "flex-around": "flex justify-around items-center",
-      "flex-evenly": "flex justify-evenly items-center",
-      "flex-stretch": "flex justify-stretch items-center",
-      "flex-baseline": "flex justify-baseline items-center",
-      "flex-column": "flex flex-col",
-      "flex-row": "flex flex-row",
 
-      "flex-col-center": "flex flex-col items-center",
-
-      "text-secondary": "color-text-secondary",
-      "text-placeholder": "color-text-placeholder",
-      "text-inverse": "color-text-inverse",
-      "text-xs": "text-24rpx",
-      "text-sm": "text-28rpx",
-      "text-base": "text-32rpx",
-      "text-lg": "text-36rpx",
       "font-bold": "font-semibold",
     },
   ],

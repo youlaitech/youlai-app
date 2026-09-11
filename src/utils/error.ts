@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 从 catch 捕获的 unknown 错误中提取提示文案
  * @param error catch 捕获的错误对象
  * @param fallback 无有效信息时的兜底文案

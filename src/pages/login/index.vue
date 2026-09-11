@@ -58,8 +58,15 @@
                 class="login__field-input"
                 placeholder="请输入密码"
                 :maxlength="50"
-                password
+                :password="!isPwdVisible"
                 @confirm="handleLogin"
+              />
+              <wd-icon
+                :name="isPwdVisible ? 'eye' : 'eye-invisible'"
+                size="20"
+                color="var(--color-text-placeholder)"
+                class="login__field-suffix"
+                @click="isPwdVisible = !isPwdVisible"
               />
             </view>
           </wd-form-item>
@@ -80,7 +87,7 @@
                 class="login__captcha-img"
                 :src="captchaBase64"
                 mode="aspectFit"
-                @click="fetchCaptcha"
+                @click="loadCaptcha"
               />
             </view>
           </wd-form-item>
@@ -114,7 +121,7 @@
 
           <!-- 登录按钮 -->
           <view class="login__form-item">
-            <wd-button block :loading="isLoading" @click="handleLogin">登 录</wd-button>
+            <wd-button block :loading="isLoggingIn" @click="handleLogin">登 录</wd-button>
           </view>
 
           <!-- 切换登录方式 -->
@@ -170,7 +177,7 @@
 
         <!-- 协议勾选 -->
         <view class="login__policy">
-          <wd-checkbox v-model="isAgreePolicy" type="square" size="32rpx">
+          <wd-checkbox v-model="hasAcceptedPolicy" type="square" size="32rpx">
             <text class="login__policy-text">
               我已阅读并同意
               <text class="login__policy-link" @click.stop="navigateToAgreement('user')">
@@ -191,7 +198,7 @@
     <bind-mobile-popup
       ref="bindMobilePopupRef"
       v-model="showBindMobilePopup"
-      @success="afterLoginSuccess"
+      @success="completeLogin"
     />
 
     <!-- 协议确认弹窗（useDialog("policy-box") 定向挂载，不能走全局实例） -->
@@ -205,8 +212,8 @@ import { useToast, useDialog } from "@wot-ui/ui";
 import type { FormSchema } from "@wot-ui/ui/components/wd-form/types";
 
 import { useUserStore } from "@/store/modules/user";
-import { useSmsCode, isValidMobile } from "@/composables/useSmsCode";
-import { getErrorMessage } from "@/utils";
+import { useSmsLoginCode, isValidMobile } from "@/composables/useSmsLoginCode";
+import { getErrorMessage } from "@/utils/error";
 import AuthAPI from "@/api/auth";
 import BindMobilePopup from "./components/bind-mobile-popup.vue";
 
@@ -223,10 +230,11 @@ const loginFormRef = ref();
 const bindMobilePopupRef = ref<InstanceType<typeof BindMobilePopup>>();
 
 // 表单状态
-const isLoading = ref(false);
-const isAgreePolicy = ref(false);
+const isLoggingIn = ref(false);
+const isPwdVisible = ref(false);
+const hasAcceptedPolicy = ref(false);
 const loginMode = ref<"PASSWORD" | "SMS" | "WECHAT">("PASSWORD");
-const { countdown: smsCountdown, send: sendCode, reset: resetSmsCountdown } = useSmsCode();
+const { countdown: smsCountdown, sendCode } = useSmsLoginCode();
 
 const formData = ref({
   username: "admin",
@@ -287,7 +295,7 @@ const formSchema = computed<FormSchema>(() => ({
 }));
 
 // 图形验证码
-const fetchCaptcha = async () => {
+const loadCaptcha = async () => {
   if (isCaptchaLoading.value) return;
   try {
     isCaptchaLoading.value = true;
@@ -302,9 +310,8 @@ const fetchCaptcha = async () => {
   }
 };
 
-// 切换登录方式
+// 切换登录方式（不重置验证码冷却：同一手机号冷却期内切回仍应等待）
 const toggleLoginMode = () => {
-  resetSmsCountdown();
   if (loginMode.value === "PASSWORD") {
     loginMode.value = "SMS";
     formData.value.username = "18888888888";
@@ -316,7 +323,7 @@ const toggleLoginMode = () => {
     formData.value.password = "123456";
     formData.value.code = "";
     formData.value.captchaCode = "";
-    fetchCaptcha();
+    loadCaptcha();
   }
 };
 
@@ -330,7 +337,7 @@ const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode = "") => {
       msg: "请阅读并同意《用户协议》与《隐私政策》",
     })
     .then(async () => {
-      isAgreePolicy.value = true;
+      hasAcceptedPolicy.value = true;
       const act = pendingLoginAction.value;
       const code = pendingWechatPhoneCode.value;
       pendingLoginAction.value = null;
@@ -346,11 +353,11 @@ const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode = "") => {
 
 // 表单登录
 async function doFormLogin() {
-  if (isLoading.value) return;
-  isLoading.value = true;
+  if (isLoggingIn.value) return;
+  isLoggingIn.value = true;
   try {
     if (loginMode.value === "PASSWORD") {
-      await userStore.login({
+      await userStore.loginByPassword({
         username: formData.value.username,
         password: formData.value.password,
         captchaId: captchaId.value,
@@ -363,12 +370,12 @@ async function doFormLogin() {
       });
     }
     toast.success("登录成功");
-    await afterLoginSuccess();
+    await completeLogin();
   } catch (error) {
     toast.error(getErrorMessage(error, "登录失败"));
-    if (loginMode.value === "PASSWORD") fetchCaptcha();
+    if (loginMode.value === "PASSWORD") loadCaptcha();
   } finally {
-    isLoading.value = false;
+    isLoggingIn.value = false;
   }
 }
 
@@ -379,7 +386,7 @@ const handleLogin = async () => {
     return;
   }
   // 再校验隐私协议
-  if (!isAgreePolicy.value) {
+  if (!hasAcceptedPolicy.value) {
     openPolicyDialog("FORM");
     return;
   }
@@ -398,7 +405,7 @@ interface WxPhoneLoginEvent {
 
 const handleWechatPhoneLogin = async (e: WxPhoneLoginEvent) => {
   const phoneCode = e.detail.code;
-  if (!isAgreePolicy.value) {
+  if (!hasAcceptedPolicy.value) {
     openPolicyDialog("WECHAT_PHONE", phoneCode);
     return;
   }
@@ -414,22 +421,22 @@ async function doWechatPhoneLogin(phoneCode: string) {
     await handleWechatSilentLogin();
     return;
   }
-  isLoading.value = true;
+  isLoggingIn.value = true;
   try {
     const { code: loginCode } = await uni.login();
     await userStore.loginByWxMaPhone({ loginCode, phoneCode });
     toast.success("登录成功");
-    await afterLoginSuccess();
+    await completeLogin();
   } catch {
     toast.info("正在尝试其他登录方式...");
     await handleWechatSilentLogin();
   } finally {
-    isLoading.value = false;
+    isLoggingIn.value = false;
   }
 }
 
 const handleWechatSilentLogin = async () => {
-  isLoading.value = true;
+  isLoggingIn.value = true;
   try {
     const { code } = await uni.login();
     const result = await userStore.loginByWxMa(code);
@@ -437,18 +444,18 @@ const handleWechatSilentLogin = async () => {
       bindMobilePopupRef.value?.open(result.openid);
       showBindMobilePopup.value = true;
     } else if (result.accessToken) {
-      await afterLoginSuccess();
+      await completeLogin();
     }
   } catch (error) {
     toast.error(getErrorMessage(error, "微信登录失败"));
   } finally {
-    isLoading.value = false;
+    isLoggingIn.value = false;
   }
 };
 
 /** 绑定手机号成功后的会话初始化与跳转 */
-async function afterLoginSuccess() {
-  await userStore.getInfo();
+async function completeLogin() {
+  await userStore.loadUserInfo();
   setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
 }
 
@@ -464,7 +471,7 @@ const navigateToAgreement = (type: string) => {
 onLoad((options) => {
   const fromQuery = options?.redirect ? decodeURIComponent(options.redirect) : "";
   if (fromQuery && fromQuery !== "/pages/login/index") redirect.value = fromQuery;
-  fetchCaptcha();
+  loadCaptcha();
 });
 </script>
 
@@ -473,8 +480,8 @@ onLoad((options) => {
   min-height: 100vh;
   background: linear-gradient(
     135deg,
-    var(--color-bg-tertiary) 0%,
-    var(--color-bg) 50%,
+    var(--color-bg-page) 0%,
+    var(--color-bg-card) 50%,
     var(--color-primary-light) 100%
   );
 }
@@ -533,7 +540,7 @@ onLoad((options) => {
   width: 120rpx;
   height: 120rpx;
   margin-bottom: 20rpx;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
   border: 1rpx solid var(--color-border);
   border-radius: 28rpx;
   box-shadow: var(--shadow-sm);
@@ -554,13 +561,13 @@ onLoad((options) => {
 .login__card {
   width: 100%;
   padding: 44rpx;
-  background-color: var(--color-bg);
+  background-color: var(--color-bg-card);
   border: 2rpx solid var(--color-border-light);
   border-radius: 48rpx;
-  box-shadow: 0 20rpx 50rpx -10rpx rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-float);
 
   @supports (backdrop-filter: blur(24px)) or (-webkit-backdrop-filter: blur(24px)) {
-    background-color: var(--color-bg-alpha-95);
+    background-color: var(--color-bg-card-alpha-95);
     -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
   }
@@ -586,18 +593,22 @@ onLoad((options) => {
 }
 
 .login__form-item {
-  margin-top: 28rpx;
+  margin-top: 40rpx;
 
   &:first-child {
     margin-top: 0;
   }
 }
 
-// 覆盖 wd-form-item 默认样式，仅用于校验和错误提示
-:deep(.wd-form-item) {
-  padding: 0 !important;
-  margin-top: 28rpx;
+// 表单行：去掉 cell 默认内边距，与按钮/分割线同宽，行距统一
+.login__card :deep(.wd-form-item.wd-cell) {
+  padding: 0;
+  margin-top: 24rpx;
   background: transparent;
+
+  .wd-cell__right {
+    margin-top: 0;
+  }
 
   &:first-child {
     margin-top: 0;
@@ -613,40 +624,51 @@ onLoad((options) => {
   flex-direction: column;
 }
 
-:deep(.wd-form-item .wd-cell__right) {
+:deep(.wd-form-item .wd-cell__right),
+:deep(.wd-form-item .wd-cell__body),
+:deep(.wd-form-item .wd-cell__value) {
   width: 100%;
 }
 
-// 错误提示：独占一行，显示在输入框下方
-:deep(.wd-form-item__error-message) {
-  display: block !important;
-  width: 100% !important;
-  padding: 8rpx 0 0 !important;
-  font-size: 24rpx !important;
-  line-height: 1.5 !important;
-  color: var(--color-danger) !important;
+// 错误提示：独占一行，显示在输入框下方（颜色沿用 wot 默认的 danger）
+.login__card :deep(.wd-form-item__error-message) {
+  display: block;
+  width: 100%;
+  padding: 8rpx 0 0;
+  font-size: 24rpx;
+  line-height: 1.5;
 }
 
 // 输入框行
 .login__field {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
+  width: 100%;
   height: 88rpx;
   padding: 0 32rpx;
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-fill-1);
   border-radius: 24rpx;
 }
 
 .login__field-input {
   flex: 1;
+  min-width: 0;
   height: 100%;
   margin-left: 24rpx;
   font-size: 28rpx;
   color: var(--color-text);
 }
 
+// 密码显隐图标
+.login__field-suffix {
+  flex-shrink: 0;
+  padding-left: 20rpx;
+}
+
 // 图形验证码图片
 .login__captcha-img {
+  flex-shrink: 0;
   width: 200rpx;
   height: 72rpx;
   border-radius: 12rpx;
@@ -692,14 +714,13 @@ onLoad((options) => {
 
   &--disabled {
     color: var(--color-text-placeholder);
-    background-color: var(--color-bg-tertiary);
+    background-color: var(--color-fill-1);
   }
 }
 
 .login__mode-switch {
   display: flex;
   justify-content: center;
-  padding-top: 24rpx;
 }
 
 .login__mode-switch-text {
@@ -712,7 +733,6 @@ onLoad((options) => {
   font-size: 28rpx;
   font-weight: 500;
   color: var(--color-primary);
-  border-bottom: 2rpx solid var(--color-primary);
 }
 
 .login__divider {

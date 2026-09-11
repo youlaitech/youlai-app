@@ -3,7 +3,7 @@
     <view class="profile-card__header">
       <view class="profile-card__left" @click="emit('profile')">
         <image class="profile-card__avatar" :src="avatar" mode="aspectFill" lazy-load />
-        <view v-if="isLogin" class="profile-card__online-dot" />
+        <view v-if="isAuthenticated" class="profile-card__online-dot" />
       </view>
 
       <view class="profile-card__main" @click="emit('profile')">
@@ -11,12 +11,12 @@
           <text class="profile-card__name">{{ name }}</text>
         </view>
 
-        <view v-if="isLogin" class="profile-card__tags">
-          <view class="profile-tag">
+        <view v-if="isAuthenticated" class="profile-card__tags">
+          <view class="profile-card__tag">
             <wd-icon name="user" size="12" color="var(--color-text-inverse)" />
             <text>{{ username }}</text>
           </view>
-          <view class="profile-tag">
+          <view class="profile-card__tag">
             <wd-icon
               :name="deptName ? 'home' : 'safe'"
               size="12"
@@ -29,14 +29,13 @@
         <text v-else class="profile-card__hint">登录使用更多功能</text>
       </view>
 
-      <view v-if="isLogin" class="profile-card__actions">
-        <view
-          class="profile-card__action-btn"
-          aria-label="通知"
-          @click.stop="emit('notifications')"
-        >
-          <wd-icon name="notification" size="16" color="var(--color-text-inverse)" />
-        </view>
+      <view
+        v-if="isAuthenticated"
+        class="profile-card__scan"
+        aria-label="扫一扫"
+        @click.stop="emit('scan')"
+      >
+        <wd-icon name="scan" size="18" color="var(--color-text-inverse)" />
       </view>
 
       <view v-else class="profile-card__action" @click.stop="emit('login')">
@@ -48,7 +47,7 @@
 
 <script lang="ts" setup>
 defineProps<{
-  isLogin: boolean;
+  isAuthenticated: boolean;
   avatar: string;
   name: string;
   username: string;
@@ -58,7 +57,7 @@ defineProps<{
 const emit = defineEmits<{
   profile: [];
   login: [];
-  notifications: [];
+  scan: [];
 }>();
 </script>
 
@@ -68,7 +67,7 @@ const emit = defineEmits<{
   display: flex;
   padding: 28rpx 28rpx;
   overflow: hidden;
-  background: var(--color-bg-alpha-95);
+  background: var(--color-bg-card-alpha-95);
   border: 1rpx solid var(--color-border-glass);
   border-radius: 28rpx;
   box-shadow: var(--shadow-md);
@@ -95,6 +94,7 @@ const emit = defineEmits<{
 }
 
 .profile-card__avatar {
+  box-sizing: border-box;
   flex-shrink: 0;
   width: 120rpx;
   height: 120rpx;
@@ -105,40 +105,13 @@ const emit = defineEmits<{
 
 .profile-card__online-dot {
   position: absolute;
-  right: -4rpx;
-  bottom: -4rpx;
+  right: 4rpx;
+  bottom: 4rpx;
   width: 16rpx;
   height: 16rpx;
   background: var(--color-success);
-  border: 2rpx solid var(--color-bg);
+  border: 2rpx solid var(--color-bg-card);
   border-radius: 50%;
-}
-
-.profile-card__actions {
-  display: flex;
-  flex-shrink: 0;
-  gap: 10rpx;
-  align-items: center;
-  margin-right: -10rpx;
-  margin-left: auto;
-}
-
-.profile-card__action-btn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 52rpx;
-  height: 52rpx;
-  background: var(--color-bg-alpha-95);
-  border: 1rpx solid var(--color-border-glass);
-  border-radius: 999rpx;
-
-  @supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
-    background: var(--color-glass-light);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-  }
 }
 
 .profile-card__main {
@@ -174,9 +147,24 @@ const emit = defineEmits<{
   gap: 12rpx;
 }
 
+.profile-card__scan {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  align-self: flex-start;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  margin-left: auto;
+  background: var(--color-glass-light);
+  border: 1rpx solid var(--color-border-glass);
+  border-radius: 999rpx;
+}
+
 .profile-card__action {
   flex-shrink: 0;
   align-self: center;
+  margin-left: auto;
 }
 
 .profile-card__button {
@@ -190,7 +178,7 @@ const emit = defineEmits<{
   border-radius: 999rpx;
 }
 
-.profile-tag {
+.profile-card__tag {
   display: inline-flex;
   gap: 8rpx;
   align-items: center;

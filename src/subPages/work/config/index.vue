@@ -10,12 +10,7 @@
     </view>
 
     <view class="mt-16rpx">
-      <wd-card
-        v-for="item in pageData"
-        :key="item.id"
-        custom-class="item-card"
-        @click="openConfigDialog(item.id)"
-      >
+      <wd-card v-for="item in configs" :key="item.id" @click="openConfigDialog(item.id)">
         <view class="flex-between">
           <text class="font-bold text-32rpx">{{ item.configName }}</text>
           <view
@@ -36,8 +31,8 @@
         </view>
       </wd-card>
 
-      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="loadConfigList" />
-      <wd-empty v-else-if="total === 0" icon="search" tip="暂无数据" />
+      <wd-loadmore v-if="loadMoreState !== 'idle'" :state="loadMoreState" @reload="retry" />
+      <wd-empty v-else-if="total === 0" icon="search-line" tip="暂无数据" />
     </view>
 
     <!-- 弹窗表单 -->
@@ -85,8 +80,7 @@
     >
       <template #trigger>
         <view class="work-fab-trigger" @click="openConfigDialog()">
-          <wd-icon name="plus" size="16" color="var(--color-text-inverse)" />
-          <text>新增</text>
+          <wd-icon name="plus" size="20" color="var(--color-text-inverse)" />
         </view>
       </template>
     </wd-fab>
@@ -103,7 +97,7 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { toFormSchema } from "@/utils/form";
+import { toFormSchema } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
 import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
 import { usePagedList } from "@/composables/usePagedList";
@@ -125,7 +119,13 @@ const queryParams = reactive<ConfigPageQuery>({ pageNum: 1, pageSize: 10, keywor
 const dialog = reactive({ visible: false });
 
 // 分页加载（触底加载 + 下拉刷新统一由 usePagedList 维护）
-const { pageData, total, loadMoreState, reload } = usePagedList(ConfigAPI.getPage, queryParams);
+const {
+  items: configs,
+  total,
+  loadMoreState,
+  reload,
+  retry,
+} = usePagedList(ConfigAPI.getPage, queryParams);
 
 const initialFormData: ConfigForm = {
   id: undefined,

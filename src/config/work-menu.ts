@@ -14,7 +14,7 @@ export interface WorkMenuGroup {
   children: WorkMenuItem[];
 }
 
-export const menuConfig: WorkMenuGroup[] = [
+export const workMenuGroups: WorkMenuGroup[] = [
   {
     title: "系统管理",
     children: [
@@ -49,7 +49,7 @@ export const menuConfig: WorkMenuGroup[] = [
         perm: "sys:dict:list",
       },
       {
-        icon: "/static/icons/tree.svg",
+        icon: "/static/icons/menu.svg",
         title: "菜单管理",
         url: "/subPages/work/menu/index",
         perm: "sys:menu:list",
@@ -90,7 +90,7 @@ export const menuConfig: WorkMenuGroup[] = [
         perm: "",
       },
       {
-        icon: "/static/icons/git.svg",
+        icon: "/static/icons/repo.svg",
         title: "仓库",
         url: "https://atomgit.com/youlai/youlai-app",
         perm: "",

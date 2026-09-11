@@ -44,7 +44,7 @@ export default [
         ...{
           uni: "readonly", // uni-app 全局对象
           UniApp: "readonly", // uni-app 全局对象
-          ResponseData: "readonly", // 统一响应数据类型
+          ApiResponse: "readonly", // 统一响应数据类型
           PageResult: "readonly", // 分页结果数据类型
           PageQuery: "readonly", // 分页查询数据类型
           OptionType: "readonly", // 选项类型

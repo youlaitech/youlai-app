@@ -13,10 +13,10 @@
               use-slot
               @click="handleNavClick(child)"
             >
-              <view class="work-grid__icon p-2">
+              <view class="p-2">
                 <image class="w-72rpx h-72rpx rounded-8rpx" :src="child.icon" />
               </view>
-              <view class="work-grid__label">{{ child.title }}</view>
+              <view>{{ child.title }}</view>
             </wd-grid-item>
           </wd-grid>
         </wd-card>
@@ -28,7 +28,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useNavigation } from "@/composables/useNavigation";
-import { menuConfig } from "@/config/menu";
+import { workMenuGroups } from "@/config/work-menu";
 import { hasPermission as checkPermission } from "@/utils/permission";
 
 definePage({
@@ -50,7 +50,7 @@ const hasPermission = (perm: string) => {
 
 // 根据权限过滤后的菜单列表
 const visibleGridList = computed(() => {
-  return menuConfig
+  return workMenuGroups
     .map((group) => ({
       ...group,
       children: group.children.filter((item) => hasPermission(item.perm)),

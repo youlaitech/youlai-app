@@ -6,7 +6,7 @@
     custom-class="popup-bottom"
     @close="handleClose"
   >
-    <view class="bind-mobile">
+    <view class="p-48rpx">
       <text class="bind-mobile__title">绑定手机号</text>
 
       <view class="bind-mobile__form">
@@ -61,9 +61,9 @@ export default {
 <script setup lang="ts">
 import { ref } from "vue";
 import { useToast } from "@wot-ui/ui";
-import { useSmsCode, isValidMobile } from "@/composables/useSmsCode";
+import { useSmsLoginCode, isValidMobile } from "@/composables/useSmsLoginCode";
 import { useUserStore } from "@/store/modules/user";
-import { getErrorMessage } from "@/utils";
+import { getErrorMessage } from "@/utils/error";
 
 /** 微信静默登录后需绑定手机号时，由父组件打开本弹窗 */
 const visible = defineModel<boolean>({ required: true });
@@ -75,7 +75,7 @@ const emit = defineEmits<{
 
 const toast = useToast();
 const userStore = useUserStore();
-const { countdown, send, reset } = useSmsCode();
+const { countdown, sendCode, resetCountdown } = useSmsLoginCode();
 
 const mobile = ref("18888888888");
 const code = ref("");
@@ -92,12 +92,12 @@ function open(boundOpenid: string) {
 }
 
 function handleClose() {
-  reset();
+  resetCountdown();
   code.value = "";
 }
 
 async function handleSendCode() {
-  await send(mobile.value);
+  await sendCode(mobile.value);
 }
 
 async function handleConfirm() {
@@ -113,7 +113,7 @@ async function handleConfirm() {
   isSubmitting.value = true;
   try {
     await userStore.bindMobileForWxMa({ openid, mobile: mobile.value, smsCode: code.value });
-    await userStore.getInfo();
+    await userStore.loadUserInfo();
     visible.value = false;
     toast.success("绑定成功");
     emit("success");
@@ -128,10 +128,6 @@ defineExpose({ open });
 </script>
 
 <style lang="scss" scoped>
-.bind-mobile {
-  padding: 48rpx;
-}
-
 .bind-mobile__title {
   display: block;
   margin-bottom: 48rpx;
@@ -147,7 +143,7 @@ defineExpose({ open });
   height: 88rpx;
   padding: 0 32rpx;
   margin-top: 24rpx;
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-fill-1);
   border-radius: 24rpx;
 }
 
@@ -176,7 +172,7 @@ defineExpose({ open });
 
   &--disabled {
     color: var(--color-text-placeholder);
-    background-color: var(--color-bg-tertiary);
+    background-color: var(--color-fill-1);
   }
 }
 

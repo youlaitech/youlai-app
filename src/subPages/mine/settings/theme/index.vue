@@ -17,12 +17,12 @@
               v-for="(color, index) in themeColorOptions"
               :key="index"
               class="color-option"
-              :class="{ 'color-option--active': currentThemeColor === color.primary }"
+              :class="{ 'color-option--active': currentPrimaryColor === color.primary }"
               :style="{ backgroundColor: color.primary }"
               @click="handleSelectColor(color)"
             >
               <wd-icon
-                v-if="currentThemeColor === color.primary"
+                v-if="currentPrimaryColor === color.primary"
                 name="check"
                 size="14"
                 color="var(--color-text-inverse)"
@@ -36,8 +36,11 @@
       <wd-cell title="当前主题色">
         <template #default>
           <view class="flex items-center gap-12rpx">
-            <view class="color-dot" :style="{ backgroundColor: currentThemeColor }" />
-            <text class="text-24rpx color-text-secondary">{{ currentThemeColor }}</text>
+            <view
+              class="w-32rpx h-32rpx rounded-full"
+              :style="{ backgroundColor: currentPrimaryColor }"
+            />
+            <text class="text-24rpx color-text-secondary">{{ currentPrimaryColor }}</text>
           </view>
         </template>
       </wd-cell>
@@ -54,9 +57,9 @@
     <wd-cell-group title="效果预览" border custom-class="mt-24rpx">
       <wd-cell>
         <template #default>
-          <view class="flex items-center justify-center gap-24rpx py-12rpx">
+          <view class="flex w-full items-center justify-center gap-24rpx py-12rpx">
             <wd-button size="small">主要按钮</wd-button>
-            <text class="text-28rpx font-500" :style="{ color: currentThemeColor }">
+            <text class="text-28rpx font-500" :style="{ color: currentPrimaryColor }">
               主题色文本
             </text>
             <wd-tag type="primary" size="small" variant="filled">标签</wd-tag>
@@ -87,10 +90,13 @@
         <view class="p-4">
           <text class="text-28rpx color-text-secondary">请输入十六进制颜色值</text>
           <view class="flex items-center gap-16rpx mt-16rpx">
-            <view class="color-dot-lg" :style="{ backgroundColor: customColor || '#FF4757' }" />
+            <view
+              class="flex-shrink-0 w-48rpx h-48rpx rounded-8rpx"
+              :style="{ backgroundColor: customColor || currentPrimaryColor }"
+            />
             <wd-input
               v-model="customColor"
-              placeholder="例如: #FF4757"
+              placeholder="例如: #F53F3F"
               :maxlength="7"
               custom-class="theme-input"
             />
@@ -117,13 +123,8 @@ definePage({
 });
 
 // 使用主题组合函数
-const {
-  isDark,
-  themeColorOptions,
-  toggleTheme,
-  setThemeColor,
-  currentThemeColor: currentTheme,
-} = useTheme();
+const { isDark, themeColorOptions, toggleThemeMode, setThemeColor, selectedThemeColor } =
+  useTheme();
 
 const toast = useToast();
 const { confirm } = useDialog();
@@ -133,7 +134,7 @@ const customColor = ref("");
 const showCustomColorInput = ref(false);
 
 // 当前生效的主题色主色
-const currentThemeColor = computed(() => currentTheme.value.primary);
+const currentPrimaryColor = computed(() => selectedThemeColor.value.primary);
 
 // 选择预设颜色
 const handleSelectColor = (color: (typeof themeColorOptions)[0]) => {
@@ -145,7 +146,7 @@ const handleSelectColor = (color: (typeof themeColorOptions)[0]) => {
 // 显示自定义颜色输入
 const showCustomInput = () => {
   showCustomColorInput.value = true;
-  customColor.value = currentThemeColor.value;
+  customColor.value = currentPrimaryColor.value;
 };
 
 // 应用自定义颜色
@@ -182,13 +183,13 @@ const handleResetTheme = async () => {
 
 // 切换暗黑模式
 const handleToggleDarkMode = () => {
-  toggleTheme();
+  toggleThemeMode();
   toast.success(`已切换到${isDark.value ? "暗黑" : "浅色"}模式`);
 };
 
 // 页面显示时同步输入框回显（首次进入同样触发）
 onShow(() => {
-  customColor.value = currentThemeColor.value;
+  customColor.value = currentPrimaryColor.value;
 });
 </script>
 
@@ -206,19 +207,6 @@ onShow(() => {
     box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
     transform: scale(1.1);
   }
-}
-
-.color-dot {
-  width: 32rpx;
-  height: 32rpx;
-  border-radius: 50%;
-}
-
-.color-dot-lg {
-  flex-shrink: 0;
-  width: 48rpx;
-  height: 48rpx;
-  border-radius: 8rpx;
 }
 
 .popup-content {
@@ -246,8 +234,9 @@ onShow(() => {
   border-top: 1rpx solid var(--color-border);
 }
 
+// 自定义颜色输入框：跟随项目填充色与文字色（wot 默认 filled-oppo / text-main）
 :deep(.theme-input) {
-  color: var(--color-text) !important;
-  background-color: var(--color-bg-secondary) !important;
+  --wot-input-bg: var(--color-fill-1);
+  --wot-input-inner-color: var(--color-text);
 }
 </style>

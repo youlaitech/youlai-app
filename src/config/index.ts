@@ -2,4 +2,4 @@
  * 配置统一导出
  */
 
-export * from "./menu";
+export * from "./work-menu";

@@ -3,7 +3,7 @@ import request from "@/utils/request";
 const AUTH_BASE_URL = "/api/v1/auth";
 const WXMA_AUTH_BASE_URL = "/api/v1/wxma/auth";
 
-export interface LoginData {
+export interface PasswordLoginParams {
   username: string;
   password: string;
   captchaId?: string;
@@ -25,12 +25,12 @@ export interface Captcha {
   captchaBase64: string;
 }
 
-export interface SmsLoginData {
+export interface SmsLoginParams {
   mobile: string;
   code: string;
 }
 
-export interface WxMaLoginResp {
+export interface WxMaLoginResult {
   accessToken?: string;
   refreshToken?: string;
   tokenType?: string;
@@ -40,12 +40,12 @@ export interface WxMaLoginResp {
   openid?: string;
 }
 
-export interface WxMaPhoneLoginData {
+export interface WxMaPhoneLoginParams {
   loginCode: string;
   phoneCode: string;
 }
 
-export interface WxMaBindMobileData {
+export interface WxMaBindMobileParams {
   openid: string;
   mobile: string;
   smsCode: string;
@@ -71,7 +71,7 @@ const AuthAPI = {
   },
 
   /** 账号密码登录 */
-  login(data: LoginData): Promise<LoginResult> {
+  loginByPassword(data: PasswordLoginParams): Promise<LoginResult> {
     return request<LoginResult>({
       url: `${AUTH_BASE_URL}/login`,
       method: "POST",
@@ -93,7 +93,7 @@ const AuthAPI = {
   },
 
   /** 短信验证码登录 */
-  loginBySms(data: SmsLoginData): Promise<LoginResult> {
+  loginBySms(data: SmsLoginParams): Promise<LoginResult> {
     const mobileSafe = encodeURIComponent(data.mobile);
     const codeSafe = encodeURIComponent(data.code);
     return request<LoginResult>({
@@ -109,8 +109,8 @@ const AuthAPI = {
    * - 已绑定手机号的用户：直接返回 token，登录成功
    * - 未绑定手机号的用户：返回 openid，需调用绑定手机号接口
    */
-  wxMaSilentLogin(code: string): Promise<WxMaLoginResp> {
-    return request<WxMaLoginResp>({
+  wxMaSilentLogin(code: string): Promise<WxMaLoginResult> {
+    return request<WxMaLoginResult>({
       url: `${WXMA_AUTH_BASE_URL}/silent-login?code=${encodeURIComponent(code)}`,
       method: "POST",
     });
@@ -122,7 +122,7 @@ const AuthAPI = {
    * 适用场景：企业认证小程序（已开通手机号快捷登录权限）
    * 一步完成登录，无需绑定流程，自动创建新用户
    */
-  wxMaPhoneLogin(data: WxMaPhoneLoginData): Promise<LoginResult> {
+  wxMaPhoneLogin(data: WxMaPhoneLoginParams): Promise<LoginResult> {
     return request<LoginResult>({
       url: `${WXMA_AUTH_BASE_URL}/phone-login`,
       method: "POST",
@@ -135,7 +135,7 @@ const AuthAPI = {
    *
    * 演示环境说明：短信服务未配置，验证码固定为 123456
    */
-  wxMaBindMobile(data: WxMaBindMobileData): Promise<LoginResult> {
+  wxMaBindMobile(data: WxMaBindMobileParams): Promise<LoginResult> {
     return request<LoginResult>({
       url: `${WXMA_AUTH_BASE_URL}/bind-mobile`,
       method: "POST",
@@ -158,7 +158,7 @@ const AuthAPI = {
    *
    * 把当前 APP 登录用户与票据绑定，PC 端 status 随即进入 SCANNED 并展示头像昵称
    */
-  qrScan(ticket: string): Promise<QrCodeScanResult> {
+  markQrLoginScanned(ticket: string): Promise<QrCodeScanResult> {
     return request<QrCodeScanResult>({
       url: `${AUTH_BASE_URL}/qr-code/scan`,
       method: "POST",
@@ -167,11 +167,11 @@ const AuthAPI = {
   },
 
   /**
-   * 确认登录
+   * 确认扫码登录
    *
    * 真正的授权动作，授权后 PC 端 status 进入 CONFIRMED，可换取会话令牌
    */
-  qrConfirm(ticket: string): Promise<QrCodeScanResult> {
+  confirmQrLogin(ticket: string): Promise<QrCodeScanResult> {
     return request<QrCodeScanResult>({
       url: `${AUTH_BASE_URL}/qr-code/confirm`,
       method: "POST",
@@ -180,11 +180,11 @@ const AuthAPI = {
   },
 
   /**
-   * 取消登录
+   * 取消扫码登录
    *
    * 撤回本次扫码，PC 端 status 进入 CANCELED
    */
-  qrCancel(ticket: string): Promise<QrCodeScanResult> {
+  cancelQrLogin(ticket: string): Promise<QrCodeScanResult> {
     return request<QrCodeScanResult>({
       url: `${AUTH_BASE_URL}/qr-code/cancel`,
       method: "POST",

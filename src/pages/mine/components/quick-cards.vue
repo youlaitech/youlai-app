@@ -44,7 +44,7 @@ const emit = defineEmits<{
   gap: 20rpx;
   align-items: center;
   padding: 28rpx 24rpx;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
   border-radius: 24rpx;
   box-shadow: var(--shadow-sm);
 }

@@ -11,12 +11,7 @@
 
     <!-- 日志列表 -->
     <view class="mt-16rpx">
-      <wd-card
-        v-for="item in pageData"
-        :key="item.id"
-        custom-class="item-card"
-        @click="openLogDetail(item)"
-      >
+      <wd-card v-for="item in logs" :key="item.id" @click="openLogDetail(item)">
         <!-- 主信息行 -->
         <view class="flex-start">
           <view class="flex-1">
@@ -53,13 +48,13 @@
             hover-class="item-action--hover"
             @click.stop="openLogDetail(item)"
           >
-            <wd-icon name="view" size="16" class="color-text-secondary" />
+            <wd-icon name="eye" size="16" class="color-text-secondary" />
           </view>
         </view>
       </wd-card>
 
-      <wd-loadmore v-if="total > 0" :state="loadMoreState" @reload="loadLogList" />
-      <wd-empty v-else-if="total === 0" icon="search" tip="暂无数据" />
+      <wd-loadmore v-if="loadMoreState !== 'idle'" :state="loadMoreState" @reload="retry" />
+      <wd-empty v-else-if="total === 0" icon="search-line" tip="暂无数据" />
     </view>
 
     <!-- 详情弹窗 -->
@@ -113,7 +108,13 @@ definePage({
 const queryParams = reactive<LogPageQuery>({ pageNum: 1, pageSize: 10 });
 
 // 分页加载（触底加载 + 下拉刷新统一由 usePagedList 维护）
-const { pageData, total, loadMoreState, reload } = usePagedList(LogAPI.getPage, queryParams);
+const {
+  items: logs,
+  total,
+  loadMoreState,
+  reload,
+  retry,
+} = usePagedList(LogAPI.getPage, queryParams);
 
 const logDetail = ref<LogItem>({});
 const detailDialog = reactive({ visible: false });

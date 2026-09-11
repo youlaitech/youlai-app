@@ -3,7 +3,7 @@
     <wd-card>
       <wd-cell-group border>
         <wd-cell
-          icon="secured"
+          icon="safe"
           title="账户密码"
           value="修改"
           is-link
@@ -17,14 +17,14 @@
           @click="handleOpenDialog(DialogType.MOBILE)"
         />
         <wd-cell
-          icon="mail"
+          icon="email"
           title="绑定邮箱"
           :value="userProfile?.email ? userProfile.email : '未绑定邮箱'"
           is-link
           @click="handleOpenDialog(DialogType.EMAIL)"
         />
         <!-- #ifdef MP-WEIXIN -->
-        <wd-cell icon="wechat" title="微信" value="解绑" is-link @click="handleUnbindWechat" />
+        <wd-cell icon="message" title="微信" value="解绑" is-link @click="handleUnbindWechat" />
         <!-- #endif -->
       </wd-cell-group>
     </wd-card>
@@ -39,39 +39,35 @@
         v-if="dialog.type === DialogType.PASSWORD"
         ref="passwordChangeFormRef"
         :model="passwordChangeForm"
-        custom-class="edit-form"
+        :schema="passwordRules"
+        title-width="160rpx"
+        custom-class="pt-40rpx"
       >
         <wd-cell-group border>
-          <wd-input
-            v-model="passwordChangeForm.oldPassword"
-            label="原密码"
-            label-width="160rpx"
-            show-password
-            clearable
-            placeholder="请输入原密码"
-            prop="oldPassword"
-            :rules="rules.oldPassword"
-          />
-          <wd-input
-            v-model="passwordChangeForm.newPassword"
-            label="新密码"
-            label-width="160rpx"
-            show-password
-            clearable
-            placeholder="请输入新密码"
-            prop="newPassword"
-            :rules="rules.newPassword"
-          />
-          <wd-input
-            v-model="passwordChangeForm.confirmPassword"
-            label="确认密码"
-            label-width="160rpx"
-            show-password
-            clearable
-            placeholder="请确认新密码"
-            prop="confirmPassword"
-            :rules="rules.confirmPassword"
-          />
+          <wd-form-item prop="oldPassword" title="原密码" required>
+            <wd-input
+              v-model="passwordChangeForm.oldPassword"
+              show-password
+              clearable
+              placeholder="请输入原密码"
+            />
+          </wd-form-item>
+          <wd-form-item prop="newPassword" title="新密码" required>
+            <wd-input
+              v-model="passwordChangeForm.newPassword"
+              show-password
+              clearable
+              placeholder="请输入新密码"
+            />
+          </wd-form-item>
+          <wd-form-item prop="confirmPassword" title="确认密码" required>
+            <wd-input
+              v-model="passwordChangeForm.confirmPassword"
+              show-password
+              clearable
+              placeholder="请确认新密码"
+            />
+          </wd-form-item>
         </wd-cell-group>
         <view class="p-24rpx">
           <wd-button size="large" block @click="handleSubmit">提交</wd-button>
@@ -81,38 +77,28 @@
         v-if="dialog.type === DialogType.MOBILE"
         ref="mobileBindingFormRef"
         :model="mobileBindingForm"
-        custom-class="edit-form"
+        :schema="mobileRules"
+        title-width="160rpx"
+        custom-class="pt-40rpx"
       >
         <wd-cell-group border>
-          <wd-input
-            v-model="mobileBindingForm.mobile"
-            label="手机号码"
-            label-width="160rpx"
-            clearable
-            placeholder="请输入手机号码"
-            prop="mobile"
-            :rules="rules.mobile"
-          />
-          <wd-input
-            v-model="mobileBindingForm.code"
-            label="验证码"
-            label-width="160rpx"
-            clearable
-            placeholder="请输入验证码"
-            prop="code"
-            :rules="rules.code"
-          >
-            <template #suffix>
-              <wd-button
-                type=""
-                plain
-                :disabled="mobileCountdown > 0"
-                @click="handleSendVerificationCode('MOBILE')"
-              >
-                {{ mobileCountdown > 0 ? `${mobileCountdown}s后重新发送` : "发送验证码" }}
-              </wd-button>
-            </template>
-          </wd-input>
+          <wd-form-item prop="mobile" title="手机号码" required>
+            <wd-input v-model="mobileBindingForm.mobile" clearable placeholder="请输入手机号码" />
+          </wd-form-item>
+          <wd-form-item prop="code" title="验证码" required>
+            <wd-input v-model="mobileBindingForm.code" clearable placeholder="请输入验证码">
+              <template #suffix>
+                <wd-button
+                  type=""
+                  plain
+                  :disabled="mobileCountdown > 0"
+                  @click="handleSendVerificationCode('MOBILE')"
+                >
+                  {{ mobileCountdown > 0 ? `${mobileCountdown}s后重新发送` : "发送验证码" }}
+                </wd-button>
+              </template>
+            </wd-input>
+          </wd-form-item>
         </wd-cell-group>
         <view class="p-24rpx">
           <wd-button size="large" block @click="handleSubmit">提交</wd-button>
@@ -122,38 +108,28 @@
         v-if="dialog.type === DialogType.EMAIL"
         ref="emailBindingFormRef"
         :model="emailBindingForm"
-        custom-class="edit-form"
+        :schema="emailRules"
+        title-width="160rpx"
+        custom-class="pt-40rpx"
       >
         <wd-cell-group border>
-          <wd-input
-            v-model="emailBindingForm.email"
-            label="邮箱"
-            label-width="160rpx"
-            clearable
-            placeholder="请输入邮箱"
-            prop="email"
-            :rules="rules.email"
-          />
-          <wd-input
-            v-model="emailBindingForm.code"
-            label="验证码"
-            label-width="160rpx"
-            clearable
-            placeholder="请输入验证码"
-            prop="code"
-            :rules="rules.code"
-          >
-            <template #suffix>
-              <wd-button
-                type=""
-                plain
-                :disabled="emailCountdown > 0"
-                @click="handleSendVerificationCode('EMAIL')"
-              >
-                {{ emailCountdown > 0 ? `${emailCountdown}s后重新发送` : "发送验证码" }}
-              </wd-button>
-            </template>
-          </wd-input>
+          <wd-form-item prop="email" title="邮箱" required>
+            <wd-input v-model="emailBindingForm.email" clearable placeholder="请输入邮箱" />
+          </wd-form-item>
+          <wd-form-item prop="code" title="验证码" required>
+            <wd-input v-model="emailBindingForm.code" clearable placeholder="请输入验证码">
+              <template #suffix>
+                <wd-button
+                  type=""
+                  plain
+                  :disabled="emailCountdown > 0"
+                  @click="handleSendVerificationCode('EMAIL')"
+                >
+                  {{ emailCountdown > 0 ? `${emailCountdown}s后重新发送` : "发送验证码" }}
+                </wd-button>
+              </template>
+            </wd-input>
+          </wd-form-item>
         </wd-cell-group>
         <view class="p-24rpx">
           <wd-button size="large" block @click="handleSubmit">提交</wd-button>
@@ -166,7 +142,8 @@
 import { onMounted, reactive, ref } from "vue";
 import { useToast, useDialog } from "@wot-ui/ui";
 import { useCountdown } from "@/composables/useCountdown";
-import { getErrorMessage } from "@/utils";
+import { getErrorMessage } from "@/utils/error";
+import { toFormSchema } from "@/utils/form-schema";
 import UserAPI, {
   PasswordChangeForm,
   MobileBindingForm,
@@ -174,27 +151,33 @@ import UserAPI, {
   UserProfile,
 } from "@/api/user";
 
+definePage({
+  name: "account",
+  style: { navigationBarTitleText: "账号安全" },
+});
+
 const toast = useToast();
 const { confirm } = useDialog();
 
-const validatorConfirmPassword = (value: string) => {
-  if (!value) {
-    return Promise.reject("请确认密码");
-  } else {
-    if (value !== passwordChangeForm.newPassword) {
-      return Promise.reject("两次输入的密码不一致");
-    } else {
-      return Promise.resolve();
-    }
-  }
-};
-// 本页面中所有的校验规则
-const rules = reactive({
+// 本页面中所有的校验规则（三个弹窗表单分别绑定）
+const passwordRules = toFormSchema({
   oldPassword: [{ required: true, message: "请填写原密码" }],
   newPassword: [{ required: true, message: "请填写新密码" }],
-  confirmPassword: [{ required: true, message: "请确认密码", validator: validatorConfirmPassword }],
+  confirmPassword: [
+    {
+      required: true,
+      message: "请确认密码",
+      validator: (value, model) => value === model.newPassword || "两次输入的密码不一致",
+    },
+  ],
+});
+
+const mobileRules = toFormSchema({
   mobile: [{ required: true, pattern: /^1[3-9]\d{9}$/, message: "请填写正确的手机号码" }],
   code: [{ required: true, message: "请填写验证码" }],
+});
+
+const emailRules = toFormSchema({
   email: [
     {
       required: true,
@@ -202,6 +185,7 @@ const rules = reactive({
       message: "请填写正确的邮箱地址",
     },
   ],
+  code: [{ required: true, message: "请填写验证码" }],
 });
 
 enum DialogType {

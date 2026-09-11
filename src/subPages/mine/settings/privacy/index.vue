@@ -7,13 +7,13 @@
         :title="section.title"
         :name="String(index)"
       >
-        <view class="privacy__content">
+        <view class="py-24rpx px-32rpx">
           <text class="privacy__text">{{ section.content }}</text>
         </view>
       </wd-collapse-item>
     </wd-collapse>
 
-    <view class="privacy__action">
+    <view class="px-32rpx mt-48rpx">
       <wd-button block @click="handleAgree">我已阅读并同意</wd-button>
     </view>
   </view>
@@ -86,18 +86,9 @@ const handleAgree = () => {
 </script>
 
 <style lang="scss" scoped>
-.privacy__content {
-  padding: 24rpx 32rpx;
-}
-
 .privacy__text {
   font-size: 28rpx;
   line-height: 1.6;
   color: var(--color-text-secondary);
-}
-
-.privacy__action {
-  padding: 0 32rpx;
-  margin-top: 48rpx;
 }
 </style>

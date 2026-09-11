@@ -1,6 +1,6 @@
 <template>
-  <view class="section-card">
-    <text class="section-title">{{ title }}</text>
+  <view class="menu-section">
+    <text class="menu-section__title">{{ title }}</text>
     <view class="menu-list">
       <view
         v-for="item in items"
@@ -51,19 +51,19 @@ const emit = defineEmits<{
 </script>
 
 <style lang="scss" scoped>
-.section-card {
+.menu-section {
   padding: 28rpx;
-  background: var(--color-bg);
+  background: var(--color-bg-card);
   border-radius: 32rpx;
   box-shadow: var(--shadow-md);
-}
 
-.section-title {
-  display: block;
-  margin-bottom: 18rpx;
-  font-size: 26rpx;
-  font-weight: 600;
-  color: var(--color-text);
+  &__title {
+    display: block;
+    margin-bottom: 18rpx;
+    font-size: 26rpx;
+    font-weight: 600;
+    color: var(--color-text);
+  }
 }
 
 .menu-list {
@@ -91,10 +91,7 @@ const emit = defineEmits<{
   height: 72rpx;
   border-radius: 22rpx;
 
-  &--primary {
-    background: var(--color-primary-alpha-15);
-  }
-
+  &--primary,
   &--warning {
     background: var(--color-primary-alpha-15);
   }

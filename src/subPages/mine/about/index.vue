@@ -19,32 +19,29 @@
       </view>
     </wd-card>
 
-    <wd-card title="仓库" custom-style="margin-top: 20rpx">
+    <wd-card title="仓库" class="mt-20rpx">
       <wd-collapse v-model="collapseActive" accordion>
         <wd-collapse-item title="Web 前端" name="web">
           <wd-cell-group border>
             <wd-cell
               title="vue3-element-admin"
               icon="desktop"
-              title-width="400rpx"
-              value="简介"
               clickable
+              is-link
               @click="openProjectIntro('vue3-element-admin')"
             />
             <wd-cell
               title="vue3-element-admin-js"
               icon="desktop"
-              title-width="400rpx"
-              value="简介"
               clickable
+              is-link
               @click="openProjectIntro('vue3-element-admin-js')"
             />
             <wd-cell
               title="vue3-element-template"
               icon="desktop"
-              title-width="400rpx"
-              value="简介"
               clickable
+              is-link
               @click="openProjectIntro('vue3-element-template')"
             />
           </wd-cell-group>
@@ -55,9 +52,8 @@
             <wd-cell
               title="youlai-app"
               icon="mobile"
-              title-width="400rpx"
-              value="简介"
               clickable
+              is-link
               @click="openProjectIntro('youlai-app')"
             />
           </wd-cell-group>
@@ -67,50 +63,44 @@
           <wd-cell-group border>
             <wd-cell
               title="youlai-boot"
-              icon="server"
-              title-width="400rpx"
-              value="简介"
+              icon="cloud"
               clickable
+              is-link
               @click="openProjectIntro('youlai-boot')"
             />
             <wd-cell
               title="youlai-gin"
-              icon="server"
-              title-width="400rpx"
-              value="简介"
+              icon="cloud"
               clickable
+              is-link
               @click="openProjectIntro('youlai-gin')"
             />
             <wd-cell
               title="youlai-nest"
-              icon="server"
-              title-width="400rpx"
-              value="简介"
+              icon="cloud"
               clickable
+              is-link
               @click="openProjectIntro('youlai-nest')"
             />
             <wd-cell
               title="youlai-django"
-              icon="server"
-              title-width="400rpx"
-              value="简介"
+              icon="cloud"
               clickable
+              is-link
               @click="openProjectIntro('youlai-django')"
             />
             <wd-cell
               title="youlai-think"
-              icon="server"
-              title-width="400rpx"
-              value="简介"
+              icon="cloud"
               clickable
+              is-link
               @click="openProjectIntro('youlai-think')"
             />
             <wd-cell
               title="youlai-aspnet"
-              icon="server"
-              title-width="400rpx"
-              value="简介"
+              icon="cloud"
               clickable
+              is-link
               @click="openProjectIntro('youlai-aspnet')"
             />
           </wd-cell-group>
@@ -120,10 +110,9 @@
           <wd-cell-group border>
             <wd-cell
               title="youlai-boot-tenant"
-              icon="server"
-              title-width="400rpx"
-              value="简介"
+              icon="cloud"
               clickable
+              is-link
               @click="openProjectIntro('youlai-boot-tenant')"
             />
           </wd-cell-group>
@@ -131,7 +120,7 @@
       </wd-collapse>
     </wd-card>
 
-    <wd-card title="联系我们" custom-style="margin-top: 20rpx">
+    <wd-card title="联系我们" class="mt-20rpx">
       <wd-cell-group border>
         <wd-cell
           title="官方网站"
@@ -143,14 +132,14 @@
         <wd-cell
           title="GitHub"
           value="github.com/youlaitech"
-          icon="github"
+          icon="link"
           clickable
           @click="openUrl('https://github.com/youlaitech')"
         />
         <wd-cell
           title="联系邮箱"
           value="youlaitech@163.com"
-          icon="mail"
+          icon="email"
           clickable
           @click="copyText('youlaitech@163.com')"
         />
@@ -180,6 +169,11 @@
 </template>
 
 <script lang="ts" setup>
+definePage({
+  name: "about",
+  style: { navigationBarTitleText: "关于系统" },
+});
+
 const version = ref(import.meta.env.VITE_APP_VERSION);
 const collapseActive = ref<string[]>(["web"]);
 
@@ -316,9 +310,10 @@ const copyText = (text: string) => {
 
 onMounted(() => {
   // #ifdef MP-WEIXIN
-  const appVersion = uni.getSystemInfoSync().appVersion;
-  if (appVersion) {
-    version.value = appVersion;
+  const appBaseInfo =
+    typeof uni.getAppBaseInfo === "function" ? uni.getAppBaseInfo() : uni.getSystemInfoSync();
+  if (appBaseInfo.appVersion) {
+    version.value = appBaseInfo.appVersion;
   }
   // #endif
 });
@@ -336,24 +331,27 @@ onMounted(() => {
 
 .about__header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 20rpx;
+  padding: 40rpx 28rpx 28rpx;
 }
 
 .about__logo {
-  width: 120rpx;
-  height: 120rpx;
-  margin-right: 16rpx;
+  width: 140rpx;
+  height: 140rpx;
+  margin-bottom: 20rpx;
 }
 
 .about__info {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .about__app-title {
   display: block;
   margin-bottom: 8rpx;
-  font-size: 32rpx;
+  font-size: 36rpx;
   font-weight: 700;
 }
 
@@ -378,7 +376,7 @@ onMounted(() => {
 }
 
 .about__intro {
-  padding: 0 20rpx 20rpx;
+  padding: 0 28rpx 28rpx;
 }
 
 .about__footer {

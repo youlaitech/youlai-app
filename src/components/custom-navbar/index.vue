@@ -6,7 +6,7 @@
     :style="{
       height: totalHeight + 'px',
       paddingTop: statusBarHeight + 'px',
-      backgroundColor: bgColor,
+      background: bgColor,
     }"
   >
     <view class="custom-navbar__content" :style="{ height: contentHeight + 'px' }">
@@ -45,6 +45,7 @@ import { useNavbar } from "@/composables/useNavbar";
 interface Props {
   title?: string;
   titleColor?: string;
+  /** 背景色或渐变，取值同 background 简写属性 */
   bgColor?: string;
   showBack?: boolean;
   showHome?: boolean;
@@ -59,7 +60,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   title: "",
   titleColor: "var(--color-text)",
-  bgColor: "var(--color-bg)",
+  bgColor: "var(--color-bg-card)",
   showBack: true,
   showHome: false,
   backIcon: "arrow-left",
@@ -153,7 +154,7 @@ export default {
   position: relative;
   z-index: var(--z-navbar);
   box-sizing: border-box;
-  background-color: var(--color-bg);
+  background-color: var(--color-bg-card);
 
   &--fixed {
     position: fixed;
@@ -189,7 +190,7 @@ export default {
   border-radius: 50%;
 
   &:active {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--color-fill-2);
   }
 }
 

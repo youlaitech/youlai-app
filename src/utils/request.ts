@@ -6,6 +6,17 @@ import { ApiCode } from "@/enums/api-code-enum";
 // 401 跳转防抖锁，避免并发请求多次跳转登录页
 let isRedirecting401 = false;
 
+// 会话失效回调：由启动阶段注册（main.ts），401 时同步清理内存中的登录态
+// request 层不直接依赖 store，避免 request → store → api → request 循环引用
+let unauthorizedHandler: (() => void) | null = null;
+
+/**
+ * 注册会话失效回调（内存 token、userInfo 等由回调所属方统一清理）
+ */
+export function setUnauthorizedHandler(handler: () => void): void {
+  unauthorizedHandler = handler;
+}
+
 /**
  * 请求错误类
  */
@@ -75,8 +86,7 @@ function request<TResponse = any, TData = unknown>(
       success: (res: UniApp.RequestSuccessCallbackResult) => {
         // 后端统一响应体：只取业务层字段
         const body = res?.data as
-          | { code?: string; msg?: string; message?: string; data?: unknown }
-          | undefined;
+          { code?: string; msg?: string; message?: string; data?: unknown } | undefined;
         const serverCode = body?.code;
         const serverMsg = body?.msg || body?.message;
 
@@ -88,8 +98,14 @@ function request<TResponse = any, TData = unknown>(
               serverCode === ApiCode.REFRESH_TOKEN_INVALID)) ||
           res.statusCode === 401;
         if (isTokenError) {
-          clearTokens();
-          Storage.remove(USER_INFO_KEY);
+          // 会话重置集中处理：已注册回调时由 store 统一清理内存与持久化；
+          // 未注册时兜底清理持久化令牌
+          if (unauthorizedHandler) {
+            unauthorizedHandler();
+          } else {
+            clearTokens();
+            Storage.remove(USER_INFO_KEY);
+          }
           if (!isRedirecting401) {
             isRedirecting401 = true;
             uni.navigateTo({
