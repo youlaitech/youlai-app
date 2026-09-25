@@ -54,7 +54,8 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
       proxy: {
         [env.VITE_APP_BASE_API]: {
           changeOrigin: true,
-          target: env.VITE_APP_API_URL,
+          // 未配置代理目标的环境回落到接口地址
+          target: env.VITE_PROXY_TARGET || env.VITE_APP_API_URL,
           rewrite: (path) => path.replace(new RegExp("^" + env.VITE_APP_BASE_API), ""),
         },
       },
