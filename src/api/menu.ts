@@ -12,13 +12,23 @@ const MenuAPI = {
     });
   },
 
-  /** 获取菜单下拉选项 */
-  getOptions(includeButton = false) {
+  /**
+   * 获取菜单下拉选项
+   *
+   * @param params 查询参数，types 多个菜单类型以英文逗号分隔
+   */
+  getOptions(params?: { types?: string }) {
     return request<OptionType[]>({
       url: `${MENU_BASE_URL}/options`,
       method: "GET",
-      data: { includeButton },
+      data: params,
     });
+  },
+
+  /** 获取可作为上级菜单的下拉选项（按钮不能有子级，不返回） */
+  getParentOptions() {
+    // uni.request 对数组的序列化格式不确定，这里用逗号串（后端 List<String> 按英文逗号拆分）
+    return this.getOptions({ types: "C,M" });
   },
 
   /** 获取菜单表单数据 */
@@ -65,7 +75,6 @@ export default MenuAPI;
 /** 菜单查询参数 */
 export interface MenuQuery {
   keywords?: string;
-  visible?: number;
 }
 
 /** 菜单类型 */
@@ -105,4 +114,8 @@ export interface MenuForm {
   sort?: number;
   /** 状态(1:显示；0:隐藏) */
   visible?: number;
+  /** 新增页面菜单时是否生成增删改查按钮 */
+  generateCrudButtons?: boolean;
+  /** 按钮权限标识前缀，如 sys:user */
+  buttonPermPrefix?: string;
 }
