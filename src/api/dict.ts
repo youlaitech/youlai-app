@@ -2,6 +2,31 @@ import request from "@/utils/request";
 
 const DICT_BASE_URL = "/api/v1/dicts";
 
+/** 标签样式的语义名 */
+const TAG_TYPE_NAMES = ["primary", "success", "warning", "danger", "info"];
+
+/** 历史单字母标签样式对应的语义名 */
+const LEGACY_TAG_TYPES: Record<string, string> = {
+  P: "primary",
+  S: "success",
+  W: "warning",
+  D: "danger",
+  I: "info",
+};
+
+/**
+ * 归一标签样式，把历史单字母值转成语义名
+ *
+ * 无样式或无法识别时返回空串
+ */
+function normalizeTagType(tagType?: string): string {
+  const name = String(tagType ?? "")
+    .trim()
+    .toLowerCase();
+  if (!name || name === "n" || name === "default") return "";
+  return TAG_TYPE_NAMES.includes(name) ? name : (LEGACY_TAG_TYPES[name.toUpperCase()] ?? "");
+}
+
 const DictAPI = {
   /** 获取字典类型分页数据 */
   getPage(queryParams: DictTypePageQuery) {
@@ -56,7 +81,10 @@ const DictAPI = {
       url: `${DICT_BASE_URL}/${dictCode}/items`,
       method: "GET",
       data: queryParams,
-    });
+    }).then((data) => ({
+      ...data,
+      list: (data.list ?? []).map((item) => ({ ...item, tagType: normalizeTagType(item.tagType) })),
+    }));
   },
 
   /** 获取字典数据表单数据 */
@@ -64,7 +92,7 @@ const DictAPI = {
     return request<DictItemForm>({
       url: `${DICT_BASE_URL}/${dictCode}/items/${id}/form`,
       method: "GET",
-    });
+    }).then((data) => ({ ...data, tagType: normalizeTagType(data.tagType) }));
   },
 
   /** 新增字典数据 */
@@ -135,9 +163,11 @@ export interface DictItemForm {
   dictCode?: string;
   label?: string;
   value?: string;
-  sort: number;
+  sort?: number;
   status?: number;
   remark?: string;
+  /** 标签样式(primary/success/warning/danger/info，空为无样式) */
+  tagType?: string;
 }
 
 /** 字典数据分页对象 */
@@ -149,4 +179,6 @@ export interface DictItem {
   sort?: number;
   status?: number;
   remark?: string;
+  /** 标签样式(primary/success/warning/danger/info，空为无样式) */
+  tagType?: string;
 }

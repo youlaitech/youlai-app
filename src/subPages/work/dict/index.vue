@@ -104,6 +104,7 @@ import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSh
 import { usePagedList } from "@/composables/usePagedList";
 import DictAPI, { type DictTypeForm, type DictTypePageQuery, type DictTypeItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
+import { getErrorMessage } from "@/utils/error";
 
 definePage({
   name: "dict",
@@ -182,6 +183,9 @@ function submitDictForm() {
         closeDictDialog();
         loadDictTypeList();
       })
+      .catch((error) => {
+        toast.error(getErrorMessage(error, "保存失败"));
+      })
       .finally(() => {
         isSubmitting.value = false;
       });
@@ -207,7 +211,7 @@ function showDictActions(item: DictTypeItem) {
       color: "var(--color-danger)",
       handler: () =>
         confirmAction({
-          msg: `确定要删除字典「${item.name}」吗？`,
+          msg: `删除字典「${item.name}」会同时删除其字典数据，确定继续吗？`,
           action: async () => {
             if (!item.id) return;
             await DictAPI.deleteByIds(String(item.id));

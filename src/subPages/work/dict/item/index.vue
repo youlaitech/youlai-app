@@ -14,7 +14,10 @@
         <view class="flex-start">
           <view class="flex-1">
             <view class="flex-start">
-              <text class="font-bold text-32rpx">{{ item.label }}</text>
+              <wd-tag v-if="tagComponentType(item.tagType)" :type="tagComponentType(item.tagType)">
+                {{ item.label }}
+              </wd-tag>
+              <text v-else class="font-bold text-32rpx">{{ item.label }}</text>
             </view>
             <text class="text-24rpx color-text-secondary">
               字典值：{{ item.value }} · 排序：{{ item.sort }}
@@ -57,6 +60,18 @@
           </wd-form-item>
           <wd-form-item prop="value" title="字典项值" required>
             <wd-input v-model="formData.value" placeholder="请输入字典项值" />
+          </wd-form-item>
+          <wd-form-item prop="tagType" title="标签类型">
+            <wd-radio-group v-model="formData.tagType" size="small" type="button">
+              <wd-radio value="">无</wd-radio>
+              <wd-radio
+                v-for="option in TAG_TYPE_OPTIONS"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </wd-radio>
+            </wd-radio-group>
           </wd-form-item>
           <wd-form-item prop="status" title="状态">
             <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
@@ -108,6 +123,8 @@ import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSh
 import { usePagedList } from "@/composables/usePagedList";
 import DictAPI, { type DictItemForm, type DictItemPageQuery, type DictItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
+import { getErrorMessage } from "@/utils/error";
+import type { TagType } from "@wot-ui/ui/components/wd-tag/types";
 
 definePage({
   name: "dict-item",
@@ -153,7 +170,31 @@ const initialFormData: DictItemForm = {
   sort: 1,
   status: 1,
   remark: undefined,
+  tagType: "",
 };
+
+/** 标签类型选项，值为后端存储的语义名 */
+const TAG_TYPE_OPTIONS = [
+  { value: "primary", label: "主要" },
+  { value: "success", label: "成功" },
+  { value: "info", label: "信息" },
+  { value: "warning", label: "警告" },
+  { value: "danger", label: "危险" },
+];
+
+/** 语义名与 wd-tag 类型的对应关系，info 用默认样式呈现 */
+const TAG_COMPONENT_TYPES: Record<string, TagType> = {
+  primary: "primary",
+  success: "success",
+  warning: "warning",
+  danger: "danger",
+  info: "default",
+};
+
+/** 字典项标签在 wd-tag 上的呈现类型，无标签类型时返回空串 */
+function tagComponentType(tagType?: string): TagType | "" {
+  return TAG_COMPONENT_TYPES[tagType ?? ""] ?? "";
+}
 
 const formData = reactive<DictItemForm>({ ...initialFormData });
 
@@ -201,6 +242,9 @@ function submitItemForm() {
         toast.success("操作成功");
         closeItemDialog();
         loadItemList();
+      })
+      .catch((error) => {
+        toast.error(getErrorMessage(error, "保存失败"));
       })
       .finally(() => {
         isSubmitting.value = false;
