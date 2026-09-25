@@ -340,13 +340,13 @@ onShow(() => {
 .quick-nav-card {
   position: relative;
   z-index: var(--z-sticky);
-  padding: 18rpx 8rpx;
+  padding: 12rpx 8rpx;
   margin: 24rpx;
   margin-top: -120rpx;
   overflow: hidden;
   background: var(--color-bg-card);
   border-radius: 24rpx;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   /* 网格项背景交给卡片本身，避免 wot 深色模式默认黑底 */
   --wot-grid-item-bg: transparent;
 
@@ -354,19 +354,18 @@ onShow(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 16rpx;
+    padding: 20rpx 8rpx;
   }
 
   &__icon {
-    width: 72rpx;
-    height: 72rpx;
-    border-radius: 16rpx;
+    width: 56rpx;
+    height: 56rpx;
   }
 
   &__label {
     margin-top: 12rpx;
-    font-size: 24rpx;
-    color: var(--color-text);
+    font-size: 22rpx;
+    color: var(--color-text-secondary);
   }
 }
 
