@@ -1,7 +1,7 @@
 import request from "@/utils/request";
 
 const AUTH_BASE_URL = "/api/v1/auth";
-const WXMA_AUTH_BASE_URL = "/api/v1/wxma/auth";
+const WXMA_AUTH_BASE_URL = "/api/v1/auth/wxma";
 
 export interface PasswordLoginParams {
   username: string;
@@ -97,7 +97,7 @@ const AuthAPI = {
     const mobileSafe = encodeURIComponent(data.mobile);
     const codeSafe = encodeURIComponent(data.code);
     return request<LoginResult>({
-      url: `${AUTH_BASE_URL}/login/sms?mobile=${mobileSafe}&code=${codeSafe}`,
+      url: `${AUTH_BASE_URL}/sms/login?mobile=${mobileSafe}&code=${codeSafe}`,
       method: "POST",
     });
   },
