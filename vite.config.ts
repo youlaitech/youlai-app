@@ -100,10 +100,6 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
           "uni-app",
           "pinia",
           {
-            from: "uni-mini-router",
-            imports: ["createRouter", "useRouter", "useRoute"],
-          },
-          {
             from: "@wot-ui/ui",
             imports: ["useToast", "useDialog", "useNotify", "CommonUtil"],
           },

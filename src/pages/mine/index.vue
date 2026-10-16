@@ -67,7 +67,6 @@ import { computed, ref } from "vue";
 import { onPageScroll, onShow } from "@dcloudio/uni-app";
 import { storeToRefs } from "pinia";
 import { useUserStore, useThemeStore } from "@/store";
-import { useRouter } from "uni-mini-router";
 import { useNavbarMetrics } from "@/composables/useNavbarMetrics";
 import { useScanLogin } from "@/composables/useScanLogin";
 import { useLogout } from "@/composables/useLogout";
@@ -89,7 +88,6 @@ type SettingsMenuEntry = SettingsMenuItem &
 
 const userStore = useUserStore();
 const themeStore = useThemeStore();
-const router = useRouter();
 const navbar = useNavbarMetrics();
 const { scanForLogin } = useScanLogin();
 const { isLoggingOut, requestLogout } = useLogout();
@@ -201,7 +199,7 @@ function handleMenuSelect(id: string) {
     navigateToLogin();
     return;
   }
-  router.push({ path: entry.target });
+  uni.navigateTo({ url: entry.target });
 }
 
 // 登录页带回跳地址，登录成功后原路返回
@@ -209,7 +207,9 @@ function navigateToLogin() {
   const pages = getCurrentPages();
   const currentPage = pages[pages.length - 1];
   const currentPagePath = `/${currentPage.route}`;
-  router.push({ path: "/pages/login/index", query: { redirect: currentPagePath } });
+  uni.navigateTo({
+    url: `/pages/login/index?redirect=${encodeURIComponent(currentPagePath)}`,
+  });
 }
 
 // 资料页要求登录，未登录先跳登录页
@@ -218,7 +218,7 @@ function navigateToProfile() {
     navigateToLogin();
     return;
   }
-  router.push({ path: "/subPages/mine/profile/index" });
+  uni.navigateTo({ url: "/subPages/mine/profile/index" });
 }
 
 // 账号安全页要求登录，未登录先跳登录页
@@ -227,7 +227,7 @@ function navigateToAccountSecurity() {
     navigateToLogin();
     return;
   }
-  router.push({ path: "/subPages/mine/account/index" });
+  uni.navigateTo({ url: "/subPages/mine/account/index" });
 }
 
 // 公众号介绍页对游客开放，不需要登录
