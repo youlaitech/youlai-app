@@ -1,14 +1,15 @@
 import { ensureAuthenticated } from "@/utils/auth";
 
-// 导航目标：url 为空表示功能未开放
-interface NavItem {
+// 导航目标：kind 区分站内路由与站外链接，url 为空表示功能未开放
+interface NavTarget {
+  kind: "route" | "link";
   url?: string;
 }
 
 /**
  * 业务菜单导航
  *
- * 站外地址在 H5 新开标签、其余端进内置 webview，站内地址走 navigateTo。
+ * 站外链接在 H5 新开标签、其余端进内置 webview，站内路由走 navigateTo。
  */
 export function useNavigation() {
   const toast = useToast();
@@ -18,30 +19,30 @@ export function useNavigation() {
    *
    * 未登录先跳登录页并带上来路；地址缺失或页面不存在时给出提示。
    *
-   * @param item - 菜单项，url 支持站内路径与 http(s) 地址
+   * @param target - 菜单项
    */
-  const navigate = (item: NavItem) => {
-    if (!item.url) {
+  const navigate = (target: NavTarget) => {
+    if (!target.url) {
       toast.info("功能开发中");
       return;
     }
 
     if (!ensureAuthenticated()) return;
 
-    if (item.url.startsWith("http://") || item.url.startsWith("https://")) {
+    if (target.kind === "link") {
       // #ifdef H5
-      window.open(item.url, "_blank");
+      window.open(target.url, "_blank");
       // #endif
       // #ifndef H5
       uni.navigateTo({
-        url: `/pages/webview/index?url=${encodeURIComponent(item.url)}`,
+        url: `/pages/webview/index?url=${encodeURIComponent(target.url)}`,
       });
       // #endif
       return;
     }
 
     uni.navigateTo({
-      url: item.url,
+      url: target.url,
       fail: () => {
         toast.info("页面不存在");
       },

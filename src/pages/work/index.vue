@@ -27,7 +27,7 @@
 import { computed } from "vue";
 import { useNavigation } from "@/composables/useNavigation";
 import { workMenuGroups } from "@/config/work-menu";
-import { hasPermission } from "@/utils/permission";
+import { isMenuAllowed } from "@/utils/permission";
 
 definePage({
   name: "work",
@@ -39,12 +39,6 @@ definePage({
 });
 
 const { navigate } = useNavigation();
-
-// 无权限码的菜单视为公开入口，其余按当前账号的权限码判断
-const isMenuAllowed = (perm: string) => {
-  if (!perm) return true;
-  return hasPermission(perm);
-};
 
 // 根据权限过滤后的菜单分组，未授权分组整体不展示
 const visibleGroups = computed(() => {

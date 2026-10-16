@@ -98,8 +98,8 @@ import dayjs from "dayjs";
 import { onReady, onShow } from "@dcloudio/uni-app";
 import { useThemeStore, useUserStore } from "@/store";
 import { useNavigation } from "@/composables/useNavigation";
-import { workMenuGroups } from "@/config/work-menu";
-import { hasPermission } from "@/utils/permission";
+import { workMenuGroups, type WorkMenuItem } from "@/config/work-menu";
+import { isMenuAllowed } from "@/utils/permission";
 import LogAPI, { type VisitOverview, type VisitTrend } from "@/api/log";
 import NoticeAPI, { type NoticeItem } from "@/api/notice";
 
@@ -108,13 +108,6 @@ definePage({
   style: { navigationStyle: "custom" },
   layout: "tabbar",
 });
-
-interface NavItem {
-  icon: string;
-  title: string;
-  url: string;
-  perm: string;
-}
 
 const userStore = useUserStore();
 const themeStore = useThemeStore();
@@ -148,11 +141,11 @@ const QUICK_NAV_LIMIT = 4;
 
 // 快捷入口：未登录时展示前几个作为引导，点击后统一跳登录页；
 // 已登录按权限过滤，不足 4 个就显示多少
-const quickNavList = computed<NavItem[]>(() => {
-  const result: NavItem[] = [];
+const quickNavList = computed<WorkMenuItem[]>(() => {
+  const result: WorkMenuItem[] = [];
   for (const group of workMenuGroups) {
     for (const item of group.children) {
-      if (!isAuthenticated.value || hasPermission(item.perm)) result.push(item);
+      if (!isAuthenticated.value || isMenuAllowed(item.perm)) result.push(item);
       if (result.length >= QUICK_NAV_LIMIT) return result;
     }
   }
@@ -223,7 +216,7 @@ async function loadVisitTrendData() {
 }
 
 // 快捷导航点击：未登录先跳登录页，已登录按权限跳转
-function handleNavItemClick(item: NavItem) {
+function handleNavItemClick(item: WorkMenuItem) {
   if (!isAuthenticated.value) {
     navigateToLogin();
     return;

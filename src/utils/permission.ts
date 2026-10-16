@@ -17,3 +17,8 @@ export function hasPermission(perm: string | string[]): boolean {
 
   return keys.some((key) => perms.includes(key));
 }
+
+/** 菜单入口判权：无权限码的入口视为公开，其余按当前账号权限判断 */
+export function isMenuAllowed(perm: string): boolean {
+  return !perm || hasPermission(perm);
+}
