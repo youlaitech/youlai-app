@@ -102,7 +102,7 @@
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form-schema";
-import { findOptionChain } from "@/utils/tree";
+import { findOptionChain, toTree } from "@/utils/tree";
 import { useToast } from "@wot-ui/ui";
 import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
@@ -148,19 +148,19 @@ interface DeptTreeOption extends TreeOption {
 
 // 转换为树组件数据格式
 const treeData = computed<DeptTreeOption[]>(() =>
-  deptList.value.map((dept) => transformDeptToTree(dept))
+  toTree(
+    deptList.value,
+    (dept) => dept.children,
+    (dept, children) => ({
+      value: String(dept.id),
+      label: dept.name ?? "",
+      id: dept.id,
+      name: dept.name,
+      status: dept.status,
+      children,
+    })
+  )
 );
-
-function transformDeptToTree(dept: DeptItem): DeptTreeOption {
-  return {
-    value: String(dept.id),
-    label: dept.name ?? "",
-    id: dept.id,
-    name: dept.name,
-    status: dept.status,
-    children: dept.children?.map((child) => transformDeptToTree(child)) || [],
-  };
-}
 
 // 上级部门选择器
 const showParentPicker = ref(false);

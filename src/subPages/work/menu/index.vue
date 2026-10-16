@@ -157,7 +157,7 @@
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form-schema";
-import { findOptionChain } from "@/utils/tree";
+import { findOptionChain, toTree } from "@/utils/tree";
 import { useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
@@ -230,23 +230,22 @@ const MENU_TYPE_TEXT: Record<MenuType, string> = {
 
 // 菜单列表转树节点：value/label 供树组件使用，业务字段随节点透传给操作菜单
 const treeData = computed<MenuTreeOption[]>(() =>
-  menuList.value.map((menu: MenuItem) => transformMenuToTree(menu))
+  toTree(
+    menuList.value,
+    (menu) => menu.children,
+    (menu, children) => ({
+      value: menu.id ?? "",
+      label: menu.name ?? "",
+      id: menu.id,
+      name: menu.name,
+      type: menu.type,
+      icon: menu.icon,
+      visible: menu.visible,
+      perm: menu.perm,
+      children,
+    })
+  )
 );
-
-// 递归转换：子节点沿用同一套字段，空 id 用空串占位以满足树组件契约
-function transformMenuToTree(menu: MenuItem): MenuTreeOption {
-  return {
-    value: menu.id ?? "",
-    label: menu.name ?? "",
-    id: menu.id,
-    name: menu.name,
-    type: menu.type,
-    icon: menu.icon,
-    visible: menu.visible,
-    perm: menu.perm,
-    children: menu.children?.map((child: MenuItem) => transformMenuToTree(child)) || [],
-  };
-}
 
 // 菜单类型对应的标签颜色，类型缺失时按主色展示
 function getMenuTypeTag(type?: MenuType) {

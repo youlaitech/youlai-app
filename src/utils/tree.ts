@@ -24,3 +24,21 @@ export function findOptionChain(
   }
   return null;
 }
+
+/**
+ * 递归把带 children 的列表转为树节点
+ *
+ * 源列表的层级由 children 字段表达，节点字段与叶子形态由调用方决定
+ *
+ * @param items 源列表
+ * @param getChildren 取节点的子列表，无子级时返回 undefined
+ * @param node 单节点映射，children 为已构建的子节点数组，叶子节点为空数组
+ * @returns 树节点列表
+ */
+export function toTree<TSource, TNode>(
+  items: TSource[],
+  getChildren: (item: TSource) => TSource[] | undefined,
+  node: (item: TSource, children: TNode[]) => TNode
+): TNode[] {
+  return items.map((item) => node(item, toTree(getChildren(item) ?? [], getChildren, node)));
+}

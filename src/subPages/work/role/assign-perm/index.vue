@@ -78,6 +78,7 @@
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import MenuAPI, { type MenuItem, type MenuType } from "@/api/menu";
+import { toTree } from "@/utils/tree";
 import RoleAPI from "@/api/role";
 import { getErrorMessage } from "@/utils/error";
 import TreeView from "@/subPages/work/components/TreeView.vue";
@@ -104,27 +105,21 @@ interface PermissionTreeOption extends TreeOption {
   children?: PermissionTreeOption[];
 }
 
-// 转换菜单为树结构
-const menuTree = computed<PermissionTreeOption[]>(() => {
-  if (!menuList.value.length) return [];
-  return transformMenuToTree(menuList.value);
-});
-
-// 转换菜单为树组件格式
-function transformMenuToTree(menus: MenuItem[]): PermissionTreeOption[] {
-  return menus.map((menu) => {
-    const id = String(menu.id);
-    const name = menu.name ?? "";
-    return {
-      value: id,
-      label: name,
-      id,
-      name,
+// 转换菜单为树组件格式，叶子节点不携带 children 字段
+const menuTree = computed<PermissionTreeOption[]>(() =>
+  toTree(
+    menuList.value,
+    (menu) => menu.children,
+    (menu, children) => ({
+      value: String(menu.id),
+      label: menu.name ?? "",
+      id: String(menu.id),
+      name: menu.name ?? "",
       type: menu.type,
-      children: menu.children ? transformMenuToTree(menu.children) : undefined,
-    };
-  });
-}
+      children: menu.children ? children : undefined,
+    })
+  )
+);
 
 // 处理选中变化
 function handleCheck(keys: string[]) {
