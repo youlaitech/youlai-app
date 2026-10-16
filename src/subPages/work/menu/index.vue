@@ -156,13 +156,14 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { toFormSchema } from "@/utils/form-schema";
+import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 import { findOptionChain, toTree } from "@/utils/tree";
 import { useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import MenuAPI, { type MenuQuery, type MenuItem, type MenuForm, type MenuType } from "@/api/menu";
 import { hasPermission } from "@/utils/permission";
+import { PERM } from "@/constants/permissions";
 import { getErrorMessage } from "@/utils/error";
 import TreeView, { type TreeOption } from "@/subPages/work/components/TreeView.vue";
 import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
@@ -175,7 +176,7 @@ definePage({
 const toast = useToast();
 const { confirmAction } = useConfirmAction();
 const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
-const formRef = ref();
+const formRef = ref<WdFormRef>();
 const isSubmitting = ref(false);
 
 const queryParams = reactive<MenuQuery>({ keywords: "" });
@@ -405,7 +406,7 @@ function handleNodeAction(node: MenuTreeOption) {
   const commands: ActionSheetCommand[] = [];
 
   // 按钮(B)类型节点不允许再有下级
-  if (hasPermission("sys:menu:create") && node.type !== "B") {
+  if (hasPermission(PERM.menu.create) && node.type !== "B") {
     commands.push({
       id: "add-child",
       label: "新增子菜单",
@@ -413,11 +414,11 @@ function handleNodeAction(node: MenuTreeOption) {
     });
   }
 
-  if (hasPermission("sys:menu:update")) {
+  if (hasPermission(PERM.menu.update)) {
     commands.push({ id: "edit", label: "编辑", execute: () => openMenuDialog(node) });
   }
 
-  if (hasPermission("sys:menu:delete")) {
+  if (hasPermission(PERM.menu.delete)) {
     commands.push({
       id: "delete",
       label: "删除",
@@ -512,7 +513,7 @@ function buildMenuPayload() {
 
 // 提交表单：校验通过后按 id 判断新增或修改，成功后刷新列表
 function submitMenuForm() {
-  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+  formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     if (formData.generateCrudButtons && !formData.buttonPermPrefix?.trim()) {
       toast.error("请填写按钮权限前缀");
