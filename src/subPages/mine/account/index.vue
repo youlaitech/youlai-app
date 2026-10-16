@@ -147,7 +147,7 @@ import { onMounted, reactive, ref } from "vue";
 import { useToast, useDialog } from "@wot-ui/ui";
 import { useCountdown } from "@/composables/useCountdown";
 import { getErrorMessage } from "@/utils/error";
-import { toFormSchema } from "@/utils/form-schema";
+import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 import UserAPI, {
   PasswordChangeForm,
   MobileBindingForm,
@@ -209,9 +209,9 @@ const userProfile = ref<UserProfile>();
 const passwordChangeForm = reactive<PasswordChangeForm>({});
 const mobileBindingForm = reactive<MobileBindingForm>({});
 const emailBindingForm = reactive<EmailBindingForm>({});
-const passwordChangeFormRef = ref();
-const mobileBindingFormRef = ref();
-const emailBindingFormRef = ref();
+const passwordChangeFormRef = ref<WdFormRef>();
+const mobileBindingFormRef = ref<WdFormRef>();
+const emailBindingFormRef = ref<WdFormRef>();
 
 const { remainingSeconds: mobileCountdown, start: startMobileCountdown } = useCountdown(60);
 const { remainingSeconds: emailCountdown, start: startEmailCountdown } = useCountdown(60);
@@ -263,14 +263,14 @@ const handleOpenPopup = (type: SecurityAction) => {
 const handleSendVerificationCode = async (contactType: string) => {
   try {
     if (contactType === "MOBILE") {
-      const { valid } = await mobileBindingFormRef.value.validate("mobile");
+      const { valid } = (await mobileBindingFormRef.value?.validate("mobile")) ?? { valid: false };
       if (valid) {
         await UserAPI.sendVerificationCode(mobileBindingForm.mobile!, "MOBILE");
         toast.info("验证码已发送");
         startMobileCountdown();
       }
     } else if (contactType === "EMAIL") {
-      const { valid } = await emailBindingFormRef.value.validate("email");
+      const { valid } = (await emailBindingFormRef.value?.validate("email")) ?? { valid: false };
       if (valid) {
         await UserAPI.sendVerificationCode(emailBindingForm.email!, "EMAIL");
         toast.info("验证码已发送");
@@ -286,14 +286,14 @@ const handleSendVerificationCode = async (contactType: string) => {
 async function handleSecuritySubmit() {
   try {
     if (popup.type === SecurityAction.PASSWORD) {
-      const { valid } = await passwordChangeFormRef.value.validate();
+      const { valid } = (await passwordChangeFormRef.value?.validate()) ?? { valid: false };
       if (valid) {
         await UserAPI.changePassword(passwordChangeForm);
         toast.info("密码修改成功");
         popup.visible = false;
       }
     } else if (popup.type === SecurityAction.MOBILE) {
-      const { valid } = await mobileBindingFormRef.value.validate();
+      const { valid } = (await mobileBindingFormRef.value?.validate()) ?? { valid: false };
       if (valid) {
         await UserAPI.bindMobile(mobileBindingForm);
         toast.info("手机号绑定成功");
@@ -301,7 +301,7 @@ async function handleSecuritySubmit() {
         loadUserProfile();
       }
     } else if (popup.type === SecurityAction.EMAIL) {
-      const { valid } = await emailBindingFormRef.value.validate();
+      const { valid } = (await emailBindingFormRef.value?.validate()) ?? { valid: false };
       if (valid) {
         await UserAPI.bindEmail(emailBindingForm);
         toast.info("邮箱绑定成功");

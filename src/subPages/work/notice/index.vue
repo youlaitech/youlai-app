@@ -151,7 +151,7 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { toFormSchema } from "@/utils/form-schema";
+import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
@@ -163,6 +163,7 @@ import NoticeAPI, {
   NoticeForm,
 } from "@/api/notice";
 import { hasPermission } from "@/utils/permission";
+import { PERM } from "@/constants/permissions";
 
 definePage({
   name: "notice",
@@ -172,7 +173,7 @@ definePage({
 const toast = useToast();
 const { confirmAction } = useConfirmAction();
 const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
-const formRef = ref();
+const formRef = ref<WdFormRef>();
 const isSubmitting = ref(false);
 
 const queryParams = reactive<NoticePageQuery>({ pageNum: 1, pageSize: 10 });
@@ -281,7 +282,7 @@ function closeNoticeDialog() {
 
 // 提交表单
 function submitNoticeForm() {
-  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+  formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     isSubmitting.value = true;
     const id = formData.id;
@@ -305,14 +306,14 @@ function openNoticeActions(item: NoticeItem) {
   ];
 
   if (item.publishStatus !== 1) {
-    if (hasPermission("sys:notice:update")) {
+    if (hasPermission(PERM.notice.update)) {
       commands.push({
         id: "edit",
         label: "编辑",
         execute: () => openNoticeDialog(Number(item.id)),
       });
     }
-    if (hasPermission("sys:notice:delete")) {
+    if (hasPermission(PERM.notice.delete)) {
       commands.push({
         id: "delete",
         label: "删除",
@@ -327,7 +328,7 @@ function openNoticeActions(item: NoticeItem) {
           }),
       });
     }
-    if (hasPermission("sys:notice:publish")) {
+    if (hasPermission(PERM.notice.publish)) {
       commands.push({
         id: "publish",
         label: "发布",
@@ -343,7 +344,7 @@ function openNoticeActions(item: NoticeItem) {
           }),
       });
     }
-  } else if (hasPermission("sys:notice:revoke")) {
+  } else if (hasPermission(PERM.notice.revoke)) {
     commands.push({
       id: "revoke",
       label: "撤回",

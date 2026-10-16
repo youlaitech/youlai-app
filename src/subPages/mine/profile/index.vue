@@ -76,7 +76,7 @@ import UserAPI, { type UserProfile, UserProfileForm } from "@/api/user";
 import FileAPI, { type FileInfo } from "@/api/file";
 import { ensureAuthenticated } from "@/utils/auth";
 import { getErrorMessage } from "@/utils/error";
-import { toFormSchema } from "@/utils/form-schema";
+import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 
 definePage({
   name: "profile",
@@ -138,7 +138,7 @@ const popup = reactive({
 });
 
 const userProfileForm = reactive<UserProfileForm>({});
-const userProfileFormRef = ref();
+const userProfileFormRef = ref<WdFormRef>();
 
 // 打开资料编辑弹窗，并用当前资料回填表单
 const openProfilePopup = () => {
@@ -149,7 +149,7 @@ const openProfilePopup = () => {
 
 // 提交表单
 function handleSubmit() {
-  userProfileFormRef.value.validate().then(({ valid }: { valid: boolean }) => {
+  userProfileFormRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (valid) {
       UserAPI.updateProfile(userProfileForm).then(() => {
         toast.info("账号资料修改成功");

@@ -210,6 +210,7 @@
 import { onLoad } from "@dcloudio/uni-app";
 import { useToast, useDialog } from "@wot-ui/ui";
 import type { FormSchema } from "@wot-ui/ui/components/wd-form/types";
+import type { WdFormRef } from "@/utils/form-schema";
 
 import { useUserStore } from "@/store/modules/user";
 import { useSmsLoginCode, isValidMobile } from "@/composables/useSmsLoginCode";
@@ -226,7 +227,7 @@ definePage({
 const toast = useToast();
 const dialog = useDialog("policy-box");
 const userStore = useUserStore();
-const loginFormRef = ref();
+const loginFormRef = ref<WdFormRef>();
 const bindMobilePopupRef = ref<InstanceType<typeof BindMobilePopup>>();
 
 // 表单状态

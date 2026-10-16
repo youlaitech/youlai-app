@@ -129,7 +129,7 @@ import { onLoad } from "@dcloudio/uni-app";
 import { useDialog, useToast } from "@wot-ui/ui";
 import { useUserStore } from "@/store";
 import { getErrorMessage } from "@/utils/error";
-import { toFormSchema } from "@/utils/form-schema";
+import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 import UserAPI, { type UserProfileForm } from "@/api/user";
 import FileAPI, { type FileInfo } from "@/api/file";
 
@@ -163,7 +163,7 @@ const formRules = toFormSchema({
 const isLoading = ref(false);
 const isCropperVisible = ref(false);
 const originalImageSrc = ref("");
-const profileFormRef = ref();
+const profileFormRef = ref<WdFormRef>();
 
 // 提交按钮的可用条件：昵称与手机号都已填写
 const canComplete = computed(() => {
@@ -233,7 +233,10 @@ const handleAvatarConfirm = async (event: ImgCropperConfirmEvent) => {
 // 提交完善信息：先写资料再绑手机号，成功后回跳来源页面
 const handleComplete = async () => {
   try {
-    const { valid, errors } = await profileFormRef.value.validate();
+    const { valid, errors } = (await profileFormRef.value?.validate()) ?? {
+      valid: false,
+      errors: [],
+    };
     if (!valid) {
       toast.error(errors[0]?.message || "请完善表单信息");
       return;

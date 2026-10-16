@@ -92,13 +92,14 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { toFormSchema } from "@/utils/form-schema";
+import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
 import ConfigAPI, { type ConfigPageQuery, ConfigItem, ConfigForm } from "@/api/config";
 import { hasPermission } from "@/utils/permission";
+import { PERM } from "@/constants/permissions";
 
 definePage({
   name: "config",
@@ -108,7 +109,7 @@ definePage({
 const toast = useToast();
 const { confirmAction } = useConfirmAction();
 const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
-const formRef = ref();
+const formRef = ref<WdFormRef>();
 const isSubmitting = ref(false);
 
 const queryParams = reactive<ConfigPageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
@@ -161,7 +162,7 @@ async function openConfigDialog(id?: number) {
 
 // 提交表单
 function submitConfigForm() {
-  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+  formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     isSubmitting.value = true;
     const action = formData.id
@@ -190,11 +191,11 @@ function closeConfigDialog() {
 function openConfigActions(item: ConfigItem) {
   const commands: ActionSheetCommand[] = [];
 
-  if (hasPermission("sys:config:update")) {
+  if (hasPermission(PERM.config.update)) {
     commands.push({ id: "edit", label: "编辑", execute: () => openConfigDialog(item.id!) });
   }
 
-  if (hasPermission("sys:config:delete")) {
+  if (hasPermission(PERM.config.delete)) {
     commands.push({
       id: "delete",
       label: "删除",

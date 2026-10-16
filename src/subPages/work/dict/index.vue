@@ -92,14 +92,14 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { useRouter } from "uni-mini-router";
-import { toFormSchema } from "@/utils/form-schema";
+import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
 import DictAPI, { type DictTypeForm, type DictTypePageQuery, type DictTypeItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
+import { PERM } from "@/constants/permissions";
 import { getErrorMessage } from "@/utils/error";
 
 definePage({
@@ -107,11 +107,10 @@ definePage({
   style: { navigationBarTitleText: "字典管理", enablePullDownRefresh: true },
 });
 
-const router = useRouter();
 const toast = useToast();
 const { confirmAction } = useConfirmAction();
 const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
-const formRef = ref();
+const formRef = ref<WdFormRef>();
 const isSubmitting = ref(false);
 
 const queryParams = reactive<DictTypePageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
@@ -151,9 +150,10 @@ function loadDictTypeList() {
 // 跳转字典数据页
 function navigateToDictItem(item: DictTypeItem) {
   if (!item.dictCode) return;
-  router.push({
-    path: "/subPages/work/dict/item/index",
-    query: { dictCode: item.dictCode, title: `【${item.name}】字典数据` },
+  uni.navigateTo({
+    url: `/subPages/work/dict/item/index?dictCode=${item.dictCode}&title=${encodeURIComponent(
+      `【${item.name}】字典数据`
+    )}`,
   });
 }
 
@@ -169,7 +169,7 @@ async function openDictDialog(id?: string) {
 }
 
 function submitDictForm() {
-  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+  formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     isSubmitting.value = true;
     const id = formData.id;
@@ -200,11 +200,11 @@ function openDictActions(item: DictTypeItem) {
     { id: "dict-item", label: "字典数据", execute: () => navigateToDictItem(item) },
   ];
 
-  if (hasPermission("sys:dict:update")) {
+  if (hasPermission(PERM.dict.update)) {
     commands.push({ id: "edit", label: "编辑", execute: () => openDictDialog(item.id) });
   }
 
-  if (hasPermission("sys:dict:delete")) {
+  if (hasPermission(PERM.dict.delete)) {
     commands.push({
       id: "delete",
       label: "删除",

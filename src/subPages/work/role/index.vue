@@ -121,13 +121,14 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { toFormSchema } from "@/utils/form-schema";
+import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
 import RoleAPI, { type RolePageQuery, RoleItem, RoleForm } from "@/api/role";
 import { hasPermission } from "@/utils/permission";
+import { PERM } from "@/constants/permissions";
 
 definePage({
   name: "role",
@@ -137,7 +138,7 @@ definePage({
 const toast = useToast();
 const { confirmAction } = useConfirmAction();
 const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
-const formRef = ref();
+const formRef = ref<WdFormRef>();
 const isSubmitting = ref(false);
 
 const queryParams = reactive<RolePageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
@@ -206,7 +207,7 @@ async function openRoleDialog(id?: number) {
 
 // 提交表单
 function submitRoleForm() {
-  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+  formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     isSubmitting.value = true;
     const action = formData.id ? RoleAPI.update(formData.id, formData) : RoleAPI.create(formData);
@@ -233,11 +234,11 @@ function closeRoleDialog() {
 function openRoleActions(item: RoleItem) {
   const commands: ActionSheetCommand[] = [];
 
-  if (hasPermission("sys:role:update")) {
+  if (hasPermission(PERM.role.update)) {
     commands.push({ id: "edit", label: "编辑", execute: () => openRoleDialog(item.id) });
   }
 
-  if (hasPermission("sys:role:assign")) {
+  if (hasPermission(PERM.role.assign)) {
     commands.push({
       id: "assign-perm",
       label: "分配权限",
@@ -245,7 +246,7 @@ function openRoleActions(item: RoleItem) {
     });
   }
 
-  if (hasPermission("sys:role:delete")) {
+  if (hasPermission(PERM.role.delete)) {
     commands.push({
       id: "delete",
       label: "删除",

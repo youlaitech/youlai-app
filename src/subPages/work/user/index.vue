@@ -230,7 +230,7 @@
 import { onLoad } from "@dcloudio/uni-app";
 import dayjs from "dayjs";
 import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
-import { toFormSchema } from "@/utils/form-schema";
+import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 import { findOptionChain } from "@/utils/tree";
 import { useQueue, useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
@@ -241,6 +241,7 @@ import RoleAPI from "@/api/role";
 import DeptAPI from "@/api/dept";
 import { getErrorMessage } from "@/utils/error";
 import { hasPermission } from "@/utils/permission";
+import { PERM } from "@/constants/permissions";
 
 definePage({
   name: "user",
@@ -251,7 +252,7 @@ const toast = useToast();
 const { closeOutside } = useQueue();
 const { confirmAction } = useConfirmAction();
 const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
-const formRef = ref();
+const formRef = ref<WdFormRef>();
 const isSubmitting = ref(false);
 
 const sortValue = ref(0);
@@ -412,7 +413,7 @@ async function openUserDialog(user?: UserItem) {
 
 // 提交表单
 function submitUserForm() {
-  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+  formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     isSubmitting.value = true;
     const action = formData.id ? UserAPI.update(formData.id, formData) : UserAPI.create(formData);
@@ -444,7 +445,7 @@ const resetPwdDialog = reactive({
   userId: undefined as number | undefined,
 });
 const resetPwdForm = reactive({ password: "" });
-const resetPwdFormRef = ref();
+const resetPwdFormRef = ref<WdFormRef>();
 
 const resetPwdRules = toFormSchema({
   password: [
@@ -458,7 +459,7 @@ function openUserActions(item: UserItem) {
   const commands: ActionSheetCommand[] = [];
 
   // 重置密码
-  if (hasPermission("sys:user:reset-password")) {
+  if (hasPermission(PERM.user.resetPassword)) {
     commands.push({
       id: "reset-password",
       label: "重置密码",
@@ -467,12 +468,12 @@ function openUserActions(item: UserItem) {
   }
 
   // 编辑
-  if (hasPermission("sys:user:update")) {
+  if (hasPermission(PERM.user.update)) {
     commands.push({ id: "edit", label: "编辑", execute: () => openUserDialog(item) });
   }
 
   // 删除
-  if (hasPermission("sys:user:delete")) {
+  if (hasPermission(PERM.user.delete)) {
     commands.push({
       id: "delete",
       label: "删除",

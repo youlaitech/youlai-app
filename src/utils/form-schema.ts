@@ -16,7 +16,7 @@ export interface FormRule {
    * 自定义校验：返回 true 表示通过；返回 false 按 message 提示；
    * 返回字符串则以该文案提示
    */
-  validator?: (value: any, model: Record<string, any>) => boolean | string;
+  validator?: (value: unknown, model: Record<string, unknown>) => boolean | string;
 }
 
 /**
@@ -77,4 +77,12 @@ export function toFormSchema(rules: Record<string, FormRule[]>): FormSchema {
       return issues;
     },
   };
+}
+
+/** wd-form 实例引用，仅声明本项目用到的方法 */
+export interface WdFormRef {
+  /** 校验表单，传字段名时只校验对应字段 */
+  validate(field?: string): Promise<{ valid: boolean; errors: { message: string }[] }>;
+  /** 重置校验状态 */
+  reset(): void;
 }

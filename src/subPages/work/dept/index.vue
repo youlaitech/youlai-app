@@ -101,7 +101,7 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { toFormSchema } from "@/utils/form-schema";
+import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 import { findOptionChain, toTree } from "@/utils/tree";
 import { useToast } from "@wot-ui/ui";
 import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
@@ -110,6 +110,7 @@ import { useConfirmAction } from "@/composables/useConfirmAction";
 import DeptAPI, { type DeptQuery, DeptItem, DeptForm } from "@/api/dept";
 import { getErrorMessage } from "@/utils/error";
 import { hasPermission } from "@/utils/permission";
+import { PERM } from "@/constants/permissions";
 import TreeView, { type TreeOption } from "@/subPages/work/components/TreeView.vue";
 
 definePage({
@@ -120,7 +121,7 @@ definePage({
 const toast = useToast();
 const { confirmAction } = useConfirmAction();
 const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
-const formRef = ref();
+const formRef = ref<WdFormRef>();
 const isSubmitting = ref(false);
 
 const queryParams = reactive<DeptQuery>({ keywords: "" });
@@ -211,7 +212,7 @@ function handleNodeAction(node: DeptTreeOption) {
 
   const commands: ActionSheetCommand[] = [];
 
-  if (hasPermission("sys:dept:create")) {
+  if (hasPermission(PERM.dept.create)) {
     commands.push({
       id: "add-child",
       label: "新增子部门",
@@ -219,11 +220,11 @@ function handleNodeAction(node: DeptTreeOption) {
     });
   }
 
-  if (hasPermission("sys:dept:update")) {
+  if (hasPermission(PERM.dept.update)) {
     commands.push({ id: "edit", label: "编辑", execute: () => openDeptDialog(dept) });
   }
 
-  if (hasPermission("sys:dept:delete")) {
+  if (hasPermission(PERM.dept.delete)) {
     commands.push({
       id: "delete",
       label: "删除",
@@ -285,7 +286,7 @@ function openChildDeptDialog(dept: DeptItem) {
 
 // 提交表单
 function submitDeptForm() {
-  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+  formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     isSubmitting.value = true;
     const action = formData.id ? DeptAPI.update(formData.id, formData) : DeptAPI.create(formData);

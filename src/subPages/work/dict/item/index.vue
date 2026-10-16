@@ -112,13 +112,14 @@
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import { toFormSchema } from "@/utils/form-schema";
+import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
 import DictAPI, { type DictItemForm, type DictItemPageQuery, type DictItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
+import { PERM } from "@/constants/permissions";
 import { getErrorMessage } from "@/utils/error";
 import type { TagType } from "@wot-ui/ui/components/wd-tag/types";
 
@@ -134,7 +135,7 @@ const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
 const dictCode = ref<string>("");
 const pageTitle = ref<string>("字典数据");
 
-const formRef = ref();
+const formRef = ref<WdFormRef>();
 const isSubmitting = ref(false);
 
 const queryParams = reactive<DictItemPageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
@@ -220,7 +221,7 @@ async function openItemDialog(id?: string) {
 }
 
 function submitItemForm() {
-  formRef.value.validate().then(({ valid }: { valid: boolean }) => {
+  formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     if (!dictCode.value) {
       toast.error("缺少字典编码");
@@ -257,11 +258,11 @@ function closeItemDialog() {
 function openItemActions(item: DictItem) {
   const commands: ActionSheetCommand[] = [];
 
-  if (hasPermission("sys:dict-item:update")) {
+  if (hasPermission(PERM.dictItem.update)) {
     commands.push({ id: "edit", label: "编辑", execute: () => openItemDialog(item.id) });
   }
 
-  if (hasPermission("sys:dict-item:delete")) {
+  if (hasPermission(PERM.dictItem.delete)) {
     commands.push({
       id: "delete",
       label: "删除",
@@ -283,7 +284,7 @@ function openItemActions(item: DictItem) {
 
 onLoad((query) => {
   dictCode.value = String(query?.dictCode || "");
-  pageTitle.value = String(query?.title || "字典数据");
+  pageTitle.value = String(query?.title ? decodeURIComponent(query.title) : "字典数据");
   if (pageTitle.value) {
     uni.setNavigationBarTitle({ title: pageTitle.value });
   }
