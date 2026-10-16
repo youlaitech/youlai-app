@@ -19,7 +19,7 @@ function get<T>(key: string, defaultValue?: T): T {
   try {
     return JSON.parse(value);
   } catch {
-    // 如果解析失败，返回原始字符串
+    // 如果解析失败，返回原始字符串；历史数据可能未经 JSON 序列化，类型由调用方保证
     return value as unknown as T;
   }
 }

@@ -528,9 +528,6 @@ export default {
           name: "error",
           params: { type: "error", errorShow: this.errorShow, msg: val, id: this.cid },
         });
-        if (this.errorShow) {
-          console.log("[秋云图表组件]" + val);
-        }
       }
     },
     errorMessage(val, oldval) {
