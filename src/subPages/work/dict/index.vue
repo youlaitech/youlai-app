@@ -10,11 +10,11 @@
     </view>
 
     <view class="mt-16rpx">
-      <wd-card v-for="item in dicts" :key="item.id" @click="openDictItemPage(item)">
+      <wd-card v-for="item in dicts" :key="item.id" @click="navigateToDictItem(item)">
         <view class="flex-start">
           <view class="flex-1">
             <view class="flex-start">
-              <text class="font-bold text-32rpx">{{ item.name }}</text>
+              <text class="text-32rpx font-semibold">{{ item.name }}</text>
             </view>
             <text class="text-24rpx color-text-secondary">字典编码：{{ item.dictCode }}</text>
           </view>
@@ -28,7 +28,7 @@
           <view
             class="item-action"
             hover-class="item-action--hover"
-            @click.stop="showDictActions(item)"
+            @click.stop="openDictActions(item)"
           >
             <wd-icon name="more" size="18" class="color-text-secondary" />
           </view>
@@ -69,18 +69,13 @@
           </wd-form-item>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" variant="plain" @click="closeDictDialog">取消</wd-button>
-          <wd-button :loading="isSubmitting" @click="submitDictForm">保存</wd-button>
+          <wd-button type="info" variant="plain" block @click="closeDictDialog">取消</wd-button>
+          <wd-button :loading="isSubmitting" block @click="submitDictForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
 
-    <wd-action-sheet
-      v-model="actionSheetVisible"
-      :actions="actionSheetActions"
-      cancel-text="取消"
-      @select="handleActionSelect"
-    />
+    <ActionSheet ref="actionSheetRef" />
     <wd-fab
       v-if="hasPermission('sys:dict:create') && !dialog.visible"
       :expandable="false"
@@ -100,7 +95,8 @@ import { onLoad } from "@dcloudio/uni-app";
 import { useRouter } from "uni-mini-router";
 import { toFormSchema } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
-import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
+import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
 import DictAPI, { type DictTypeForm, type DictTypePageQuery, type DictTypeItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
@@ -113,8 +109,8 @@ definePage({
 
 const router = useRouter();
 const toast = useToast();
-const { actionSheetVisible, actionSheetActions, showActions, handleActionSelect, confirmAction } =
-  useActionSheet();
+const { confirmAction } = useConfirmAction();
+const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
 const formRef = ref();
 const isSubmitting = ref(false);
 
@@ -152,7 +148,8 @@ function loadDictTypeList() {
   reload();
 }
 
-function openDictItemPage(item: DictTypeItem) {
+// 跳转字典数据页
+function navigateToDictItem(item: DictTypeItem) {
   if (!item.dictCode) return;
   router.push({
     path: "/subPages/work/dict/item/index",
@@ -198,18 +195,21 @@ function closeDictDialog() {
   Object.assign(formData, initialFormData);
 }
 
-function showDictActions(item: DictTypeItem) {
-  const menus: ActionMenuOption[] = [{ name: "字典数据", handler: () => openDictItemPage(item) }];
+function openDictActions(item: DictTypeItem) {
+  const commands: ActionSheetCommand[] = [
+    { id: "dict-item", label: "字典数据", execute: () => navigateToDictItem(item) },
+  ];
 
   if (hasPermission("sys:dict:update")) {
-    menus.push({ name: "编辑", handler: () => openDictDialog(item.id) });
+    commands.push({ id: "edit", label: "编辑", execute: () => openDictDialog(item.id) });
   }
 
   if (hasPermission("sys:dict:delete")) {
-    menus.push({
-      name: "删除",
+    commands.push({
+      id: "delete",
+      label: "删除",
       color: "var(--color-danger)",
-      handler: () =>
+      execute: () =>
         confirmAction({
           msg: `删除字典「${item.name}」会同时删除其字典数据，确定继续吗？`,
           action: async () => {
@@ -221,7 +221,7 @@ function showDictActions(item: DictTypeItem) {
     });
   }
 
-  showActions(menus);
+  actionSheetRef.value?.open(commands);
 }
 
 onLoad(() => {

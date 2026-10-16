@@ -46,7 +46,7 @@
       </wd-cell>
 
       <!-- 自定义颜色 -->
-      <wd-cell title="自定义颜色" is-link @click="showCustomInput">
+      <wd-cell title="自定义颜色" is-link @click="openCustomColorInput">
         <template #icon>
           <wd-icon name="edit" size="16" class="mr-12rpx" />
         </template>
@@ -62,7 +62,7 @@
             <text class="text-28rpx font-500" :style="{ color: currentPrimaryColor }">
               主题色文本
             </text>
-            <wd-tag type="primary" size="small" variant="filled">标签</wd-tag>
+            <wd-tag type="primary" size="small">标签</wd-tag>
           </view>
         </template>
       </wd-cell>
@@ -70,18 +70,20 @@
 
     <!-- 操作按钮 -->
     <view class="mt-32rpx">
-      <wd-button plain size="large" block @click="handleResetTheme">重置为默认主题</wd-button>
+      <wd-button variant="plain" size="large" block @click="handleResetTheme">
+        重置为默认主题
+      </wd-button>
     </view>
 
     <!-- 自定义颜色输入弹窗 -->
-    <wd-popup v-model="showCustomColorInput" position="bottom" custom-class="popup-bottom">
+    <wd-popup v-model="customColorInputVisible" position="bottom" custom-class="popup-bottom">
       <view class="popup-content">
         <view class="popup-header">
           <text class="popup-header__title">自定义主题色</text>
           <view
             class="w-64rpx h-64rpx flex-center rounded-full"
             hover-class="bg-[var(--color-text-placeholder)]/16"
-            @click="showCustomColorInput = false"
+            @click="customColorInputVisible = false"
           >
             <wd-icon name="close" size="18" class="color-text-secondary" />
           </view>
@@ -105,7 +107,9 @@
         </view>
 
         <view class="popup-footer">
-          <wd-button type="info" plain @click="showCustomColorInput = false">取消</wd-button>
+          <wd-button type="info" variant="plain" @click="customColorInputVisible = false">
+            取消
+          </wd-button>
           <wd-button @click="applyCustomColor">应用</wd-button>
         </view>
       </view>
@@ -122,7 +126,6 @@ definePage({
   style: { navigationBarTitleText: "主题设置" },
 });
 
-// 使用主题组合函数
 const { isDark, themeColorOptions, toggleThemeMode, setThemeColor, selectedThemeColor } =
   useTheme();
 
@@ -131,7 +134,7 @@ const { confirm } = useDialog();
 
 // 自定义颜色输入
 const customColor = ref("");
-const showCustomColorInput = ref(false);
+const customColorInputVisible = ref(false);
 
 // 当前生效的主题色主色
 const currentPrimaryColor = computed(() => selectedThemeColor.value.primary);
@@ -143,9 +146,9 @@ const handleSelectColor = (color: (typeof themeColorOptions)[0]) => {
   toast.success("主题色已更新");
 };
 
-// 显示自定义颜色输入
-const showCustomInput = () => {
-  showCustomColorInput.value = true;
+// 打开自定义颜色输入
+const openCustomColorInput = () => {
+  customColorInputVisible.value = true;
   customColor.value = currentPrimaryColor.value;
 };
 
@@ -165,7 +168,7 @@ const applyCustomColor = () => {
   }
 
   setThemeColor({ name: "自定义", value: "custom", primary: color });
-  showCustomColorInput.value = false;
+  customColorInputVisible.value = false;
   toast.success("自定义主题色已应用");
 };
 

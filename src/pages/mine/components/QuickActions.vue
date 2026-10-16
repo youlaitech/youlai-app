@@ -1,7 +1,7 @@
 <template>
-  <view class="quick-cards">
+  <view class="quick-actions">
     <view class="quick-card" @click="emit('profile')">
-      <view class="quick-card__icon quick-card__icon--info">
+      <view class="quick-card__icon quick-card__icon--primary">
         <wd-icon name="user" size="28" color="var(--color-primary)" />
       </view>
       <view class="quick-card__body">
@@ -22,6 +22,7 @@
 </template>
 
 <script lang="ts" setup>
+/** profile / account：只上报点击意图，登录校验与跳转由父级决定 */
 const emit = defineEmits<{
   profile: [];
   account: [];
@@ -29,14 +30,13 @@ const emit = defineEmits<{
 </script>
 
 <style lang="scss" scoped>
-.quick-cards {
+.quick-actions {
   position: relative;
   z-index: var(--z-sticky);
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20rpx;
   margin-top: 24rpx;
-  margin-bottom: 0;
 }
 
 .quick-card {
@@ -62,8 +62,8 @@ const emit = defineEmits<{
   height: 84rpx;
   border-radius: 22rpx;
 
-  &--info {
-    background: var(--color-primary-light);
+  &--primary {
+    background: var(--color-primary-soft);
   }
 
   &--success {

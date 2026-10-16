@@ -1,42 +1,47 @@
 <template>
-  <view>
-    <view class="mine-hero" :style="{ paddingTop: `${navbar.totalHeight.value}px` }">
-      <custom-navbar
-        :bg-color="isScrolled ? headerBackground : 'transparent'"
+  <view class="mine">
+    <view class="mine__hero" :style="{ paddingTop: `${navbar.totalHeightPx.value}px` }">
+      <view class="mine__hero-bg" :style="{ background: heroGradient }" />
+
+      <app-navbar
+        :background="isScrolled ? heroGradient : 'transparent'"
         title-color="var(--color-text-inverse)"
         icon-color="var(--color-text-inverse)"
         :show-back="false"
         :placeholder="false"
       >
         <template #center>
-          <text class="mine-navbar__title">个人中心</text>
+          <text class="mine__navbar-title">个人中心</text>
         </template>
-      </custom-navbar>
+      </app-navbar>
 
-      <view class="mine-hero__content">
+      <view class="mine__hero-content">
         <profile-card
           :is-authenticated="isAuthenticated"
           :avatar="avatar"
-          :name="displayName"
+          :display-name="displayName"
           :username="username"
           :dept-name="deptName"
-          @profile="openProfile"
+          @profile="navigateToProfile"
           @login="navigateToLogin"
-          @scan="scanLogin"
+          @scan="scanForLogin"
         />
 
-        <view class="community-slot">
-          <view class="community-slot__bg" :style="{ background: headerBackground }" />
-          <community-card @open="openOfficialAccount" />
+        <view class="mine__community">
+          <official-account-card @open="navigateToOfficialAccount" />
         </view>
 
-        <quick-cards v-if="isAuthenticated" @profile="openProfile" @account="openAccount" />
+        <quick-actions
+          v-if="isAuthenticated"
+          @profile="navigateToProfile"
+          @account="navigateToAccountSecurity"
+        />
       </view>
     </view>
 
-    <view class="mine-body">
-      <menu-section title="系统工具" :items="toolMenus" @select="handleMenuSelect" />
-      <menu-section title="帮助与支持" :items="helpMenus" @select="handleMenuSelect" />
+    <view class="mine__body">
+      <menu-section title="系统工具" :items="toolMenuItems" @select="handleMenuSelect" />
+      <menu-section title="帮助与支持" :items="helpMenuItems" @select="handleMenuSelect" />
 
       <wd-button
         v-if="isAuthenticated"
@@ -44,19 +49,16 @@
         variant="plain"
         size="large"
         block
-        @click="confirmLogout"
+        :disabled="isLoggingOut"
+        @click="requestLogout"
       >
         退出登录
       </wd-button>
     </view>
 
-    <wd-loading
-      v-if="isClearing"
-      v-model="isClearing"
-      text="正在清理..."
-      mask
-      custom-class="loading-center"
-    />
+    <view v-if="isClearing" class="mine__cache-loading">
+      <wd-loading text="正在清理..." inherit-color />
+    </view>
   </view>
 </template>
 
@@ -66,14 +68,14 @@ import { onPageScroll, onShow } from "@dcloudio/uni-app";
 import { storeToRefs } from "pinia";
 import { useUserStore, useThemeStore } from "@/store";
 import { useRouter } from "uni-mini-router";
-import { useNavbar } from "@/composables/useNavbar";
+import { useNavbarMetrics } from "@/composables/useNavbarMetrics";
 import { useScanLogin } from "@/composables/useScanLogin";
 import { useLogout } from "@/composables/useLogout";
 import { useCacheCleaner } from "@/composables/useCacheCleaner";
-import ProfileCard from "./components/profile-card.vue";
-import CommunityCard from "./components/community-card.vue";
-import QuickCards from "./components/quick-cards.vue";
-import MenuSection, { type MenuItem } from "./components/menu-section.vue";
+import ProfileCard from "./components/ProfileCard.vue";
+import OfficialAccountCard from "./components/OfficialAccountCard.vue";
+import QuickActions from "./components/QuickActions.vue";
+import MenuSection, { type SettingsMenuItem } from "./components/MenuSection.vue";
 
 definePage({
   name: "mine",
@@ -81,14 +83,18 @@ definePage({
   layout: "tabbar",
 });
 
+// 菜单项：route 跳转页面，action 执行本地动作
+type SettingsMenuEntry = SettingsMenuItem &
+  ({ kind: "route"; target: string; requiresAuth?: boolean } | { kind: "action" });
+
 const userStore = useUserStore();
 const themeStore = useThemeStore();
 const router = useRouter();
-const navbar = useNavbar({ hasTabbar: true });
-const { scanLogin } = useScanLogin();
-const { confirmLogout } = useLogout();
+const navbar = useNavbarMetrics();
+const { scanForLogin } = useScanLogin();
+const { isLoggingOut, requestLogout } = useLogout();
 
-/** 滚动后导航栏补上渐变背景，否则内容会从透明导航栏下穿过 */
+// 滚动后导航栏补上背景，否则内容会从透明导航栏下穿过
 const isScrolled = ref(false);
 onPageScroll(({ scrollTop }) => {
   isScrolled.value = scrollTop > 0;
@@ -107,40 +113,51 @@ const displayName = computed(() =>
 const username = computed(() => userInfo.value?.username || "未设置账号");
 const deptName = computed(() => (isAuthenticated.value ? userInfo.value?.deptName || "" : ""));
 
-const headerBackground = computed(() => {
+// 主色渐变：Hero 画布与滚动后的导航栏共用一份，主题色为 6 位十六进制时叠加透明度
+const heroGradient = computed(() => {
   const color = themeStore.themeVars.colorTheme || "var(--color-primary)";
-  const colorWithAlpha = color.length === 7 ? `${color}E6` : color;
-  const colorWithAlpha2 = color.length === 7 ? `${color}CC` : color;
-  return `linear-gradient(135deg, ${colorWithAlpha} 0%, ${colorWithAlpha2} 100%)`;
+  const heroStartColor = color.length === 7 ? `${color}E6` : color;
+  const heroEndColor = color.length === 7 ? `${color}CC` : color;
+  return `linear-gradient(135deg, ${heroStartColor} 0%, ${heroEndColor} 100%)`;
 });
 
-const appVersion = ref("1.0.0");
-const {
-  usageText: storageUsageText,
-  isClearing,
-  loadUsage: loadStorageUsage,
-  clear: clearCache,
-} = useCacheCleaner();
+// 版本号：构建时注入，小程序端会被发布版本覆盖
+const appVersion = ref(import.meta.env.VITE_APP_VERSION);
+const { usageText: storageUsageText, isClearing, loadUsage, clearCache } = useCacheCleaner();
 
 // 常用功能在前，维护操作在后
-const toolMenus = computed<MenuItem[]>(() => [
+const toolMenuItems = computed<SettingsMenuEntry[]>(() => [
   {
-    key: "notice",
+    id: "notice",
+    kind: "route",
+    target: "/subPages/work/notice/index",
+    requiresAuth: true,
     icon: "notification",
     tone: "primary",
     title: "消息通知",
     desc: "查看系统通知与公告",
   },
-  { key: "theme", icon: "settings", tone: "primary", title: "主题设置", desc: "主题色与明暗模式" },
   {
-    key: "network",
+    id: "theme",
+    kind: "route",
+    target: "/subPages/mine/settings/theme/index",
+    icon: "settings",
+    tone: "primary",
+    title: "主题设置",
+    desc: "主题色与明暗模式",
+  },
+  {
+    id: "network",
+    kind: "route",
+    target: "/subPages/mine/settings/network/index",
     icon: "wifi",
     tone: "primary",
     title: "网络检测",
     desc: "检测网络与服务器连接",
   },
   {
-    key: "clear-cache",
+    id: "clear-cache",
+    kind: "action",
     icon: "delete",
     tone: "danger",
     title: "清理缓存",
@@ -149,16 +166,20 @@ const toolMenus = computed<MenuItem[]>(() => [
   },
 ]);
 
-const helpMenus = computed<MenuItem[]>(() => [
+const helpMenuItems = computed<SettingsMenuEntry[]>(() => [
   {
-    key: "agreement",
+    id: "agreement",
+    kind: "route",
+    target: "/subPages/mine/settings/agreement/index",
     icon: "file",
     tone: "success",
     title: "用户协议",
     desc: "了解产品使用规则",
   },
   {
-    key: "about",
+    id: "about",
+    kind: "route",
+    target: "/subPages/mine/about/index",
     icon: "info-circle",
     tone: "info",
     title: "关于系统",
@@ -167,146 +188,148 @@ const helpMenus = computed<MenuItem[]>(() => [
   },
 ]);
 
-const menuRoutes: Record<string, string> = {
-  notice: "/subPages/work/notice/index",
-  network: "/subPages/mine/settings/network/index",
-  theme: "/subPages/mine/settings/theme/index",
-  agreement: "/subPages/mine/settings/agreement/index",
-  about: "/subPages/mine/about/index",
-};
+// 菜单分发：先按 id 找到配置，再按 kind 走跳转或本地动作
+function handleMenuSelect(id: string) {
+  const entry = [...toolMenuItems.value, ...helpMenuItems.value].find((item) => item.id === id);
+  if (!entry) return;
 
-function handleMenuSelect(key: string) {
-  if (key === "clear-cache") {
+  if (entry.kind === "action") {
     clearCache();
     return;
   }
-  if (key === "notice" && !isAuthenticated.value) {
+  if (entry.requiresAuth && !isAuthenticated.value) {
     navigateToLogin();
     return;
   }
-  const path = menuRoutes[key];
-  if (path) {
-    router.push({ path });
-  }
+  router.push({ path: entry.target });
 }
 
-// 登录
-const navigateToLogin = () => {
+// 登录页带回跳地址，登录成功后原路返回
+function navigateToLogin() {
   const pages = getCurrentPages();
   const currentPage = pages[pages.length - 1];
   const currentPagePath = `/${currentPage.route}`;
   router.push({ path: "/pages/login/index", query: { redirect: currentPagePath } });
-};
+}
 
-const openProfile = () => {
+// 资料页要求登录，未登录先跳登录页
+function navigateToProfile() {
   if (!isAuthenticated.value) {
     navigateToLogin();
     return;
   }
   router.push({ path: "/subPages/mine/profile/index" });
-};
+}
 
-// 账号和安全
-const openAccount = () => {
+// 账号安全页要求登录，未登录先跳登录页
+function navigateToAccountSecurity() {
   if (!isAuthenticated.value) {
     navigateToLogin();
     return;
   }
   router.push({ path: "/subPages/mine/account/index" });
-};
+}
 
-// 有来技术公众号
-const openOfficialAccount = () => {
+// 公众号介绍页对游客开放，不需要登录
+function navigateToOfficialAccount() {
   uni.navigateTo({
     url: "/subPages/mine/official/index",
   });
-};
+}
 
+// 已登录但资料为空：token 在、userInfo 缺失的断档态由补拉修复
 const hasUserProfile = computed(() => {
   const info = userInfo.value;
   return !!(info && (info.userId || info.username || info.nickname));
 });
 
-const loadUserInfoIfNeeded = async () => {
-  // 已登录但资料未加载时补拉（loadUserInfo），专治「token 在、userInfo 空」的断档态
+// 资料未加载时补拉一次，失败不阻塞页面渲染
+async function ensureUserInfoLoaded() {
   if (!isAuthenticated.value || hasUserProfile.value) return;
   try {
     await userStore.loadUserInfo();
   } catch {
-    // ignore
+    // 补拉失败保持空态，下次 onShow 再试
   }
-};
+}
 
-const syncMiniProgramVersion = () => {
+// 小程序端版本号以发布版本为准，其他端取构建时注入的包版本
+function syncAppVersion() {
   // #ifdef MP-WEIXIN
-  appVersion.value = uni.getAccountInfoSync().miniProgram.version || "1.0.0";
+  appVersion.value = uni.getAccountInfoSync().miniProgram.version || appVersion.value;
   // #endif
-};
+}
 
 onShow(async () => {
-  await loadUserInfoIfNeeded();
-  await loadStorageUsage();
-  syncMiniProgramVersion();
+  await ensureUserInfoLoaded();
+  await loadUsage();
+  syncAppVersion();
 });
 </script>
 
 <style lang="scss" scoped>
-.mine-hero {
-  position: relative;
-  padding-bottom: 24rpx;
-  overflow: visible;
+.mine {
+  min-height: 100vh;
 }
 
-/* 渐变以社区卡片为锚点：底边压在卡片中线、上沿穿到导航栏后面，形成卡片被背景分割的效果 */
-.community-slot {
+.mine__hero {
   position: relative;
 }
 
-.community-slot__bg {
+/* Hero 画布由页面拥有：固定高度从屏幕顶部铺到社区卡片中线，不随卡片显隐或文案换行变化 */
+.mine__hero-bg {
   position: absolute;
-  right: -28rpx;
-  bottom: 50%;
-  left: -28rpx;
-  z-index: -1;
-  height: 800rpx;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: var(--z-base);
+  height: 480rpx;
   pointer-events: none;
 }
 
-.mine-hero__content {
+.mine__hero-content {
   position: relative;
-  z-index: var(--z-sticky);
+  z-index: var(--z-content);
   display: flex;
   flex-direction: column;
   gap: 20rpx;
   padding: 20rpx 28rpx 0;
 }
 
-.mine-navbar__title {
+.mine__community {
+  position: relative;
+}
+
+.mine__navbar-title {
   font-size: 32rpx;
   font-weight: 600;
   color: var(--color-text-inverse);
   letter-spacing: 2rpx;
 }
 
-.mine-body {
+.mine__body {
   position: relative;
-  z-index: var(--z-base);
+  z-index: var(--z-content);
   display: flex;
   flex-direction: column;
   gap: 24rpx;
-  padding: 0 28rpx 40rpx;
-  margin-top: 0;
+  padding: 24rpx 28rpx 40rpx;
   background: var(--color-bg-page);
   border-top-left-radius: 48rpx;
   border-top-right-radius: 48rpx;
 }
 
-.loading-center {
+.mine__cache-loading {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z-overlay);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  color: var(--color-text-inverse);
   background: var(--color-overlay);
-  border-radius: 24rpx;
 }
 </style>

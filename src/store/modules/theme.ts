@@ -55,9 +55,7 @@ export const useThemeStore = defineStore("theme", () => {
 
   // 方法
 
-  /**
-   * 按当前主题状态同步导航栏颜色
-   */
+  /** 按当前主题状态同步导航栏颜色 */
   const syncNavigationBarTheme = () => {
     uni.setNavigationBarColor({
       frontColor: themeMode.value === "light" ? "#000000" : "#ffffff",
@@ -75,9 +73,7 @@ export const useThemeStore = defineStore("theme", () => {
     syncNavigationBarTheme();
   };
 
-  /**
-   * 在明暗两种模式间切换
-   */
+  /** 在明暗两种模式间切换 */
   const toggleThemeMode = () => {
     setThemeMode(themeMode.value === "light" ? "dark" : "light");
   };
@@ -91,9 +87,7 @@ export const useThemeStore = defineStore("theme", () => {
     Storage.set(THEME_COLOR_KEY, color);
   };
 
-  /**
-   * 初始化主题：同步导航栏（需等首个页面渲染完成，nextTick 保证时序）
-   */
+  /** 初始化主题：同步导航栏（需等首个页面渲染完成，nextTick 保证时序） */
   const initTheme = () => {
     nextTick(() => {
       syncNavigationBarTheme();

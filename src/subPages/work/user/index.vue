@@ -9,7 +9,7 @@
       />
     </view>
 
-    <!-- 排序筛选：搜索框→筛选 12rpx -->
+    <!-- 筛选栏：搜索框下方留白，具体间距跟随公共规则 -->
     <view class="filter-bar" @click="closeOutside">
       <view class="flex-1">
         <wd-drop-menu>
@@ -26,11 +26,7 @@
         <wd-drop-menu>
           <wd-drop-menu-item title="筛选">
             <view class="p-4">
-              <wd-input
-                v-model="queryParams.keywords"
-                label="关键字"
-                placeholder="用户名/昵称/手机号"
-              />
+              <wd-input v-model="queryParams.keywords" placeholder="用户名/昵称/手机号" />
               <wd-cell
                 title="创建时间"
                 :value="createTimeLabel"
@@ -45,8 +41,10 @@
                 allow-same-day
               />
               <view class="popup-actions">
-                <wd-button type="info" variant="plain" @click="resetUserFilter">重置</wd-button>
-                <wd-button @click="applyUserFilter">查询</wd-button>
+                <wd-button type="info" variant="plain" block @click="resetUserFilter">
+                  重置
+                </wd-button>
+                <wd-button block @click="applyUserFilter">查询</wd-button>
               </view>
             </view>
           </wd-drop-menu-item>
@@ -54,7 +52,7 @@
       </view>
     </view>
 
-    <!-- 用户列表：筛选→列表 16rpx -->
+    <!-- 用户列表：与筛选栏之间留出一段间距 -->
     <view class="mt-16rpx">
       <wd-card v-for="item in users" :key="item.id" @click="openUserDialog(item)">
         <!-- 主信息行：头像 + 昵称/角色部门 + 状态 -->
@@ -101,7 +99,7 @@
           <view
             class="item-action"
             hover-class="item-action--hover"
-            @click.stop="showUserActions(item)"
+            @click.stop="openUserActions(item)"
           >
             <wd-icon name="more" size="18" class="color-text-secondary" />
           </view>
@@ -179,8 +177,8 @@
           </wd-form-item>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" variant="plain" @click="closeUserDialog">取消</wd-button>
-          <wd-button :loading="isSubmitting" @click="handleUserSubmit">保存</wd-button>
+          <wd-button type="info" variant="plain" block @click="closeUserDialog">取消</wd-button>
+          <wd-button :loading="isSubmitting" block @click="submitUserForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -191,7 +189,7 @@
         hasPermission('sys:user:create') &&
         !dialog.visible &&
         !resetPwdDialog.visible &&
-        !actionSheetVisible
+        !actionSheetRef?.visible
       "
       :expandable="false"
       :gap="{ bottom: 32 }"
@@ -204,12 +202,7 @@
     </wd-fab>
 
     <!-- 操作菜单 -->
-    <wd-action-sheet
-      v-model="actionSheetVisible"
-      :actions="actionSheetActions"
-      cancel-text="取消"
-      @select="handleActionSelect"
-    />
+    <ActionSheet ref="actionSheetRef" />
 
     <!-- 重置密码弹窗 -->
     <wd-popup v-model="resetPwdDialog.visible" position="bottom" custom-class="popup-bottom">
@@ -221,10 +214,10 @@
           </wd-form-item>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" variant="plain" @click="resetPwdDialog.visible = false">
+          <wd-button type="info" variant="plain" block @click="resetPwdDialog.visible = false">
             取消
           </wd-button>
-          <wd-button :loading="resetPwdDialog.isSubmitting" @click="handleResetPassword">
+          <wd-button :loading="resetPwdDialog.isSubmitting" block @click="handleResetPassword">
             确认
           </wd-button>
         </view>
@@ -240,11 +233,13 @@ import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
 import { toFormSchema } from "@/utils/form-schema";
 import { findOptionChain } from "@/utils/tree";
 import { useQueue, useToast } from "@wot-ui/ui";
-import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
+import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
 import UserAPI, { type UserPageQuery, UserItem, UserForm } from "@/api/user";
 import RoleAPI from "@/api/role";
 import DeptAPI from "@/api/dept";
+import { getErrorMessage } from "@/utils/error";
 import { hasPermission } from "@/utils/permission";
 
 definePage({
@@ -254,8 +249,8 @@ definePage({
 
 const toast = useToast();
 const { closeOutside } = useQueue();
-const { actionSheetVisible, actionSheetActions, showActions, handleActionSelect, confirmAction } =
-  useActionSheet();
+const { confirmAction } = useConfirmAction();
+const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
 const formRef = ref();
 const isSubmitting = ref(false);
 
@@ -416,7 +411,7 @@ async function openUserDialog(user?: UserItem) {
 }
 
 // 提交表单
-function handleUserSubmit() {
+function submitUserForm() {
   formRef.value.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
     isSubmitting.value = true;
@@ -426,6 +421,9 @@ function handleUserSubmit() {
         toast.success("操作成功");
         closeUserDialog();
         loadUserList();
+      })
+      .catch((error) => {
+        toast.error(getErrorMessage(error, "操作失败"));
       })
       .finally(() => {
         isSubmitting.value = false;
@@ -448,26 +446,38 @@ const resetPwdDialog = reactive({
 const resetPwdForm = reactive({ password: "" });
 const resetPwdFormRef = ref();
 
+const resetPwdRules = toFormSchema({
+  password: [
+    { required: true, message: "请输入新密码" },
+    { min: 6, message: "新密码不少于 6 位" },
+  ],
+});
+
 // 更多操作
-function showUserActions(item: UserItem) {
-  const menus: ActionMenuOption[] = [];
+function openUserActions(item: UserItem) {
+  const commands: ActionSheetCommand[] = [];
 
   // 重置密码
   if (hasPermission("sys:user:reset-password")) {
-    menus.push({ name: "重置密码", handler: () => openResetPwdDialog(item) });
+    commands.push({
+      id: "reset-password",
+      label: "重置密码",
+      execute: () => openResetPwdDialog(item),
+    });
   }
 
   // 编辑
   if (hasPermission("sys:user:update")) {
-    menus.push({ name: "编辑", handler: () => openUserDialog(item) });
+    commands.push({ id: "edit", label: "编辑", execute: () => openUserDialog(item) });
   }
 
   // 删除
   if (hasPermission("sys:user:delete")) {
-    menus.push({
-      name: "删除",
+    commands.push({
+      id: "delete",
+      label: "删除",
       color: "var(--color-danger)",
-      handler: () =>
+      execute: () =>
         confirmAction({
           msg: `确定要删除用户「${item.nickname}」吗？`,
           action: async () => {
@@ -478,7 +488,7 @@ function showUserActions(item: UserItem) {
     });
   }
 
-  showActions(menus);
+  actionSheetRef.value?.open(commands);
 }
 
 // 打开重置密码弹窗
@@ -503,7 +513,7 @@ async function handleResetPassword() {
     toast.success("密码重置成功");
     resetPwdDialog.visible = false;
   } catch (error) {
-    // API 已处理错误提示
+    toast.error(getErrorMessage(error, "密码重置失败"));
   } finally {
     resetPwdDialog.isSubmitting = false;
   }

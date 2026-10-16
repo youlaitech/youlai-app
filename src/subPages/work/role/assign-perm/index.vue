@@ -1,7 +1,7 @@
 <template>
-  <view class="assign-perm">
+  <view class="permissions">
     <!-- 固定头部：搜索栏 + 操作栏 -->
-    <view class="header">
+    <view class="permissions__header">
       <view class="role-bar">
         <text class="role-bar__label">角色</text>
         <text class="role-bar__value">{{ roleName || "-" }}</text>
@@ -9,17 +9,15 @@
 
       <view class="action-bar">
         <view class="action-bar__left">
-          <wd-button type="" size="small" variant="plain" @click="handleSelectAll">全选</wd-button>
-          <wd-button type="" size="small" variant="plain" @click="handleClearAll">
-            取消全选
-          </wd-button>
+          <wd-button size="small" variant="plain" @click="handleSelectAll">全选</wd-button>
+          <wd-button size="small" variant="plain" @click="handleClearAll">取消全选</wd-button>
         </view>
       </view>
     </view>
 
     <!-- 可滚动区域：权限树 -->
-    <scroll-view class="tree-container" scroll-y>
-      <custom-tree
+    <scroll-view class="permissions__tree" scroll-y>
+      <tree-view
         :data="menuTree"
         :checkable="true"
         :checked-keys="checkedKeys"
@@ -30,8 +28,8 @@
         @check="handleCheck"
       >
         <template #content="{ node, checked }">
-          <view class="node-content">
-            <view class="node-content__info">
+          <view class="permissions__node">
+            <view class="permissions__node-info">
               <wd-icon
                 v-if="node.type === 'C'"
                 name="folder"
@@ -50,7 +48,7 @@
                 size="16"
                 :color="checked ? 'var(--color-primary)' : 'var(--color-text-secondary)'"
               />
-              <text class="node-content__label" :class="{ 'is-checked': checked }">
+              <text class="permissions__node-label" :class="{ 'is-checked': checked }">
                 {{ node.name }}
               </text>
             </view>
@@ -58,31 +56,32 @@
               v-if="node.type"
               size="small"
               :type="node.type === 'C' ? 'primary' : node.type === 'M' ? 'success' : 'warning'"
-              plain
+              variant="plain"
             >
               {{ node.type === "C" ? "目录" : node.type === "M" ? "菜单" : "按钮" }}
             </wd-tag>
           </view>
         </template>
-      </custom-tree>
+      </tree-view>
 
       <wd-empty v-if="menuTree.length === 0" icon="search-line" tip="暂无菜单数据" />
     </scroll-view>
 
     <!-- 固定底部操作栏 -->
-    <view class="bottom-bar">
-      <wd-button type="info" variant="plain" @click="handleCancel">取消</wd-button>
-      <wd-button :loading="isSubmitting" @click="handleSubmit">保存</wd-button>
+    <view class="permissions__actions">
+      <wd-button type="info" variant="plain" block @click="handleCancel">取消</wd-button>
+      <wd-button :loading="isSubmitting" block @click="handleSubmit">保存</wd-button>
     </view>
   </view>
 </template>
 
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
-import MenuAPI, { type MenuItem } from "@/api/menu";
+import MenuAPI, { type MenuItem, type MenuType } from "@/api/menu";
 import RoleAPI from "@/api/role";
-import CustomTree from "@/subPages/work/components/custom-tree.vue";
-import type { TreeOption } from "@/subPages/work/components/custom-tree.vue";
+import { getErrorMessage } from "@/utils/error";
+import TreeView from "@/subPages/work/components/TreeView.vue";
+import type { TreeOption } from "@/subPages/work/components/TreeView.vue";
 
 definePage({
   name: "role-assign-perm",
@@ -97,14 +96,22 @@ const roleName = ref("");
 const menuList = ref<MenuItem[]>([]);
 const checkedKeys = ref<string[]>([]);
 
+// 树组件节点：菜单实体字段 + 树节点要求的 value/label
+interface PermissionTreeOption extends TreeOption {
+  id: string;
+  name: string;
+  type?: MenuType;
+  children?: PermissionTreeOption[];
+}
+
 // 转换菜单为树结构
-const menuTree = computed<TreeOption[]>(() => {
+const menuTree = computed<PermissionTreeOption[]>(() => {
   if (!menuList.value.length) return [];
   return transformMenuToTree(menuList.value);
 });
 
 // 转换菜单为树组件格式
-function transformMenuToTree(menus: MenuItem[]): TreeOption[] {
+function transformMenuToTree(menus: MenuItem[]): PermissionTreeOption[] {
   return menus.map((menu) => {
     const id = String(menu.id);
     const name = menu.name ?? "";
@@ -124,18 +131,18 @@ function handleCheck(keys: string[]) {
   checkedKeys.value = keys;
 }
 
-// 全选
+// 全选：包含所有层级的菜单 id
 function handleSelectAll() {
   const allIds = getAllMenuIds(menuList.value);
   checkedKeys.value = allIds;
 }
 
-// 取消全选
+// 取消全选：直接清空勾选集合，不逐层回退
 function handleClearAll() {
   checkedKeys.value = [];
 }
 
-// 获取所有菜单ID
+// 收集所有层级的菜单 id
 function getAllMenuIds(menus: MenuItem[]): string[] {
   const ids: string[] = [];
   function traverse(list: MenuItem[]) {
@@ -148,25 +155,27 @@ function getAllMenuIds(menus: MenuItem[]): string[] {
   return ids;
 }
 
-// 取消
+// 取消：不保存直接返回
 function handleCancel() {
   uni.navigateBack();
 }
 
-// 提交
+// 提交：勾选结果是字符串 id，提交前转回数字
 async function handleSubmit() {
   isSubmitting.value = true;
   try {
     await RoleAPI.assignMenus(roleId.value, checkedKeys.value.map(Number));
     toast.success("保存成功");
     uni.navigateBack();
+  } catch (error) {
+    toast.error(getErrorMessage(error, "保存失败"));
   } finally {
     isSubmitting.value = false;
   }
 }
 
-// 加载数据
-async function loadData() {
+// 加载角色权限页所需的菜单树、已授权菜单与角色名
+async function loadRolePermissions() {
   try {
     // 并行加载菜单列表和角色已有权限
     const [menus, roleMenuIds, roleForm] = await Promise.all([
@@ -185,7 +194,7 @@ async function loadData() {
 onLoad((query) => {
   if (query?.id) {
     roleId.value = Number(query.id);
-    loadData();
+    loadRolePermissions();
   }
 });
 </script>
@@ -195,14 +204,14 @@ export default { options: { styleIsolation: "shared" } };
 </script>
 
 <style lang="scss" scoped>
-.assign-perm {
+.permissions {
   display: flex;
   flex-direction: column;
   height: 100vh;
   background: var(--color-bg-card);
 }
 
-.header {
+.permissions__header {
   display: flex;
   flex-shrink: 0;
   align-items: center;
@@ -240,53 +249,51 @@ export default { options: { styleIsolation: "shared" } };
   }
 }
 
-.tree-container {
+.permissions__tree {
   flex: 1;
-  height: 0; // 重要：让 flex + scroll-view 生效
+  height: 0; // scroll-view 要拿到确定高度，flex 剩余空间才生效
   background: var(--color-bg-card);
 }
 
-.node-content {
+.permissions__node {
   display: flex;
   flex: 1;
   gap: 16rpx;
   align-items: center;
   justify-content: flex-start;
   min-width: 0;
+}
 
-  &__info {
-    display: flex;
-    gap: 16rpx;
-    min-width: 0;
-  }
+.permissions__node-info {
+  display: flex;
+  gap: 16rpx;
+  min-width: 0;
+}
 
-  &__label {
-    overflow: hidden;
-    font-size: 28rpx;
-    color: var(--color-text);
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.permissions__node-label {
+  overflow: hidden;
+  font-size: 28rpx;
+  color: var(--color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
-    &.is-checked {
-      color: var(--color-primary);
-    }
+  &.is-checked {
+    color: var(--color-primary);
   }
 }
 
-.node-content :deep(.wd-tag) {
+// 类型标签右对齐，与左侧名称拉开
+.permissions__node :deep(.wd-tag) {
   margin-left: auto;
 }
 
-.bottom-bar {
+// 按钮用 block 撑满，容器只负责排列、间距与底部安全区
+.permissions__actions {
   display: flex;
   flex-shrink: 0;
   gap: 24rpx;
-  padding: 24rpx;
+  padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
   background: var(--color-bg-card);
   box-shadow: 0 -2rpx 16rpx rgba(0, 0, 0, 0.05);
-}
-
-.bottom-bar :deep(.wd-button) {
-  flex: 1;
 }
 </style>

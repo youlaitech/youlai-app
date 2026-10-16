@@ -51,27 +51,21 @@ export const useUserStore = defineStore("user", () => {
 
   // 登录方法
 
-  /**
-   * 账号密码登录
-   */
+  /** 账号密码登录 */
   const loginByPassword = async (data: PasswordLoginParams) => {
     const result = await AuthAPI.loginByPassword(data);
     setAccessToken(result.accessToken);
     return result;
   };
 
-  /**
-   * 短信验证码登录
-   */
+  /** 短信验证码登录 */
   const loginBySms = async (data: SmsLoginParams) => {
     const result = await AuthAPI.loginBySms(data);
     setAccessToken(result.accessToken);
     return result;
   };
 
-  /**
-   * 微信小程序静默登录
-   */
+  /** 微信小程序静默登录 */
   const loginByWxMa = async (code: string) => {
     const result = await AuthAPI.wxMaSilentLogin(code);
     if (result.accessToken) {
@@ -80,18 +74,14 @@ export const useUserStore = defineStore("user", () => {
     return result;
   };
 
-  /**
-   * 微信小程序一键登录（企业小程序）
-   */
+  /** 微信小程序一键登录（企业小程序） */
   const loginByWxMaPhone = async (data: WxMaPhoneLoginParams) => {
     const result = await AuthAPI.wxMaPhoneLogin(data);
     setAccessToken(result.accessToken);
     return result;
   };
 
-  /**
-   * 微信小程序绑定手机号
-   */
+  /** 微信小程序绑定手机号 */
   const bindMobileForWxMa = async (data: WxMaBindMobileParams) => {
     const result = await AuthAPI.wxMaBindMobile(data);
     setAccessToken(result.accessToken);
@@ -100,9 +90,7 @@ export const useUserStore = defineStore("user", () => {
 
   // 用户信息方法
 
-  /**
-   * 加载当前登录用户信息（请求接口、更新响应式状态、写入存储）
-   */
+  /** 加载当前登录用户信息（请求接口、更新响应式状态、写入存储） */
   const loadUserInfo = async () => {
     const data = await UserAPI.getCurrentUser();
     Storage.set(USER_INFO_KEY, data);
@@ -110,9 +98,7 @@ export const useUserStore = defineStore("user", () => {
     return data;
   };
 
-  /**
-   * 登出：远端退出 + 本地清理（内存与持久化）+ 跳转登录页（唯一导航入口）
-   */
+  /** 登出：远端退出 + 本地清理（内存与持久化）+ 跳转登录页（唯一导航入口） */
   const logout = async () => {
     try {
       await AuthAPI.logout();

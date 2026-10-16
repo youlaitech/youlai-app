@@ -33,11 +33,13 @@
           <view
             class="bind-mobile__code-btn"
             :class="
-              countdown > 0 ? 'bind-mobile__code-btn--disabled' : 'bind-mobile__code-btn--active'
+              remainingSeconds > 0
+                ? 'bind-mobile__code-btn--disabled'
+                : 'bind-mobile__code-btn--active'
             "
             @click="handleSendCode"
           >
-            {{ countdown > 0 ? `${countdown}s` : "获取验证码" }}
+            {{ remainingSeconds > 0 ? `${remainingSeconds}s` : "获取验证码" }}
           </view>
         </view>
 
@@ -75,15 +77,21 @@ const emit = defineEmits<{
 
 const toast = useToast();
 const userStore = useUserStore();
-const { countdown, sendCode, resetCountdown } = useSmsLoginCode();
+const { remainingSeconds, sendCode, resetCountdown } = useSmsLoginCode();
 
 const mobile = ref("18888888888");
 const code = ref("");
 const isSubmitting = ref(false);
-/** 待绑定的微信 openid，由父组件通过 open 传入 */
+// 待绑定的微信 openid，由父组件通过 open 传入，不随表单清理
 let openid = "";
 
-/** 打开弹窗并记录待绑定的 openid */
+/**
+ * 打开绑定弹窗
+ *
+ * 重置手机号与验证码（避免上一次输入残留），并记录待绑定的 openid。
+ *
+ * @param boundOpenid - 静默登录返回的微信 openid
+ */
 function open(boundOpenid: string) {
   openid = boundOpenid;
   mobile.value = "18888888888";
@@ -91,6 +99,7 @@ function open(boundOpenid: string) {
   visible.value = true;
 }
 
+// 关闭弹窗：停掉倒计时并清空验证码，手机号保留便于再次打开
 function handleClose() {
   resetCountdown();
   code.value = "";
@@ -100,6 +109,7 @@ async function handleSendCode() {
   await sendCode(mobile.value);
 }
 
+// 确认绑定：本地校验通过后换会话，成功后由父组件跳转
 async function handleConfirm() {
   if (isSubmitting.value) return;
   if (!isValidMobile(mobile.value)) {
@@ -167,7 +177,7 @@ defineExpose({ open });
 
   &--active {
     color: var(--color-primary);
-    background-color: var(--color-primary-light);
+    background-color: var(--color-primary-soft);
   }
 
   &--disabled {

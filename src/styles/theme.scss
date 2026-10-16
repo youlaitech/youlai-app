@@ -1,11 +1,13 @@
-// 明暗主题 CSS 变量，随 wot-design-uni 的 .wot-theme-dark 类切换
+// 明暗主题 CSS 变量，随 @wot-ui/ui 的 .wot-theme-dark 类切换
 
 // 浅色主题
 :root,
 page {
-  --z-dropdown: 100;
-  --z-sticky: 200;
-  --z-navbar: 700;
+  // 层级：页面内定位块 5 < wot 弹层(tabbar/popup/action-sheet) 10 < 下拉菜单 12 < 导航栏 15
+  // < dialog 99 < toast 100 < 全局操作遮罩 90（低于 toast，保证遮罩期间提示可见）
+  --z-sticky: 5;
+  --z-navbar: 15;
+  --z-overlay: 90;
 
   // 组件内分层：底图 0 < 遮罩 1 < 内容 2
   --z-base: 0;
@@ -14,7 +16,8 @@ page {
 
   // 语义色取 Arco 色板基色，-light 为配套的 90% 白浅底
   --color-primary: #165dff;
-  --color-primary-light: #e8efff;
+  // 主色柔和底：跟随主题色，由 app-provider 按所选主色注入 rgba
+  --color-primary-soft: #e8efff;
   --color-success: #00b42a;
   --color-success-light: #e6f8ea;
   --color-warning: #ff7d00;
@@ -71,14 +74,15 @@ page {
   --wot-button-radius-main: 24rpx;
   // 单元格点击态统一走项目填充色，避免各页面用 :deep 加 !important 硬压
   --wot-cell-bg-active: var(--color-fill-2);
-  --wot-fab-z-index: 999;
+  // 悬浮按钮压在页面内容之上、wot 弹层（10）之下
+  --wot-fab-z-index: 6;
 }
 
 // 暗色主题
 .wot-theme-dark {
-  // 基色与浅色主题一致，-light 转为 90% 深色底
+  // 基色与浅色主题一致，柔和底改为深色卡片上的低透明度叠加
   --color-primary: #165dff;
-  --color-primary-light: #151c2c;
+  --color-primary-soft: rgba(22, 93, 255, 0.16);
   --color-success: #00b42a;
   --color-success-light: #122417;
   --color-warning: #ff7d00;

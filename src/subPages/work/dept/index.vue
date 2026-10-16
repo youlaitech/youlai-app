@@ -11,7 +11,7 @@
 
     <!-- 部门树形列表 -->
     <view class="mt-16rpx">
-      <CustomTree
+      <TreeView
         :data="treeData"
         :default-expand-all="true"
         :show-action="true"
@@ -27,7 +27,7 @@
             </wd-tag>
           </view>
         </template>
-      </CustomTree>
+      </TreeView>
 
       <wd-empty v-if="deptList.length === 0" icon="search-line" tip="暂无数据" />
     </view>
@@ -75,8 +75,8 @@
           </wd-form-item>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" variant="plain" @click="closeDeptDialog">取消</wd-button>
-          <wd-button :loading="isSubmitting" @click="submitDeptForm">保存</wd-button>
+          <wd-button type="info" variant="plain" block @click="closeDeptDialog">取消</wd-button>
+          <wd-button :loading="isSubmitting" block @click="submitDeptForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -95,12 +95,7 @@
     </wd-fab>
 
     <!-- 操作菜单 -->
-    <wd-action-sheet
-      v-model="actionSheetVisible"
-      :actions="actionSheetActions"
-      cancel-text="取消"
-      @select="handleActionSelect"
-    />
+    <ActionSheet ref="actionSheetRef" />
   </view>
 </template>
 
@@ -110,10 +105,12 @@ import { toFormSchema } from "@/utils/form-schema";
 import { findOptionChain } from "@/utils/tree";
 import { useToast } from "@wot-ui/ui";
 import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
-import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
+import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import DeptAPI, { type DeptQuery, DeptItem, DeptForm } from "@/api/dept";
+import { getErrorMessage } from "@/utils/error";
 import { hasPermission } from "@/utils/permission";
-import CustomTree, { type TreeOption } from "@/subPages/work/components/custom-tree.vue";
+import TreeView, { type TreeOption } from "@/subPages/work/components/TreeView.vue";
 
 definePage({
   name: "dept",
@@ -121,8 +118,8 @@ definePage({
 });
 
 const toast = useToast();
-const { actionSheetVisible, actionSheetActions, showActions, handleActionSelect, confirmAction } =
-  useActionSheet();
+const { confirmAction } = useConfirmAction();
+const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
 const formRef = ref();
 const isSubmitting = ref(false);
 
@@ -141,10 +138,20 @@ const initialFormData: DeptForm = {
 
 const formData = reactive<DeptForm>({ ...initialFormData });
 
-// 转换为树组件数据格式
-const treeData = computed(() => deptList.value.map((dept) => transformDeptToTree(dept)));
+// 树组件节点：部门实体字段 + 树节点要求的 value/label
+interface DeptTreeOption extends TreeOption {
+  id?: number;
+  name?: string;
+  status?: number;
+  children?: DeptTreeOption[];
+}
 
-function transformDeptToTree(dept: DeptItem): TreeOption {
+// 转换为树组件数据格式
+const treeData = computed<DeptTreeOption[]>(() =>
+  deptList.value.map((dept) => transformDeptToTree(dept))
+);
+
+function transformDeptToTree(dept: DeptItem): DeptTreeOption {
   return {
     value: String(dept.id),
     label: dept.name ?? "",
@@ -189,35 +196,39 @@ function loadDeptList() {
     .then((data) => {
       deptList.value = data;
     })
-    .catch(() => {
-      // API 层已处理错误提示
+    .catch((error) => {
+      toast.error(getErrorMessage(error, "加载失败"));
     });
 }
 
 // 处理节点操作按钮点击
-function handleNodeAction(node: TreeOption) {
+function handleNodeAction(node: DeptTreeOption) {
   const dept: DeptItem = {
     id: node.id,
-    name: node.label,
+    name: node.name ?? node.label,
     status: node.status,
-    children: node.children,
-  } as DeptItem;
+  };
 
-  const menus: ActionMenuOption[] = [];
+  const commands: ActionSheetCommand[] = [];
 
   if (hasPermission("sys:dept:create")) {
-    menus.push({ name: "新增子部门", handler: () => handleAddChild(dept) });
+    commands.push({
+      id: "add-child",
+      label: "新增子部门",
+      execute: () => openChildDeptDialog(dept),
+    });
   }
 
   if (hasPermission("sys:dept:update")) {
-    menus.push({ name: "编辑", handler: () => openDeptDialog(dept) });
+    commands.push({ id: "edit", label: "编辑", execute: () => openDeptDialog(dept) });
   }
 
   if (hasPermission("sys:dept:delete")) {
-    menus.push({
-      name: "删除",
+    commands.push({
+      id: "delete",
+      label: "删除",
       color: "var(--color-danger)",
-      handler: () =>
+      execute: () =>
         confirmAction({
           msg: `确定要删除部门「${dept.name}」吗？`,
           action: async () => {
@@ -228,7 +239,7 @@ function handleNodeAction(node: TreeOption) {
     });
   }
 
-  showActions(menus);
+  actionSheetRef.value?.open(commands);
 }
 
 // 打开弹窗（新增/编辑）
@@ -260,7 +271,7 @@ async function openDeptDialog(dept?: DeptItem) {
 }
 
 // 新增子部门：按新增流程打开弹窗，并预设上级部门
-function handleAddChild(dept: DeptItem) {
+function openChildDeptDialog(dept: DeptItem) {
   openDeptDialog();
   formData.parentId = dept.id!;
   parentSelected.value = dept.id!;

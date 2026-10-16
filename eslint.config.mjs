@@ -51,10 +51,11 @@ export default [
           definePage: "readonly", // uni-pages 页面宏
           getCurrentPages: "readonly", // uni-app 全局 API
           wx: "readonly", // 微信小程序 API
-          useToast: "readonly", // wot-design-uni
-          useDialog: "readonly", // wot-design-uni
-          useMessage: "readonly", // wot-design-uni
-          useNotify: "readonly", // wot-design-uni
+          UniHelper: "readonly", // uni-app 类型命名空间
+          useToast: "readonly", // @wot-ui/ui
+          useDialog: "readonly", // @wot-ui/ui
+          useMessage: "readonly", // @wot-ui/ui
+          useNotify: "readonly", // @wot-ui/ui
         },
       },
     },

@@ -4,25 +4,38 @@ import { useCountdown } from "@/composables/useCountdown";
 import { getErrorMessage } from "@/utils/error";
 import AuthAPI from "@/api/auth";
 
-/** 手机号格式校验 */
+/**
+ * 判断手机号格式是否可用
+ *
+ * @param mobile - 待校验的手机号
+ * @returns 是否为 1 开头的 11 位数字
+ */
 export function isValidMobile(mobile: string): boolean {
   return /^1\d{10}$/.test((mobile || "").trim());
 }
 
 /**
- * 登录短信验证码发送（含 60s 倒计时与发送锁）
+ * 登录短信验证码发送
  *
- * @returns countdown 剩余秒数、isSending 发送中标志、sendCode 发送函数、resetCountdown 重置倒计时
+ * 含发送锁与 60 秒倒计时：请求返回前阻止重复点击，倒计时在发送成功后才启动。
  */
 export function useSmsLoginCode() {
   const toast = useToast();
-  const { countdown, start, stop } = useCountdown(60);
-  /** 发送中标志：请求返回前阻止重复点击（倒计时在发送成功后才启动） */
+  const { remainingSeconds, start, stop } = useCountdown(60);
+  /** 发送中标志，请求返回前阻止重复点击 */
   const isSending = ref(false);
 
-  /** 发送验证码，失败提示由这里统一处理 */
+  /**
+   * 发送验证码
+   *
+   * 手机号格式与重复发送在这里拦下，接口失败提示也由这里统一处理。
+   *
+   * @param mobile - 接收验证码的手机号
+   * @param fallback - 接口无错误信息时的兜底提示
+   * @returns 是否发送成功
+   */
   async function sendCode(mobile: string, fallback = "发送失败"): Promise<boolean> {
-    if (isSending.value || countdown.value > 0) return false;
+    if (isSending.value || remainingSeconds.value > 0) return false;
     if (!isValidMobile(mobile)) {
       toast.error("请输入正确的手机号");
       return false;
@@ -41,9 +54,14 @@ export function useSmsLoginCode() {
     }
   }
 
+  /**
+   * 重置倒计时
+   *
+   * 关闭弹窗等场景调用，让下次打开可以立即重新发送。
+   */
   function resetCountdown() {
     stop();
   }
 
-  return { countdown, isSending, sendCode, resetCountdown };
+  return { remainingSeconds, isSending, sendCode, resetCountdown };
 }

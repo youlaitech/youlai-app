@@ -9,9 +9,7 @@ baseApi = import.meta.env.VITE_APP_BASE_API;
 // #endif
 
 const FileAPI = {
-  /**
-   * 文件上传地址
-   */
+  /** 文件上传地址 */
   uploadUrl: baseApi + "/api/v1/files",
 
   /**
@@ -55,9 +53,7 @@ const FileAPI = {
 
 export default FileAPI;
 
-/**
- * 文件API类型声明
- */
+/** 文件API类型声明 */
 export interface FileInfo {
   /** 文件名 */
   name: string;

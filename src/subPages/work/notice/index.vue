@@ -49,7 +49,7 @@
           <view
             class="item-action"
             hover-class="item-action--hover"
-            @click.stop="showNoticeActions(item)"
+            @click.stop="openNoticeActions(item)"
           >
             <wd-icon name="more" size="16" class="color-text-secondary" />
           </view>
@@ -128,18 +128,13 @@
           </wd-form-item>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" variant="plain" @click="closeNoticeDialog">取消</wd-button>
-          <wd-button :loading="isSubmitting" @click="submitNoticeForm">保存</wd-button>
+          <wd-button type="info" variant="plain" block @click="closeNoticeDialog">取消</wd-button>
+          <wd-button :loading="isSubmitting" block @click="submitNoticeForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
 
-    <wd-action-sheet
-      v-model="actionSheetVisible"
-      :actions="actionSheetActions"
-      cancel-text="取消"
-      @select="handleActionSelect"
-    />
+    <ActionSheet ref="actionSheetRef" />
     <wd-fab
       v-if="hasPermission('sys:notice:create') && !dialog.visible && !detailDialog.visible"
       :expandable="false"
@@ -158,7 +153,8 @@
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
-import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
+import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
 import NoticeAPI, {
   type NoticePageQuery,
@@ -174,8 +170,8 @@ definePage({
 });
 
 const toast = useToast();
-const { actionSheetVisible, actionSheetActions, showActions, handleActionSelect, confirmAction } =
-  useActionSheet();
+const { confirmAction } = useConfirmAction();
+const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
 const formRef = ref();
 const isSubmitting = ref(false);
 
@@ -228,9 +224,9 @@ const getStatusText = (status?: number): string => {
 };
 
 // 获取级别文本
-const getLevelText = (level?: string | number): string => {
+const getLevelText = (level?: string): string => {
   const map: Record<string, string> = { L: "低", M: "中", H: "高" };
-  return level ? map[String(level)] || String(level) : "-";
+  return level ? map[level] || level : "-";
 };
 
 // 格式化时间
@@ -303,18 +299,25 @@ function submitNoticeForm() {
 }
 
 // 更多操作
-function showNoticeActions(item: NoticeItem) {
-  const menus: ActionMenuOption[] = [{ name: "查看", handler: () => openNoticeDetail(item) }];
+function openNoticeActions(item: NoticeItem) {
+  const commands: ActionSheetCommand[] = [
+    { id: "detail", label: "查看", execute: () => openNoticeDetail(item) },
+  ];
 
   if (item.publishStatus !== 1) {
     if (hasPermission("sys:notice:update")) {
-      menus.push({ name: "编辑", handler: () => openNoticeDialog(Number(item.id)) });
+      commands.push({
+        id: "edit",
+        label: "编辑",
+        execute: () => openNoticeDialog(Number(item.id)),
+      });
     }
     if (hasPermission("sys:notice:delete")) {
-      menus.push({
-        name: "删除",
+      commands.push({
+        id: "delete",
+        label: "删除",
         color: "var(--color-danger)",
-        handler: () =>
+        execute: () =>
           confirmAction({
             msg: `确定要删除通知「${item.title}」吗？`,
             action: async () => {
@@ -325,9 +328,10 @@ function showNoticeActions(item: NoticeItem) {
       });
     }
     if (hasPermission("sys:notice:publish")) {
-      menus.push({
-        name: "发布",
-        handler: () =>
+      commands.push({
+        id: "publish",
+        label: "发布",
+        execute: () =>
           confirmAction({
             title: "确认发布",
             msg: `确定要发布通知「${item.title}」吗？`,
@@ -340,10 +344,11 @@ function showNoticeActions(item: NoticeItem) {
       });
     }
   } else if (hasPermission("sys:notice:revoke")) {
-    menus.push({
-      name: "撤回",
+    commands.push({
+      id: "revoke",
+      label: "撤回",
       color: "var(--color-warning)",
-      handler: () =>
+      execute: () =>
         confirmAction({
           title: "确认撤回",
           msg: `确定要撤回通知「${item.title}」吗？`,
@@ -356,7 +361,7 @@ function showNoticeActions(item: NoticeItem) {
     });
   }
 
-  showActions(menus);
+  actionSheetRef.value?.open(commands);
 }
 
 onLoad(() => {

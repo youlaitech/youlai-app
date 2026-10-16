@@ -7,7 +7,7 @@
     </view>
 
     <!-- 导航栏：透明悬浮于渐变背景上，返回逻辑由组件内聚（栈空时回首页） -->
-    <custom-navbar bg-color="transparent" placeholder />
+    <app-navbar background="transparent" placeholder />
 
     <!-- 主内容 -->
     <view class="login__body">
@@ -215,7 +215,7 @@ import { useUserStore } from "@/store/modules/user";
 import { useSmsLoginCode, isValidMobile } from "@/composables/useSmsLoginCode";
 import { getErrorMessage } from "@/utils/error";
 import AuthAPI from "@/api/auth";
-import BindMobilePopup from "./components/bind-mobile-popup.vue";
+import BindMobilePopup from "./components/BindMobilePopup.vue";
 
 definePage({
   name: "login",
@@ -234,7 +234,7 @@ const isLoggingIn = ref(false);
 const isPwdVisible = ref(false);
 const hasAcceptedPolicy = ref(false);
 const loginMode = ref<"PASSWORD" | "SMS" | "WECHAT">("PASSWORD");
-const { countdown: smsCountdown, sendCode } = useSmsLoginCode();
+const { remainingSeconds: smsCountdown, sendCode } = useSmsLoginCode();
 
 const formData = ref({
   username: "admin",
@@ -397,12 +397,12 @@ const handleSendCode = async () => {
   await sendCode(formData.value.username);
 };
 
-// 微信登录
-/** 微信手机号快捷填充按钮回调事件 */
+// 微信手机号快捷登录的事件载荷：手机号需要 code 换取，用户取消时为空
 interface WxPhoneLoginEvent {
   detail: { code?: string };
 }
 
+// 微信一键登录：未勾选协议时先弹协议确认，再继续换号流程
 const handleWechatPhoneLogin = async (e: WxPhoneLoginEvent) => {
   const phoneCode = e.detail.code;
   if (!hasAcceptedPolicy.value) {
@@ -410,7 +410,7 @@ const handleWechatPhoneLogin = async (e: WxPhoneLoginEvent) => {
     return;
   }
   if (!phoneCode) {
-    await handleWechatSilentLogin();
+    await doWechatSilentLogin();
     return;
   }
   await doWechatPhoneLogin(phoneCode);
@@ -418,7 +418,7 @@ const handleWechatPhoneLogin = async (e: WxPhoneLoginEvent) => {
 
 async function doWechatPhoneLogin(phoneCode: string) {
   if (!phoneCode) {
-    await handleWechatSilentLogin();
+    await doWechatSilentLogin();
     return;
   }
   isLoggingIn.value = true;
@@ -429,13 +429,13 @@ async function doWechatPhoneLogin(phoneCode: string) {
     await completeLogin();
   } catch {
     toast.info("正在尝试其他登录方式...");
-    await handleWechatSilentLogin();
+    await doWechatSilentLogin();
   } finally {
     isLoggingIn.value = false;
   }
 }
 
-const handleWechatSilentLogin = async () => {
+const doWechatSilentLogin = async () => {
   isLoggingIn.value = true;
   try {
     const { code } = await uni.login();
@@ -453,12 +453,13 @@ const handleWechatSilentLogin = async () => {
   }
 };
 
-/** 绑定手机号成功后的会话初始化与跳转 */
+// 登录成功：补拉用户资料后回跳来源页面，延迟用于展示成功提示
 async function completeLogin() {
   await userStore.loadUserInfo();
   setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
 }
 
+// 协议入口：按类型区分用户协议与隐私政策
 const navigateToAgreement = (type: string) => {
   const url =
     type === "user"
@@ -482,7 +483,7 @@ onLoad((options) => {
     135deg,
     var(--color-bg-page) 0%,
     var(--color-bg-card) 50%,
-    var(--color-primary-light) 100%
+    var(--color-primary-soft) 100%
   );
 }
 
@@ -709,7 +710,7 @@ onLoad((options) => {
   border-radius: 16rpx;
   &--active {
     color: var(--color-primary);
-    background-color: var(--color-primary-light);
+    background-color: var(--color-primary-soft);
   }
 
   &--disabled {

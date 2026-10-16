@@ -21,9 +21,10 @@
     "plugins": ["@uni-helper/uni-types/volar-plugin"],
     // 禁用原生组件严格类型检查（uni-app 原生组件与 Volar 的兼容性问题）
     "nativeTags": ["block", "component", "template", "slot"],
-    // 忽略 slot props 隐式 any 类型错误（递归组件 slot 转发的已知限制）
+    // 模板类型检查在 vue-tsc 默认工程里关闭：@wot-ui/ui 内部 SFC 模板（canvas id / inputmode
+    // 等原生属性写法）在严格模板模式下报错，工程无法只针对自有文件开启。
+    // 自有文件的模板检查走 tsconfig.templates.json + scripts/check-templates.mjs。
     "strictTemplates": false,
-    // Wot UI 的 SFC 模板类型与当前 uni 类型存在兼容问题，脚本类型仍保留检查
     "skipTemplateCodegen": true
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],

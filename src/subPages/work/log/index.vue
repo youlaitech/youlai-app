@@ -16,9 +16,9 @@
         <view class="flex-start">
           <view class="flex-1">
             <view class="flex-start mt-12rpx">
-              <text class="font-bold text-32rpx">{{ item.operatorName }}</text>
+              <text class="text-32rpx font-semibold">{{ item.operatorName }}</text>
               <wd-tag
-                plain
+                variant="plain"
                 size="small"
                 class="ml-16rpx"
                 :type="item.status === 1 ? 'success' : 'danger'"

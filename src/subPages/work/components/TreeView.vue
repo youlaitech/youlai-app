@@ -1,25 +1,25 @@
 <template>
-  <view class="custom-tree">
-    <view v-for="item in flatNodes" :key="item.value" class="custom-tree-node">
+  <view class="tree-view">
+    <view v-for="item in flatNodes" :key="item.value" class="tree-node">
       <view
-        class="custom-tree-node__content"
+        class="tree-node__content"
         :style="{ paddingLeft: item.level * 32 + 24 + 'rpx' }"
         @click="handleNodeClick(item)"
       >
         <!-- 展开/收起图标 -->
-        <view class="custom-tree-node__expand" @click.stop="handleExpand(item)">
+        <view class="tree-node__expand" @click.stop="handleExpand(item)">
           <wd-icon
             v-if="item.hasChildren"
             :name="isExpanded(item.value) ? 'arrow-down' : 'arrow-right'"
             size="14"
-            class="custom-tree-node__arrow"
-            :class="{ 'custom-tree-node__arrow--expanded': isExpanded(item.value) }"
+            class="tree-node__arrow"
+            :class="{ 'tree-node__arrow--expanded': isExpanded(item.value) }"
           />
-          <view v-else class="custom-tree-node__expand-placeholder" />
+          <view v-else class="tree-node__expand-placeholder" />
         </view>
 
         <!-- 多选框 -->
-        <view v-if="checkable" class="custom-tree-node__checkbox" @click.stop="handleCheck(item)">
+        <view v-if="checkable" class="tree-node__checkbox" @click.stop="handleCheck(item)">
           <wd-checkbox
             :model-value="isChecked(item.value)"
             :indeterminate="isIndeterminate(item.value)"
@@ -37,7 +37,7 @@
           :checked="isChecked(item.value)"
           :indeterminate="isIndeterminate(item.value)"
         >
-          <view class="custom-tree-node__label-wrapper">
+          <view class="tree-node__label-wrapper">
             <wd-icon
               v-if="item.hasChildren"
               name="folder"
@@ -47,17 +47,13 @@
               "
             />
             <wd-icon v-else name="file" size="16" class="color-text-secondary" />
-            <text class="custom-tree-node__label">{{ item.label }}</text>
+            <text class="tree-node__label">{{ item.label }}</text>
           </view>
         </slot>
 
         <!-- 操作按钮 -->
         <slot name="action" :node="item.raw" :level="item.level">
-          <view
-            v-if="showAction"
-            class="custom-tree-node__action"
-            @click.stop="handleNodeAction(item)"
-          >
+          <view v-if="showAction" class="tree-node__action" @click.stop="handleNodeAction(item)">
             <wd-icon name="more" size="16" class="color-text-secondary" />
           </view>
         </slot>
@@ -66,25 +62,35 @@
   </view>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="T extends TreeOption">
 import { ref, computed, watch } from "vue";
 
+/**
+ * 树节点
+ *
+ * value 与 label 是树组件自身的字段，其余业务字段通过索引签名扩展，
+ * 由使用方按需声明具体类型。
+ */
 export interface TreeOption {
-  [key: string]: unknown;
   value: string;
   label: string;
+  /** 节点是否禁用 */
+  disabled?: boolean;
   children?: TreeOption[];
+  /** 业务扩展字段，由使用方声明具体类型 */
+  [key: string]: unknown;
 }
 
-interface FlatNode extends TreeOption {
+// 扁平化后的节点：原始节点 + 层级与子节点信息
+type FlatNode = T & {
   level: number;
   hasChildren: boolean;
-  raw: TreeOption;
-}
+  raw: T;
+};
 
 interface Props {
   /** 树形数据源 */
-  data?: TreeOption[];
+  data?: T[];
   /** 节点值的字段名 */
   valueKey?: string;
   /** 节点标签的字段名 */
@@ -120,18 +126,29 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   /** 点击节点时触发 */
-  (_e: "click", _node: TreeOption): void;
+  (_e: "click", _node: T): void;
   /** 展开/收起节点时触发 */
-  (_e: "expand", _node: TreeOption, _expanded: boolean): void;
+  (_e: "expand", _node: T, _expanded: boolean): void;
   /** 点击操作按钮时触发 */
-  (_e: "action", _node: TreeOption): void;
+  (_e: "action", _node: T): void;
   /** 多选选中变化时触发 */
-  (_e: "check", _checkedKeys: string[], _info: { checked: boolean; node: TreeOption }): void;
+  (_e: "check", _checkedKeys: string[], _info: { checked: boolean; node: T }): void;
 }>();
 
-/** 展开的节点 key 集合 */
+defineSlots<{
+  content(_props: {
+    node: T;
+    level: number;
+    expanded: boolean;
+    checked: boolean;
+    indeterminate: boolean;
+  }): unknown;
+  action(_props: { node: T; level: number }): unknown;
+}>();
+
+// 展开的节点 key 集合
 const expandedKeys = ref<Set<string>>(new Set(props.defaultExpandedKeys));
-/** 选中的节点 key 集合（多选模式，内部维护） */
+// 选中的节点 key 集合：多选状态下内部维护，不直接写回 props.checkedKeys
 const internalCheckedKeys = ref<Set<string>>(new Set(props.checkedKeys));
 
 // 监听外部 checkedKeys 变化
@@ -143,12 +160,12 @@ watch(
   { immediate: true }
 );
 
-/** 扁平化树结构，根据展开状态计算可见节点 */
+// 扁平化树结构：只展开集合内的节点，未展开的分支不下发
 const flatNodes = computed(() => {
   const result: FlatNode[] = [];
-  function traverse(nodes: TreeOption[], level: number) {
+  function traverse(nodes: T[], level: number) {
     for (const node of nodes) {
-      const children = node[props.childrenKey] as TreeOption[] | undefined;
+      const children = node[props.childrenKey] as T[] | undefined;
       result.push({
         ...node,
         value: String(node[props.valueKey]),
@@ -166,17 +183,17 @@ const flatNodes = computed(() => {
   return result;
 });
 
-/** 判断节点是否展开 */
+// 是否处于展开集合中
 function isExpanded(value: string) {
   return expandedKeys.value.has(value);
 }
 
-/** 处理节点点击 */
+// 节点点击：只上报原始业务节点，选中与跳转由使用方处理
 function handleNodeClick(node: FlatNode) {
   emit("click", node.raw);
 }
 
-/** 处理节点展开/收起 */
+// 展开/收起：无子节点的节点不可展开
 function handleExpand(node: FlatNode) {
   if (!node.hasChildren) return;
   const value = node.value;
@@ -190,17 +207,17 @@ function handleExpand(node: FlatNode) {
   emit("expand", node.raw, next.has(value));
 }
 
-/** 处理操作按钮点击 */
+// 操作按钮点击：上报原始节点，菜单内容由使用方按权限拼装
 function handleNodeAction(node: FlatNode) {
   emit("action", node.raw);
 }
 
-/** 判断节点是否选中（多选模式） */
+// 是否在多选集合中
 function isChecked(value: string) {
   return internalCheckedKeys.value.has(value);
 }
 
-/** 判断是否半选状态（部分子节点选中） */
+// 半选状态：checkStrictly 关闭时，子节点部分选中即半选
 function isIndeterminate(value: string) {
   if (props.checkStrictly) return false;
   const node = findNodeByValue(value, props.data);
@@ -215,7 +232,7 @@ function isIndeterminate(value: string) {
   return checkedCount > 0 && checkedCount < childValues.length;
 }
 
-/** 根据 value 查找节点 */
+// 按 value 深度优先查找节点
 function findNodeByValue(value: string, nodes: TreeOption[]): TreeOption | null {
   for (const node of nodes) {
     if (String(node[props.valueKey]) === value) return node;
@@ -228,7 +245,7 @@ function findNodeByValue(value: string, nodes: TreeOption[]): TreeOption | null 
   return null;
 }
 
-/** 获取所有子节点的 value 数组 */
+// 收集全部后代节点的 value
 function getAllChildValues(nodes: TreeOption[]): string[] {
   const result: string[] = [];
   function traverse(list: TreeOption[]) {
@@ -242,7 +259,7 @@ function getAllChildValues(nodes: TreeOption[]): string[] {
   return result;
 }
 
-/** 获取所有父节点的 value 数组 */
+// 收集从根到目标节点的祖先 value，用于父子联动时回写父节点
 function getAllParentValues(value: string, nodes: TreeOption[], parents: string[] = []): string[] {
   for (const node of nodes) {
     const nodeValue = String(node[props.valueKey]);
@@ -256,7 +273,7 @@ function getAllParentValues(value: string, nodes: TreeOption[], parents: string[
   return [];
 }
 
-/** 处理多选选中状态变化 */
+// 多选切换：checkStrictly 关闭时联动子节点，并按子节点结果回写父节点
 function handleCheck(node: FlatNode) {
   const value = node.value;
   const checked = !internalCheckedKeys.value.has(value);
@@ -306,7 +323,7 @@ function handleCheck(node: FlatNode) {
   emit("check", Array.from(newCheckedKeys), { checked, node: node.raw });
 }
 
-/** 监听数据变化，默认展开全部 */
+// 数据变化且默认全展开时，重算展开集合
 watch(
   () => props.data,
   (data) => {
@@ -330,11 +347,11 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.custom-tree {
+.tree-view {
   background: var(--color-bg-card);
 }
 
-.custom-tree-node {
+.tree-node {
   &__content {
     display: flex;
     align-items: center;

@@ -77,7 +77,14 @@ export interface MenuQuery {
   keywords?: string;
 }
 
-/** 菜单类型 */
+/**
+ * 菜单类型
+ *
+ * 与后端 MenuTypeEnum 一致：C 目录、M 菜单、E 外链、B 按钮。
+ */
+export type MenuType = "C" | "M" | "E" | "B";
+
+/** 菜单实体 */
 export interface MenuItem {
   children?: MenuItem[];
   component?: string;
@@ -93,8 +100,8 @@ export interface MenuItem {
   sort?: number;
   /** 状态(1:显示；0:隐藏) */
   visible?: number;
-  /** 菜单类型(C:目录；M:菜单；B:按钮) */
-  type?: string | number;
+  /** 菜单类型 */
+  type?: MenuType;
 }
 
 /** 菜单表单类型 */
@@ -103,8 +110,8 @@ export interface MenuForm {
   id?: string;
   name?: string;
   parentId: string;
-  /** 菜单类型(C:目录；M:菜单；B:按钮) */
-  type: string | number;
+  /** 菜单类型 */
+  type: MenuType;
   routeName?: string;
   routePath?: string;
   component?: string;

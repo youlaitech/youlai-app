@@ -16,9 +16,7 @@ export function useTheme() {
     store.setThemeMode(mode);
   }
 
-  /**
-   * 在明暗两种模式间切换
-   */
+  /** 在明暗两种模式间切换 */
   function toggleThemeMode() {
     store.toggleThemeMode();
   }
@@ -31,9 +29,7 @@ export function useTheme() {
     store.setThemeColor(option);
   }
 
-  /**
-   * 初始化主题
-   */
+  /** 初始化主题 */
   function initTheme() {
     store.initTheme();
   }

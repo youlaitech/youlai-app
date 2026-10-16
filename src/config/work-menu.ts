@@ -1,6 +1,4 @@
-/**
- * 工作台菜单配置
- */
+/** 工作台菜单配置 */
 
 export interface WorkMenuItem {
   icon: string;

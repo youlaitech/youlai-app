@@ -10,16 +10,12 @@ let isRedirecting401 = false;
 // request 层不直接依赖 store，避免 request → store → api → request 循环引用
 let unauthorizedHandler: (() => void) | null = null;
 
-/**
- * 注册会话失效回调（内存 token、userInfo 等由回调所属方统一清理）
- */
+/** 注册会话失效回调（内存 token、userInfo 等由回调所属方统一清理） */
 export function setUnauthorizedHandler(handler: () => void): void {
   unauthorizedHandler = handler;
 }
 
-/**
- * 请求错误类
- */
+/** 请求错误类 */
 export class RequestError extends Error {
   /** HTTP 状态码 */
   statusCode: number;

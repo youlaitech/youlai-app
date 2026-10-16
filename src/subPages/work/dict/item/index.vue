@@ -17,7 +17,7 @@
               <wd-tag v-if="tagComponentType(item.tagType)" :type="tagComponentType(item.tagType)">
                 {{ item.label }}
               </wd-tag>
-              <text v-else class="font-bold text-32rpx">{{ item.label }}</text>
+              <text v-else class="text-32rpx font-semibold">{{ item.label }}</text>
             </view>
             <text class="text-24rpx color-text-secondary">
               字典值：{{ item.value }} · 排序：{{ item.sort }}
@@ -33,7 +33,7 @@
           <view
             class="item-action"
             hover-class="item-action--hover"
-            @click.stop="showItemActions(item)"
+            @click.stop="openItemActions(item)"
           >
             <wd-icon name="more" size="18" class="color-text-secondary" />
           </view>
@@ -62,7 +62,7 @@
             <wd-input v-model="formData.value" placeholder="请输入字典项值" />
           </wd-form-item>
           <wd-form-item prop="tagType" title="标签类型">
-            <wd-radio-group v-model="formData.tagType" size="small" type="button">
+            <wd-radio-group v-model="formData.tagType" type="button">
               <wd-radio value="">无</wd-radio>
               <wd-radio
                 v-for="option in TAG_TYPE_OPTIONS"
@@ -77,7 +77,7 @@
             <wd-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
           </wd-form-item>
           <wd-form-item prop="sort" title="排序">
-            <wd-input-number v-model="formData.sort" :min="0" />
+            <wd-input-number v-model="formData.sort!" :min="0" />
           </wd-form-item>
           <wd-form-item prop="remark" title="备注">
             <wd-textarea
@@ -89,18 +89,13 @@
           </wd-form-item>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" variant="plain" @click="closeItemDialog">取消</wd-button>
-          <wd-button :loading="isSubmitting" @click="submitItemForm">保存</wd-button>
+          <wd-button type="info" variant="plain" block @click="closeItemDialog">取消</wd-button>
+          <wd-button :loading="isSubmitting" block @click="submitItemForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
 
-    <wd-action-sheet
-      v-model="actionSheetVisible"
-      :actions="actionSheetActions"
-      cancel-text="取消"
-      @select="handleActionSelect"
-    />
+    <ActionSheet ref="actionSheetRef" />
     <wd-fab
       v-if="hasPermission('sys:dict-item:create') && !dialog.visible"
       :expandable="false"
@@ -119,7 +114,8 @@
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
-import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
+import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
 import DictAPI, { type DictItemForm, type DictItemPageQuery, type DictItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
@@ -132,8 +128,8 @@ definePage({
 });
 
 const toast = useToast();
-const { actionSheetVisible, actionSheetActions, showActions, handleActionSelect, confirmAction } =
-  useActionSheet();
+const { confirmAction } = useConfirmAction();
+const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
 
 const dictCode = ref<string>("");
 const pageTitle = ref<string>("字典数据");
@@ -173,7 +169,7 @@ const initialFormData: DictItemForm = {
   tagType: "",
 };
 
-/** 标签类型选项，值为后端存储的语义名 */
+// 标签类型选项：值用后端存储的语义名，label 仅用于展示
 const TAG_TYPE_OPTIONS = [
   { value: "primary", label: "主要" },
   { value: "success", label: "成功" },
@@ -182,7 +178,7 @@ const TAG_TYPE_OPTIONS = [
   { value: "danger", label: "危险" },
 ];
 
-/** 语义名与 wd-tag 类型的对应关系，info 用默认样式呈现 */
+// 语义名与 wd-tag 类型的对应关系：info 没有同名类型，走默认样式
 const TAG_COMPONENT_TYPES: Record<string, TagType> = {
   primary: "primary",
   success: "success",
@@ -191,9 +187,9 @@ const TAG_COMPONENT_TYPES: Record<string, TagType> = {
   info: "default",
 };
 
-/** 字典项标签在 wd-tag 上的呈现类型，无标签类型时返回空串 */
-function tagComponentType(tagType?: string): TagType | "" {
-  return TAG_COMPONENT_TYPES[tagType ?? ""] ?? "";
+// 字典项标签在 wd-tag 上的呈现类型，未配置标签类型时返回 undefined 走纯文本
+function tagComponentType(tagType?: string): TagType | undefined {
+  return TAG_COMPONENT_TYPES[tagType ?? ""];
 }
 
 const formData = reactive<DictItemForm>({ ...initialFormData });
@@ -258,18 +254,19 @@ function closeItemDialog() {
   Object.assign(formData, initialFormData);
 }
 
-function showItemActions(item: DictItem) {
-  const menus: ActionMenuOption[] = [];
+function openItemActions(item: DictItem) {
+  const commands: ActionSheetCommand[] = [];
 
   if (hasPermission("sys:dict-item:update")) {
-    menus.push({ name: "编辑", handler: () => openItemDialog(item.id) });
+    commands.push({ id: "edit", label: "编辑", execute: () => openItemDialog(item.id) });
   }
 
   if (hasPermission("sys:dict-item:delete")) {
-    menus.push({
-      name: "删除",
+    commands.push({
+      id: "delete",
+      label: "删除",
       color: "var(--color-danger)",
-      handler: () =>
+      execute: () =>
         confirmAction({
           msg: `确定要删除字典数据「${item.label}」吗？`,
           action: async () => {
@@ -281,7 +278,7 @@ function showItemActions(item: DictItem) {
     });
   }
 
-  showActions(menus);
+  actionSheetRef.value?.open(commands);
 }
 
 onLoad((query) => {

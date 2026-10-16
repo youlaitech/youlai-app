@@ -1,38 +1,38 @@
 <template>
-  <view v-if="fixed && placeholder" :style="{ height: totalHeight + 'px' }" />
+  <view v-if="fixed && placeholder" :style="{ height: totalHeightPx + 'px' }" />
   <view
-    class="custom-navbar"
-    :class="{ 'custom-navbar--fixed': fixed }"
+    class="app-navbar"
+    :class="{ 'app-navbar--fixed': fixed }"
     :style="{
-      height: totalHeight + 'px',
+      height: totalHeightPx + 'px',
       paddingTop: statusBarHeight + 'px',
-      background: bgColor,
+      background,
     }"
   >
-    <view class="custom-navbar__content" :style="{ height: contentHeight + 'px' }">
-      <view class="custom-navbar__left" :style="{ width: leftWidth + 'px' }">
-        <view v-if="showBack" class="custom-navbar__back" @click="handleBack">
+    <view class="app-navbar__content" :style="{ height: contentHeightPx + 'px' }">
+      <view class="app-navbar__left" :style="{ width: leftSlotWidth + 'px' }">
+        <view v-if="showBack" class="app-navbar__back" @click="handleBack">
           <wd-icon :name="backIcon" :size="backIconSize" :color="iconColor" />
         </view>
 
-        <view v-if="showHome" class="custom-navbar__home" @click="handleHome">
+        <view v-if="showHome" class="app-navbar__home" @click="handleHome">
           <wd-icon name="home" :size="backIconSize" :color="iconColor" />
         </view>
 
         <slot name="left" />
       </view>
 
-      <view class="custom-navbar__center">
-        <text v-if="title" class="custom-navbar__title" :style="{ color: titleColor }">
+      <view class="app-navbar__center">
+        <text v-if="title" class="app-navbar__title" :style="{ color: titleColor }">
           {{ title }}
         </text>
         <slot name="center" />
       </view>
 
-      <view class="custom-navbar__right" :style="{ width: rightWidth + 'px' }">
+      <view class="app-navbar__right" :style="{ width: rightSlotWidth + 'px' }">
         <slot name="right" />
         <!-- 微信端胶囊按钮占位，保证插槽内容不会顶到胶囊下方 -->
-        <view class="custom-navbar__capsule-space" :style="{ width: capsuleSpaceWidth + 'px' }" />
+        <view class="app-navbar__capsule-space" :style="{ width: capsuleSpaceWidth + 'px' }" />
       </view>
     </view>
   </view>
@@ -40,84 +40,81 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useNavbar } from "@/composables/useNavbar";
+import { useNavbarMetrics } from "@/composables/useNavbarMetrics";
 
 interface Props {
   title?: string;
   titleColor?: string;
   /** 背景色或渐变，取值同 background 简写属性 */
-  bgColor?: string;
+  background?: string;
   showBack?: boolean;
   showHome?: boolean;
   backIcon?: string;
-  backIconSize?: string;
+  /** 返回与首页图标尺寸（px），wd-icon 的 size 以 px 为单位 */
+  backIconSize?: number;
   iconColor?: string;
   fixed?: boolean;
+  /** 固定在顶部时为内容区补一个等高占位块 */
   placeholder?: boolean;
-  navBarHeight?: number;
+  /** H5 / App 下的导航栏内容区高度（px） */
+  contentHeightPx?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   title: "",
   titleColor: "var(--color-text)",
-  bgColor: "var(--color-bg-card)",
+  background: "var(--color-bg-card)",
   showBack: true,
   showHome: false,
   backIcon: "arrow-left",
-  backIconSize: "40rpx",
+  backIconSize: 20,
   iconColor: "var(--color-text)",
   fixed: true,
   placeholder: false,
-  navBarHeight: 44,
+  contentHeightPx: 44,
 });
 
+/**
+ * back / home 事件仅用于通知挂载方，导航由组件自身完成：
+ * 存在上一页时返回，否则回到首页
+ */
 const emit = defineEmits<{
   (e: "back"): void;
   (e: "home"): void;
 }>();
 
-const navbar = useNavbar({ navBarHeight: props.navBarHeight });
-
-const fixed = computed(() => props.fixed);
-const placeholder = computed(() => props.placeholder);
+const navbar = useNavbarMetrics({ contentHeightPx: props.contentHeightPx });
 
 const statusBarHeight = computed(() => navbar.statusBarHeight.value);
-const navBarHeight = computed(() => navbar.navBarHeight);
-const totalHeight = computed(() => navbar.totalHeight.value);
-
-const contentHeight = computed(() => {
-  const height = totalHeight.value - statusBarHeight.value;
-  return height > 0 ? height : navBarHeight.value;
-});
-
-const menuButtonWidth = computed(() => navbar.menuButtonWidth.value);
-const menuButtonRightGap = computed(() => navbar.menuButtonRightGap.value);
-const menuButtonLeft = computed(() => navbar.menuButtonLeft.value);
+const contentHeightPx = computed(() => navbar.contentHeightPx.value);
+const totalHeightPx = computed(() => navbar.totalHeightPx.value);
 
 const capsuleSpaceWidth = computed(() => {
   let width = 0;
   // #ifdef MP-WEIXIN
-  if (menuButtonWidth.value > 0) {
-    width = menuButtonWidth.value + menuButtonRightGap.value;
+  if (navbar.capsuleWidthPx.value > 0) {
+    width = navbar.capsuleWidthPx.value + navbar.capsuleRightGapPx.value;
   }
   // #endif
   return width;
 });
 
-const rightContentWidth = computed(() => 96);
+// 右侧除胶囊外还要预留的插槽宽度（px）
+const RIGHT_SLOT_WIDTH = 96;
 
-const leftWidth = computed(() => {
+// 左侧插槽宽度（px）：微信端取胶囊左侧空间，其余端给固定值
+const leftSlotWidth = computed(() => {
   let width = 80;
   // #ifdef MP-WEIXIN
-  width = menuButtonLeft.value > 0 ? menuButtonLeft.value : 80;
+  width = navbar.capsuleLeftPx.value > 0 ? navbar.capsuleLeftPx.value : 80;
   // #endif
   return width;
 });
 
-const rightWidth = computed(() => {
+const rightSlotWidth = computed(() => {
   let width = 80;
   // #ifdef MP-WEIXIN
-  width = capsuleSpaceWidth.value + rightContentWidth.value;
+  width = capsuleSpaceWidth.value + RIGHT_SLOT_WIDTH;
   // #endif
   return width;
 });
@@ -141,7 +138,7 @@ function handleHome() {
 
 <script lang="ts">
 export default {
-  name: "CustomNavbar",
+  name: "AppNavbar",
   options: {
     virtualHost: true,
     styleIsolation: "shared",
@@ -150,7 +147,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.custom-navbar {
+.app-navbar {
   position: relative;
   z-index: var(--z-navbar);
   box-sizing: border-box;
@@ -164,29 +161,27 @@ export default {
   }
 }
 
-.custom-navbar__content {
-  position: relative;
-  z-index: var(--z-dropdown);
+/* 导航栏高度来自设备信息（px），内部尺寸同样用 px，避免窗口变宽时 rpx 被放大撑破内容区 */
+.app-navbar__content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16rpx;
+  padding: 0 8px;
 }
 
-.custom-navbar__left {
-  z-index: var(--z-dropdown);
+.app-navbar__left {
   display: flex;
   align-items: center;
 }
 
-.custom-navbar__back,
-.custom-navbar__home {
+.app-navbar__back,
+.app-navbar__home {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64rpx;
-  height: 64rpx;
-  margin-right: 8rpx;
+  width: 32px;
+  height: 32px;
+  margin-right: 4px;
   border-radius: 50%;
 
   &:active {
@@ -194,11 +189,10 @@ export default {
   }
 }
 
-.custom-navbar__center {
+.app-navbar__center {
   position: absolute;
   top: 50%;
   left: 50%;
-  z-index: var(--z-dropdown);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,8 +201,7 @@ export default {
   transform: translate(-50%, -50%);
 }
 
-.custom-navbar__title {
-  z-index: var(--z-dropdown);
+.app-navbar__title {
   overflow: hidden;
   font-size: 32rpx;
   color: var(--color-text);
@@ -216,15 +209,14 @@ export default {
   white-space: nowrap;
 }
 
-.custom-navbar__right {
-  z-index: var(--z-dropdown);
+.app-navbar__right {
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
 
-.custom-navbar__capsule-space {
+.app-navbar__capsule-space {
   flex: 0 0 auto;
-  height: 2rpx;
+  height: 1px;
 }
 </style>

@@ -25,21 +25,21 @@
           <wd-cell-group border>
             <wd-cell
               title="vue3-element-admin"
-              icon="desktop"
+              prefix-icon="desktop"
               clickable
               is-link
               @click="openProjectIntro('vue3-element-admin')"
             />
             <wd-cell
               title="vue3-element-admin-js"
-              icon="desktop"
+              prefix-icon="desktop"
               clickable
               is-link
               @click="openProjectIntro('vue3-element-admin-js')"
             />
             <wd-cell
               title="vue3-element-template"
-              icon="desktop"
+              prefix-icon="desktop"
               clickable
               is-link
               @click="openProjectIntro('vue3-element-template')"
@@ -51,7 +51,7 @@
           <wd-cell-group border>
             <wd-cell
               title="youlai-app"
-              icon="mobile"
+              prefix-icon="mobile"
               clickable
               is-link
               @click="openProjectIntro('youlai-app')"
@@ -63,42 +63,42 @@
           <wd-cell-group border>
             <wd-cell
               title="youlai-boot"
-              icon="cloud"
+              prefix-icon="cloud"
               clickable
               is-link
               @click="openProjectIntro('youlai-boot')"
             />
             <wd-cell
               title="youlai-gin"
-              icon="cloud"
+              prefix-icon="cloud"
               clickable
               is-link
               @click="openProjectIntro('youlai-gin')"
             />
             <wd-cell
               title="youlai-nest"
-              icon="cloud"
+              prefix-icon="cloud"
               clickable
               is-link
               @click="openProjectIntro('youlai-nest')"
             />
             <wd-cell
               title="youlai-django"
-              icon="cloud"
+              prefix-icon="cloud"
               clickable
               is-link
               @click="openProjectIntro('youlai-django')"
             />
             <wd-cell
               title="youlai-think"
-              icon="cloud"
+              prefix-icon="cloud"
               clickable
               is-link
               @click="openProjectIntro('youlai-think')"
             />
             <wd-cell
               title="youlai-aspnet"
-              icon="cloud"
+              prefix-icon="cloud"
               clickable
               is-link
               @click="openProjectIntro('youlai-aspnet')"
@@ -110,7 +110,7 @@
           <wd-cell-group border>
             <wd-cell
               title="youlai-boot-tenant"
-              icon="cloud"
+              prefix-icon="cloud"
               clickable
               is-link
               @click="openProjectIntro('youlai-boot-tenant')"
@@ -125,21 +125,21 @@
         <wd-cell
           title="官方网站"
           value="www.youlai.tech"
-          icon="link"
+          prefix-icon="link"
           clickable
-          @click="openUrl('https://www.youlai.tech')"
+          @click="openExternalUrl('https://www.youlai.tech')"
         />
         <wd-cell
           title="GitHub"
           value="github.com/youlaitech"
-          icon="link"
+          prefix-icon="link"
           clickable
-          @click="openUrl('https://github.com/youlaitech')"
+          @click="openExternalUrl('https://github.com/youlaitech')"
         />
         <wd-cell
           title="联系邮箱"
           value="youlaitech@163.com"
-          icon="email"
+          prefix-icon="email"
           clickable
           @click="copyText('youlaitech@163.com')"
         />
@@ -288,13 +288,14 @@ const openProjectIntro = (key: ProjectIntroKey) => {
 
 const goCurrentProjectRepo = () => {
   if (!currentProject.value) return;
-  openUrl(currentProject.value.repoUrl);
+  openExternalUrl(currentProject.value.repoUrl);
 };
 const getYear = () => {
   return new Date().getFullYear();
 };
 
-const openUrl = (url: string) => {
+// H5 新开标签打开，其余端复制链接到剪贴板
+const openExternalUrl = (url: string) => {
   // #ifdef H5
   window.open(url, "_blank");
   // #endif
@@ -321,6 +322,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .about {
+  // 项目名较长时按单元格标题截断，避免撑破右侧内容
   :deep(.wd-cell__title) {
     max-width: 360rpx;
     overflow: hidden;

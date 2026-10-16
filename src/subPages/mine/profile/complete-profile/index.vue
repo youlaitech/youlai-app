@@ -59,7 +59,7 @@
           <input
             v-model="profileForm.nickname"
             type="nickname"
-            class="profile-form__nickname-input"
+            class="profile-form__input"
             placeholder="请输入昵称"
             :maxlength="20"
           />
@@ -68,7 +68,7 @@
           <wd-input
             v-model="profileForm.nickname"
             placeholder="请输入昵称"
-            custom-class="profile-form__nickname-input"
+            custom-class="profile-form__input"
           />
           <!-- #endif -->
         </view>
@@ -91,8 +91,7 @@
           <wd-input
             v-model="profileForm.mobile"
             placeholder="请输入手机号"
-            prop="mobile"
-            custom-class="profile-form__nickname-input"
+            custom-class="profile-form__input"
           />
         </view>
       </wd-form>
@@ -117,7 +116,7 @@
 
     <!-- 头像裁剪 -->
     <wd-img-cropper
-      v-model="cropperVisible"
+      v-model="isCropperVisible"
       :img-src="originalImageSrc"
       @confirm="handleAvatarConfirm"
     />
@@ -162,10 +161,11 @@ const formRules = toFormSchema({
 });
 
 const isLoading = ref(false);
-const cropperVisible = ref(false);
+const isCropperVisible = ref(false);
 const originalImageSrc = ref("");
 const profileFormRef = ref();
 
+// 提交按钮的可用条件：昵称与手机号都已填写
 const canComplete = computed(() => {
   return profileForm.nickname && profileForm.mobile;
 });
@@ -182,19 +182,17 @@ onLoad((options) => {
   }
 });
 
-/** 微信头像选择按钮回调事件（open-type="chooseAvatar"） */
-interface WxChooseAvatarEvent {
-  detail: { avatarUrl: string };
-}
-
-/** wd-img-cropper 裁剪确认事件 */
+// 头像裁剪确认事件：载荷是裁剪后的临时文件路径
 interface ImgCropperConfirmEvent {
   tempFilePath: string;
 }
 
-const handleChooseAvatar = async (e: WxChooseAvatarEvent) => {
+// 微信头像选择按钮回调：头像地址由平台下发，直接上传到文件服务
+const handleChooseAvatar = async (event: UniHelper.ButtonOnChooseavatarEvent) => {
+  const avatarUrl: string | undefined = event.detail?.avatarUrl;
+  if (!avatarUrl) return;
+
   try {
-    const { avatarUrl } = e.detail;
     toast.loading("上传中...");
     const fileInfo: FileInfo = await FileAPI.upload(avatarUrl);
     profileForm.avatar = fileInfo.url;
@@ -211,7 +209,7 @@ const chooseAvatar = () => {
     sourceType: ["album", "camera"],
     success: (res) => {
       originalImageSrc.value = res.tempFilePaths[0];
-      cropperVisible.value = true;
+      isCropperVisible.value = true;
     },
     fail: () => {
       toast.error("选择图片失败");
@@ -219,6 +217,7 @@ const chooseAvatar = () => {
   });
 };
 
+// 裁剪完成：上传裁剪后的头像并回填表单
 const handleAvatarConfirm = async (event: ImgCropperConfirmEvent) => {
   try {
     const { tempFilePath } = event;
@@ -231,6 +230,7 @@ const handleAvatarConfirm = async (event: ImgCropperConfirmEvent) => {
   }
 };
 
+// 提交完善信息：先写资料再绑手机号，成功后回跳来源页面
 const handleComplete = async () => {
   try {
     const { valid, errors } = await profileFormRef.value.validate();
@@ -262,6 +262,7 @@ const handleComplete = async () => {
   }
 };
 
+// 跳过完善：二次确认后直接回跳
 const handleSkip = async () => {
   try {
     await confirm({
@@ -316,7 +317,8 @@ const handleSkip = async () => {
     color: var(--color-danger);
   }
 
-  &__nickname-input {
+  // 输入框改成填充式外观：页面自绘表单项，不沿用 wd-input 的默认边框样式
+  &__input {
     :deep(.wd-input__inner) {
       padding: 24rpx 20rpx;
       background: var(--color-fill-1);
@@ -381,6 +383,7 @@ const handleSkip = async () => {
   .gender-radio {
     flex: 1;
 
+    // 单选项均分一行并居中显示
     :deep(.wd-radio) {
       justify-content: center;
       width: 100%;
@@ -392,6 +395,7 @@ const handleSkip = async () => {
   &__submit {
     margin-bottom: 30rpx;
 
+    // 提交按钮作为页面主动作，高度与字号单独放大
     :deep(.wd-button) {
       height: 88rpx;
       font-size: 32rpx;

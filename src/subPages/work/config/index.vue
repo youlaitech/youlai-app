@@ -12,11 +12,11 @@
     <view class="mt-16rpx">
       <wd-card v-for="item in configs" :key="item.id" @click="openConfigDialog(item.id)">
         <view class="flex-between">
-          <text class="font-bold text-32rpx">{{ item.configName }}</text>
+          <text class="text-32rpx font-semibold">{{ item.configName }}</text>
           <view
             class="item-action"
             hover-class="item-action--hover"
-            @click.stop="showConfigActions(item)"
+            @click.stop="openConfigActions(item)"
           >
             <wd-icon name="more" size="18" class="color-text-secondary" />
           </view>
@@ -66,8 +66,8 @@
           </wd-form-item>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" variant="plain" @click="closeConfigDialog">取消</wd-button>
-          <wd-button :loading="isSubmitting" @click="submitConfigForm">保存</wd-button>
+          <wd-button type="info" variant="plain" block @click="closeConfigDialog">取消</wd-button>
+          <wd-button :loading="isSubmitting" block @click="submitConfigForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -86,12 +86,7 @@
     </wd-fab>
 
     <!-- 操作菜单 -->
-    <wd-action-sheet
-      v-model="actionSheetVisible"
-      :actions="actionSheetActions"
-      cancel-text="取消"
-      @select="handleActionSelect"
-    />
+    <ActionSheet ref="actionSheetRef" />
   </view>
 </template>
 
@@ -99,7 +94,8 @@
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
-import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
+import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
 import ConfigAPI, { type ConfigPageQuery, ConfigItem, ConfigForm } from "@/api/config";
 import { hasPermission } from "@/utils/permission";
@@ -110,8 +106,8 @@ definePage({
 });
 
 const toast = useToast();
-const { actionSheetVisible, actionSheetActions, showActions, handleActionSelect, confirmAction } =
-  useActionSheet();
+const { confirmAction } = useConfirmAction();
+const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
 const formRef = ref();
 const isSubmitting = ref(false);
 
@@ -191,18 +187,19 @@ function closeConfigDialog() {
 }
 
 // 更多操作
-function showConfigActions(item: ConfigItem) {
-  const menus: ActionMenuOption[] = [];
+function openConfigActions(item: ConfigItem) {
+  const commands: ActionSheetCommand[] = [];
 
   if (hasPermission("sys:config:update")) {
-    menus.push({ name: "编辑", handler: () => openConfigDialog(item.id!) });
+    commands.push({ id: "edit", label: "编辑", execute: () => openConfigDialog(item.id!) });
   }
 
   if (hasPermission("sys:config:delete")) {
-    menus.push({
-      name: "删除",
+    commands.push({
+      id: "delete",
+      label: "删除",
       color: "var(--color-danger)",
-      handler: () =>
+      execute: () =>
         confirmAction({
           msg: `确定要删除配置「${item.configName}」吗？`,
           action: async () => {
@@ -213,7 +210,7 @@ function showConfigActions(item: ConfigItem) {
     });
   }
 
-  showActions(menus);
+  actionSheetRef.value?.open(commands);
 }
 
 onLoad(() => {

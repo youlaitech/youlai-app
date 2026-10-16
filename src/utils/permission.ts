@@ -1,9 +1,7 @@
 import { useUserStore } from "@/store";
 import { ROLE_ROOT, PERM_ALL } from "@/constants";
 
-/**
- * 判断当前用户是否拥有指定权限点（任一命中即可，根角色或通配权限直接放行）
- */
+/** 判断当前用户是否拥有指定权限点（任一命中即可，根角色或通配权限直接放行） */
 export function hasPermission(perm: string | string[]): boolean {
   if (!perm) return false;
 

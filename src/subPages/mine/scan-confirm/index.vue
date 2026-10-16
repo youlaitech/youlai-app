@@ -1,36 +1,55 @@
 <template>
   <view class="scan-confirm">
-    <custom-navbar title="扫码登录确认" placeholder />
+    <app-navbar title="扫码登录确认" placeholder />
 
     <view class="scan-confirm__body">
       <view class="scan-confirm__card">
         <image class="scan-confirm__logo" src="/static/images/logo.png" mode="aspectFit" />
-        <text class="scan-confirm__tip">PC 端扫码登录</text>
-        <text class="scan-confirm__user">{{ scanResult?.nickname || "未知用户" }}</text>
-        <text class="scan-confirm__hint">是否确认在 PC 端登录？</text>
 
-        <view class="scan-confirm__actions">
-          <wd-button
-            type="error"
-            plain
-            block
-            :disabled="!scanResult"
-            :loading="isCancelling"
-            @click="handleCancel"
-          >
-            取消登录
-          </wd-button>
-          <wd-button block :disabled="!scanResult" :loading="isLoading" @click="handleConfirm">
-            确认登录
-          </wd-button>
-        </view>
+        <template v-if="status === 'invalid'">
+          <text class="scan-confirm__user">二维码不可用</text>
+          <text class="scan-confirm__hint">二维码已过期或已被使用，请重新扫描</text>
+          <view class="scan-confirm__actions">
+            <wd-button block @click="handleBackToScan">重新扫码</wd-button>
+          </view>
+        </template>
+
+        <template v-else>
+          <text class="scan-confirm__tip">PC 端扫码登录</text>
+          <wd-loading v-if="status === 'verifying'" text="正在校验二维码" />
+          <template v-else>
+            <text class="scan-confirm__user">{{ scanResult?.nickname || "未知用户" }}</text>
+            <text class="scan-confirm__hint">是否确认在 PC 端登录？</text>
+          </template>
+
+          <view class="scan-confirm__actions">
+            <wd-button
+              type="danger"
+              variant="plain"
+              block
+              :disabled="status !== 'ready'"
+              :loading="status === 'cancelling'"
+              @click="handleCancel"
+            >
+              取消登录
+            </wd-button>
+            <wd-button
+              block
+              :disabled="status !== 'ready'"
+              :loading="status === 'confirming'"
+              @click="handleConfirm"
+            >
+              确认登录
+            </wd-button>
+          </view>
+        </template>
       </view>
     </view>
   </view>
 </template>
 
 <script lang="ts" setup>
-import { onLoad } from "@dcloudio/uni-app";
+import { onLoad, onUnload } from "@dcloudio/uni-app";
 import { useToast } from "@wot-ui/ui";
 import { getErrorMessage } from "@/utils/error";
 import AuthAPI, { type QrCodeScanResult } from "@/api/auth";
@@ -41,68 +60,91 @@ definePage({
   layout: "blank",
 });
 
+// 页面阶段：校验中 / 可操作 / 确认中 / 取消中 / 有效票据已处理完
+// 确认与取消共用同一状态，任一请求进行中或已处理完时都不再接受新的提交
+type ScanConfirmStatus =
+  "verifying" | "ready" | "confirming" | "cancelling" | "finished" | "invalid";
+
 const toast = useToast();
 
-// toast 停留时长，读完提示再返回上一页
-const TOAST_DURATION = 800;
+// 结果提示读完再返回上一页的延迟（毫秒）
+const RETURN_DELAY_MS = 800;
 
-// 确认按钮 loading 态，防止连点重复确认
-const isLoading = ref(false);
-// 取消按钮 loading 态，防止连点重复取消
-const isCancelling = ref(false);
+const status = ref<ScanConfirmStatus>("verifying");
 // 从扫码入口经 query 传入的票据
 const ticket = ref("");
-// scan 接口返回的脱敏用户信息，请求完成前按钮保持禁用
+// scan 接口返回的脱敏用户信息
 const scanResult = ref<QrCodeScanResult | null>(null);
+// 返回定时器：页面卸载时清理，避免离开后仍触发 navigateBack
+let returnTimer: ReturnType<typeof setTimeout> | null = null;
 
-// 进入页面先标记已扫码，让 PC 端立即显示「已扫码」并展示头像/昵称
-const markScanned = async (code: string) => {
+// 延迟返回上一页，让结果提示有可读时间
+function scheduleReturn(delay = RETURN_DELAY_MS) {
+  returnTimer = setTimeout(() => uni.navigateBack(), delay);
+}
+
+// 标记已扫码：让 PC 端立即显示「已扫码」并展示头像与昵称
+async function markScanned(code: string) {
   try {
     scanResult.value = await AuthAPI.markQrLoginScanned(code);
+    status.value = "ready";
   } catch (error) {
+    status.value = "invalid";
     toast.error(getErrorMessage(error, "二维码无效或已过期"));
-    setTimeout(() => uni.navigateBack(), TOAST_DURATION);
   }
-};
+}
 
-// 用户点击「确认登录」：授权 PC 端用该票据换取会话
-const handleConfirm = async () => {
-  if (isLoading.value) return;
-  isLoading.value = true;
+// 确认登录：授权 PC 端用该票据换取会话，失败退回可重试状态
+async function handleConfirm() {
+  if (status.value !== "ready") return;
+  status.value = "confirming";
   try {
     await AuthAPI.confirmQrLogin(ticket.value);
+    status.value = "finished";
     toast.success("已确认登录");
-    setTimeout(() => uni.navigateBack(), TOAST_DURATION);
+    scheduleReturn();
   } catch (error) {
     toast.error(getErrorMessage(error, "确认失败"));
-  } finally {
-    isLoading.value = false;
+    status.value = "ready";
   }
-};
+}
 
-// 用户点击「取消登录」：撤回扫码，PC 端状态变为 CANCELED
-const handleCancel = async () => {
-  if (isCancelling.value) return;
-  isCancelling.value = true;
+// 取消登录：撤回扫码，无论接口成败都结束本次流程并返回
+async function handleCancel() {
+  if (status.value !== "ready") return;
+  status.value = "cancelling";
   try {
     await AuthAPI.cancelQrLogin(ticket.value);
     toast.info("已取消登录");
   } catch {
-    // 取消失败不影响返回
+    // 撤回失败不影响返回，PC 端二维码超时后自动失效
   } finally {
-    setTimeout(() => uni.navigateBack(), TOAST_DURATION);
+    status.value = "finished";
+    scheduleReturn();
   }
-};
+}
+
+// 无效二维码时返回扫码入口重新扫描
+function handleBackToScan() {
+  uni.navigateBack();
+}
 
 onLoad((options) => {
   const code = options?.ticket ? decodeURIComponent(options.ticket) : "";
   if (!code) {
+    status.value = "invalid";
     toast.error("二维码无效");
-    setTimeout(() => uni.navigateBack(), TOAST_DURATION);
     return;
   }
   ticket.value = code;
   markScanned(code);
+});
+
+onUnload(() => {
+  if (returnTimer !== null) {
+    clearTimeout(returnTimer);
+    returnTimer = null;
+  }
 });
 </script>
 

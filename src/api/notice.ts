@@ -114,20 +114,17 @@ export interface NoticeForm {
 export interface NoticeItem {
   id: string;
   title?: string;
-  content?: string;
   /** 通知类型 */
   type?: number;
   publisherName?: string;
-  /** 优先级(0-低 1-中 2-高) */
-  priority?: number;
-  /** 目标类型(0-全体 1-指定) */
+  /** 目标类型(1-全体 2-指定) */
   targetType?: number;
-  /** 发布状态(0-未发布 1已发布 2已撤回) */
+  /** 发布状态(0-未发布 1-已发布 -1-已撤回) */
   publishStatus?: number;
   publishTime?: Date;
   revokeTime?: Date;
   /** 优先级(L-低 M-中 H-高) */
-  level?: string | number;
+  level?: string;
 }
 
 export interface NoticeDetail {
@@ -140,6 +137,6 @@ export interface NoticeDetail {
   /** 优先级(L-低 M-中 H-高) */
   level?: string;
   publishTime?: Date;
-  /** 发布状态(0-未发布 1-已发布 2-已撤回) */
+  /** 发布状态(0-未发布 1-已发布 -1-已撤回) */
   publishStatus?: number;
 }

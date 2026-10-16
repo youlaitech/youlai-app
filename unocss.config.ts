@@ -11,6 +11,7 @@ export default {
     presetWeappAttributify(),
   ],
   // 只保留实际复用的组合；语义色直接用 color-* 类，其余交给 presetWeapp 自带规则
+  // flex-* 系列固定 flex 方向并统一交叉轴居中，需要其他对齐时直接写工具类
   shortcuts: [
     {
       "flex-center": "flex justify-center items-center",
@@ -18,8 +19,6 @@ export default {
       "flex-start": "flex justify-start items-center",
       "flex-end": "flex justify-end items-center",
       "flex-between": "flex justify-between items-center",
-
-      "font-bold": "font-semibold",
     },
   ],
 

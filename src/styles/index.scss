@@ -34,13 +34,16 @@ body {
 // 1. default layout 自动包裹 .page —— 标准内容页：内边距 16rpx/32rpx、画布底色、满屏高
 // 2. tabbar layout 自动包裹 .page.page--tabbar —— tab 页：全出血 + 底部 tabbar 高度补偿
 // 3. blank layout 不包裹 —— 全出血页（登录/扫码确认/webview/监控）在 definePage 声明 layout: "blank"，
-//    页面自行管理背景与高度；状态栏/胶囊避让统一用 custom-navbar 的 placeholder
+//    页面自行管理背景与高度；状态栏/胶囊避让统一用 app-navbar 的 placeholder
 // 4. 唯一例外：work 页在 tabbar layout 下需要横向内边距，用工具类包裹（见该页注释）
 .page {
   box-sizing: border-box;
   min-height: 100vh;
   padding: 16rpx 32rpx 0;
   background-color: var(--color-bg-page);
+  // wd-card 默认带横向与底部外边距：页面 gutter 已提供横向留白，这里只保留底部间距
+  --wot-card-margin-horizontal: 0;
+  --wot-card-margin-bottom: 16rpx;
 }
 
 .page--tabbar {
@@ -56,32 +59,13 @@ body {
   overflow: hidden;
   background: var(--color-bg-card);
   border-radius: 16rpx;
-
-  .wd-drop-menu {
-    flex: 1;
-  }
-
-  .wd-drop-menu-item {
-    flex: 1;
-  }
 }
 
-// 全局 wd-card 间距
-.page .wd-card,
-.filter-bar .wd-card {
-  margin: 0;
-  margin-bottom: 16rpx;
-}
-
-// 弹窗底部按钮
+// 弹窗底部按钮：按钮用 block 撑满，容器只负责排列与间距
 .popup-actions {
   display: flex;
   gap: 16rpx;
   margin-top: 24rpx;
-
-  .wd-button {
-    flex: 1;
-  }
 }
 
 // 底部弹窗圆角
@@ -165,5 +149,3 @@ body {
 .color-text-placeholder {
   color: var(--color-text-placeholder);
 }
-
-

@@ -1,10 +1,11 @@
 <template>
   <view>
-    <!-- 轮播图 -->
+    <!-- 轮播图：height 控制轨道与图片高度，custom-style 给根节点确定高度（小程序内部 scroll-view 用 100%） -->
     <view class="relative">
       <wd-swiper
         v-model:current="activeSlideIndex"
-        custom-class="swiper-box"
+        custom-style="height: 420rpx"
+        height="420rpx"
         :list="swiperList"
         autoplay
       />
@@ -17,8 +18,7 @@
         <wd-grid-item
           v-for="(item, index) in quickNavList"
           :key="index"
-          use-slot
-          @click="handleNavClickWithGuard(item)"
+          @click="handleNavItemClick(item)"
         >
           <view class="quick-nav-card__item">
             <image class="quick-nav-card__icon" :src="item.icon" mode="aspectFit" />
@@ -39,7 +39,7 @@
     </view>
 
     <!-- 数据统计 -->
-    <view class="grid grid-cols-2 gap-16rpx m-24rpx">
+    <view class="home__stats">
       <view class="stat-card stat-card--uv">
         <image class="stat-card__icon" src="/static/icons/uv.svg" mode="aspectFit" />
         <view class="stat-card__header">
@@ -79,7 +79,7 @@
           </view>
         </view>
       </view>
-      <view class="w-full h-600rpx px-20rpx box-border">
+      <view class="chart-wrapper__canvas">
         <qiun-data-charts
           type="area"
           :chartData="chartData"
@@ -118,20 +118,20 @@ interface NavItem {
 
 const userStore = useUserStore();
 const themeStore = useThemeStore();
-const { handleNavClick } = useNavigation();
+const { navigate } = useNavigation();
 
 const activeSlideIndex = ref(0);
 const trendDays = ref(7);
 
 const swiperList = ref(["https://www.youlai.tech/storage/youlai/bg02.png"]);
 
-/** 访问概览数据 */
+// 访问概览数据
 const visitOverviewData = ref<VisitOverview>({
   todayUvCount: 0,
   todayPvCount: 0,
 } as VisitOverview);
 
-/** 通知公告文本 */
+// 公告列表：只取前两条拼成滚动文案
 const noticeList = ref<NoticeItem[]>([]);
 const noticeText = computed(() => {
   const titles = noticeList.value
@@ -141,30 +141,19 @@ const noticeText = computed(() => {
   return titles.length ? titles.join("    ") : "暂无通知";
 });
 
-const userPerms = computed(() => userStore.userInfo?.perms || []);
 const isAuthenticated = computed(() => userStore.isAuthenticated);
-const hasAnyPerm = computed(() => userPerms.value.length > 0);
 
-/** 默认菜单（未登录时显示） */
-const defaultNavList = computed(() => {
+// 快捷入口最多展示的数量
+const QUICK_NAV_LIMIT = 4;
+
+// 快捷入口：未登录时展示前几个作为引导，点击后统一跳登录页；
+// 已登录按权限过滤，不足 4 个就显示多少
+const quickNavList = computed<NavItem[]>(() => {
   const result: NavItem[] = [];
   for (const group of workMenuGroups) {
     for (const item of group.children) {
-      result.push(item);
-      if (result.length >= 4) return result;
-    }
-  }
-  return result;
-});
-
-/** 快捷入口：已登录按权限过滤，未登录显示默认菜单 */
-const quickNavList = computed(() => {
-  if (!isAuthenticated.value || !hasAnyPerm.value) return defaultNavList.value;
-  const result: NavItem[] = [];
-  for (const group of workMenuGroups) {
-    for (const item of group.children) {
-      if (hasPermission(item.perm)) result.push(item);
-      if (result.length >= 4) return result;
+      if (!isAuthenticated.value || hasPermission(item.perm)) result.push(item);
+      if (result.length >= QUICK_NAV_LIMIT) return result;
     }
   }
   return result;
@@ -190,7 +179,7 @@ const chartOpts = computed(() => ({
   },
 }));
 
-/** 加载通知公告 */
+// 加载公告：未登录不发请求，直接清空列表
 async function loadNoticeData() {
   if (!isAuthenticated.value) {
     noticeList.value = [];
@@ -204,14 +193,14 @@ async function loadNoticeData() {
   }
 }
 
-/** 加载访问概览统计 */
+// 加载访问概览：失败保留初始值，不打断页面
 function loadVisitOverviewData() {
   LogAPI.getVisitOverview()
     .then((data) => (visitOverviewData.value = data))
     .catch(() => {});
 }
 
-/** 加载访问趋势图表 */
+// 加载访问趋势：按当前天数取数，失败回落到空图表
 async function loadVisitTrendData() {
   const endDate = dayjs().format("YYYY-MM-DD");
   const startDate = dayjs()
@@ -233,21 +222,33 @@ async function loadVisitTrendData() {
   }
 }
 
-/** 快捷导航点击（未登录跳转登录） */
-function handleNavClickWithGuard(item: NavItem) {
-  if (!isAuthenticated.value || !hasAnyPerm.value) {
-    uni.navigateTo({ url: "/pages/login/index" });
+// 快捷导航点击：未登录先跳登录页，已登录按权限跳转
+function handleNavItemClick(item: NavItem) {
+  if (!isAuthenticated.value) {
+    navigateToLogin();
     return;
   }
-  handleNavClick(item);
+  navigate(item);
 }
 
-/** 跳转通知公告列表 */
+// 跳登录页并带上来路，登录成功后原路返回
+function navigateToLogin() {
+  const pages = getCurrentPages();
+  const currentPage = pages[pages.length - 1];
+  const redirect = encodeURIComponent(`/${currentPage.route}`);
+  uni.navigateTo({ url: `/pages/login/index?redirect=${redirect}` });
+}
+
+// 公告页需要登录态，未登录先跳登录页
 function handleNoticeClick() {
+  if (!isAuthenticated.value) {
+    navigateToLogin();
+    return;
+  }
   uni.navigateTo({ url: "/subPages/work/notice/index" });
 }
 
-/** 切换趋势时间范围 */
+// 切换趋势范围：同一范围重复点击不发请求
 function switchRange(value: number) {
   if (trendDays.value === value) return;
   trendDays.value = value;
@@ -264,15 +265,6 @@ onShow(() => {
   loadVisitTrendData();
 });
 </script>
-
-<!-- 非 scoped：覆盖 wd-swiper 内部节点高度 -->
-<style lang="scss">
-.swiper-box,
-.swiper-box .wd-swiper__item,
-.swiper-box image {
-  height: 420rpx;
-}
-</style>
 
 <style lang="scss" scoped>
 .hero-fade {
@@ -291,6 +283,14 @@ onShow(() => {
   );
 }
 
+/* 统计卡片网格：一组布局样式集中在这里，模板只留一个语义类 */
+.home__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+  margin: 24rpx;
+}
+
 .chart-wrapper {
   box-sizing: border-box;
   overflow: hidden;
@@ -298,6 +298,13 @@ onShow(() => {
   border: 1rpx solid var(--color-border);
   border-radius: 16rpx;
   box-shadow: var(--shadow-sm);
+
+  &__canvas {
+    box-sizing: border-box;
+    width: 100%;
+    height: 600rpx;
+    padding: 0 20rpx;
+  }
 
   &__header {
     display: flex;

@@ -17,33 +17,31 @@
               />
             </view>
           </wd-cell>
-          <wd-cell title="昵称" :value="userProfile.nickname" is-link @click="openDialog()" />
+          <wd-cell title="昵称" :value="userProfile.nickname" is-link @click="openProfilePopup()" />
           <wd-cell
             title="性别"
             :value="userProfile.gender === 1 ? '男' : userProfile.gender === 2 ? '女' : '未知'"
             is-link
-            @click="openDialog()"
+            @click="openProfilePopup()"
           />
           <wd-cell title="用户名" :value="userProfile.username" />
           <wd-cell title="部门" :value="userProfile.deptName" />
           <wd-cell title="角色" :value="userProfile.roleNames" />
-          <view class="profile-last-cell-wrap">
-            <wd-cell title="创建日期" :value="userProfile.createTime" />
-          </view>
+          <wd-cell title="创建日期" :value="userProfile.createTime" />
         </wd-cell-group>
       </wd-card>
     </view>
 
     <!--头像裁剪-->
     <wd-img-cropper
-      v-if="avatarShow"
-      v-model="avatarShow"
+      v-if="isCropperVisible"
+      v-model="isCropperVisible"
       :img-src="originalSrc"
       @confirm="handleAvatarConfirm"
     />
 
     <!--用户信息编辑弹出框-->
-    <wd-popup v-if="dialogState.visible" v-model="dialogState.visible" position="bottom">
+    <wd-popup v-if="popup.visible" v-model="popup.visible" position="bottom">
       <wd-form
         ref="userProfileFormRef"
         :model="userProfileForm"
@@ -76,7 +74,7 @@
 <script setup lang="ts">
 import UserAPI, { type UserProfile, UserProfileForm } from "@/api/user";
 import FileAPI, { type FileInfo } from "@/api/file";
-import { checkLogin } from "@/utils/auth";
+import { ensureAuthenticated } from "@/utils/auth";
 import { getErrorMessage } from "@/utils/error";
 import { toFormSchema } from "@/utils/form-schema";
 
@@ -86,11 +84,11 @@ definePage({
 });
 
 const toast = useToast();
-const originalSrc = ref<string>(""); //选取的原图路径
-const avatarShow = ref<boolean>(false); //显示头像裁剪
-const userProfile = ref<UserProfile>(); //用户信息
+const originalSrc = ref<string>("");
+const isCropperVisible = ref(false);
+const userProfile = ref<UserProfile>();
 
-/** 加载用户信息 */
+// 加载用户资料
 const loadUserProfile = async () => {
   userProfile.value = await UserAPI.getProfile();
 };
@@ -101,12 +99,11 @@ function handleAvatarUpload() {
     count: 1,
     success: (res) => {
       originalSrc.value = res.tempFilePaths[0];
-      avatarShow.value = true;
+      isCropperVisible.value = true;
     },
   });
 }
-// 头像裁剪完成
-/** wd-img-cropper 裁剪确认事件 */
+// 头像裁剪完成事件：载荷是裁剪后的临时文件路径
 interface ImgCropperConfirmEvent {
   tempFilePath: string;
 }
@@ -136,20 +133,16 @@ const rules = toFormSchema({
   gender: [{ required: true, message: "请选择性别" }],
 });
 
-const dialogState = reactive({
+const popup = reactive({
   visible: false,
 });
 
 const userProfileForm = reactive<UserProfileForm>({});
 const userProfileFormRef = ref();
 
-/**
- * 打开弹窗
- * @param type 弹窗类型 ACCOUNT: 账号资料 PASSWORD: 修改密码 MOBILE: 绑定手机 EMAIL: 绑定邮箱
- */
-const openDialog = () => {
-  dialogState.visible = true;
-  // 初始化表单数据
+// 打开资料编辑弹窗，并用当前资料回填表单
+const openProfilePopup = () => {
+  popup.visible = true;
   userProfileForm.nickname = userProfile.value?.nickname;
   userProfileForm.gender = userProfile.value?.gender;
 };
@@ -160,7 +153,7 @@ function handleSubmit() {
     if (valid) {
       UserAPI.updateProfile(userProfileForm).then(() => {
         toast.info("账号资料修改成功");
-        dialogState.visible = false;
+        popup.visible = false;
         loadUserProfile();
       });
     }
@@ -169,7 +162,7 @@ function handleSubmit() {
 
 // 检查登录状态
 onLoad(() => {
-  if (!checkLogin()) return;
+  if (!ensureAuthenticated()) return;
 
   // #ifdef H5
   document.addEventListener("touchstart", handleTouchStart, { passive: false });

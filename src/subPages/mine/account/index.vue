@@ -3,40 +3,46 @@
     <wd-card>
       <wd-cell-group border>
         <wd-cell
-          icon="safe"
+          prefix-icon="safe"
           title="账户密码"
           value="修改"
           is-link
-          @click="handleOpenDialog(DialogType.PASSWORD)"
+          @click="handleOpenPopup(SecurityAction.PASSWORD)"
         />
         <wd-cell
-          icon="mobile"
+          prefix-icon="mobile"
           title="绑定手机"
           :value="userProfile?.mobile || '未绑定手机号'"
           is-link
-          @click="handleOpenDialog(DialogType.MOBILE)"
+          @click="handleOpenPopup(SecurityAction.MOBILE)"
         />
         <wd-cell
-          icon="email"
+          prefix-icon="email"
           title="绑定邮箱"
           :value="userProfile?.email ? userProfile.email : '未绑定邮箱'"
           is-link
-          @click="handleOpenDialog(DialogType.EMAIL)"
+          @click="handleOpenPopup(SecurityAction.EMAIL)"
         />
         <!-- #ifdef MP-WEIXIN -->
-        <wd-cell icon="message" title="微信" value="解绑" is-link @click="handleUnbindWechat" />
+        <wd-cell
+          prefix-icon="message"
+          title="微信"
+          value="解绑"
+          is-link
+          @click="handleUnbindWechat"
+        />
         <!-- #endif -->
       </wd-cell-group>
     </wd-card>
 
     <!--用户信息编辑弹出框-->
     <wd-popup
-      v-model="dialog.visible"
+      v-model="popup.visible"
       position="bottom"
       custom-style="border-top-left-radius: 24rpx; border-top-right-radius: 24rpx;"
     >
       <wd-form
-        v-if="dialog.type === DialogType.PASSWORD"
+        v-if="popup.type === SecurityAction.PASSWORD"
         ref="passwordChangeFormRef"
         :model="passwordChangeForm"
         :schema="passwordRules"
@@ -70,11 +76,11 @@
           </wd-form-item>
         </wd-cell-group>
         <view class="p-24rpx">
-          <wd-button size="large" block @click="handleSubmit">提交</wd-button>
+          <wd-button size="large" block @click="handleSecuritySubmit">提交</wd-button>
         </view>
       </wd-form>
       <wd-form
-        v-if="dialog.type === DialogType.MOBILE"
+        v-if="popup.type === SecurityAction.MOBILE"
         ref="mobileBindingFormRef"
         :model="mobileBindingForm"
         :schema="mobileRules"
@@ -89,8 +95,7 @@
             <wd-input v-model="mobileBindingForm.code" clearable placeholder="请输入验证码">
               <template #suffix>
                 <wd-button
-                  type=""
-                  plain
+                  variant="plain"
                   :disabled="mobileCountdown > 0"
                   @click="handleSendVerificationCode('MOBILE')"
                 >
@@ -101,11 +106,11 @@
           </wd-form-item>
         </wd-cell-group>
         <view class="p-24rpx">
-          <wd-button size="large" block @click="handleSubmit">提交</wd-button>
+          <wd-button size="large" block @click="handleSecuritySubmit">提交</wd-button>
         </view>
       </wd-form>
       <wd-form
-        v-if="dialog.type === DialogType.EMAIL"
+        v-if="popup.type === SecurityAction.EMAIL"
         ref="emailBindingFormRef"
         :model="emailBindingForm"
         :schema="emailRules"
@@ -120,8 +125,7 @@
             <wd-input v-model="emailBindingForm.code" clearable placeholder="请输入验证码">
               <template #suffix>
                 <wd-button
-                  type=""
-                  plain
+                  variant="plain"
                   :disabled="emailCountdown > 0"
                   @click="handleSendVerificationCode('EMAIL')"
                 >
@@ -132,7 +136,7 @@
           </wd-form-item>
         </wd-cell-group>
         <view class="p-24rpx">
-          <wd-button size="large" block @click="handleSubmit">提交</wd-button>
+          <wd-button size="large" block @click="handleSecuritySubmit">提交</wd-button>
         </view>
       </wd-form>
     </wd-popup>
@@ -188,18 +192,20 @@ const emailRules = toFormSchema({
   code: [{ required: true, message: "请填写验证码" }],
 });
 
-enum DialogType {
+// 账号安全页可执行的动作：修改密码、绑定手机、绑定邮箱
+enum SecurityAction {
   PASSWORD = "password",
   MOBILE = "mobile",
   EMAIL = "email",
 }
 
-const dialog = reactive({
+const popup = reactive({
   visible: false,
-  type: "" as DialogType, // 修改账号资料,修改密码、绑定手机、绑定邮箱
+  type: "" as SecurityAction,
 });
 
-const userProfile = ref<UserProfile>(); //用户信息
+// 当前用户资料，用于展示微信绑定状态
+const userProfile = ref<UserProfile>();
 const passwordChangeForm = reactive<PasswordChangeForm>({});
 const mobileBindingForm = reactive<MobileBindingForm>({});
 const emailBindingForm = reactive<EmailBindingForm>({});
@@ -207,9 +213,10 @@ const passwordChangeFormRef = ref();
 const mobileBindingFormRef = ref();
 const emailBindingFormRef = ref();
 
-const { countdown: mobileCountdown, start: startMobileCountdown } = useCountdown(60);
-const { countdown: emailCountdown, start: startEmailCountdown } = useCountdown(60);
+const { remainingSeconds: mobileCountdown, start: startMobileCountdown } = useCountdown(60);
+const { remainingSeconds: emailCountdown, start: startEmailCountdown } = useCountdown(60);
 
+// 解绑微信：二次确认后调用接口，成功后重新拉取资料刷新绑定状态
 const handleUnbindWechat = async () => {
   try {
     await confirm({
@@ -225,40 +232,34 @@ const handleUnbindWechat = async () => {
   }
 };
 
-/** 加载用户信息 */
+// 加载用户资料
 const loadUserProfile = async () => {
   userProfile.value = await UserAPI.getProfile();
 };
 
-/**
- * 打开弹窗
- * @param type 弹窗类型 ACCOUNT: 账号资料 PASSWORD: 修改密码 MOBILE: 绑定手机 EMAIL: 绑定邮箱
- */
-const handleOpenDialog = (type: DialogType) => {
-  dialog.type = type;
-  dialog.visible = true;
+// 打开弹窗并清空对应表单，type 决定展示哪个表单
+const handleOpenPopup = (type: SecurityAction) => {
+  popup.type = type;
+  popup.visible = true;
   switch (type) {
-    case DialogType.PASSWORD:
+    case SecurityAction.PASSWORD:
       passwordChangeForm.oldPassword = "";
       passwordChangeForm.newPassword = "";
       passwordChangeForm.confirmPassword = "";
       break;
-    case DialogType.MOBILE:
+    case SecurityAction.MOBILE:
       mobileBindingForm.mobile = "";
       mobileBindingForm.code = "";
       break;
-    case DialogType.EMAIL:
+    case SecurityAction.EMAIL:
       emailBindingForm.email = "";
       emailBindingForm.code = "";
       break;
   }
 };
 
-/**
- *  发送验证码
- *
- * @param contactType 联系方式类型 MOBILE: 手机号码  EMAIL: 邮箱
- */
+// 发送验证码：先校验对应联系方式，成功后再启动该表单的倒计时
+// contactType 取 MOBILE 或 EMAIL，与接口参数保持一致
 const handleSendVerificationCode = async (contactType: string) => {
   try {
     if (contactType === "MOBILE") {
@@ -281,30 +282,30 @@ const handleSendVerificationCode = async (contactType: string) => {
   }
 };
 
-// 提交表单
-async function handleSubmit() {
+// 提交当前弹窗对应的表单：三个表单各自校验，成功后就地关闭弹窗
+async function handleSecuritySubmit() {
   try {
-    if (dialog.type === DialogType.PASSWORD) {
+    if (popup.type === SecurityAction.PASSWORD) {
       const { valid } = await passwordChangeFormRef.value.validate();
       if (valid) {
         await UserAPI.changePassword(passwordChangeForm);
         toast.info("密码修改成功");
-        dialog.visible = false;
+        popup.visible = false;
       }
-    } else if (dialog.type === DialogType.MOBILE) {
+    } else if (popup.type === SecurityAction.MOBILE) {
       const { valid } = await mobileBindingFormRef.value.validate();
       if (valid) {
         await UserAPI.bindMobile(mobileBindingForm);
         toast.info("手机号绑定成功");
-        dialog.visible = false;
+        popup.visible = false;
         loadUserProfile();
       }
-    } else if (dialog.type === DialogType.EMAIL) {
+    } else if (popup.type === SecurityAction.EMAIL) {
       const { valid } = await emailBindingFormRef.value.validate();
       if (valid) {
         await UserAPI.bindEmail(emailBindingForm);
         toast.info("邮箱绑定成功");
-        dialog.visible = false;
+        popup.visible = false;
         loadUserProfile();
       }
     }

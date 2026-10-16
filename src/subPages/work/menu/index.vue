@@ -5,13 +5,13 @@
         v-model="queryParams.keywords"
         placeholder="搜索菜单名称"
         hide-cancel
-        @search="handleSearch"
+        @search="loadMenuList"
       />
     </view>
 
     <!-- 菜单树形列表 -->
     <view class="mt-16rpx">
-      <custom-tree
+      <tree-view
         :data="treeData"
         :default-expand-all="true"
         :show-action="true"
@@ -35,7 +35,7 @@
             </wd-tag>
           </view>
         </template>
-      </custom-tree>
+      </tree-view>
 
       <wd-empty v-if="menuList.length === 0" icon="search-line" tip="暂无数据" />
     </view>
@@ -74,7 +74,7 @@
               <wd-input v-model="formData.name" placeholder="请输入菜单名称" />
             </wd-form-item>
             <wd-form-item prop="type" title="菜单类型" required>
-              <wd-radio-group v-model="formData.type" size="small" type="button">
+              <wd-radio-group v-model="formData.type" type="button">
                 <wd-radio
                   v-for="option in typeOptions"
                   :key="option.value"
@@ -130,8 +130,8 @@
           </wd-form>
         </scroll-view>
         <view class="popup-actions">
-          <wd-button type="info" variant="plain" @click="closeMenuDialog">取消</wd-button>
-          <wd-button :loading="isSubmitting" @click="submitMenuForm">保存</wd-button>
+          <wd-button type="info" variant="plain" block @click="closeMenuDialog">取消</wd-button>
+          <wd-button :loading="isSubmitting" block @click="submitMenuForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -150,12 +150,7 @@
     </wd-fab>
 
     <!-- 操作菜单 -->
-    <wd-action-sheet
-      v-model="actionSheetVisible"
-      :actions="actionSheetActions"
-      cancel-text="取消"
-      @select="handleActionSelect"
-    />
+    <ActionSheet ref="actionSheetRef" />
   </view>
 </template>
 
@@ -164,11 +159,12 @@ import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form-schema";
 import { findOptionChain } from "@/utils/tree";
 import { useToast } from "@wot-ui/ui";
-import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
-import MenuAPI, { type MenuQuery, MenuItem, MenuForm } from "@/api/menu";
+import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
+import { useConfirmAction } from "@/composables/useConfirmAction";
+import MenuAPI, { type MenuQuery, type MenuItem, type MenuForm, type MenuType } from "@/api/menu";
 import { hasPermission } from "@/utils/permission";
 import { getErrorMessage } from "@/utils/error";
-import CustomTree, { type TreeOption } from "@/subPages/work/components/custom-tree.vue";
+import TreeView, { type TreeOption } from "@/subPages/work/components/TreeView.vue";
 import type { CascaderOption } from "@wot-ui/ui/components/wd-cascader/types";
 
 definePage({
@@ -177,8 +173,8 @@ definePage({
 });
 
 const toast = useToast();
-const { actionSheetVisible, actionSheetActions, showActions, handleActionSelect, confirmAction } =
-  useActionSheet();
+const { confirmAction } = useConfirmAction();
+const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
 const formRef = ref();
 const isSubmitting = ref(false);
 
@@ -186,6 +182,7 @@ const queryParams = reactive<MenuQuery>({ keywords: "" });
 const menuList = ref<MenuItem[]>([]);
 const dialog = reactive({ visible: false });
 
+// 表单初始值：新增默认建菜单，排序在打开弹窗时按同级末尾补齐
 const initialFormData: MenuForm = {
   id: undefined,
   parentId: "0",
@@ -204,10 +201,40 @@ const initialFormData: MenuForm = {
 
 const formData = reactive<MenuForm>({ ...initialFormData });
 
-// 转换为树组件数据格式
-const treeData = computed(() => menuList.value.map((menu: MenuItem) => transformMenuToTree(menu)));
+// 树组件节点：菜单实体字段 + 树节点要求的 value/label
+interface MenuTreeOption extends TreeOption {
+  id?: string;
+  name?: string;
+  type?: MenuType;
+  icon?: string;
+  visible?: number;
+  perm?: string;
+  children?: MenuTreeOption[];
+}
 
-function transformMenuToTree(menu: MenuItem): TreeOption {
+// 菜单类型在列表里的标签颜色
+const MENU_TYPE_TAG: Record<MenuType, "primary" | "success" | "warning" | "danger"> = {
+  C: "warning",
+  M: "success",
+  E: "primary",
+  B: "danger",
+};
+
+// 菜单类型的中文名称
+const MENU_TYPE_TEXT: Record<MenuType, string> = {
+  C: "目录",
+  M: "菜单",
+  E: "外链",
+  B: "按钮",
+};
+
+// 菜单列表转树节点：value/label 供树组件使用，业务字段随节点透传给操作菜单
+const treeData = computed<MenuTreeOption[]>(() =>
+  menuList.value.map((menu: MenuItem) => transformMenuToTree(menu))
+);
+
+// 递归转换：子节点沿用同一套字段，空 id 用空串占位以满足树组件契约
+function transformMenuToTree(menu: MenuItem): MenuTreeOption {
   return {
     value: menu.id ?? "",
     label: menu.name ?? "",
@@ -221,29 +248,14 @@ function transformMenuToTree(menu: MenuItem): TreeOption {
   };
 }
 
-// 菜单类型标签
-function normalizeMenuType(type?: string | number) {
-  if (type === 1 || type === "1") return "C";
-  if (type === 2 || type === "2") return "M";
-  if (type === 3 || type === "3") return "B";
-  return type;
+// 菜单类型对应的标签颜色，类型缺失时按主色展示
+function getMenuTypeTag(type?: MenuType) {
+  return (type && MENU_TYPE_TAG[type]) || "primary";
 }
 
-function getMenuTypeTag(type?: string | number): "primary" | "success" | "warning" | "danger" {
-  const map: Record<string, "primary" | "success" | "warning" | "danger"> = {
-    C: "warning",
-    M: "success",
-    E: "primary",
-    B: "danger",
-  };
-  const key = String(normalizeMenuType(type) || "M");
-  return map[key] || "primary";
-}
-
-function getMenuTypeText(type?: string | number) {
-  const map: Record<string, string> = { C: "目录", M: "菜单", E: "外链", B: "按钮" };
-  const key = String(normalizeMenuType(type) || "M");
-  return map[key] || "菜单";
+// 菜单类型对应的中文名称，类型缺失时按「菜单」展示
+function getMenuTypeText(type?: MenuType) {
+  return (type && MENU_TYPE_TEXT[type]) || "菜单";
 }
 
 // 上级菜单选择器
@@ -265,10 +277,8 @@ const menuMap = computed(() => {
   return map;
 });
 
-// 已选上级的菜单类型，顶级菜单取不到节点
-const parentIsMenu = computed(
-  () => normalizeMenuType(menuMap.value.get(String(formData.parentId))?.type) === "M"
-);
+// 已选上级是否为菜单：菜单下只能挂按钮，顶级或目录下只能挂目录/菜单/外链
+const parentIsMenu = computed(() => menuMap.value.get(String(formData.parentId))?.type === "M");
 
 // 按钮只能挂在菜单下，其余类型只能挂在顶级或目录下
 const typeOptions = computed(() => [
@@ -294,6 +304,7 @@ const descendantIds = computed(() => {
 // 上级选项：按当前类型禁用不兼容的层级
 const parentCascaderOptions = computed(() => markParentDisabled(parentOptions.value));
 
+// 递归标记上级选项：禁用项在级联选择器里不可选，但仍会展示层级
 function markParentDisabled(options: OptionType[]): CascaderOption[] {
   return options.map((option) => ({
     ...option,
@@ -302,16 +313,16 @@ function markParentDisabled(options: OptionType[]): CascaderOption[] {
   }));
 }
 
-/** 上级选项是否禁用：自身与下级不可选，按钮只能挂菜单下，其余类型只能挂顶级或目录下 */
+// 上级选项是否禁用：自身与下级不可选，按钮只能挂菜单下，其余类型只能挂顶级或目录下
 function isDisabledParent(option: OptionType): boolean {
   const value = String(option.value);
   if (formData.id && (value === String(formData.id) || descendantIds.value.has(value))) return true;
 
-  const optionIsMenu = normalizeMenuType(menuMap.value.get(value)?.type) === "M";
+  const optionIsMenu = menuMap.value.get(value)?.type === "M";
   return formData.type === "B" ? !optionIsMenu : optionIsMenu;
 }
 
-/** 同级菜单的下一个排序值，新增菜单默认排在末尾 */
+// 同级菜单的下一个排序值，新增菜单默认排在末尾
 function resolveNextSort(parentId?: string): number {
   const siblings =
     !parentId || parentId === "0"
@@ -320,7 +331,7 @@ function resolveNextSort(parentId?: string): number {
   return siblings.reduce((max, menu) => Math.max(max, menu.sort ?? 0), 0) + 1;
 }
 
-/** 同级按钮权限里出现次数最多的模块名，用作新增页面的按钮前缀 */
+// 同级按钮权限里出现次数最多的模块名，用作新增页面的按钮前缀
 function deriveButtonPermPrefix(parentId: string): string {
   const siblings =
     !parentId || parentId === "0"
@@ -328,7 +339,7 @@ function deriveButtonPermPrefix(parentId: string): string {
       : (menuMap.value.get(String(parentId))?.children ?? []);
   const counter = new Map<string, number>();
   siblings.forEach((menu) => {
-    if (normalizeMenuType(menu.type) !== "B" || !menu.perm) return;
+    if (menu.type !== "B" || !menu.perm) return;
     const module = menu.perm.split(":").slice(0, -1).join(":");
     if (module) counter.set(module, (counter.get(module) ?? 0) + 1);
   });
@@ -344,7 +355,7 @@ function deriveButtonPermPrefix(parentId: string): string {
   return prefix;
 }
 
-// 上级菜单确认选择
+// 选择上级后收敛菜单类型：挂到菜单下只能是按钮，否则按钮要退回菜单
 const handleParentConfirm = ({
   value,
   selectedOptions,
@@ -379,51 +390,51 @@ const rules = toFormSchema({
   parentId: [{ required: true, message: "请选择上级菜单" }],
 });
 
-const handleSearch = () => loadMenuList();
-
+// 加载菜单树：接口直接返回树结构，前端只做展示映射
 function loadMenuList() {
-  MenuAPI.getList(queryParams).then((data) => {
-    menuList.value = data;
-  });
+  MenuAPI.getList(queryParams)
+    .then((data) => {
+      menuList.value = data;
+    })
+    .catch((error) => {
+      toast.error(getErrorMessage(error, "加载失败"));
+    });
 }
 
-// 处理节点操作按钮点击
-function handleNodeAction(node: TreeOption) {
-  const menu: MenuItem = {
-    id: node.id,
-    name: node.label,
-    type: node.type,
-    visible: node.visible,
-    children: node.children,
-  } as MenuItem;
-
-  const menus: ActionMenuOption[] = [];
+// 节点操作菜单：按钮节点不提供新增子菜单，其余命令按权限拼装
+function handleNodeAction(node: MenuTreeOption) {
+  const commands: ActionSheetCommand[] = [];
 
   // 按钮(B)类型节点不允许再有下级
-  if (hasPermission("sys:menu:create") && normalizeMenuType(String(node.type)) !== "B") {
-    menus.push({ name: "新增子菜单", handler: () => handleAddChild(menu) });
+  if (hasPermission("sys:menu:create") && node.type !== "B") {
+    commands.push({
+      id: "add-child",
+      label: "新增子菜单",
+      execute: () => openChildMenuDialog(node),
+    });
   }
 
   if (hasPermission("sys:menu:update")) {
-    menus.push({ name: "编辑", handler: () => openMenuDialog(menu) });
+    commands.push({ id: "edit", label: "编辑", execute: () => openMenuDialog(node) });
   }
 
   if (hasPermission("sys:menu:delete")) {
-    menus.push({
-      name: "删除",
+    commands.push({
+      id: "delete",
+      label: "删除",
       color: "var(--color-danger)",
-      handler: () =>
+      execute: () =>
         confirmAction({
-          msg: `确定要删除菜单「${menu.name}」吗？`,
+          msg: `确定要删除菜单「${node.name}」吗？`,
           action: async () => {
-            await MenuAPI.deleteByIds(menu.id!);
+            await MenuAPI.deleteByIds(node.id!);
             loadMenuList();
           },
         }),
     });
   }
 
-  showActions(menus);
+  actionSheetRef.value?.open(commands);
 }
 
 // 打开弹窗（新增/编辑）
@@ -458,7 +469,7 @@ async function openMenuDialog(menu?: MenuItem) {
 }
 
 // 新增子菜单：按新增流程打开弹窗，并预设上级菜单
-function handleAddChild(menu: MenuItem) {
+function openChildMenuDialog(menu: MenuItem) {
   openMenuDialog();
   formData.parentId = menu.id!;
   parentSelected.value = menu.id!;
@@ -469,12 +480,12 @@ function handleAddChild(menu: MenuItem) {
     menu.name ||
     "";
   // 菜单下只能挂按钮，目录下默认新增菜单
-  formData.type = normalizeMenuType(menu.type) === "M" ? "B" : "M";
+  formData.type = menu.type === "M" ? "B" : "M";
   formData.sort = resolveNextSort(menu.id!);
 }
 
-// 按类型清理无关字段，避免误提交
-function normalizeMenuPayload() {
+// 组装提交数据：按类型丢弃无关字段，避免把上次输入或不需要的字段提交给后端
+function buildMenuPayload() {
   const payload: MenuForm = { ...formData };
 
   if (payload.type === "E") {
@@ -500,7 +511,7 @@ function normalizeMenuPayload() {
   return payload;
 }
 
-// 提交表单
+// 提交表单：校验通过后按 id 判断新增或修改，成功后刷新列表
 function submitMenuForm() {
   formRef.value.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
@@ -509,7 +520,7 @@ function submitMenuForm() {
       return;
     }
     isSubmitting.value = true;
-    const payload = normalizeMenuPayload();
+    const payload = buildMenuPayload();
     const action = formData.id ? MenuAPI.update(formData.id, payload) : MenuAPI.create(payload);
     action
       .then(() => {
@@ -526,7 +537,7 @@ function submitMenuForm() {
   });
 }
 
-// 关闭弹窗
+// 关闭弹窗并重置表单，避免下次打开残留上次输入
 function closeMenuDialog() {
   dialog.visible = false;
   formRef.value?.reset();

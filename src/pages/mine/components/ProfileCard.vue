@@ -1,14 +1,14 @@
 <template>
   <view class="profile-card">
     <view class="profile-card__header">
-      <view class="profile-card__left" @click="emit('profile')">
+      <view class="profile-card__avatar-wrap" @click="emit('profile')">
         <image class="profile-card__avatar" :src="avatar" mode="aspectFill" lazy-load />
-        <view v-if="isAuthenticated" class="profile-card__online-dot" />
+        <view v-if="isAuthenticated" class="profile-card__auth-dot" />
       </view>
 
-      <view class="profile-card__main" @click="emit('profile')">
+      <view class="profile-card__info" @click="emit('profile')">
         <view class="profile-card__top">
-          <text class="profile-card__name">{{ name }}</text>
+          <text class="profile-card__name">{{ displayName }}</text>
         </view>
 
         <view v-if="isAuthenticated" class="profile-card__tags">
@@ -29,17 +29,13 @@
         <text v-else class="profile-card__hint">登录使用更多功能</text>
       </view>
 
-      <view
-        v-if="isAuthenticated"
-        class="profile-card__scan"
-        aria-label="扫一扫"
-        @click.stop="emit('scan')"
-      >
+      <!-- 组件内唯一的扫描入口：调起相机扫 PC 端登录二维码，登录在扫码确认页完成 -->
+      <view v-if="isAuthenticated" class="profile-card__scan" @click.stop="emit('scan')">
         <wd-icon name="scan" size="18" color="var(--color-text-inverse)" />
       </view>
 
-      <view v-else class="profile-card__action" @click.stop="emit('login')">
-        <wd-button custom-class="profile-card__button" size="small">立即登录</wd-button>
+      <view v-else class="profile-card__login" @click.stop="emit('login')">
+        <wd-button custom-class="profile-card__login-button" size="small">立即登录</wd-button>
       </view>
     </view>
   </view>
@@ -47,13 +43,20 @@
 
 <script lang="ts" setup>
 defineProps<{
+  /** 已登录时展示账号与部门，未登录展示登录入口 */
   isAuthenticated: boolean;
   avatar: string;
-  name: string;
+  /** 展示用昵称，区别于账号 username */
+  displayName: string;
   username: string;
   deptName: string;
 }>();
 
+/**
+ * profile / login / scan：只上报点击意图
+ *
+ * scan 表示请求调起扫码流程，票据校验与登录在扫码确认页完成。
+ */
 const emit = defineEmits<{
   profile: [];
   login: [];
@@ -62,18 +65,19 @@ const emit = defineEmits<{
 </script>
 
 <style lang="scss" scoped>
+/* 卡片落在 Hero 主色渐变上，前景固定白色：背景始终用半透明玻璃色，
+   不支持 backdrop-filter 时只是少了模糊，不会退化成白底白字 */
 .profile-card {
   position: relative;
   display: flex;
   padding: 28rpx 28rpx;
   overflow: hidden;
-  background: var(--color-bg-card-alpha-95);
+  background: linear-gradient(135deg, var(--color-glass) 0%, var(--color-glass-light) 100%);
   border: 1rpx solid var(--color-border-glass);
   border-radius: 28rpx;
   box-shadow: var(--shadow-md);
 
   @supports (backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px)) {
-    background: linear-gradient(135deg, var(--color-glass) 0%, var(--color-glass-light) 100%);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
   }
@@ -86,7 +90,7 @@ const emit = defineEmits<{
   width: 100%;
 }
 
-.profile-card__left {
+.profile-card__avatar-wrap {
   position: relative;
   flex-shrink: 0;
   width: 120rpx;
@@ -103,7 +107,8 @@ const emit = defineEmits<{
   box-shadow: var(--shadow-sm);
 }
 
-.profile-card__online-dot {
+/* 认证状态标识：依据登录态，不表示实时在线 */
+.profile-card__auth-dot {
   position: absolute;
   right: 4rpx;
   bottom: 4rpx;
@@ -114,7 +119,7 @@ const emit = defineEmits<{
   border-radius: 50%;
 }
 
-.profile-card__main {
+.profile-card__info {
   flex: 1;
   min-width: 0;
 }
@@ -153,21 +158,21 @@ const emit = defineEmits<{
   align-items: center;
   align-self: flex-start;
   justify-content: center;
-  width: 64rpx;
-  height: 64rpx;
+  width: 88rpx;
+  height: 88rpx;
   margin-left: auto;
   background: var(--color-glass-light);
   border: 1rpx solid var(--color-border-glass);
   border-radius: 999rpx;
 }
 
-.profile-card__action {
+.profile-card__login {
   flex-shrink: 0;
   align-self: center;
   margin-left: auto;
 }
 
-.profile-card__button {
+.profile-card__login-button {
   flex-shrink: 0;
   min-width: 156rpx;
   height: 72rpx;

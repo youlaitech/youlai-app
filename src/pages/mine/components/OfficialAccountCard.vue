@@ -1,31 +1,32 @@
 <template>
-  <view class="community-card" @click="emit('open')">
-    <image class="community-card__bg" src="/static/images/official-bg.png" mode="aspectFill" />
-    <view class="community-card__mask" />
-    <view class="community-card__logo">
-      <image src="/static/images/logo.png" mode="aspectFit" class="w-full h-full" />
+  <view class="official-card" @click="emit('open')">
+    <image class="official-card__bg" src="/static/images/official-bg.png" mode="aspectFill" />
+    <view class="official-card__mask" />
+    <view class="official-card__logo">
+      <image class="official-card__logo-img" src="/static/images/logo.png" mode="aspectFit" />
     </view>
-    <view class="community-card__body">
-      <view class="community-card__title-row">
-        <text class="community-card__title">关注有来技术</text>
-        <wd-tag type="success" plain custom-class="community-card__tag">官方社区</wd-tag>
+    <view class="official-card__body">
+      <view class="official-card__title-row">
+        <text class="official-card__title">关注有来技术</text>
+        <wd-tag type="success" variant="plain" custom-class="official-card__tag">官方社区</wd-tag>
       </view>
-      <text class="community-card__desc">开源更新、实战内容、交流群入口，统一在这里查看</text>
+      <text class="official-card__desc">开源更新、实战内容、交流群入口，统一在这里查看</text>
     </view>
-    <view class="community-card__arrow">
+    <view class="official-card__arrow">
       <wd-icon name="right" size="16" color="var(--color-text-secondary)" />
     </view>
   </view>
 </template>
 
 <script lang="ts" setup>
+/** open：请求进入公众号介绍页，目标地址由父级决定 */
 const emit = defineEmits<{
   open: [];
 }>();
 </script>
 
 <style lang="scss" scoped>
-.community-card {
+.official-card {
   position: relative;
   display: flex;
   gap: 24rpx;
@@ -37,7 +38,7 @@ const emit = defineEmits<{
   box-shadow: var(--shadow-md);
 }
 
-.community-card__bg {
+.official-card__bg {
   position: absolute;
   top: 0;
   right: 0;
@@ -47,10 +48,9 @@ const emit = defineEmits<{
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 1;
 }
 
-.community-card__mask {
+.official-card__mask {
   position: absolute;
   top: 0;
   right: 0;
@@ -65,7 +65,7 @@ const emit = defineEmits<{
   );
 }
 
-.community-card__logo {
+.official-card__logo {
   position: relative;
   z-index: var(--z-content);
   box-sizing: border-box;
@@ -78,14 +78,19 @@ const emit = defineEmits<{
   box-shadow: var(--shadow-sm);
 }
 
-.community-card__body {
+.official-card__logo-img {
+  width: 100%;
+  height: 100%;
+}
+
+.official-card__body {
   position: relative;
   z-index: var(--z-content);
   flex: 1;
   min-width: 0;
 }
 
-.community-card__arrow {
+.official-card__arrow {
   position: relative;
   z-index: var(--z-content);
   display: flex;
@@ -97,14 +102,14 @@ const emit = defineEmits<{
   border-radius: 999rpx;
 }
 
-.community-card__title-row {
+.official-card__title-row {
   display: flex;
   gap: 16rpx;
   align-items: center;
   margin-top: 14rpx;
 }
 
-.community-card__title {
+.official-card__title {
   flex-shrink: 0;
   font-size: 32rpx;
   font-weight: 600;
@@ -114,14 +119,14 @@ const emit = defineEmits<{
 }
 
 /* wd-tag 外层是自定义组件节点，压掉其行高避免与标题错位 */
-.community-card__tag {
+.official-card__tag {
   display: flex;
   flex-shrink: 0;
   align-items: center;
   line-height: 1;
 }
 
-.community-card__desc {
+.official-card__desc {
   display: -webkit-box;
   margin-top: 10rpx;
   overflow: hidden;

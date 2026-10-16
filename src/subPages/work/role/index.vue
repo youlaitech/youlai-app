@@ -43,7 +43,7 @@
           <view
             class="item-action"
             hover-class="item-action--hover"
-            @click.stop="showRoleActions(item)"
+            @click.stop="openRoleActions(item)"
           >
             <wd-icon name="more" size="18" class="color-text-secondary" />
           </view>
@@ -95,8 +95,8 @@
           </wd-form-item>
         </wd-form>
         <view class="popup-actions">
-          <wd-button type="info" variant="plain" @click="closeRoleDialog">取消</wd-button>
-          <wd-button :loading="isSubmitting" @click="submitRoleForm">保存</wd-button>
+          <wd-button type="info" variant="plain" block @click="closeRoleDialog">取消</wd-button>
+          <wd-button :loading="isSubmitting" block @click="submitRoleForm">保存</wd-button>
         </view>
       </view>
     </wd-popup>
@@ -115,12 +115,7 @@
     </wd-fab>
 
     <!-- 操作菜单 -->
-    <wd-action-sheet
-      v-model="actionSheetVisible"
-      :actions="actionSheetActions"
-      cancel-text="取消"
-      @select="handleActionSelect"
-    />
+    <ActionSheet ref="actionSheetRef" />
   </view>
 </template>
 
@@ -128,7 +123,8 @@
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
-import { useActionSheet, type ActionMenuOption } from "@/composables/useActionSheet";
+import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
 import RoleAPI, { type RolePageQuery, RoleItem, RoleForm } from "@/api/role";
 import { hasPermission } from "@/utils/permission";
@@ -139,8 +135,8 @@ definePage({
 });
 
 const toast = useToast();
-const { actionSheetVisible, actionSheetActions, showActions, handleActionSelect, confirmAction } =
-  useActionSheet();
+const { confirmAction } = useConfirmAction();
+const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
 const formRef = ref();
 const isSubmitting = ref(false);
 
@@ -234,22 +230,27 @@ function closeRoleDialog() {
 }
 
 // 更多操作
-function showRoleActions(item: RoleItem) {
-  const menus: ActionMenuOption[] = [];
+function openRoleActions(item: RoleItem) {
+  const commands: ActionSheetCommand[] = [];
 
   if (hasPermission("sys:role:update")) {
-    menus.push({ name: "编辑", handler: () => openRoleDialog(item.id) });
+    commands.push({ id: "edit", label: "编辑", execute: () => openRoleDialog(item.id) });
   }
 
   if (hasPermission("sys:role:assign")) {
-    menus.push({ name: "分配权限", handler: () => handleAssignPerm(item.id!) });
+    commands.push({
+      id: "assign-perm",
+      label: "分配权限",
+      execute: () => navigateToAssignPerm(item.id!),
+    });
   }
 
   if (hasPermission("sys:role:delete")) {
-    menus.push({
-      name: "删除",
+    commands.push({
+      id: "delete",
+      label: "删除",
       color: "var(--color-danger)",
-      handler: () =>
+      execute: () =>
         confirmAction({
           msg: `确定要删除角色「${item.name}」吗？`,
           action: async () => {
@@ -260,11 +261,11 @@ function showRoleActions(item: RoleItem) {
     });
   }
 
-  showActions(menus);
+  actionSheetRef.value?.open(commands);
 }
 
-// 分配权限
-function handleAssignPerm(id: number) {
+// 跳转分配权限页
+function navigateToAssignPerm(id: number) {
   uni.navigateTo({
     url: "/subPages/work/role/assign-perm/index?id=" + id,
   });
