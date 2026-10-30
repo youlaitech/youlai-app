@@ -44,7 +44,7 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
   };
 
   return {
-    // H5 站点基路径，部署在子路径时由 .env.youlai 覆盖
+    // H5 部署在子路径时用 VITE_BASE_URL 覆盖，缺省为站点根
     base: env.VITE_BASE_URL || "/",
     define: {
       "import.meta.env.VITE_APP_VERSION": JSON.stringify(pkg.version ?? ""),
