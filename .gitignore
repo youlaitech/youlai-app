@@ -22,6 +22,10 @@ src/types/auto-imports.d.ts
 src/types/components.d.ts
 src/types/uni-pages.d.ts
 
+# 部署环境覆盖配置与部署脚本，仅本地使用
+.env.youlai
+deploy.mjs
+
 # Editor directories and files
 .idea
 *.suo

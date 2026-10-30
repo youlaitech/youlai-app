@@ -44,6 +44,8 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
   };
 
   return {
+    // H5 站点基路径，部署在子路径时由 .env.youlai 覆盖
+    base: env.VITE_BASE_URL || "/",
     define: {
       "import.meta.env.VITE_APP_VERSION": JSON.stringify(pkg.version ?? ""),
     },
@@ -52,6 +54,10 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
       port: +env.VITE_APP_PORT,
       open: true,
       proxy: {
+        "/api/v1/realtime/ws": {
+          target: env.VITE_PROXY_TARGET || env.VITE_APP_API_URL,
+          ws: true,
+        },
         [env.VITE_APP_BASE_API]: {
           changeOrigin: true,
           // 未配置代理目标的环境回落到接口地址
