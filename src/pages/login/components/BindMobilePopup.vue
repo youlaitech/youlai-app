@@ -67,7 +67,7 @@ import { useSmsLoginCode, isValidMobile } from "@/composables/useSmsLoginCode";
 import { useUserStore } from "@/store/modules/user";
 import { getErrorMessage } from "@/utils/error";
 
-/** 微信静默登录后需绑定手机号时，由父组件打开本弹窗 */
+// 微信静默登录后需绑定手机号时，由父组件打开本弹窗
 const visible = defineModel<boolean>({ required: true });
 
 const emit = defineEmits<{
@@ -82,34 +82,36 @@ const { remainingSeconds, sendCode, resetCountdown } = useSmsLoginCode();
 const mobile = ref("18888888888");
 const code = ref("");
 const isSubmitting = ref(false);
-// 待绑定的微信 openid，由父组件通过 open 传入，不随表单清理
-let openid = "";
 
 /**
  * 打开绑定弹窗
  *
- * 重置手机号与验证码（避免上一次输入残留），并记录待绑定的 openid。
- *
- * @param boundOpenid - 静默登录返回的微信 openid
+ * 重置输入；微信身份不由弹窗保存，提交时重新通过 wx.login 确认。
  */
-function open(boundOpenid: string) {
-  openid = boundOpenid;
+function open() {
   mobile.value = "18888888888";
   code.value = "";
   visible.value = true;
 }
 
-// 关闭弹窗：停掉倒计时并清空验证码，手机号保留便于再次打开
+/**
+ * 停止倒计时并清空验证码，保留已填手机号。
+ */
 function handleClose() {
   resetCountdown();
   code.value = "";
 }
 
+/**
+ * 请求发送绑定手机号的验证码。
+ */
 async function handleSendCode() {
   await sendCode(mobile.value);
 }
 
-// 确认绑定：本地校验通过后换会话，成功后由父组件跳转
+/**
+ * 校验并绑定手机号，成功后通知父组件。
+ */
 async function handleConfirm() {
   if (isSubmitting.value) return;
   if (!isValidMobile(mobile.value)) {
@@ -122,7 +124,10 @@ async function handleConfirm() {
   }
   isSubmitting.value = true;
   try {
-    await userStore.bindMobileForWxMa({ openid, mobile: mobile.value, smsCode: code.value });
+    // 静默登录的 code 已消费，绑定时必须重新获取一次。
+    const { code: loginCode } = await uni.login();
+    if (!loginCode) throw new Error("未获取到微信登录凭证，请重试");
+    await userStore.bindMobileForWxMa({ loginCode, mobile: mobile.value, smsCode: code.value });
     await userStore.loadUserInfo();
     visible.value = false;
     toast.success("绑定成功");

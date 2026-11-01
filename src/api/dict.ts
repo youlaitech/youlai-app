@@ -28,8 +28,10 @@ function normalizeTagType(tagType?: string): string {
 }
 
 const DictAPI = {
-  /** 获取字典类型分页数据 */
-  getPage(queryParams: DictTypePageQuery) {
+  /**
+   * 获取字典类型分页数据
+   */
+  getPage(queryParams: DictTypeQuery) {
     return request<PageResult<DictTypeItem>>({
       url: `${DICT_BASE_URL}`,
       method: "GET",
@@ -37,7 +39,9 @@ const DictAPI = {
     });
   },
 
-  /** 获取字典类型表单数据 */
+  /**
+   * 获取字典类型表单数据
+   */
   getFormData(id: string | number) {
     return request<DictTypeForm>({
       url: `${DICT_BASE_URL}/${id}/form`,
@@ -45,7 +49,9 @@ const DictAPI = {
     });
   },
 
-  /** 新增字典类型 */
+  /**
+   * 新增字典类型
+   */
   create(data: DictTypeForm) {
     return request({
       url: `${DICT_BASE_URL}`,
@@ -54,7 +60,9 @@ const DictAPI = {
     });
   },
 
-  /** 修改字典类型 */
+  /**
+   * 修改字典类型
+   */
   update(id: string | number, data: DictTypeForm) {
     return request({
       url: `${DICT_BASE_URL}/${id}`,
@@ -75,8 +83,10 @@ const DictAPI = {
     });
   },
 
-  /** 获取字典数据分页列表 */
-  getItemPage(dictCode: string, queryParams: DictItemPageQuery) {
+  /**
+   * 获取字典数据分页列表
+   */
+  getItemPage(dictCode: string, queryParams: DictItemQuery) {
     return request<PageResult<DictItem>>({
       url: `${DICT_BASE_URL}/${dictCode}/items`,
       method: "GET",
@@ -87,7 +97,9 @@ const DictAPI = {
     }));
   },
 
-  /** 获取字典数据表单数据 */
+  /**
+   * 获取字典数据表单数据
+   */
   getItemFormData(dictCode: string, id: string | number) {
     return request<DictItemForm>({
       url: `${DICT_BASE_URL}/${dictCode}/items/${id}/form`,
@@ -95,7 +107,9 @@ const DictAPI = {
     }).then((data) => ({ ...data, tagType: normalizeTagType(data.tagType) }));
   },
 
-  /** 新增字典数据 */
+  /**
+   * 新增字典数据
+   */
   createItem(dictCode: string, data: DictItemForm) {
     return request({
       url: `${DICT_BASE_URL}/${dictCode}/items`,
@@ -104,7 +118,9 @@ const DictAPI = {
     });
   },
 
-  /** 修改字典数据 */
+  /**
+   * 修改字典数据
+   */
   updateItem(dictCode: string, id: string | number, data: DictItemForm) {
     return request({
       url: `${DICT_BASE_URL}/${dictCode}/items/${id}`,
@@ -128,13 +144,17 @@ const DictAPI = {
 
 export default DictAPI;
 
-/** 字典类型分页查询参数 */
-export interface DictTypePageQuery extends PageQuery {
+/**
+ * 字典类型分页查询参数
+ */
+export interface DictTypeQuery extends PageQuery {
   keywords?: string;
   status?: number;
 }
 
-/** 字典类型表单对象 */
+/**
+ * 字典类型表单对象
+ */
 export interface DictTypeForm {
   id?: string;
   name?: string;
@@ -143,7 +163,9 @@ export interface DictTypeForm {
   remark?: string;
 }
 
-/** 字典类型分页对象 */
+/**
+ * 字典类型列表项。
+ */
 export interface DictTypeItem {
   id?: string;
   name?: string;
@@ -152,12 +174,16 @@ export interface DictTypeItem {
   remark?: string;
 }
 
-/** 字典数据分页查询参数 */
-export interface DictItemPageQuery extends PageQuery {
+/**
+ * 字典数据分页查询参数
+ */
+export interface DictItemQuery extends PageQuery {
   keywords?: string;
 }
 
-/** 字典数据表单对象 */
+/**
+ * 字典数据表单对象
+ */
 export interface DictItemForm {
   id?: string;
   dictCode?: string;
@@ -170,7 +196,9 @@ export interface DictItemForm {
   tagType?: string;
 }
 
-/** 字典数据分页对象 */
+/**
+ * 字典数据列表项。
+ */
 export interface DictItem {
   id?: string;
   dictCode?: string;

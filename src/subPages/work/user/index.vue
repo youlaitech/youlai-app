@@ -236,7 +236,7 @@ import { useQueue, useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
-import UserAPI, { type UserPageQuery, UserItem, UserForm } from "@/api/user";
+import UserAPI, { type UserQuery, UserItem, UserForm } from "@/api/user";
 import RoleAPI from "@/api/role";
 import DeptAPI from "@/api/dept";
 import { getErrorMessage } from "@/utils/error";
@@ -262,7 +262,7 @@ const sortOptions = ref([
   { label: "最近更新", value: 2 },
 ]);
 
-const queryParams = reactive<UserPageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
+const queryParams = reactive<UserQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const dialog = reactive({ visible: false });
 
 // 创建时间筛选：日历弹层只维护时间戳，点击「查询」时才写入查询参数

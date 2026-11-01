@@ -3,8 +3,10 @@ import request from "@/utils/request";
 const ROLE_BASE_URL = "/api/v1/roles";
 
 const RoleAPI = {
-  /** 获取角色分页数据 */
-  getPage(queryParams?: RolePageQuery) {
+  /**
+   * 获取角色分页数据
+   */
+  getPage(queryParams?: RoleQuery) {
     return request<PageResult<RoleItem>>({
       url: `${ROLE_BASE_URL}`,
       method: "GET",
@@ -12,7 +14,9 @@ const RoleAPI = {
     });
   },
 
-  /** 获取角色下拉数据源 */
+  /**
+   * 获取角色下拉数据源
+   */
   getOptions() {
     return request<OptionType[]>({
       url: `${ROLE_BASE_URL}/options`,
@@ -20,7 +24,9 @@ const RoleAPI = {
     });
   },
 
-  /** 获取角色的菜单ID集合 */
+  /**
+   * 获取角色的菜单ID集合
+   */
   getMenuIds(roleId: number) {
     return request<number[]>({
       url: `${ROLE_BASE_URL}/${roleId}/menu-ids`,
@@ -28,7 +34,9 @@ const RoleAPI = {
     });
   },
 
-  /** 分配菜单权限 */
+  /**
+   * 分配菜单权限
+   */
   assignMenus(roleId: number, menuIds: number[]) {
     return request({
       url: `${ROLE_BASE_URL}/${roleId}/menus`,
@@ -37,7 +45,9 @@ const RoleAPI = {
     });
   },
 
-  /** 获取角色表单数据 */
+  /**
+   * 获取角色表单数据
+   */
   getFormData(id: number) {
     return request<RoleForm>({
       url: `${ROLE_BASE_URL}/${id}/form`,
@@ -45,7 +55,9 @@ const RoleAPI = {
     });
   },
 
-  /** 新增角色 */
+  /**
+   * 新增角色
+   */
   create(data: RoleForm) {
     return request({
       url: `${ROLE_BASE_URL}`,
@@ -54,7 +66,9 @@ const RoleAPI = {
     });
   },
 
-  /** 更新角色 */
+  /**
+   * 更新角色
+   */
   update(id: number, data: RoleForm) {
     return request({
       url: `${ROLE_BASE_URL}/${id}`,
@@ -78,12 +92,16 @@ const RoleAPI = {
 
 export default RoleAPI;
 
-/** 角色分页查询参数 */
-export interface RolePageQuery extends PageQuery {
+/**
+ * 角色分页查询参数
+ */
+export interface RoleQuery extends PageQuery {
   keywords?: string;
 }
 
-/** 角色分页对象 */
+/**
+ * 角色列表项。
+ */
 export interface RoleItem {
   code?: string;
   id: number;
@@ -97,7 +115,9 @@ export interface RoleItem {
   updateTime?: string;
 }
 
-/** 角色表单对象 */
+/**
+ * 角色表单对象
+ */
 export interface RoleForm {
   id?: number;
   code?: string;

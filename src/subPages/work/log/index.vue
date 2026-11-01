@@ -98,14 +98,14 @@
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { usePagedList } from "@/composables/usePagedList";
-import LogAPI, { type LogPageQuery, LogItem } from "@/api/log";
+import LogAPI, { type LogQuery, LogItem } from "@/api/log";
 
 definePage({
   name: "log",
   style: { navigationBarTitleText: "系统日志", enablePullDownRefresh: true },
 });
 
-const queryParams = reactive<LogPageQuery>({ pageNum: 1, pageSize: 10 });
+const queryParams = reactive<LogQuery>({ pageNum: 1, pageSize: 10 });
 
 // 分页加载（触底加载 + 下拉刷新统一由 usePagedList 维护）
 const {

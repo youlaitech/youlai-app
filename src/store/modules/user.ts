@@ -4,113 +4,154 @@ import AuthAPI, {
   type SmsLoginParams,
   type WxMaPhoneLoginParams,
   type WxMaBindMobileParams,
+  type LoginResult,
 } from "@/api/auth";
 import UserAPI, { type UserInfo } from "@/api/user";
-import { setAccessToken as persistAccessToken, getAccessToken, clearTokens } from "@/utils/auth";
+import {
+  setTokens as persistTokens,
+  getAccessToken,
+  getRefreshToken,
+  getAuthSessionRevision,
+  clearTokens,
+} from "@/utils/auth";
+import { RequestError } from "@/utils/request";
 import { Storage } from "@/utils/storage";
 import { USER_INFO_KEY } from "@/constants";
 
 /**
- * 用户状态管理 Store
- *
- * 会话约定：
- * - accessToken 是登录态的唯一事实来源（响应式），isAuthenticated 统一判断登录
- * - setAccessToken 登录成功后集中写入；resetSession 同时清理内存与持久化（退出、登录失效共用）
+ * 管理用户资料、登录凭证与会话续期。
  */
-
 export const useUserStore = defineStore("user", () => {
-  // 状态
-
-  /** 访问令牌（响应式会话凭据，初始化时从持久化恢复） */
+  // 从持久化缓存恢复的访问令牌。
   const accessToken = ref<string>(getAccessToken() || "");
 
-  /** 用户信息 */
+  // 用户信息
   const userInfo = ref<UserInfo | undefined>(Storage.get<UserInfo>(USER_INFO_KEY));
 
-  /** 统一登录判断 */
   const isAuthenticated = computed(() => !!accessToken.value);
 
-  /** 必填资料是否完善（昵称与头像齐备） */
+  // 必填资料是否完善（昵称与头像齐备）
   const isProfileComplete = computed(() => !!(userInfo.value?.nickname && userInfo.value?.avatar));
 
-  // 会话管理
-
-  /** 登录成功后的集中写入（内存 + 持久化保持同步） */
-  function setAccessToken(token: string): void {
-    accessToken.value = token;
-    persistAccessToken(token);
+  /**
+   * 成对保存凭证并同步响应式登录状态。
+   */
+  function setTokens(
+    tokens: Pick<LoginResult, "accessToken" | "refreshToken">,
+    renewing = false
+  ): void {
+    persistTokens(tokens.accessToken, tokens.refreshToken, renewing);
+    accessToken.value = tokens.accessToken;
   }
 
-  /** 同时清理内存与持久化会话（退出登录、401 登录失效共用） */
+  let refreshTask: { revision: number; promise: Promise<void> } | null = null;
+
+  /**
+   * 同一账号的并发请求共用续期任务，切换账号后丢弃旧结果。
+   */
+  function refreshTokenOnce(): Promise<void> {
+    const revision = getAuthSessionRevision();
+    if (refreshTask?.revision === revision) return refreshTask.promise;
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) return Promise.reject(new RequestError("请重新登录", 401));
+    const promise = AuthAPI.refreshToken(refreshToken)
+      .then((tokens) => {
+        if (revision !== getAuthSessionRevision()) throw new RequestError("登录会话已切换", 0);
+        setTokens(tokens, true);
+      })
+      .finally(() => {
+        if (refreshTask?.promise === promise) refreshTask = null;
+      });
+    refreshTask = { revision, promise };
+    return promise;
+  }
+
+  /**
+   * 清除内存与持久化中的登录会话。
+   */
   function resetSession(): void {
+    clearTokens();
+    refreshTask = null;
     accessToken.value = "";
     userInfo.value = undefined;
-    clearTokens();
     Storage.remove(USER_INFO_KEY);
   }
 
-  // 登录方法
-
-  /** 账号密码登录 */
+  /**
+   * 账号密码登录
+   */
   const loginByPassword = async (data: PasswordLoginParams) => {
     const result = await AuthAPI.loginByPassword(data);
-    setAccessToken(result.accessToken);
+    setTokens(result);
     return result;
   };
 
-  /** 短信验证码登录 */
+  /**
+   * 短信验证码登录
+   */
   const loginBySms = async (data: SmsLoginParams) => {
     const result = await AuthAPI.loginBySms(data);
-    setAccessToken(result.accessToken);
+    setTokens(result);
     return result;
   };
 
-  /** 微信小程序静默登录 */
+  /**
+   * 微信小程序静默登录
+   */
   const loginByWxMa = async (code: string) => {
     const result = await AuthAPI.wxMaSilentLogin(code);
-    if (result.accessToken) {
-      setAccessToken(result.accessToken);
+    if (result.accessToken && result.refreshToken) {
+      setTokens({ accessToken: result.accessToken, refreshToken: result.refreshToken });
     }
     return result;
   };
 
-  /** 微信小程序一键登录（企业小程序） */
+  /**
+   * 微信小程序一键登录（企业小程序）
+   */
   const loginByWxMaPhone = async (data: WxMaPhoneLoginParams) => {
     const result = await AuthAPI.wxMaPhoneLogin(data);
-    setAccessToken(result.accessToken);
+    setTokens(result);
     return result;
   };
 
-  /** 微信小程序绑定手机号 */
+  /**
+   * 微信小程序绑定手机号
+   */
   const bindMobileForWxMa = async (data: WxMaBindMobileParams) => {
     const result = await AuthAPI.wxMaBindMobile(data);
-    setAccessToken(result.accessToken);
+    setTokens(result);
     return result;
   };
 
-  // 用户信息方法
-
-  /** 加载当前登录用户信息（请求接口、更新响应式状态、写入存储） */
+  /**
+   * 加载并缓存当前用户资料，忽略旧会话响应。
+   */
   const loadUserInfo = async () => {
+    const revision = getAuthSessionRevision();
     const data = await UserAPI.getCurrentUser();
+    if (revision !== getAuthSessionRevision()) throw new RequestError("登录会话已切换", 0);
     Storage.set(USER_INFO_KEY, data);
     userInfo.value = data;
     return data;
   };
 
-  /** 登出：远端退出 + 本地清理（内存与持久化）+ 跳转登录页（唯一导航入口） */
+  /**
+   * 退出远端会话后清理本地状态并进入登录页。
+   */
   const logout = async () => {
+    const revision = getAuthSessionRevision();
     try {
       await AuthAPI.logout();
     } catch {
       // 登出失败静默处理，继续清理本地状态
     } finally {
-      resetSession();
-      uni.reLaunch({ url: "/pages/login/index" });
+      if (revision === getAuthSessionRevision()) {
+        resetSession();
+        uni.reLaunch({ url: "/pages/login/index" });
+      }
     }
   };
-
-  // 导出
 
   return {
     // 状态与会话
@@ -118,7 +159,8 @@ export const useUserStore = defineStore("user", () => {
     userInfo,
     isAuthenticated,
     isProfileComplete,
-    setAccessToken,
+    setTokens,
+    refreshTokenOnce,
     resetSession,
     // 登录
     loginByPassword,

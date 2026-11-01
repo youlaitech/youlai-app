@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { onLaunch } from "@dcloudio/uni-app";
 import { useThemeStore } from "@/store";
+import { provideRealtime } from "@/composables/useRealtime";
+
+provideRealtime();
 
 onLaunch(() => {
   const themeStore = useThemeStore();

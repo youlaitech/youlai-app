@@ -93,9 +93,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onScopeDispose, ref } from "vue";
 import dayjs from "dayjs";
-import { onReady, onShow } from "@dcloudio/uni-app";
+import { onHide, onShow } from "@dcloudio/uni-app";
+import { useRealtime } from "@/composables/useRealtime";
 import { useThemeStore, useUserStore } from "@/store";
 import { useNavigation } from "@/composables/useNavigation";
 import { workMenuGroups, type WorkMenuItem } from "@/config/work-menu";
@@ -110,6 +111,11 @@ definePage({
 });
 
 const userStore = useUserStore();
+const realtime = useRealtime();
+let pageVisible = false;
+let noticeRequest: Promise<void> | null = null;
+let noticeDirty = false;
+let disposed = false;
 const themeStore = useThemeStore();
 const { navigate } = useNavigation();
 
@@ -139,8 +145,7 @@ const isAuthenticated = computed(() => userStore.isAuthenticated);
 // 快捷入口最多展示的数量
 const QUICK_NAV_LIMIT = 4;
 
-// 快捷入口：未登录时展示前几个作为引导，点击后统一跳登录页；
-// 已登录按权限过滤，不足 4 个就显示多少
+// 登录后按权限筛选入口；未登录时保留入口作为登录引导。
 const quickNavList = computed<WorkMenuItem[]>(() => {
   const result: WorkMenuItem[] = [];
   for (const group of workMenuGroups) {
@@ -172,28 +177,59 @@ const chartOpts = computed(() => ({
   },
 }));
 
-// 加载公告：未登录不发请求，直接清空列表
-async function loadNoticeData() {
+/**
+ * 仅登录后加载首页通知，忽略旧会话结果。
+ */
+async function fetchNoticeData() {
+  // 请求返回前可能切换账号，旧公告不能回填新会话。
+  const token = userStore.accessToken;
   if (!isAuthenticated.value) {
     noticeList.value = [];
     return;
   }
   try {
     const { list } = await NoticeAPI.getMyNoticePage({ pageNum: 1, pageSize: 2 });
-    noticeList.value = list || [];
+    if (!disposed && token === userStore.accessToken) noticeList.value = list || [];
   } catch {
-    noticeList.value = [];
+    if (!disposed && token === userStore.accessToken) noticeList.value = [];
   }
 }
 
-// 加载访问概览：失败保留初始值，不打断页面
+/**
+ * 在途刷新只记录一次补拉，避免连续提示并发查询同一列表。
+ */
+function loadNoticeData(): void {
+  if (disposed || !pageVisible) return;
+  if (noticeRequest) {
+    noticeDirty = true;
+    return;
+  }
+  noticeRequest = fetchNoticeData().finally(() => {
+    noticeRequest = null;
+    if (noticeDirty) {
+      noticeDirty = false;
+      loadNoticeData();
+    }
+  });
+}
+
+realtime.onNoticeChange(loadNoticeData);
+onScopeDispose(() => {
+  disposed = true;
+});
+
+/**
+ * 加载首页访问概览。
+ */
 function loadVisitOverviewData() {
   LogAPI.getVisitOverview()
     .then((data) => (visitOverviewData.value = data))
     .catch(() => {});
 }
 
-// 加载访问趋势：按当前天数取数，失败回落到空图表
+/**
+ * 按所选范围加载访问趋势。
+ */
 async function loadVisitTrendData() {
   const endDate = dayjs().format("YYYY-MM-DD");
   const startDate = dayjs()
@@ -215,7 +251,9 @@ async function loadVisitTrendData() {
   }
 }
 
-// 快捷导航点击：未登录先跳登录页，已登录按权限跳转
+/**
+ * 检查入口要求并跳转目标页面。
+ */
 function handleNavItemClick(item: WorkMenuItem) {
   if (!isAuthenticated.value) {
     navigateToLogin();
@@ -224,7 +262,9 @@ function handleNavItemClick(item: WorkMenuItem) {
   navigate(item);
 }
 
-// 跳登录页并带上来路，登录成功后原路返回
+/**
+ * 进入登录页面。
+ */
 function navigateToLogin() {
   const pages = getCurrentPages();
   const currentPage = pages[pages.length - 1];
@@ -232,7 +272,9 @@ function navigateToLogin() {
   uni.navigateTo({ url: `/pages/login/index?redirect=${redirect}` });
 }
 
-// 公告页需要登录态，未登录先跳登录页
+/**
+ * 进入通知页面，未登录时先跳转登录。
+ */
 function handleNoticeClick() {
   if (!isAuthenticated.value) {
     navigateToLogin();
@@ -241,21 +283,24 @@ function handleNoticeClick() {
   uni.navigateTo({ url: "/subPages/work/notice/index" });
 }
 
-// 切换趋势范围：同一范围重复点击不发请求
+/**
+ * 切换统计范围并更新趋势。
+ */
 function switchRange(value: number) {
   if (trendDays.value === value) return;
   trendDays.value = value;
   loadVisitTrendData();
 }
 
-onReady(() => {
-  loadNoticeData();
-});
-
 // onShow 首次进入同样触发，统一在此加载统计数据（切回 tab 时自动刷新）
 onShow(() => {
+  pageVisible = true;
+  loadNoticeData();
   loadVisitOverviewData();
   loadVisitTrendData();
+});
+onHide(() => {
+  pageVisible = false;
 });
 </script>
 

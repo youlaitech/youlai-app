@@ -3,8 +3,10 @@ import request from "@/utils/request";
 const CONFIG_BASE_URL = "/api/v1/configs";
 
 const ConfigAPI = {
-  /** 获取系统配置分页数据 */
-  getPage(queryParams: ConfigPageQuery) {
+  /**
+   * 获取系统配置分页数据
+   */
+  getPage(queryParams: ConfigQuery) {
     return request<PageResult<ConfigItem>>({
       url: `${CONFIG_BASE_URL}`,
       method: "GET",
@@ -12,7 +14,9 @@ const ConfigAPI = {
     });
   },
 
-  /** 获取系统配置表单数据 */
+  /**
+   * 获取系统配置表单数据
+   */
   getFormData(id: number) {
     return request<ConfigForm>({
       url: `${CONFIG_BASE_URL}/${id}/form`,
@@ -20,7 +24,9 @@ const ConfigAPI = {
     });
   },
 
-  /** 新增系统配置 */
+  /**
+   * 新增系统配置
+   */
   create(data: ConfigForm) {
     return request({
       url: `${CONFIG_BASE_URL}`,
@@ -29,7 +35,9 @@ const ConfigAPI = {
     });
   },
 
-  /** 更新系统配置 */
+  /**
+   * 更新系统配置
+   */
   update(id: number, data: ConfigForm) {
     return request({
       url: `${CONFIG_BASE_URL}/${id}`,
@@ -53,12 +61,16 @@ const ConfigAPI = {
 
 export default ConfigAPI;
 
-/** 系统配置分页查询参数 */
-export interface ConfigPageQuery extends PageQuery {
+/**
+ * 系统配置分页查询参数
+ */
+export interface ConfigQuery extends PageQuery {
   keywords?: string;
 }
 
-/** 系统配置表单对象 */
+/**
+ * 系统配置表单对象
+ */
 export interface ConfigForm {
   id?: number;
   configName?: string;
@@ -67,7 +79,9 @@ export interface ConfigForm {
   remark?: string;
 }
 
-/** 系统配置分页对象 */
+/**
+ * 系统配置列表项。
+ */
 export interface ConfigItem {
   id?: number;
   configName?: string;

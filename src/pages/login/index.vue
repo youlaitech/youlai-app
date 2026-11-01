@@ -251,7 +251,7 @@ const isCaptchaLoading = ref(false);
 
 const redirect = ref("/pages/index/index");
 
-// 绑定手机号弹窗显隐（openid 由弹窗 open 方法传入）
+// 绑定手机号弹窗显隐；微信身份由提交时的新 code 确认。
 const showBindMobilePopup = ref(false);
 
 const pendingLoginAction = ref<"FORM" | "WECHAT_PHONE" | null>(null);
@@ -295,7 +295,9 @@ const formSchema = computed<FormSchema>(() => ({
   },
 }));
 
-// 图形验证码
+/**
+ * 加载图形验证码。
+ */
 const loadCaptcha = async () => {
   if (isCaptchaLoading.value) return;
   try {
@@ -311,7 +313,9 @@ const loadCaptcha = async () => {
   }
 };
 
-// 切换登录方式（不重置验证码冷却：同一手机号冷却期内切回仍应等待）
+/**
+ * 切换登录方式，保留手机号验证码冷却。
+ */
 const toggleLoginMode = () => {
   if (loginMode.value === "PASSWORD") {
     loginMode.value = "SMS";
@@ -328,7 +332,9 @@ const toggleLoginMode = () => {
   }
 };
 
-// 协议弹窗
+/**
+ * 展示登录所需的协议确认。
+ */
 const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode = "") => {
   pendingLoginAction.value = action;
   pendingWechatPhoneCode.value = phoneCode;
@@ -352,7 +358,9 @@ const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode = "") => {
     });
 };
 
-// 表单登录
+/**
+ * 校验表单并执行当前方式的登录。
+ */
 async function doFormLogin() {
   if (isLoggingIn.value) return;
   isLoggingIn.value = true;
@@ -380,6 +388,9 @@ async function doFormLogin() {
   }
 }
 
+/**
+ * 确认协议后提交表单登录。
+ */
 const handleLogin = async () => {
   // 先校验表单必填项（内联提示，不再弹窗）
   const validateResult = await loginFormRef.value?.validate();
@@ -394,6 +405,9 @@ const handleLogin = async () => {
   await doFormLogin();
 };
 
+/**
+ * 发送手机登录验证码并启动倒计时。
+ */
 const handleSendCode = async () => {
   await sendCode(formData.value.username);
 };
@@ -403,7 +417,9 @@ interface WxPhoneLoginEvent {
   detail: { code?: string };
 }
 
-// 微信一键登录：未勾选协议时先弹协议确认，再继续换号流程
+/**
+ * 确认协议后处理微信手机号授权。
+ */
 const handleWechatPhoneLogin = async (e: WxPhoneLoginEvent) => {
   const phoneCode = e.detail.code;
   if (!hasAcceptedPolicy.value) {
@@ -417,6 +433,9 @@ const handleWechatPhoneLogin = async (e: WxPhoneLoginEvent) => {
   await doWechatPhoneLogin(phoneCode);
 };
 
+/**
+ * 使用微信手机号授权凭证登录。
+ */
 async function doWechatPhoneLogin(phoneCode: string) {
   if (!phoneCode) {
     await doWechatSilentLogin();
@@ -436,13 +455,16 @@ async function doWechatPhoneLogin(phoneCode: string) {
   }
 }
 
+/**
+ * 使用微信登录凭证登录，必要时引导绑定手机号。
+ */
 const doWechatSilentLogin = async () => {
   isLoggingIn.value = true;
   try {
     const { code } = await uni.login();
     const result = await userStore.loginByWxMa(code);
-    if (result.needBindMobile && result.openid) {
-      bindMobilePopupRef.value?.open(result.openid);
+    if (result.needBindMobile) {
+      bindMobilePopupRef.value?.open();
       showBindMobilePopup.value = true;
     } else if (result.accessToken) {
       await completeLogin();
@@ -454,13 +476,17 @@ const doWechatSilentLogin = async () => {
   }
 };
 
-// 登录成功：补拉用户资料后回跳来源页面，延迟用于展示成功提示
+/**
+ * 加载用户资料，显示成功提示后回跳来源页面。
+ */
 async function completeLogin() {
   await userStore.loadUserInfo();
   setTimeout(() => uni.reLaunch({ url: redirect.value }), 800);
 }
 
-// 协议入口：按类型区分用户协议与隐私政策
+/**
+ * 打开用户协议或隐私政策。
+ */
 const navigateToAgreement = (type: string) => {
   const url =
     type === "user"

@@ -1,12 +1,13 @@
 import { Storage } from "./storage";
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/constants";
 
+let sessionRevision = 0;
 /**
- * 认证工具函数
- *
- * 登录态的唯一事实来源是 user store 的 isAuthenticated（由 accessToken 派生）；
- * 需要静默判断登录态时直接读 store，本模块只负责令牌持久化与缺令牌时的跳转。
+ * 获取会话版本，用于识别登录状态切换。
  */
+export function getAuthSessionRevision(): number {
+  return sessionRevision;
+}
 
 /**
  * 获取访问令牌
@@ -18,21 +19,33 @@ export function getAccessToken(): string | null {
 }
 
 /**
- * 保存访问令牌
- *
- * @param token - 登录接口返回的访问令牌
+ * 保存成对凭证；正常续期保留会话版本，避免打断同账号的在途请求。
  */
-export function setAccessToken(token: string): void {
-  Storage.set(ACCESS_TOKEN_KEY, token);
+export function setTokens(accessToken: string, refreshToken: string, renewing = false): void {
+  Storage.set(ACCESS_TOKEN_KEY, accessToken);
+  Storage.set(REFRESH_TOKEN_KEY, refreshToken);
+  if (!renewing) sessionRevision += 1;
 }
 
-/** 清除全部令牌 */
+/**
+ * 读取已保存的刷新令牌，缺失时返回 null。
+ */
+export function getRefreshToken(): string | null {
+  return Storage.get<string>(REFRESH_TOKEN_KEY) || null;
+}
+
+/**
+ * 清除全部令牌
+ */
 export function clearTokens(): void {
   Storage.remove(ACCESS_TOKEN_KEY);
   Storage.remove(REFRESH_TOKEN_KEY);
+  sessionRevision += 1;
 }
 
-// 当前页面路径（含查询参数），用于登录后跳回原页面
+/**
+ * 获取含查询参数的当前页面路径。
+ */
 function getCurrentPagePath(): string {
   const pages = getCurrentPages();
   if (pages.length === 0) return "/pages/index/index";

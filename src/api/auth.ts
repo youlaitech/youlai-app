@@ -12,12 +12,11 @@ export interface PasswordLoginParams {
 
 export interface LoginResult {
   accessToken: string;
-  refreshToken?: string;
+  refreshToken: string;
   tokenType: string;
   expiresIn: number;
   isNewUser?: boolean;
   needBindMobile?: boolean;
-  openid?: string;
 }
 
 export interface Captcha {
@@ -37,7 +36,6 @@ export interface WxMaLoginResult {
   expiresIn?: number;
   isNewUser: boolean;
   needBindMobile: boolean;
-  openid?: string;
 }
 
 export interface WxMaPhoneLoginParams {
@@ -46,12 +44,15 @@ export interface WxMaPhoneLoginParams {
 }
 
 export interface WxMaBindMobileParams {
-  openid: string;
+  /** 提交绑定前重新获取的 wx.login code，不能复用静默登录已消费的 code。 */
+  loginCode: string;
   mobile: string;
   smsCode: string;
 }
 
-/** APP 端扫码相关接口（scan/confirm/cancel）的响应 */
+/**
+ * APP 端扫码相关接口（scan/confirm/cancel）的响应
+ */
 export interface QrCodeScanResult {
   /** 当前票据状态，APP 端扫码后流转为 SCANNED → CONFIRMED / CANCELED */
   status: "SCANNED" | "CONFIRMED" | "CANCELED";
@@ -62,20 +63,26 @@ export interface QrCodeScanResult {
 }
 
 const AuthAPI = {
-  /** 获取图形验证码 */
+  /**
+   * 获取图形验证码
+   */
   getCaptcha(): Promise<Captcha> {
     return request<Captcha>({
       url: `${AUTH_BASE_URL}/captcha`,
       method: "GET",
+      anonymous: true,
     });
   },
 
-  /** 账号密码登录 */
+  /**
+   * 账号密码登录
+   */
   loginByPassword(data: PasswordLoginParams): Promise<LoginResult> {
     return request<LoginResult>({
       url: `${AUTH_BASE_URL}/login`,
       method: "POST",
       data: data,
+      anonymous: true,
     });
   },
 
@@ -89,16 +96,20 @@ const AuthAPI = {
     return request({
       url: `${AUTH_BASE_URL}/sms/code?mobile=${mobileSafe}`,
       method: "POST",
+      anonymous: true,
     });
   },
 
-  /** 短信验证码登录 */
+  /**
+   * 短信验证码登录
+   */
   loginBySms(data: SmsLoginParams): Promise<LoginResult> {
     const mobileSafe = encodeURIComponent(data.mobile);
     const codeSafe = encodeURIComponent(data.code);
     return request<LoginResult>({
       url: `${AUTH_BASE_URL}/sms/login?mobile=${mobileSafe}&code=${codeSafe}`,
       method: "POST",
+      anonymous: true,
     });
   },
 
@@ -107,12 +118,13 @@ const AuthAPI = {
    *
    * 适用场景：个人小程序
    * - 已绑定手机号的用户：直接返回 token，登录成功
-   * - 未绑定手机号的用户：返回 openid，需调用绑定手机号接口
+   * - 未关联用户：返回 needBindMobile，提交绑定时重新获取微信登录 code
    */
   wxMaSilentLogin(code: string): Promise<WxMaLoginResult> {
     return request<WxMaLoginResult>({
       url: `${WXMA_AUTH_BASE_URL}/silent-login?code=${encodeURIComponent(code)}`,
       method: "POST",
+      anonymous: true,
     });
   },
 
@@ -127,6 +139,7 @@ const AuthAPI = {
       url: `${WXMA_AUTH_BASE_URL}/phone-login`,
       method: "POST",
       data: data,
+      anonymous: true,
     });
   },
 
@@ -140,10 +153,25 @@ const AuthAPI = {
       url: `${WXMA_AUTH_BASE_URL}/bind-mobile`,
       method: "POST",
       data: data,
+      anonymous: true,
     });
   },
 
-  /** 登出 */
+  /**
+   * 刷新接口不携带旧访问令牌，失败由续期调用方处理。
+   */
+  refreshToken(refreshToken: string): Promise<LoginResult> {
+    return request<LoginResult>({
+      url: `${AUTH_BASE_URL}/refresh-token`,
+      method: "POST",
+      data: { refreshToken },
+      anonymous: true,
+    });
+  },
+
+  /**
+   * 登出
+   */
   logout() {
     return request({
       url: `${AUTH_BASE_URL}/logout`,

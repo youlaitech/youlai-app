@@ -3,7 +3,9 @@ import request from "@/utils/request";
 const USER_BASE_URL = "/api/v1/users";
 
 const UserAPI = {
-  /** 获取当前登录用户信息 */
+  /**
+   * 获取当前登录用户信息
+   */
   getCurrentUser(): Promise<UserInfo> {
     return request<UserInfo>({
       url: `${USER_BASE_URL}/me`,
@@ -11,8 +13,10 @@ const UserAPI = {
     });
   },
 
-  /** 获取用户分页列表 */
-  getPage(queryParams: UserPageQuery) {
+  /**
+   * 获取用户分页列表
+   */
+  getPage(queryParams: UserQuery) {
     return request<PageResult<UserItem>>({
       url: `${USER_BASE_URL}`,
       method: "GET",
@@ -20,7 +24,9 @@ const UserAPI = {
     });
   },
 
-  /** 新增用户 */
+  /**
+   * 新增用户
+   */
   create(data: UserForm) {
     return request({
       url: `${USER_BASE_URL}`,
@@ -29,7 +35,9 @@ const UserAPI = {
     });
   },
 
-  /** 获取用户表单数据 */
+  /**
+   * 获取用户表单数据
+   */
   getFormData(userId: number) {
     return request<UserForm>({
       url: `${USER_BASE_URL}/${userId}/form`,
@@ -37,7 +45,9 @@ const UserAPI = {
     });
   },
 
-  /** 修改用户 */
+  /**
+   * 修改用户
+   */
   update(id: number, data: UserForm) {
     return request({
       url: `${USER_BASE_URL}/${id}`,
@@ -46,7 +56,9 @@ const UserAPI = {
     });
   },
 
-  /** 获取个人中心用户信息 */
+  /**
+   * 获取个人中心用户信息
+   */
   getProfile() {
     return request<UserProfile>({
       url: `${USER_BASE_URL}/profile`,
@@ -54,7 +66,9 @@ const UserAPI = {
     });
   },
 
-  /** 修改个人中心用户信息 */
+  /**
+   * 修改个人中心用户信息
+   */
   updateProfile(data: UserProfileForm) {
     return request({
       url: `${USER_BASE_URL}/profile`,
@@ -63,7 +77,9 @@ const UserAPI = {
     });
   },
 
-  /** 修改个人中心用户密码 */
+  /**
+   * 修改个人中心用户密码
+   */
   changePassword(data: PasswordChangeForm) {
     return request({
       url: `${USER_BASE_URL}/password`,
@@ -72,7 +88,9 @@ const UserAPI = {
     });
   },
 
-  /** 解绑第三方账号 */
+  /**
+   * 解绑第三方账号
+   */
   unbindSocial(platform: string) {
     return request({
       url: `${USER_BASE_URL}/social?platform=${encodeURIComponent(platform)}`,
@@ -93,7 +111,9 @@ const UserAPI = {
     });
   },
 
-  /** 绑定个人中心用户手机 */
+  /**
+   * 绑定个人中心用户手机
+   */
   bindMobile(data: MobileBindingForm) {
     return request({
       url: `${USER_BASE_URL}/mobile`,
@@ -102,7 +122,9 @@ const UserAPI = {
     });
   },
 
-  /** 绑定个人中心用户邮箱 */
+  /**
+   * 绑定个人中心用户邮箱
+   */
   bindEmail(data: EmailBindingForm) {
     return request({
       url: `${USER_BASE_URL}/email`,
@@ -123,7 +145,9 @@ const UserAPI = {
     });
   },
 
-  /** 重置用户密码 */
+  /**
+   * 重置用户密码
+   */
   resetPassword(userId: number | string, password: string) {
     return request({
       url: `${USER_BASE_URL}/${userId}/password/reset`,
@@ -144,7 +168,9 @@ interface BaseUser {
   deptName?: string;
 }
 
-/** 登录用户信息 */
+/**
+ * 登录用户信息
+ */
 export interface UserInfo extends BaseUser {
   userId?: number;
   roles?: string[];
@@ -153,8 +179,10 @@ export interface UserInfo extends BaseUser {
   roleName?: string;
 }
 
-/** 用户分页查询对象 */
-export interface UserPageQuery extends PageQuery {
+/**
+ * 用户分页查询对象
+ */
+export interface UserQuery extends PageQuery {
   keywords?: string;
   status?: number;
   deptId?: number;
@@ -164,7 +192,9 @@ export interface UserPageQuery extends PageQuery {
   direction?: string;
 }
 
-/** 用户分页对象 */
+/**
+ * 用户列表项。
+ */
 export interface UserItem {
   avatar?: string;
   createTime?: string;
@@ -181,7 +211,9 @@ export interface UserItem {
   username?: string;
 }
 
-/** 个人中心用户信息 */
+/**
+ * 个人中心用户信息
+ */
 export interface UserProfile extends BaseUser {
   id?: number;
   /** 角色名称，多个使用英文逗号(,)分割 */
@@ -189,7 +221,9 @@ export interface UserProfile extends BaseUser {
   createTime?: string;
 }
 
-/** 个人中心用户信息表单 */
+/**
+ * 个人中心用户信息表单
+ */
 export interface UserProfileForm extends Pick<
   BaseUser,
   "username" | "nickname" | "avatar" | "gender" | "mobile" | "email"
@@ -197,26 +231,34 @@ export interface UserProfileForm extends Pick<
   id?: number;
 }
 
-/** 修改密码表单 */
+/**
+ * 修改密码表单
+ */
 export interface PasswordChangeForm {
   oldPassword?: string;
   newPassword?: string;
   confirmPassword?: string;
 }
 
-/** 修改手机表单 */
+/**
+ * 修改手机表单
+ */
 export interface MobileBindingForm {
   mobile?: string;
   code?: string;
 }
 
-/** 修改邮箱表单 */
+/**
+ * 修改邮箱表单
+ */
 export interface EmailBindingForm {
   email?: string;
   code?: string;
 }
 
-/** 用户表单 */
+/**
+ * 用户表单
+ */
 export interface UserForm {
   avatar?: string;
   deptId?: number;

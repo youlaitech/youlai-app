@@ -3,8 +3,16 @@ import request from "@/utils/request";
 const NOTICE_BASE_URL = "/api/v1/notices";
 
 const NoticeAPI = {
-  /** 获取通知公告分页数据 */
-  getPage(queryParams?: NoticePageQuery) {
+  /**
+   * 管理列表预览，不修改收件人的阅读状态。
+   */
+  getPreview(id: string) {
+    return request<NoticeDetail>({ url: `${NOTICE_BASE_URL}/${id}/preview`, method: "GET" });
+  },
+  /**
+   * 获取通知公告分页数据
+   */
+  getPage(queryParams?: NoticeQuery) {
     return request<PageResult<NoticeItem>>({
       url: `${NOTICE_BASE_URL}`,
       method: "GET",
@@ -12,7 +20,9 @@ const NoticeAPI = {
     });
   },
 
-  /** 获取通知公告表单数据 */
+  /**
+   * 获取通知公告表单数据
+   */
   getFormData(id: number) {
     return request<NoticeForm>({
       url: `${NOTICE_BASE_URL}/${id}/form`,
@@ -20,7 +30,9 @@ const NoticeAPI = {
     });
   },
 
-  /** 新增通知公告 */
+  /**
+   * 新增通知公告
+   */
   create(data: NoticeForm) {
     return request({
       url: `${NOTICE_BASE_URL}`,
@@ -29,7 +41,9 @@ const NoticeAPI = {
     });
   },
 
-  /** 更新通知公告 */
+  /**
+   * 更新通知公告
+   */
   update(id: number, data: NoticeForm) {
     return request({
       url: `${NOTICE_BASE_URL}/${id}`,
@@ -50,7 +64,9 @@ const NoticeAPI = {
     });
   },
 
-  /** 发布通知 */
+  /**
+   * 发布通知
+   */
   publish(id: number) {
     return request({
       url: `${NOTICE_BASE_URL}/${id}/publish`,
@@ -58,7 +74,9 @@ const NoticeAPI = {
     });
   },
 
-  /** 撤回通知 */
+  /**
+   * 撤回通知
+   */
   revoke(id: number) {
     return request({
       url: `${NOTICE_BASE_URL}/${id}/revoke`,
@@ -66,7 +84,9 @@ const NoticeAPI = {
     });
   },
 
-  /** 查看通知详情 */
+  /**
+   * 查看通知详情
+   */
   getDetail(id: string) {
     return request<NoticeDetail>({
       url: `${NOTICE_BASE_URL}/${id}/detail`,
@@ -74,8 +94,10 @@ const NoticeAPI = {
     });
   },
 
-  /** 获取我的通知分页列表 */
-  getMyNoticePage(queryParams?: NoticePageQuery) {
+  /**
+   * 获取我的通知分页列表
+   */
+  getMyNoticePage(queryParams?: NoticeQuery) {
     return request<PageResult<NoticeItem>>({
       url: `${NOTICE_BASE_URL}/my`,
       method: "GET",
@@ -86,8 +108,10 @@ const NoticeAPI = {
 
 export default NoticeAPI;
 
-/** 通知公告分页查询参数 */
-export interface NoticePageQuery extends PageQuery {
+/**
+ * 通知公告分页查询参数
+ */
+export interface NoticeQuery extends PageQuery {
   title?: string;
   /** 发布状态(0：未发布，1：已发布，-1：已撤回) */
   publishStatus?: number;
@@ -95,7 +119,9 @@ export interface NoticePageQuery extends PageQuery {
   isRead?: number;
 }
 
-/** 通知公告表单对象 */
+/**
+ * 通知公告表单对象
+ */
 export interface NoticeForm {
   id?: number;
   title?: string;
@@ -110,7 +136,9 @@ export interface NoticeForm {
   targetUserIds?: string;
 }
 
-/** 通知公告分页对象 */
+/**
+ * 通知公告分页对象
+ */
 export interface NoticeItem {
   id: string;
   title?: string;

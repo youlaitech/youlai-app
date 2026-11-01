@@ -2,19 +2,8 @@ import { ref, type Ref } from "vue";
 import { onPullDownRefresh, onReachBottom } from "@dcloudio/uni-app";
 
 /**
- * 分页列表统一逻辑：触底加载 + 下拉刷新
- *
- * 页面只维护业务筛选条件；页码推进、加载状态和列表数据全部由这里接管。
- * 每次请求前对筛选条件做快照，并携带请求序号：快速切换搜索条件时，
- * 旧请求的晚到响应会被直接丢弃，不会覆盖新条件的结果。
- *
- * 底部状态 loadMoreState 的含义：
- * - loading：任一请求进行中
- * - error：最近一次请求失败（点击可重试当前失败页）
- * - finished：已加载全部数据（底部显示"没有更多了"）
- * - idle：无底部指示（空列表或还有下一页待触底）
- *
- * const { items, total, loadMoreState, reload, retry } = usePagedList(UserAPI.getPage, queryParams);
+ * 管理分页加载、下拉刷新与失败重试。
+ * 过期响应不回填；下拉刷新失败时保留现有列表。
  */
 export function usePagedList<T, Q extends { pageNum: number; pageSize: number }>(
   fetcher: (query: Q) => Promise<{ list: T[]; total: number }>,
@@ -24,33 +13,32 @@ export function usePagedList<T, Q extends { pageNum: number; pageSize: number }>
   const items = ref<T[]>([]) as Ref<T[]>;
   const loadMoreState = ref<"loading" | "error" | "finished" | "idle">("loading");
 
-  /** 已成功加载的页数，下一页 = loadedPages + 1 */
+  // 已成功加载的页数，下一页 = loadedPages + 1
   let loadedPages = 0;
-  /** 请求序号：序号不匹配的响应一律丢弃 */
+  // 请求序号：序号不匹配的响应一律丢弃
   let requestSeq = 0;
-  /** 最近一次请求的目标页与写入方式，供失败重试 */
+  // 最近一次请求的目标页与写入方式，供失败重试
   let lastAttempt: { page: number; append: boolean } | null = null;
 
-  /** 组装第 page 页的请求参数：快照 + 页码，避免请求期间筛选对象继续变化 */
-  function buildQuery(page: number): Q {
-    return { ...queryParams, pageNum: page };
-  }
-
-  /** 已加载数量是否小于总数 */
+  /**
+   * 已加载数量是否小于总数
+   */
   function hasMore(): boolean {
     return items.value.length < total.value;
   }
 
   /**
-   * 拉取第 page 页；append 为触底追加，否则整体替换（首次加载/重新搜索）
-   * keepOnFail 为 true 时（下拉刷新）失败保留现有数据，否则替换失败清空列表展示错误态
+   * 加载指定页，丢弃过期响应。
+   *
+   * @param append 是否追加到现有列表
+   * @param keepOnFail 替换加载失败时是否保留现有列表
    */
   async function fetchPage(page: number, append: boolean, keepOnFail = false): Promise<void> {
     const seq = ++requestSeq;
     lastAttempt = { page, append };
     loadMoreState.value = "loading";
     try {
-      const data = await fetcher(buildQuery(page));
+      const data = await fetcher({ ...queryParams, pageNum: page });
       if (seq !== requestSeq) return; // 过期响应：已被更新的请求接管
       items.value = append ? [...items.value, ...data.list] : data.list;
       total.value = data.total;
@@ -66,13 +54,17 @@ export function usePagedList<T, Q extends { pageNum: number; pageSize: number }>
     }
   }
 
-  /** 回到第一页重新拉取（搜索/筛选/增删改后调用），返回 Promise 可等待刷新完成 */
+  /**
+   * 返回第一页并重新加载列表。
+   */
   async function reload(): Promise<void> {
     loadedPages = 0;
     await fetchPage(1, false);
   }
 
-  /** 重试最近一次失败的请求：页码与写入方式保持不变，追加失败保留已有列表 */
+  /**
+   * 按原页码与追加方式重试最近一次请求。
+   */
   function retry(): void {
     if (!lastAttempt) return;
     fetchPage(lastAttempt.page, lastAttempt.append);

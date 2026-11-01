@@ -117,7 +117,7 @@ import { useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
-import DictAPI, { type DictItemForm, type DictItemPageQuery, type DictItem } from "@/api/dict";
+import DictAPI, { type DictItemForm, type DictItemQuery, type DictItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
 import { PERM } from "@/constants/permissions";
 import { getErrorMessage } from "@/utils/error";
@@ -138,7 +138,7 @@ const pageTitle = ref<string>("字典数据");
 const formRef = ref<WdFormRef>();
 const isSubmitting = ref(false);
 
-const queryParams = reactive<DictItemPageQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
+const queryParams = reactive<DictItemQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
 const dialog = reactive({ visible: false });
 
 /**
@@ -152,7 +152,7 @@ const {
   reload,
   retry,
 } = usePagedList(
-  (query: DictItemPageQuery) =>
+  (query: DictItemQuery) =>
     dictCode.value
       ? DictAPI.getItemPage(dictCode.value, query)
       : Promise.resolve({ list: [], total: 0 }),

@@ -156,12 +156,7 @@ import { useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { usePagedList } from "@/composables/usePagedList";
-import NoticeAPI, {
-  type NoticePageQuery,
-  NoticeItem,
-  NoticeDetail,
-  NoticeForm,
-} from "@/api/notice";
+import NoticeAPI, { type NoticeQuery, NoticeItem, NoticeDetail, NoticeForm } from "@/api/notice";
 import { hasPermission } from "@/utils/permission";
 import { PERM } from "@/constants/permissions";
 
@@ -176,7 +171,7 @@ const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
 const formRef = ref<WdFormRef>();
 const isSubmitting = ref(false);
 
-const queryParams = reactive<NoticePageQuery>({ pageNum: 1, pageSize: 10 });
+const queryParams = reactive<NoticeQuery>({ pageNum: 1, pageSize: 10 });
 
 // 分页加载（触底加载 + 下拉刷新统一由 usePagedList 维护）
 const {
@@ -206,7 +201,9 @@ const formRules = toFormSchema({
   title: [{ required: true, message: "请输入通知标题" }],
 });
 
-// 获取状态样式
+/**
+ * 将通知状态转换为标签类型。
+ */
 const getStatusType = (
   status?: number
 ): "default" | "primary" | "danger" | "warning" | "success" => {
@@ -218,19 +215,25 @@ const getStatusType = (
   return status !== undefined ? map[status] || "default" : "default";
 };
 
-// 获取状态文本
+/**
+ * 获取通知状态的显示文本。
+ */
 const getStatusText = (status?: number): string => {
   const map: Record<number, string> = { 0: "未发布", 1: "已发布", [-1]: "已撤回" };
   return status !== undefined ? map[status] || "未知" : "-";
 };
 
-// 获取级别文本
+/**
+ * 获取通知级别的显示文本。
+ */
 const getLevelText = (level?: string): string => {
   const map: Record<string, string> = { L: "低", M: "中", H: "高" };
   return level ? map[level] || level : "-";
 };
 
-// 格式化时间
+/**
+ * 格式化通知时间，空值显示占位符。
+ */
 const formatTime = (item: NoticeItem): string => {
   if (item.publishStatus === 1 && item.publishTime) {
     return String(item.publishTime);
@@ -241,27 +244,37 @@ const formatTime = (item: NoticeItem): string => {
   return "-";
 };
 
-// 搜索触发
+/**
+ * 按搜索条件重新加载通知。
+ */
 const handleSearch = () => loadNoticeList();
 
-// 加载列表（回到第一页）
+/**
+ * 从第一页重新加载通知列表。
+ */
 function loadNoticeList() {
   reload();
 }
 
-// 打开详情弹窗
+/**
+ * 加载并展示通知详情。
+ */
 async function openNoticeDetail(item: NoticeItem) {
-  const detail = await NoticeAPI.getDetail(item.id);
+  const detail = await NoticeAPI.getPreview(item.id);
   noticeDetail.value = detail;
   detailDialog.visible = true;
 }
 
-// 关闭详情弹窗
+/**
+ * 关闭通知详情。
+ */
 function closeNoticeDetail() {
   detailDialog.visible = false;
 }
 
-// 打开表单弹窗
+/**
+ * 初始化新增或编辑通知表单。
+ */
 async function openNoticeDialog(id?: number) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
@@ -273,14 +286,18 @@ async function openNoticeDialog(id?: number) {
   }
 }
 
-// 关闭表单弹窗
+/**
+ * 关闭通知编辑弹窗。
+ */
 function closeNoticeDialog() {
   dialog.visible = false;
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
 }
 
-// 提交表单
+/**
+ * 校验并提交通知表单，成功后刷新列表。
+ */
 function submitNoticeForm() {
   formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
@@ -299,7 +316,9 @@ function submitNoticeForm() {
   });
 }
 
-// 更多操作
+/**
+ * 展示当前通知可执行的操作。
+ */
 function openNoticeActions(item: NoticeItem) {
   const commands: ActionSheetCommand[] = [
     { id: "detail", label: "查看", execute: () => openNoticeDetail(item) },
