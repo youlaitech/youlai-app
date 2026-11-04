@@ -1,3 +1,18 @@
+<template>
+  <wd-config-provider
+    :theme="themeMode"
+    :theme-vars="themeVars"
+    :custom-style="providerStyle"
+    :button="{ type: 'primary' }"
+    :tag="{ variant: 'plain' }"
+  >
+    <slot />
+    <wd-notify />
+    <wd-toast />
+    <wd-dialog />
+  </wd-config-provider>
+</template>
+
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 import { useThemeStore } from "@/store";
@@ -6,8 +21,8 @@ import { useThemeStore } from "@/store";
  * 应用容器：主题与反馈组件的挂载点
  *
  * 页面内容与全局弹层（notify/toast/dialog）从 wd-config-provider 继承主题，
- * default / tabbar / blank 三类 layout 共用同一份注入逻辑。
- * uni-app 的每个页面各自挂载一个实例，不是跨页常驻的单例。
+ * default / tabbar / blank 三类 layout 共用同一份注入逻辑
+ * uni-app 的每个页面各自挂载一个实例，不是跨页常驻的单例
  */
 const themeStore = useThemeStore();
 const { themeMode, themeVars } = storeToRefs(themeStore);
@@ -25,7 +40,7 @@ const providerStyle = computed(() => {
     styles.push(
       `--color-primary-soft: rgba(${rgb}, 0.12)`,
       `--color-primary-alpha-20: rgba(${rgb}, 0.2)`,
-      `--color-primary-alpha-15: rgba(${rgb}, 0.15)`
+      `--color-primary-alpha-15: rgba(${rgb}, 0.15)`,
     );
   }
   return styles.join("; ");
@@ -41,18 +56,3 @@ export default {
   },
 };
 </script>
-
-<template>
-  <wd-config-provider
-    :theme="themeMode"
-    :theme-vars="themeVars"
-    :custom-style="providerStyle"
-    :button="{ type: 'primary' }"
-    :tag="{ variant: 'plain' }"
-  >
-    <slot />
-    <wd-notify />
-    <wd-toast />
-    <wd-dialog />
-  </wd-config-provider>
-</template>

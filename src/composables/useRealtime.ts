@@ -7,7 +7,7 @@ import { createRealtimeClient, RealtimeConnectionStatus } from "@/utils/realtime
 import { parseRealtimeTicket } from "@/utils/realtime/protocol";
 
 /**
- * 页面可用的连接状态与公告订阅入口。
+ * 页面可用的连接状态与公告订阅入口
  */
 interface RealtimeContext {
   readonly status: Readonly<Ref<RealtimeConnectionStatus>>;
@@ -18,7 +18,7 @@ interface RealtimeContext {
 const REALTIME_CONTEXT: InjectionKey<RealtimeContext> = Symbol("realtime-context");
 
 /**
- * 在 App.vue 初始化连接，绑定会话与应用生命周期。
+ * 在 App.vue 初始化连接，绑定会话与应用生命周期
  */
 export function provideRealtime(): RealtimeContext {
   const userStore = useUserStore();
@@ -30,7 +30,7 @@ export function provideRealtime(): RealtimeContext {
 
   const client = createRealtimeClient({
     /**
-     * 领取并校验票据；服务未启用或无权限时停止连接。
+     * 领取并校验票据；服务未启用或无权限时停止连接
      */
     async requestTicket(request) {
       const ticket = await RealtimeAPI.createTicket(request);
@@ -42,7 +42,7 @@ export function provideRealtime(): RealtimeContext {
   });
 
   /**
-   * 通知页面刷新公告，隔离处理器异常。
+   * 通知页面刷新公告，隔离处理器异常
    */
   function notifyNotices(): void {
     for (const handler of noticeHandlers) {
@@ -55,7 +55,7 @@ export function provideRealtime(): RealtimeContext {
   }
 
   /**
-   * 清除待执行的 HTTP 校准任务。
+   * 清除待执行的 HTTP 校准任务
    */
   function stopCalibration(): void {
     if (calibrationTimer !== null) clearTimeout(calibrationTimer);
@@ -63,7 +63,7 @@ export function provideRealtime(): RealtimeContext {
   }
 
   /**
-   * 定期用 HTTP 刷新通知，补偿实时提示丢失；随机间隔分散请求。
+   * 定期用 HTTP 刷新通知，补偿实时提示丢失；随机间隔分散请求
    */
   function calibrate(): void {
     stopCalibration();
@@ -73,7 +73,7 @@ export function provideRealtime(): RealtimeContext {
   }
 
   /**
-   * 前台恢复时检查连接并校准业务数据。
+   * 前台恢复时检查连接并校准业务数据
    */
   function resume(): void {
     if (!launched || !foreground || !userStore.isAuthenticated || disposed) return;
@@ -95,7 +95,7 @@ export function provideRealtime(): RealtimeContext {
       if (userStore.isAuthenticated) resume();
       else notifyNotices();
     },
-    { flush: "sync" }
+    { flush: "sync" },
   );
 
   onLaunch(() => {
@@ -107,7 +107,7 @@ export function provideRealtime(): RealtimeContext {
   });
 
   /**
-   * 网络恢复时重连，断网时释放连接。
+   * 网络恢复时重连，断网时释放连接
    */
   function handleNetworkChange(event: { isConnected: boolean }): void {
     if (event.isConnected) resume();
@@ -124,7 +124,7 @@ export function provideRealtime(): RealtimeContext {
   });
   onHide(() => {
     // #ifndef H5
-    // 小程序进后台释放连接，回到前台后重新领票与校准。
+    // 小程序进后台释放连接，回到前台后重新领票与校准
     foreground = false;
     stopCalibration();
     client.disconnect();
@@ -133,12 +133,12 @@ export function provideRealtime(): RealtimeContext {
 
   // #ifdef H5
   /**
-   * 随页面可见状态恢复或暂停 HTTP 校准。
+   * 随页面可见状态恢复或暂停 HTTP 校准
    */
   function handleVisibility(): void {
     foreground = document.visibilityState === "visible";
     if (foreground) resume();
-    // H5 隐藏时保留 SocketTask，只暂停 HTTP 校准。
+    // H5 隐藏时保留 SocketTask，只暂停 HTTP 校准
     else stopCalibration();
   }
   if (typeof document !== "undefined") {
@@ -152,12 +152,12 @@ export function provideRealtime(): RealtimeContext {
     status: client.status,
     isConnected: computed(() => client.status.value === RealtimeConnectionStatus.CONNECTED),
     /**
-     * 在 setup 中订阅公告，随当前作用域释放，也可手动取消。
+     * 在 setup 中订阅公告，随当前作用域释放，也可手动取消
      */
     onNoticeChange(handler) {
       noticeHandlers.add(handler);
       /**
-       * 取消当前公告订阅。
+       * 取消当前公告订阅
        */
       function unsubscribe(): void {
         noticeHandlers.delete(handler);
@@ -166,11 +166,11 @@ export function provideRealtime(): RealtimeContext {
       return unsubscribe;
     },
   };
-  // 小程序页面拥有独立组件树，使用当前应用的 provide。
+  // 小程序页面拥有独立组件树，使用当前应用的 provide
   getCurrentInstance()?.appContext.app.provide(REALTIME_CONTEXT, context);
 
   /**
-   * 释放连接、监听器和定时器。
+   * 释放连接、监听器和定时器
    */
   function dispose(): void {
     if (disposed) return;
@@ -196,7 +196,7 @@ export function provideRealtime(): RealtimeContext {
 }
 
 /**
- * 获取应用提供的实时状态与公告订阅入口。
+ * 获取应用提供的实时状态与公告订阅入口
  */
 export function useRealtime(): RealtimeContext {
   const context = inject(REALTIME_CONTEXT);

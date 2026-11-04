@@ -42,6 +42,9 @@
 </template>
 
 <script lang="ts" setup>
+/**
+ * 用户资料卡展示所需数据
+ */
 defineProps<{
   /** 已登录时展示账号与部门，未登录展示登录入口 */
   isAuthenticated: boolean;
@@ -55,7 +58,7 @@ defineProps<{
 /**
  * profile / login / scan：只上报点击意图
  *
- * scan 表示请求调起扫码流程，票据校验与登录在扫码确认页完成。
+ * scan 表示请求调起扫码流程，票据校验与登录在扫码确认页完成
  */
 const emit = defineEmits<{
   profile: [];

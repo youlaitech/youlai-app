@@ -82,7 +82,7 @@
       <view class="chart-wrapper__canvas">
         <qiun-data-charts
           type="area"
-          :chartData="chartData"
+          :chart-data="chartData"
           :opts="chartOpts"
           background="transparent"
           :canvas2d="true"
@@ -145,7 +145,7 @@ const isAuthenticated = computed(() => userStore.isAuthenticated);
 // 快捷入口最多展示的数量
 const QUICK_NAV_LIMIT = 4;
 
-// 登录后按权限筛选入口；未登录时保留入口作为登录引导。
+// 登录后按权限筛选入口；未登录时保留入口作为登录引导
 const quickNavList = computed<WorkMenuItem[]>(() => {
   const result: WorkMenuItem[] = [];
   for (const group of workMenuGroups) {
@@ -178,10 +178,10 @@ const chartOpts = computed(() => ({
 }));
 
 /**
- * 仅登录后加载首页通知，忽略旧会话结果。
+ * 仅登录后加载首页通知，忽略旧会话结果
  */
 async function fetchNoticeData() {
-  // 请求返回前可能切换账号，旧公告不能回填新会话。
+  // 请求返回前可能切换账号，旧公告不能回填新会话
   const token = userStore.accessToken;
   if (!isAuthenticated.value) {
     noticeList.value = [];
@@ -196,7 +196,7 @@ async function fetchNoticeData() {
 }
 
 /**
- * 在途刷新只记录一次补拉，避免连续提示并发查询同一列表。
+ * 在途刷新只记录一次补拉，避免连续提示并发查询同一列表
  */
 function loadNoticeData(): void {
   if (disposed || !pageVisible) return;
@@ -219,7 +219,7 @@ onScopeDispose(() => {
 });
 
 /**
- * 加载首页访问概览。
+ * 加载首页访问概览
  */
 function loadVisitOverviewData() {
   LogAPI.getVisitOverview()
@@ -228,7 +228,7 @@ function loadVisitOverviewData() {
 }
 
 /**
- * 按所选范围加载访问趋势。
+ * 按所选范围加载访问趋势
  */
 async function loadVisitTrendData() {
   const endDate = dayjs().format("YYYY-MM-DD");
@@ -244,7 +244,7 @@ async function loadVisitTrendData() {
           { name: "访客数", data: data.uvList || [] },
           { name: "浏览量", data: data.pvList || [] },
         ],
-      })
+      }),
     );
   } catch {
     chartData.value = { categories: [], series: [] };
@@ -252,7 +252,7 @@ async function loadVisitTrendData() {
 }
 
 /**
- * 检查入口要求并跳转目标页面。
+ * 检查入口要求并跳转目标页面
  */
 function handleNavItemClick(item: WorkMenuItem) {
   if (!isAuthenticated.value) {
@@ -263,7 +263,7 @@ function handleNavItemClick(item: WorkMenuItem) {
 }
 
 /**
- * 进入登录页面。
+ * 进入登录页面
  */
 function navigateToLogin() {
   const pages = getCurrentPages();
@@ -273,7 +273,7 @@ function navigateToLogin() {
 }
 
 /**
- * 进入通知页面，未登录时先跳转登录。
+ * 进入通知页面，未登录时先跳转登录
  */
 function handleNoticeClick() {
   if (!isAuthenticated.value) {
@@ -284,7 +284,7 @@ function handleNoticeClick() {
 }
 
 /**
- * 切换统计范围并更新趋势。
+ * 切换统计范围并更新趋势
  */
 function switchRange(value: number) {
   if (trendDays.value === value) return;
@@ -443,11 +443,11 @@ onHide(() => {
   &__text {
     display: -webkit-box;
     overflow: hidden;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
     font-size: 26rpx;
     font-weight: 500;
     color: var(--color-text);
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
     -webkit-box-orient: vertical;
   }
 }

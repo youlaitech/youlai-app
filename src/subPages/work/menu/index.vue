@@ -47,11 +47,11 @@
       custom-class="popup-bottom-scroll"
       @close="closeMenuDialog"
     >
-      <view class="p-4">
+      <view class="menu-dialog">
         <view class="popup-title">
           {{ formData.id ? "编辑菜单" : "新增菜单" }}
         </view>
-        <scroll-view scroll-y class="max-h-60vh">
+        <scroll-view scroll-y class="menu-dialog__body">
           <wd-form ref="formRef" :model="formData" :schema="rules">
             <!-- 上级菜单选择：触发交 wd-form-item，选择器只负责弹出 -->
             <wd-form-item
@@ -204,7 +204,7 @@ const formData = reactive<MenuForm>({ ...initialFormData });
 
 // 树组件节点：菜单实体字段 + 树节点要求的 value/label
 interface MenuTreeOption extends TreeOption {
-  id?: string;
+  id: string;
   name?: string;
   type?: MenuType;
   icon?: string;
@@ -235,7 +235,7 @@ const treeData = computed<MenuTreeOption[]>(() =>
     menuList.value,
     (menu) => menu.children,
     (menu, children) => ({
-      value: menu.id ?? "",
+      value: menu.id,
       label: menu.name ?? "",
       id: menu.id,
       name: menu.name,
@@ -244,16 +244,20 @@ const treeData = computed<MenuTreeOption[]>(() =>
       visible: menu.visible,
       perm: menu.perm,
       children,
-    })
-  )
+    }),
+  ),
 );
 
-// 菜单类型对应的标签颜色，类型缺失时按主色展示
+/**
+ * 菜单类型对应的标签颜色，类型缺失时按主色展示
+ */
 function getMenuTypeTag(type?: MenuType) {
   return (type && MENU_TYPE_TAG[type]) || "primary";
 }
 
-// 菜单类型对应的中文名称，类型缺失时按「菜单」展示
+/**
+ * 菜单类型对应的中文名称，类型缺失时按「菜单」展示
+ */
 function getMenuTypeText(type?: MenuType) {
   return (type && MENU_TYPE_TEXT[type]) || "菜单";
 }
@@ -304,7 +308,9 @@ const descendantIds = computed(() => {
 // 上级选项：按当前类型禁用不兼容的层级
 const parentCascaderOptions = computed(() => markParentDisabled(parentOptions.value));
 
-// 递归标记上级选项：禁用项在级联选择器里不可选，但仍会展示层级
+/**
+ * 递归标记上级选项：禁用项在级联选择器里不可选，但仍会展示层级
+ */
 function markParentDisabled(options: OptionType[]): CascaderOption[] {
   return options.map((option) => ({
     ...option,
@@ -313,7 +319,9 @@ function markParentDisabled(options: OptionType[]): CascaderOption[] {
   }));
 }
 
-// 上级选项是否禁用：自身与下级不可选，按钮只能挂菜单下，其余类型只能挂顶级或目录下
+/**
+ * 上级选项是否禁用：自身与下级不可选，按钮只能挂菜单下，其余类型只能挂顶级或目录下
+ */
 function isDisabledParent(option: OptionType): boolean {
   const value = String(option.value);
   if (formData.id && (value === String(formData.id) || descendantIds.value.has(value))) return true;
@@ -322,7 +330,9 @@ function isDisabledParent(option: OptionType): boolean {
   return formData.type === "B" ? !optionIsMenu : optionIsMenu;
 }
 
-// 同级菜单的下一个排序值，新增菜单默认排在末尾
+/**
+ * 同级菜单的下一个排序值，新增菜单默认排在末尾
+ */
 function resolveNextSort(parentId?: string): number {
   const siblings =
     !parentId || parentId === "0"
@@ -331,7 +341,9 @@ function resolveNextSort(parentId?: string): number {
   return siblings.reduce((max, menu) => Math.max(max, menu.sort ?? 0), 0) + 1;
 }
 
-// 同级按钮权限里出现次数最多的模块名，用作新增页面的按钮前缀
+/**
+ * 同级按钮权限里出现次数最多的模块名，用作新增页面的按钮前缀
+ */
 function deriveButtonPermPrefix(parentId: string): string {
   const siblings =
     !parentId || parentId === "0"
@@ -381,7 +393,7 @@ watch(
   (checked) => {
     if (!checked || formData.buttonPermPrefix?.trim()) return;
     formData.buttonPermPrefix = deriveButtonPermPrefix(formData.parentId);
-  }
+  },
 );
 
 const rules = toFormSchema({
@@ -390,7 +402,9 @@ const rules = toFormSchema({
   parentId: [{ required: true, message: "请选择上级菜单" }],
 });
 
-// 加载菜单树：接口直接返回树结构，前端只做展示映射
+/**
+ * 加载菜单树：接口直接返回树结构，前端只做展示映射
+ */
 function loadMenuList() {
   MenuAPI.getList(queryParams)
     .then((data) => {
@@ -401,7 +415,9 @@ function loadMenuList() {
     });
 }
 
-// 节点操作菜单：按钮节点不提供新增子菜单，其余命令按权限拼装
+/**
+ * 节点操作菜单：按钮节点不提供新增子菜单，其余命令按权限拼装
+ */
 function handleNodeAction(node: MenuTreeOption) {
   const commands: ActionSheetCommand[] = [];
 
@@ -437,7 +453,9 @@ function handleNodeAction(node: MenuTreeOption) {
   actionSheetRef.value?.open(commands);
 }
 
-// 打开弹窗（新增/编辑）
+/**
+ * 打开弹窗（新增/编辑）
+ */
 async function openMenuDialog(menu?: MenuItem) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
@@ -468,13 +486,15 @@ async function openMenuDialog(menu?: MenuItem) {
   }
 }
 
-// 新增子菜单：按新增流程打开弹窗，并预设上级菜单
+/**
+ * 新增子菜单：按新增流程打开弹窗，并预设上级菜单
+ */
 function openChildMenuDialog(menu: MenuItem) {
   openMenuDialog();
-  formData.parentId = menu.id!;
-  parentSelected.value = menu.id!;
+  formData.parentId = menu.id;
+  parentSelected.value = menu.id;
   parentLabel.value =
-    findOptionChain(treeData.value, menu.id!)
+    findOptionChain(treeData.value, menu.id)
       ?.map((option) => option.label)
       .join("/") ||
     menu.name ||
@@ -484,7 +504,9 @@ function openChildMenuDialog(menu: MenuItem) {
   formData.sort = resolveNextSort(menu.id!);
 }
 
-// 组装提交数据：按类型丢弃无关字段，避免把上次输入或不需要的字段提交给后端
+/**
+ * 组装提交数据：按类型丢弃无关字段，避免把上次输入或不需要的字段提交给后端
+ */
 function buildMenuPayload() {
   const payload: MenuForm = { ...formData };
 
@@ -511,7 +533,9 @@ function buildMenuPayload() {
   return payload;
 }
 
-// 提交表单：校验通过后按 id 判断新增或修改，成功后刷新列表
+/**
+ * 提交表单：校验通过后按 id 判断新增或修改，成功后刷新列表
+ */
 function submitMenuForm() {
   formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
@@ -537,7 +561,9 @@ function submitMenuForm() {
   });
 }
 
-// 关闭弹窗并重置表单，避免下次打开残留上次输入
+/**
+ * 关闭弹窗并重置表单，避免下次打开残留上次输入
+ */
 function closeMenuDialog() {
   dialog.visible = false;
   formRef.value?.reset();
@@ -552,3 +578,24 @@ onLoad(() => {
 <script lang="ts">
 export default { options: { styleIsolation: "shared" } };
 </script>
+
+<style lang="scss" scoped>
+.menu-dialog {
+  display: flex;
+  flex-direction: column;
+  // 内容超出时由内部滚动区消化，弹窗整体不越过屏幕
+  max-height: 80vh;
+  padding: 32rpx;
+}
+
+.menu-dialog__body {
+  flex: 1;
+  // flex 子项默认按内容撑开，置 0 后剩余空间才分配给滚动区，小程序端同样生效
+  min-height: 0;
+}
+
+.menu-dialog .popup-title,
+.menu-dialog .popup-actions {
+  flex-shrink: 0;
+}
+</style>

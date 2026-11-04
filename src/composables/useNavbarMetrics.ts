@@ -1,17 +1,8 @@
 import { ref, computed, onUnmounted, type Ref, type ComputedRef } from "vue";
 
 /**
- * 导航栏几何测量
- *
- * 参考 uni-ui 官方实现：https://github.com/dcloudio/uni-ui
- *
- * 微信小程序按胶囊按钮位置推算内容区高度：
- * 状态栏 → 上边距 → 胶囊 → 下边距，上下边距相等，
- * 内容区高度 = capsule.height + (capsule.top - statusBarHeight) * 2。
- * H5 与 App 没有胶囊，直接取 fallbackContentHeightPx。
+ * 微信胶囊按钮的屏幕坐标与尺寸，单位为 px
  */
-
-// 胶囊按钮相对屏幕的矩形，单位 px
 interface CapsuleRect {
   width: number;
   height: number;
@@ -21,7 +12,9 @@ interface CapsuleRect {
   left: number;
 }
 
-/** 导航栏测量配置 */
+/**
+ * 导航栏测量配置
+ */
 export interface NavbarMetricsOptions {
   /** H5 / App 无胶囊时的内容区高度（px），默认 44 */
   contentHeightPx?: number;
@@ -30,7 +23,7 @@ export interface NavbarMetricsOptions {
 /**
  * 导航栏测量结果
  *
- * 长度单位统一为 px，与系统几何 API 保持一致。
+ * 长度单位统一为 px，与系统几何 API 保持一致
  */
 export interface NavbarMetrics {
   /** 状态栏高度（px） */
@@ -47,12 +40,14 @@ export interface NavbarMetrics {
   capsuleWidthPx: ComputedRef<number>;
 }
 
+// 微信胶囊读取失败时的兜底尺寸（px）：87×32 为默认胶囊，上下与右侧留 10，顶部偏移 6
+const FALLBACK_CAPSULE = { width: 87, height: 32, margin: 10, topOffset: 6 };
+
 /**
- * 测量导航栏、状态栏与胶囊尺寸
+ * 测量状态栏与导航栏尺寸，微信端按胶囊位置计算
+ * setup 阶段同步读取，卸载时清理重试任务
  *
- * setup 阶段即完成首次读取，避免首屏闪烁；组件卸载时清理内部重试定时器。
- *
- * @param options - 无胶囊平台的内容区高度
+ * @see https://github.com/dcloudio/uni-ui
  */
 export function useNavbarMetrics(options: NavbarMetricsOptions = {}): NavbarMetrics {
   const { contentHeightPx: fallbackContentHeightPx = 44 } = options;
@@ -64,7 +59,9 @@ export function useNavbarMetrics(options: NavbarMetricsOptions = {}): NavbarMetr
   // 胶囊矩形可能晚于首次渲染就绪，重试定时器在卸载与重新测量时清理
   let retryTimer: ReturnType<typeof setTimeout> | null = null;
 
-  // 清理重试定时器
+  /**
+   * 清除胶囊尺寸读取的重试任务
+   */
   const clearRetryTimer = () => {
     if (retryTimer !== null) {
       clearTimeout(retryTimer);
@@ -77,6 +74,7 @@ export function useNavbarMetrics(options: NavbarMetricsOptions = {}): NavbarMetr
     // #ifdef MP-WEIXIN
     const capsule = capsuleRect.value;
     if (capsule && capsule.height > 0 && capsule.top > 0) {
+      // 胶囊上下留白相等，内容区包含胶囊与两侧留白
       const spaceHeight = capsule.top - statusBarHeight.value;
       return capsule.height + spaceHeight * 2;
     }
@@ -103,7 +101,7 @@ export function useNavbarMetrics(options: NavbarMetricsOptions = {}): NavbarMetr
       return windowWidth.value - capsuleRect.value.right;
     }
     // #endif
-    return 10;
+    return FALLBACK_CAPSULE.margin;
   });
 
   const capsuleWidthPx = computed(() => {
@@ -116,20 +114,30 @@ export function useNavbarMetrics(options: NavbarMetricsOptions = {}): NavbarMetr
   });
 
   // #ifdef MP-WEIXIN
+  /**
+   * 检查胶囊尺寸与位置是否有效
+   */
   const isValidCapsuleRect = (rect: ReturnType<typeof uni.getMenuButtonBoundingClientRect>) => {
     return !!rect && rect.width > 0 && rect.height > 0 && rect.top > 0 && rect.right > 0;
   };
 
-  // 有限次重试读取胶囊矩形，仍未取到则回落到默认尺寸，避免内容区高度为 0
+  /**
+   * 有限重试读取胶囊尺寸，失败时使用默认值
+   */
   const readCapsuleRect = (maxRetry = 6, delayMs = 50) => {
+    /**
+     * 按状态栏与窗口尺寸设置默认胶囊位置
+     */
     const applyDefaultCapsuleRect = () => {
+      const { width, height, margin, topOffset } = FALLBACK_CAPSULE;
+      const top = statusBarHeight.value + topOffset;
       capsuleRect.value = {
-        width: 87,
-        height: 32,
-        top: statusBarHeight.value + 6,
-        right: windowWidth.value - 10,
-        bottom: statusBarHeight.value + 38,
-        left: windowWidth.value - 97,
+        width,
+        height,
+        top,
+        right: windowWidth.value - margin,
+        bottom: top + height,
+        left: windowWidth.value - margin - width,
       };
     };
 
@@ -161,7 +169,9 @@ export function useNavbarMetrics(options: NavbarMetricsOptions = {}): NavbarMetr
   };
   // #endif
 
-  // 读取窗口与胶囊尺寸，取不到的值保留声明处默认值
+  /**
+   * 更新窗口与胶囊尺寸，读取失败时保留当前值
+   */
   const refreshMetrics = () => {
     try {
       const windowInfo =
@@ -175,7 +185,7 @@ export function useNavbarMetrics(options: NavbarMetricsOptions = {}): NavbarMetr
       readCapsuleRect();
       // #endif
     } catch {
-      // 各字段已有声明处默认值兜底
+      // 读取失败时保留当前尺寸
     }
   };
 

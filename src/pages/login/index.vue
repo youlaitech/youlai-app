@@ -251,7 +251,7 @@ const isCaptchaLoading = ref(false);
 
 const redirect = ref("/pages/index/index");
 
-// 绑定手机号弹窗显隐；微信身份由提交时的新 code 确认。
+// 绑定手机号弹窗显隐；微信身份由提交时的新 code 确认
 const showBindMobilePopup = ref(false);
 
 const pendingLoginAction = ref<"FORM" | "WECHAT_PHONE" | null>(null);
@@ -296,7 +296,7 @@ const formSchema = computed<FormSchema>(() => ({
 }));
 
 /**
- * 加载图形验证码。
+ * 加载图形验证码
  */
 const loadCaptcha = async () => {
   if (isCaptchaLoading.value) return;
@@ -314,7 +314,7 @@ const loadCaptcha = async () => {
 };
 
 /**
- * 切换登录方式，保留手机号验证码冷却。
+ * 切换登录方式，保留手机号验证码冷却
  */
 const toggleLoginMode = () => {
   if (loginMode.value === "PASSWORD") {
@@ -333,7 +333,7 @@ const toggleLoginMode = () => {
 };
 
 /**
- * 展示登录所需的协议确认。
+ * 展示登录所需的协议确认
  */
 const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode = "") => {
   pendingLoginAction.value = action;
@@ -359,7 +359,7 @@ const openPolicyDialog = (action: "FORM" | "WECHAT_PHONE", phoneCode = "") => {
 };
 
 /**
- * 校验表单并执行当前方式的登录。
+ * 校验表单并执行当前方式的登录
  */
 async function doFormLogin() {
   if (isLoggingIn.value) return;
@@ -389,7 +389,7 @@ async function doFormLogin() {
 }
 
 /**
- * 确认协议后提交表单登录。
+ * 确认协议后提交表单登录
  */
 const handleLogin = async () => {
   // 先校验表单必填项（内联提示，不再弹窗）
@@ -406,7 +406,7 @@ const handleLogin = async () => {
 };
 
 /**
- * 发送手机登录验证码并启动倒计时。
+ * 发送手机登录验证码并启动倒计时
  */
 const handleSendCode = async () => {
   await sendCode(formData.value.username);
@@ -418,7 +418,7 @@ interface WxPhoneLoginEvent {
 }
 
 /**
- * 确认协议后处理微信手机号授权。
+ * 确认协议后处理微信手机号授权
  */
 const handleWechatPhoneLogin = async (e: WxPhoneLoginEvent) => {
   const phoneCode = e.detail.code;
@@ -434,7 +434,7 @@ const handleWechatPhoneLogin = async (e: WxPhoneLoginEvent) => {
 };
 
 /**
- * 使用微信手机号授权凭证登录。
+ * 使用微信手机号授权凭证登录
  */
 async function doWechatPhoneLogin(phoneCode: string) {
   if (!phoneCode) {
@@ -456,7 +456,7 @@ async function doWechatPhoneLogin(phoneCode: string) {
 }
 
 /**
- * 使用微信登录凭证登录，必要时引导绑定手机号。
+ * 使用微信登录凭证登录，必要时引导绑定手机号
  */
 const doWechatSilentLogin = async () => {
   isLoggingIn.value = true;
@@ -477,7 +477,7 @@ const doWechatSilentLogin = async () => {
 };
 
 /**
- * 加载用户资料，显示成功提示后回跳来源页面。
+ * 加载用户资料，显示成功提示后回跳来源页面
  */
 async function completeLogin() {
   await userStore.loadUserInfo();
@@ -485,7 +485,7 @@ async function completeLogin() {
 }
 
 /**
- * 打开用户协议或隐私政策。
+ * 打开用户协议或隐私政策
  */
 const navigateToAgreement = (type: string) => {
   const url =
@@ -526,8 +526,8 @@ onLoad((options) => {
 
 .login__circle {
   position: absolute;
-  filter: blur(64px);
   border-radius: 50%;
+  filter: blur(64px);
 
   &--1 {
     top: -160rpx;

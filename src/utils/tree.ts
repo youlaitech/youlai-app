@@ -1,15 +1,10 @@
 /**
- * 沿选项树深度优先查找目标节点的完整节点链（含自身）
- *
- * 值比较统一转为字符串，兼容选项值为 number、目标值为 string（或相反）的场景
- *
- * @param options 选项树，如部门选项
- * @param targetValue 目标节点值
- * @returns 从根到目标的节点链，未命中返回 null
+ * 查找从根到目标选项的完整路径，未找到返回 null
+ * 按字符串比较节点值，兼容字符串与数字 ID
  */
 export function findOptionChain(
   options: OptionType[],
-  targetValue: string | number
+  targetValue: string | number,
 ): OptionType[] | null {
   for (const option of options) {
     if (String(option.value) === String(targetValue)) {
@@ -26,19 +21,14 @@ export function findOptionChain(
 }
 
 /**
- * 递归把带 children 的列表转为树节点
+ * 递归转换树节点，保留原有父子关系
  *
- * 源列表的层级由 children 字段表达，节点字段与叶子形态由调用方决定
- *
- * @param items 源列表
- * @param getChildren 取节点的子列表，无子级时返回 undefined
- * @param node 单节点映射，children 为已构建的子节点数组，叶子节点为空数组
- * @returns 树节点列表
+ * @param node 节点转换函数，叶子节点的 children 为空数组
  */
 export function toTree<TSource, TNode>(
   items: TSource[],
   getChildren: (item: TSource) => TSource[] | undefined,
-  node: (item: TSource, children: TNode[]) => TNode
+  node: (item: TSource, children: TNode[]) => TNode,
 ): TNode[] {
   return items.map((item) => node(item, toTree(getChildren(item) ?? [], getChildren, node)));
 }

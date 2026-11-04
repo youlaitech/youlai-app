@@ -1,6 +1,8 @@
 import type { FormSchema } from "@wot-ui/ui/components/wd-form/types";
 
-/** 单条校验规则（v1 FormRules 风格） */
+/**
+ * 业务侧声明的字段校验规则，由 toFormSchema 转为 wot v2 schema
+ */
 export interface FormRule {
   /** 是否必填 */
   required?: boolean;
@@ -12,20 +14,16 @@ export interface FormRule {
   min?: number;
   /** 字符串长度上限（含） */
   max?: number;
-  /**
-   * 自定义校验：返回 true 表示通过；返回 false 按 message 提示；
-   * 返回字符串则以该文案提示
-   */
+  /** 自定义校验：true 表示通过，false 使用 message，字符串作为错误文案 */
   validator?: (value: unknown, model: Record<string, unknown>) => boolean | string;
 }
 
 /**
- * v1 FormRules → v2 FormSchema 适配器
- * 将旧版 rules 格式转换为 v2 的 schema 格式
+ * 将旧版字段校验规则转换为 Wot UI v2 schema
  */
 export function toFormSchema(rules: Record<string, FormRule[]>): FormSchema {
   return {
-    validate(model: Record<string, any>) {
+    validate(model: Record<string, unknown>) {
       const issues: { path: Array<string | number>; message: string }[] = [];
       for (const [field, fieldRules] of Object.entries(rules)) {
         const value = model[field];
@@ -56,9 +54,13 @@ export function toFormSchema(rules: Record<string, FormRule[]>): FormSchema {
               });
               break;
             }
-            if (rule.pattern && !rule.pattern.test(value)) {
-              issues.push({ path: [field], message: rule.message || `${field} 格式不正确` });
-              break;
+            if (rule.pattern) {
+              // 带 g 标志的正则会记忆 lastIndex，复用同一实例前必须归零
+              rule.pattern.lastIndex = 0;
+              if (!rule.pattern.test(value)) {
+                issues.push({ path: [field], message: rule.message || `${field} 格式不正确` });
+                break;
+              }
             }
           }
           if (rule.validator) {
@@ -79,10 +81,16 @@ export function toFormSchema(rules: Record<string, FormRule[]>): FormSchema {
   };
 }
 
-/** wd-form 实例引用，仅声明本项目用到的方法 */
+/**
+ * wd-form 实例引用，仅声明本项目用到的方法
+ */
 export interface WdFormRef {
-  /** 校验表单，传字段名时只校验对应字段 */
+  /**
+   * 校验表单，传字段名时只校验对应字段
+   */
   validate(field?: string): Promise<{ valid: boolean; errors: { message: string }[] }>;
-  /** 重置校验状态 */
+  /**
+   * 重置校验状态
+   */
   reset(): void;
 }

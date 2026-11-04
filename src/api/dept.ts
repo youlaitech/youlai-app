@@ -3,7 +3,9 @@ import request from "@/utils/request";
 const DEPT_BASE_URL = "/api/v1/depts";
 
 const DeptAPI = {
-  /** 获取部门树形列表 */
+  /**
+   * 获取部门树形列表
+   */
   getList(queryParams?: DeptQuery) {
     return request<DeptItem[]>({
       url: `${DEPT_BASE_URL}`,
@@ -12,7 +14,9 @@ const DeptAPI = {
     });
   },
 
-  /** 获取部门下拉列表 */
+  /**
+   * 获取部门下拉列表
+   */
   getOptions() {
     return request<OptionType[]>({
       url: `${DEPT_BASE_URL}/options`,
@@ -20,7 +24,9 @@ const DeptAPI = {
     });
   },
 
-  /** 获取部门表单数据 */
+  /**
+   * 获取部门表单数据
+   */
   getFormData(id: number) {
     return request<DeptForm>({
       url: `${DEPT_BASE_URL}/${id}/form`,
@@ -28,21 +34,25 @@ const DeptAPI = {
     });
   },
 
-  /** 新增部门 */
+  /**
+   * 新增部门
+   */
   create(data: DeptForm) {
     return request({
       url: `${DEPT_BASE_URL}`,
       method: "POST",
-      data: data,
+      data,
     });
   },
 
-  /** 修改部门 */
+  /**
+   * 修改部门
+   */
   update(id: number, data: DeptForm) {
     return request({
       url: `${DEPT_BASE_URL}/${id}`,
       method: "PUT",
-      data: data,
+      data,
     });
   },
 
@@ -61,17 +71,22 @@ const DeptAPI = {
 
 export default DeptAPI;
 
-/** 部门查询参数 */
+/**
+ * 部门查询参数
+ */
 export interface DeptQuery {
   keywords?: string;
   status?: number;
 }
 
-/** 部门类型 */
+/**
+ * 部门树节点
+ */
 export interface DeptItem {
   children?: DeptItem[];
   createTime?: Date;
-  id?: number;
+  /** 部门ID，列表数据由后端返回，必填 */
+  id: number;
   name?: string;
   code?: string;
   parentId?: number;
@@ -81,7 +96,9 @@ export interface DeptItem {
   updateTime?: Date;
 }
 
-/** 部门表单类型 */
+/**
+ * 部门表单类型
+ */
 export interface DeptForm {
   /** 部门ID(新增不填) */
   id?: number;

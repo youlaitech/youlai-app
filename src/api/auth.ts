@@ -81,7 +81,7 @@ const AuthAPI = {
     return request<LoginResult>({
       url: `${AUTH_BASE_URL}/login`,
       method: "POST",
-      data: data,
+      data,
       anonymous: true,
     });
   },
@@ -138,7 +138,7 @@ const AuthAPI = {
     return request<LoginResult>({
       url: `${WXMA_AUTH_BASE_URL}/phone-login`,
       method: "POST",
-      data: data,
+      data,
       anonymous: true,
     });
   },
@@ -152,13 +152,13 @@ const AuthAPI = {
     return request<LoginResult>({
       url: `${WXMA_AUTH_BASE_URL}/bind-mobile`,
       method: "POST",
-      data: data,
+      data,
       anonymous: true,
     });
   },
 
   /**
-   * 刷新接口不携带旧访问令牌，失败由续期调用方处理。
+   * 刷新接口不携带旧访问令牌，失败由续期调用方处理
    */
   refreshToken(refreshToken: string): Promise<LoginResult> {
     return request<LoginResult>({

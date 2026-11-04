@@ -9,7 +9,7 @@ interface NavTarget {
 /**
  * 业务菜单导航
  *
- * 站外链接在 H5 新开标签、其余端进内置 webview，站内路由走 navigateTo。
+ * 站外链接在 H5 新开标签、其余端进内置 webview，站内路由走 navigateTo
  */
 export function useNavigation() {
   const toast = useToast();
@@ -17,7 +17,7 @@ export function useNavigation() {
   /**
    * 按菜单配置跳转
    *
-   * 未登录先跳登录页并带上来路；地址缺失或页面不存在时给出提示。
+   * 未登录先跳登录页并带上来路；地址缺失或页面不存在时给出提示
    *
    * @param target - 菜单项
    */

@@ -69,7 +69,7 @@ import { ref, computed, watch } from "vue";
  * 树节点
  *
  * value 与 label 是树组件自身的字段，其余业务字段通过索引签名扩展，
- * 由使用方按需声明具体类型。
+ * 由使用方按需声明具体类型
  */
 export interface TreeOption {
   value: string;
@@ -111,6 +111,9 @@ interface Props {
   checkStrictly?: boolean;
 }
 
+/**
+ * 树组件配置：数据源、字段映射、展开与选择行为
+ */
 const props = withDefaults(defineProps<Props>(), {
   data: () => [],
   valueKey: "value",
@@ -157,7 +160,7 @@ watch(
   (keys) => {
     internalCheckedKeys.value = new Set(keys);
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // 扁平化树结构：只展开集合内的节点，未展开的分支不下发
@@ -183,17 +186,23 @@ const flatNodes = computed(() => {
   return result;
 });
 
-// 是否处于展开集合中
+/**
+ * 是否处于展开集合中
+ */
 function isExpanded(value: string) {
   return expandedKeys.value.has(value);
 }
 
-// 节点点击：只上报原始业务节点，选中与跳转由使用方处理
+/**
+ * 节点点击：只上报原始业务节点，选中与跳转由使用方处理
+ */
 function handleNodeClick(node: FlatNode) {
   emit("click", node.raw);
 }
 
-// 展开/收起：无子节点的节点不可展开
+/**
+ * 展开/收起：无子节点的节点不可展开
+ */
 function handleExpand(node: FlatNode) {
   if (!node.hasChildren) return;
   const value = node.value;
@@ -207,17 +216,23 @@ function handleExpand(node: FlatNode) {
   emit("expand", node.raw, next.has(value));
 }
 
-// 操作按钮点击：上报原始节点，菜单内容由使用方按权限拼装
+/**
+ * 操作按钮点击：上报原始节点，菜单内容由使用方按权限拼装
+ */
 function handleNodeAction(node: FlatNode) {
   emit("action", node.raw);
 }
 
-// 是否在多选集合中
+/**
+ * 是否在多选集合中
+ */
 function isChecked(value: string) {
   return internalCheckedKeys.value.has(value);
 }
 
-// 半选状态：checkStrictly 关闭时，子节点部分选中即半选
+/**
+ * 半选状态：checkStrictly 关闭时，子节点部分选中即半选
+ */
 function isIndeterminate(value: string) {
   if (props.checkStrictly) return false;
   const node = findNodeByValue(value, props.data);
@@ -232,7 +247,9 @@ function isIndeterminate(value: string) {
   return checkedCount > 0 && checkedCount < childValues.length;
 }
 
-// 按 value 深度优先查找节点
+/**
+ * 按 value 深度优先查找节点
+ */
 function findNodeByValue(value: string, nodes: TreeOption[]): TreeOption | null {
   for (const node of nodes) {
     if (String(node[props.valueKey]) === value) return node;
@@ -245,7 +262,9 @@ function findNodeByValue(value: string, nodes: TreeOption[]): TreeOption | null 
   return null;
 }
 
-// 收集全部后代节点的 value
+/**
+ * 收集全部后代节点的 value
+ */
 function getAllChildValues(nodes: TreeOption[]): string[] {
   const result: string[] = [];
   function traverse(list: TreeOption[]) {
@@ -259,7 +278,9 @@ function getAllChildValues(nodes: TreeOption[]): string[] {
   return result;
 }
 
-// 收集从根到目标节点的祖先 value，用于父子联动时回写父节点
+/**
+ * 收集从根到目标节点的祖先 value，用于父子联动时回写父节点
+ */
 function getAllParentValues(value: string, nodes: TreeOption[], parents: string[] = []): string[] {
   for (const node of nodes) {
     const nodeValue = String(node[props.valueKey]);
@@ -273,7 +294,9 @@ function getAllParentValues(value: string, nodes: TreeOption[], parents: string[
   return [];
 }
 
-// 多选切换：checkStrictly 关闭时联动子节点，并按子节点结果回写父节点
+/**
+ * 多选切换：checkStrictly 关闭时联动子节点，并按子节点结果回写父节点
+ */
 function handleCheck(node: FlatNode) {
   const value = node.value;
   const checked = !internalCheckedKeys.value.has(value);
@@ -342,7 +365,7 @@ watch(
       expandedKeys.value = new Set(allValues);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 
@@ -406,9 +429,9 @@ watch(
   &__label {
     flex: 1;
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 28rpx;
     color: var(--color-text);
-    text-overflow: ellipsis;
     white-space: nowrap;
   }
 

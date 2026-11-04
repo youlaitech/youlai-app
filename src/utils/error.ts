@@ -1,8 +1,5 @@
 /**
- * 从 catch 捕获的 unknown 错误中提取提示文案
- * @param error catch 捕获的错误对象
- * @param fallback 无有效信息时的兜底文案
- * @returns 错误提示文案
+ * 提取错误提示文案，无有效信息时返回默认文案
  */
 export function getErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error && error.message) return error.message;

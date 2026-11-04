@@ -116,11 +116,11 @@ import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
 import { useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
+import { useFormDialog } from "@/composables/useFormDialog";
 import { usePagedList } from "@/composables/usePagedList";
 import DictAPI, { type DictItemForm, type DictItemQuery, type DictItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
 import { PERM } from "@/constants/permissions";
-import { getErrorMessage } from "@/utils/error";
 import type { TagType } from "@wot-ui/ui/components/wd-tag/types";
 
 definePage({
@@ -136,10 +136,8 @@ const dictCode = ref<string>("");
 const pageTitle = ref<string>("字典数据");
 
 const formRef = ref<WdFormRef>();
-const isSubmitting = ref(false);
 
 const queryParams = reactive<DictItemQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
-const dialog = reactive({ visible: false });
 
 /**
  * 分页加载（触底加载 + 下拉刷新统一由 usePagedList 维护）
@@ -156,7 +154,7 @@ const {
     dictCode.value
       ? DictAPI.getItemPage(dictCode.value, query)
       : Promise.resolve({ list: [], total: 0 }),
-  queryParams
+  queryParams,
 );
 
 const initialFormData: DictItemForm = {
@@ -188,12 +186,38 @@ const TAG_COMPONENT_TYPES: Record<string, TagType> = {
   info: "default",
 };
 
-// 字典项标签在 wd-tag 上的呈现类型，未配置标签类型时返回 undefined 走纯文本
+/**
+ * 字典项标签在 wd-tag 上的呈现类型，未配置标签类型时返回 undefined 走纯文本
+ */
 function tagComponentType(tagType?: string): TagType | undefined {
   return TAG_COMPONENT_TYPES[tagType ?? ""];
 }
 
 const formData = reactive<DictItemForm>({ ...initialFormData });
+
+const {
+  dialog,
+  isSubmitting,
+  open: openItemDialog,
+  submit: submitItemForm,
+  close: closeItemDialog,
+} = useFormDialog({
+  formRef,
+  formData,
+  initialFormData,
+  loadDetail: (id) => DictAPI.getItemFormData(dictCode.value, id),
+  create: (data) => DictAPI.createItem(dictCode.value, data),
+  update: (id, data) => DictAPI.updateItem(dictCode.value, id, data),
+  onOpen: () => {
+    formData.dictCode = dictCode.value;
+  },
+  beforeSubmit: () => {
+    if (dictCode.value) return true;
+    toast.error("缺少字典编码");
+    return false;
+  },
+  onSubmitted: loadItemList,
+});
 
 const rules = toFormSchema({
   label: [{ required: true, message: "请输入字典项标签" }],
@@ -202,57 +226,11 @@ const rules = toFormSchema({
 
 const handleSearch = () => loadItemList();
 
-// 加载列表（回到第一页）
+/**
+ * 加载列表（回到第一页）
+ */
 function loadItemList() {
   reload();
-}
-
-async function openItemDialog(id?: string) {
-  formRef.value?.reset();
-  Object.assign(formData, initialFormData);
-  dialog.visible = true;
-  formData.dictCode = dictCode.value;
-
-  if (id) {
-    formData.id = id;
-    const data = await DictAPI.getItemFormData(dictCode.value, id);
-    Object.assign(formData, data, { id });
-  }
-}
-
-function submitItemForm() {
-  formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
-    if (!valid) return;
-    if (!dictCode.value) {
-      toast.error("缺少字典编码");
-      return;
-    }
-
-    isSubmitting.value = true;
-    const id = formData.id;
-    const action = id
-      ? DictAPI.updateItem(dictCode.value, id, formData)
-      : DictAPI.createItem(dictCode.value, formData);
-
-    action
-      .then(() => {
-        toast.success("操作成功");
-        closeItemDialog();
-        loadItemList();
-      })
-      .catch((error) => {
-        toast.error(getErrorMessage(error, "保存失败"));
-      })
-      .finally(() => {
-        isSubmitting.value = false;
-      });
-  });
-}
-
-function closeItemDialog() {
-  dialog.visible = false;
-  formRef.value?.reset();
-  Object.assign(formData, initialFormData);
 }
 
 function openItemActions(item: DictItem) {

@@ -117,27 +117,35 @@ const menuTree = computed<PermissionTreeOption[]>(() =>
       name: menu.name ?? "",
       type: menu.type,
       children: menu.children ? children : undefined,
-    })
-  )
+    }),
+  ),
 );
 
-// 处理选中变化
+/**
+ * 处理选中变化
+ */
 function handleCheck(keys: string[]) {
   checkedKeys.value = keys;
 }
 
-// 全选：包含所有层级的菜单 id
+/**
+ * 全选：包含所有层级的菜单 id
+ */
 function handleSelectAll() {
   const allIds = getAllMenuIds(menuList.value);
   checkedKeys.value = allIds;
 }
 
-// 取消全选：直接清空勾选集合，不逐层回退
+/**
+ * 取消全选：直接清空勾选集合，不逐层回退
+ */
 function handleClearAll() {
   checkedKeys.value = [];
 }
 
-// 收集所有层级的菜单 id
+/**
+ * 收集所有层级的菜单 id
+ */
 function getAllMenuIds(menus: MenuItem[]): string[] {
   const ids: string[] = [];
   function traverse(list: MenuItem[]) {
@@ -150,12 +158,16 @@ function getAllMenuIds(menus: MenuItem[]): string[] {
   return ids;
 }
 
-// 取消：不保存直接返回
+/**
+ * 取消：不保存直接返回
+ */
 function handleCancel() {
   uni.navigateBack();
 }
 
-// 提交：勾选结果是字符串 id，提交前转回数字
+/**
+ * 提交：勾选结果是字符串 id，提交前转回数字
+ */
 async function handleSubmit() {
   isSubmitting.value = true;
   try {
@@ -169,7 +181,9 @@ async function handleSubmit() {
   }
 }
 
-// 加载角色权限页所需的菜单树、已授权菜单与角色名
+/**
+ * 加载角色权限页所需的菜单树、已授权菜单与角色名
+ */
 async function loadRolePermissions() {
   try {
     // 并行加载菜单列表和角色已有权限
@@ -229,10 +243,10 @@ export default { options: { styleIsolation: "shared" } };
   &__value {
     flex: 1;
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 28rpx;
     font-weight: 600;
     color: var(--color-text);
-    text-overflow: ellipsis;
     white-space: nowrap;
   }
 }
@@ -267,9 +281,9 @@ export default { options: { styleIsolation: "shared" } };
 
 .permissions__node-label {
   overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 28rpx;
   color: var(--color-text);
-  text-overflow: ellipsis;
   white-space: nowrap;
 
   &.is-checked {

@@ -143,12 +143,16 @@ const rules = toFormSchema({
 // 搜索触发
 const handleSearch = () => loadConfigList();
 
-// 加载列表（回到第一页）
+/**
+ * 加载列表（回到第一页）
+ */
 function loadConfigList() {
   reload();
 }
 
-// 打开弹窗（新增/编辑）
+/**
+ * 打开弹窗（新增/编辑）
+ */
 async function openConfigDialog(id?: number) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
@@ -160,7 +164,9 @@ async function openConfigDialog(id?: number) {
   }
 }
 
-// 提交表单
+/**
+ * 提交表单
+ */
 function submitConfigForm() {
   formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
@@ -180,14 +186,18 @@ function submitConfigForm() {
   });
 }
 
-// 关闭弹窗
+/**
+ * 关闭弹窗
+ */
 function closeConfigDialog() {
   dialog.visible = false;
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
 }
 
-// 更多操作
+/**
+ * 更多操作
+ */
 function openConfigActions(item: ConfigItem) {
   const commands: ActionSheetCommand[] = [];
 

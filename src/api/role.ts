@@ -62,7 +62,7 @@ const RoleAPI = {
     return request({
       url: `${ROLE_BASE_URL}`,
       method: "POST",
-      data: data,
+      data,
     });
   },
 
@@ -73,7 +73,7 @@ const RoleAPI = {
     return request({
       url: `${ROLE_BASE_URL}/${id}`,
       method: "PUT",
-      data: data,
+      data,
     });
   },
 
@@ -100,7 +100,7 @@ export interface RoleQuery extends PageQuery {
 }
 
 /**
- * 角色列表项。
+ * 角色列表项
  */
 export interface RoleItem {
   code?: string;

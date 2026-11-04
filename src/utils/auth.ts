@@ -3,7 +3,7 @@ import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/constants";
 
 let sessionRevision = 0;
 /**
- * 获取会话版本，用于识别登录状态切换。
+ * 获取会话版本，用于识别登录状态切换
  */
 export function getAuthSessionRevision(): number {
   return sessionRevision;
@@ -19,7 +19,7 @@ export function getAccessToken(): string | null {
 }
 
 /**
- * 保存成对凭证；正常续期保留会话版本，避免打断同账号的在途请求。
+ * 保存成对凭证；正常续期保留会话版本，避免打断同账号的在途请求
  */
 export function setTokens(accessToken: string, refreshToken: string, renewing = false): void {
   Storage.set(ACCESS_TOKEN_KEY, accessToken);
@@ -28,7 +28,7 @@ export function setTokens(accessToken: string, refreshToken: string, renewing = 
 }
 
 /**
- * 读取已保存的刷新令牌，缺失时返回 null。
+ * 读取已保存的刷新令牌，缺失时返回 null
  */
 export function getRefreshToken(): string | null {
   return Storage.get<string>(REFRESH_TOKEN_KEY) || null;
@@ -44,7 +44,7 @@ export function clearTokens(): void {
 }
 
 /**
- * 获取含查询参数的当前页面路径。
+ * 获取含查询参数的当前页面路径
  */
 function getCurrentPagePath(): string {
   const pages = getCurrentPages();
@@ -64,7 +64,7 @@ function getCurrentPagePath(): string {
 /**
  * 确保已登录
  *
- * 缺少令牌时跳转登录页并带上来路地址，navigateTo 失败（页面栈已满）时改用 reLaunch。
+ * 缺少令牌时跳转登录页并带上来路地址，navigateTo 失败（页面栈已满）时改用 reLaunch
  *
  * @returns 是否已登录
  */
@@ -75,7 +75,8 @@ export function ensureAuthenticated(): boolean {
   uni.navigateTo({
     url: `/pages/login/index?redirect=${redirect}`,
     fail: () => {
-      uni.reLaunch({ url: "/pages/login/index" });
+      // 页面栈已满时改用 reLaunch，回跳地址同样带上
+      uni.reLaunch({ url: `/pages/login/index?redirect=${redirect}` });
     },
   });
 

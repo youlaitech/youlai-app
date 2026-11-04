@@ -31,7 +31,7 @@ const UserAPI = {
     return request({
       url: `${USER_BASE_URL}`,
       method: "POST",
-      data: data,
+      data,
     });
   },
 
@@ -52,7 +52,7 @@ const UserAPI = {
     return request({
       url: `${USER_BASE_URL}/${id}`,
       method: "PUT",
-      data: data,
+      data,
     });
   },
 
@@ -73,7 +73,7 @@ const UserAPI = {
     return request({
       url: `${USER_BASE_URL}/profile`,
       method: "PUT",
-      data: data,
+      data,
     });
   },
 
@@ -84,7 +84,7 @@ const UserAPI = {
     return request({
       url: `${USER_BASE_URL}/password`,
       method: "PUT",
-      data: data,
+      data,
     });
   },
 
@@ -118,7 +118,7 @@ const UserAPI = {
     return request({
       url: `${USER_BASE_URL}/mobile`,
       method: "PUT",
-      data: data,
+      data,
     });
   },
 
@@ -129,7 +129,7 @@ const UserAPI = {
     return request({
       url: `${USER_BASE_URL}/email`,
       method: "PUT",
-      data: data,
+      data,
     });
   },
 
@@ -193,7 +193,7 @@ export interface UserQuery extends PageQuery {
 }
 
 /**
- * 用户列表项。
+ * 用户列表项
  */
 export interface UserItem {
   avatar?: string;

@@ -8,7 +8,7 @@ import { setupPinia, useUserStore } from "@/store";
 import { setUnauthorizedHandler, setRefreshHandler } from "@/utils/request";
 
 /**
- * 创建应用并注册会话处理回调。
+ * 创建应用并注册会话处理回调
  */
 export function createApp() {
   const app = createSSRApp(App);

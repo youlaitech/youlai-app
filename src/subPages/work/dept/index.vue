@@ -141,7 +141,7 @@ const formData = reactive<DeptForm>({ ...initialFormData });
 
 // 树组件节点：部门实体字段 + 树节点要求的 value/label
 interface DeptTreeOption extends TreeOption {
-  id?: number;
+  id: number;
   name?: string;
   status?: number;
   children?: DeptTreeOption[];
@@ -159,8 +159,8 @@ const treeData = computed<DeptTreeOption[]>(() =>
       name: dept.name,
       status: dept.status,
       children,
-    })
-  )
+    }),
+  ),
 );
 
 // 上级部门选择器
@@ -191,7 +191,9 @@ const rules = toFormSchema({
 // 搜索触发
 const handleSearch = () => loadDeptList();
 
-// 加载列表
+/**
+ * 加载列表
+ */
 function loadDeptList() {
   DeptAPI.getList(queryParams)
     .then((data) => {
@@ -202,7 +204,9 @@ function loadDeptList() {
     });
 }
 
-// 处理节点操作按钮点击
+/**
+ * 处理节点操作按钮点击
+ */
 function handleNodeAction(node: DeptTreeOption) {
   const dept: DeptItem = {
     id: node.id,
@@ -243,7 +247,9 @@ function handleNodeAction(node: DeptTreeOption) {
   actionSheetRef.value?.open(commands);
 }
 
-// 打开弹窗（新增/编辑）
+/**
+ * 打开弹窗（新增/编辑）
+ */
 async function openDeptDialog(dept?: DeptItem) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
@@ -271,11 +277,13 @@ async function openDeptDialog(dept?: DeptItem) {
   }
 }
 
-// 新增子部门：按新增流程打开弹窗，并预设上级部门
+/**
+ * 新增子部门：按新增流程打开弹窗，并预设上级部门
+ */
 function openChildDeptDialog(dept: DeptItem) {
   openDeptDialog();
-  formData.parentId = dept.id!;
-  parentSelected.value = dept.id!;
+  formData.parentId = dept.id;
+  parentSelected.value = dept.id;
   parentLabel.value =
     findOptionChain(treeData.value, dept.id!)
       ?.map((option) => option.label)
@@ -284,7 +292,9 @@ function openChildDeptDialog(dept: DeptItem) {
     "";
 }
 
-// 提交表单
+/**
+ * 提交表单
+ */
 function submitDeptForm() {
   formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
@@ -302,7 +312,9 @@ function submitDeptForm() {
   });
 }
 
-// 关闭弹窗
+/**
+ * 关闭弹窗
+ */
 function closeDeptDialog() {
   dialog.visible = false;
   formRef.value?.reset();

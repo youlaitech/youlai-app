@@ -637,7 +637,7 @@ export default {
         } else {
           _this.resizeHandler();
         }
-      }, time)
+      }, time),
     );
     // #endif
   },
@@ -993,7 +993,7 @@ export default {
             //#endif
           },
         },
-        this
+        this,
       );
     },
     getImage() {
@@ -1008,7 +1008,7 @@ export default {
               });
             },
           },
-          this
+          this,
         );
       } else {
         const query = uni.createSelectorQuery().in(this);

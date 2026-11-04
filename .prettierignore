@@ -1,6 +1,13 @@
-
 *.min.js
 dist
+unpackage
 public
+src/static
 node_modules
+.husky
 auto-imports.d.ts
+# 锁文件由 pnpm 生成
+pnpm-lock.yaml
+# 脚本与文档不参与格式化
+*.sh
+*.md

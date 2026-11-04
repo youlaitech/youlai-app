@@ -4,7 +4,7 @@ const NOTICE_BASE_URL = "/api/v1/notices";
 
 const NoticeAPI = {
   /**
-   * 管理列表预览，不修改收件人的阅读状态。
+   * 管理列表预览，不修改收件人的阅读状态
    */
   getPreview(id: string) {
     return request<NoticeDetail>({ url: `${NOTICE_BASE_URL}/${id}/preview`, method: "GET" });
@@ -37,7 +37,7 @@ const NoticeAPI = {
     return request({
       url: `${NOTICE_BASE_URL}`,
       method: "POST",
-      data: data,
+      data,
     });
   },
 
@@ -48,7 +48,7 @@ const NoticeAPI = {
     return request({
       url: `${NOTICE_BASE_URL}/${id}`,
       method: "PUT",
-      data: data,
+      data,
     });
   },
 
@@ -156,7 +156,8 @@ export interface NoticeItem {
 }
 
 export interface NoticeDetail {
-  id?: string;
+  /** 通知ID，详情数据由后端返回，必填 */
+  id: string;
   title?: string;
   content?: string;
   /** 通知类型 */

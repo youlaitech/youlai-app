@@ -103,10 +103,10 @@ const userInfo = computed(() => userStore.userInfo);
 const defaultAvatar = "/static/images/default-avatar.png";
 
 const avatar = computed(() =>
-  isAuthenticated.value && userInfo.value?.avatar ? userInfo.value.avatar : defaultAvatar
+  isAuthenticated.value && userInfo.value?.avatar ? userInfo.value.avatar : defaultAvatar,
 );
 const displayName = computed(() =>
-  isAuthenticated.value ? userInfo.value?.nickname || "匿名用户" : "欢迎使用"
+  isAuthenticated.value ? userInfo.value?.nickname || "匿名用户" : "欢迎使用",
 );
 const username = computed(() => userInfo.value?.username || "未设置账号");
 const deptName = computed(() => (isAuthenticated.value ? userInfo.value?.deptName || "" : ""));
@@ -186,7 +186,9 @@ const helpMenuItems = computed<SettingsMenuEntry[]>(() => [
   },
 ]);
 
-// 菜单分发：先按 id 找到配置，再按 kind 走跳转或本地动作
+/**
+ * 菜单分发：先按 id 找到配置，再按 kind 走跳转或本地动作
+ */
 function handleMenuSelect(id: string) {
   const entry = [...toolMenuItems.value, ...helpMenuItems.value].find((item) => item.id === id);
   if (!entry) return;
@@ -202,7 +204,9 @@ function handleMenuSelect(id: string) {
   uni.navigateTo({ url: entry.target });
 }
 
-// 登录页带回跳地址，登录成功后原路返回
+/**
+ * 登录页带回跳地址，登录成功后原路返回
+ */
 function navigateToLogin() {
   const pages = getCurrentPages();
   const currentPage = pages[pages.length - 1];
@@ -212,7 +216,9 @@ function navigateToLogin() {
   });
 }
 
-// 资料页要求登录，未登录先跳登录页
+/**
+ * 资料页要求登录，未登录先跳登录页
+ */
 function navigateToProfile() {
   if (!isAuthenticated.value) {
     navigateToLogin();
@@ -221,7 +227,9 @@ function navigateToProfile() {
   uni.navigateTo({ url: "/subPages/mine/profile/index" });
 }
 
-// 账号安全页要求登录，未登录先跳登录页
+/**
+ * 账号安全页要求登录，未登录先跳登录页
+ */
 function navigateToAccountSecurity() {
   if (!isAuthenticated.value) {
     navigateToLogin();
@@ -230,7 +238,9 @@ function navigateToAccountSecurity() {
   uni.navigateTo({ url: "/subPages/mine/account/index" });
 }
 
-// 公众号介绍页对游客开放，不需要登录
+/**
+ * 公众号介绍页对游客开放，不需要登录
+ */
 function navigateToOfficialAccount() {
   uni.navigateTo({
     url: "/subPages/mine/official/index",
@@ -243,7 +253,9 @@ const hasUserProfile = computed(() => {
   return !!(info && (info.userId || info.username || info.nickname));
 });
 
-// 资料未加载时补拉一次，失败不阻塞页面渲染
+/**
+ * 资料未加载时补拉一次，失败不阻塞页面渲染
+ */
 async function ensureUserInfoLoaded() {
   if (!isAuthenticated.value || hasUserProfile.value) return;
   try {
@@ -253,7 +265,9 @@ async function ensureUserInfoLoaded() {
   }
 }
 
-// 小程序端版本号以发布版本为准，其他端取构建时注入的包版本
+/**
+ * 小程序端版本号以发布版本为准，其他端取构建时注入的包版本
+ */
 function syncAppVersion() {
   // #ifdef MP-WEIXIN
   appVersion.value = uni.getAccountInfoSync().miniProgram.version || appVersion.value;

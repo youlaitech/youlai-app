@@ -19,10 +19,10 @@ import { Storage } from "@/utils/storage";
 import { USER_INFO_KEY } from "@/constants";
 
 /**
- * 管理用户资料、登录凭证与会话续期。
+ * 管理用户资料、登录凭证与会话续期
  */
 export const useUserStore = defineStore("user", () => {
-  // 从持久化缓存恢复的访问令牌。
+  // 从持久化缓存恢复的访问令牌
   const accessToken = ref<string>(getAccessToken() || "");
 
   // 用户信息
@@ -34,11 +34,11 @@ export const useUserStore = defineStore("user", () => {
   const isProfileComplete = computed(() => !!(userInfo.value?.nickname && userInfo.value?.avatar));
 
   /**
-   * 成对保存凭证并同步响应式登录状态。
+   * 成对保存凭证并同步响应式登录状态
    */
   function setTokens(
     tokens: Pick<LoginResult, "accessToken" | "refreshToken">,
-    renewing = false
+    renewing = false,
   ): void {
     persistTokens(tokens.accessToken, tokens.refreshToken, renewing);
     accessToken.value = tokens.accessToken;
@@ -47,7 +47,7 @@ export const useUserStore = defineStore("user", () => {
   let refreshTask: { revision: number; promise: Promise<void> } | null = null;
 
   /**
-   * 同一账号的并发请求共用续期任务，切换账号后丢弃旧结果。
+   * 同一账号的并发请求共用续期任务，切换账号后丢弃旧结果
    */
   function refreshTokenOnce(): Promise<void> {
     const revision = getAuthSessionRevision();
@@ -67,7 +67,7 @@ export const useUserStore = defineStore("user", () => {
   }
 
   /**
-   * 清除内存与持久化中的登录会话。
+   * 清除内存与持久化中的登录会话
    */
   function resetSession(): void {
     clearTokens();
@@ -125,7 +125,7 @@ export const useUserStore = defineStore("user", () => {
   };
 
   /**
-   * 加载并缓存当前用户资料，忽略旧会话响应。
+   * 加载并缓存当前用户资料，忽略旧会话响应
    */
   const loadUserInfo = async () => {
     const revision = getAuthSessionRevision();
@@ -137,7 +137,7 @@ export const useUserStore = defineStore("user", () => {
   };
 
   /**
-   * 退出远端会话后清理本地状态并进入登录页。
+   * 退出远端会话后清理本地状态并进入登录页
    */
   const logout = async () => {
     const revision = getAuthSessionRevision();

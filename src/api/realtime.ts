@@ -7,7 +7,7 @@ import type {
 
 const RealtimeAPI = {
   /**
-   * 领取单次连接票据，服务未启用或无权连接时返回 null。
+   * 领取单次连接票据，服务未启用或无权连接时返回 null
    */
   async createTicket(data: CreateRealtimeTicketRequest): Promise<RealtimeTicketResponse | null> {
     try {

@@ -182,7 +182,8 @@ const {
   retry,
 } = usePagedList(NoticeAPI.getPage, queryParams);
 
-const noticeDetail = ref<NoticeDetail>({});
+// 详情未加载时字段为空，展示层按可选字段读取
+const noticeDetail = ref<Partial<NoticeDetail>>({});
 const detailDialog = reactive({ visible: false });
 
 const dialog = reactive({ visible: false });
@@ -202,10 +203,10 @@ const formRules = toFormSchema({
 });
 
 /**
- * 将通知状态转换为标签类型。
+ * 将通知状态转换为标签类型
  */
 const getStatusType = (
-  status?: number
+  status?: number,
 ): "default" | "primary" | "danger" | "warning" | "success" => {
   const map: Record<number, "default" | "primary" | "danger" | "warning" | "success"> = {
     0: "primary",
@@ -216,7 +217,7 @@ const getStatusType = (
 };
 
 /**
- * 获取通知状态的显示文本。
+ * 获取通知状态的显示文本
  */
 const getStatusText = (status?: number): string => {
   const map: Record<number, string> = { 0: "未发布", 1: "已发布", [-1]: "已撤回" };
@@ -224,7 +225,7 @@ const getStatusText = (status?: number): string => {
 };
 
 /**
- * 获取通知级别的显示文本。
+ * 获取通知级别的显示文本
  */
 const getLevelText = (level?: string): string => {
   const map: Record<string, string> = { L: "低", M: "中", H: "高" };
@@ -232,7 +233,7 @@ const getLevelText = (level?: string): string => {
 };
 
 /**
- * 格式化通知时间，空值显示占位符。
+ * 格式化通知时间，空值显示占位符
  */
 const formatTime = (item: NoticeItem): string => {
   if (item.publishStatus === 1 && item.publishTime) {
@@ -245,19 +246,19 @@ const formatTime = (item: NoticeItem): string => {
 };
 
 /**
- * 按搜索条件重新加载通知。
+ * 按搜索条件重新加载通知
  */
 const handleSearch = () => loadNoticeList();
 
 /**
- * 从第一页重新加载通知列表。
+ * 从第一页重新加载通知列表
  */
 function loadNoticeList() {
   reload();
 }
 
 /**
- * 加载并展示通知详情。
+ * 加载并展示通知详情
  */
 async function openNoticeDetail(item: NoticeItem) {
   const detail = await NoticeAPI.getPreview(item.id);
@@ -266,14 +267,14 @@ async function openNoticeDetail(item: NoticeItem) {
 }
 
 /**
- * 关闭通知详情。
+ * 关闭通知详情
  */
 function closeNoticeDetail() {
   detailDialog.visible = false;
 }
 
 /**
- * 初始化新增或编辑通知表单。
+ * 初始化新增或编辑通知表单
  */
 async function openNoticeDialog(id?: number) {
   formRef.value?.reset();
@@ -287,7 +288,7 @@ async function openNoticeDialog(id?: number) {
 }
 
 /**
- * 关闭通知编辑弹窗。
+ * 关闭通知编辑弹窗
  */
 function closeNoticeDialog() {
   dialog.visible = false;
@@ -296,7 +297,7 @@ function closeNoticeDialog() {
 }
 
 /**
- * 校验并提交通知表单，成功后刷新列表。
+ * 校验并提交通知表单，成功后刷新列表
  */
 function submitNoticeForm() {
   formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
@@ -317,7 +318,7 @@ function submitNoticeForm() {
 }
 
 /**
- * 展示当前通知可执行的操作。
+ * 展示当前通知可执行的操作
  */
 function openNoticeActions(item: NoticeItem) {
   const commands: ActionSheetCommand[] = [

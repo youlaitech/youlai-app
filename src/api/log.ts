@@ -47,10 +47,11 @@ export interface LogQuery extends PageQuery {
 }
 
 /**
- * 系统日志列表项。
+ * 系统日志列表项
  */
 export interface LogItem {
-  id?: number;
+  /** 日志ID，列表数据由后端返回，必填 */
+  id: number;
   module?: number;
   actionType?: number;
   title?: string;

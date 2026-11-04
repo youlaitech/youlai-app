@@ -1,5 +1,6 @@
 
 *.min.js
 dist
+unpackage
 public
 node_modules

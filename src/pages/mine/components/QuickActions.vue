@@ -22,7 +22,9 @@
 </template>
 
 <script lang="ts" setup>
-/** profile / account：只上报点击意图，登录校验与跳转由父级决定 */
+/**
+ * 上报点击事件，登录校验与跳转由父组件处理
+ */
 const emit = defineEmits<{
   profile: [];
   account: [];
@@ -79,11 +81,11 @@ const emit = defineEmits<{
 .quick-card__title {
   display: block;
   overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 28rpx;
   font-weight: 500;
   line-height: 1.35;
   color: var(--color-text);
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -91,10 +93,10 @@ const emit = defineEmits<{
   display: block;
   margin-top: 8rpx;
   overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 22rpx;
   line-height: 1.6;
   color: var(--color-text-secondary);
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 </style>

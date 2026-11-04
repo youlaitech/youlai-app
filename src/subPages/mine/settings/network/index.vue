@@ -78,16 +78,20 @@ const statusColor = computed(() => {
   return "color-danger";
 });
 
-// 探测目标：与请求层同源，微信端用完整地址，其余端走代理前缀
+/**
+ * 探测目标：与请求层同源，微信端用完整地址，其余端走代理前缀
+ */
 function getProbeUrl(): string {
-  let baseUrl = import.meta.env.VITE_APP_BASE_API;
+  let baseUrl = import.meta.env.VITE_API_BASE;
   // #ifdef MP-WEIXIN
-  baseUrl = import.meta.env.VITE_APP_API_URL;
+  baseUrl = import.meta.env.VITE_API_URL;
   // #endif
   return `${baseUrl}/`;
 }
 
-// 探测接口服务地址：拿到响应即视为可达，状态码不参与判断
+/**
+ * 探测接口服务地址：拿到响应即视为可达，状态码不参与判断
+ */
 async function startTest() {
   if (isTesting.value) return;
 

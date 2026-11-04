@@ -3,7 +3,9 @@ import request from "@/utils/request";
 const MENU_BASE_URL = "/api/v1/menus";
 
 const MenuAPI = {
-  /** 获取菜单列表 */
+  /**
+   * 获取菜单列表
+   */
   getList(queryParams?: MenuQuery) {
     return request<MenuItem[]>({
       url: `${MENU_BASE_URL}`,
@@ -25,13 +27,17 @@ const MenuAPI = {
     });
   },
 
-  /** 获取可作为上级菜单的下拉选项（按钮不能有子级，不返回） */
+  /**
+   * 获取可作为上级菜单的下拉选项（按钮不能有子级，不返回）
+   */
   getParentOptions() {
     // uni.request 对数组的序列化格式不确定，这里用逗号串（后端 List<String> 按英文逗号拆分）
     return this.getOptions({ types: "C,M" });
   },
 
-  /** 获取菜单表单数据 */
+  /**
+   * 获取菜单表单数据
+   */
   getFormData(id: string) {
     return request<MenuForm>({
       url: `${MENU_BASE_URL}/${id}/form`,
@@ -39,7 +45,9 @@ const MenuAPI = {
     });
   },
 
-  /** 新增菜单 */
+  /**
+   * 新增菜单
+   */
   create(data: MenuForm) {
     return request({
       url: `${MENU_BASE_URL}`,
@@ -48,7 +56,9 @@ const MenuAPI = {
     });
   },
 
-  /** 修改菜单 */
+  /**
+   * 修改菜单
+   */
   update(id: string, data: MenuForm) {
     return request({
       url: `${MENU_BASE_URL}/${id}`,
@@ -72,7 +82,9 @@ const MenuAPI = {
 
 export default MenuAPI;
 
-/** 菜单查询参数 */
+/**
+ * 菜单查询参数
+ */
 export interface MenuQuery {
   keywords?: string;
 }
@@ -80,18 +92,21 @@ export interface MenuQuery {
 /**
  * 菜单类型
  *
- * 与后端 MenuTypeEnum 一致：C 目录、M 菜单、E 外链、B 按钮。
+ * 与后端 MenuTypeEnum 一致：C 目录、M 菜单、E 外链、B 按钮
  */
 export type MenuType = "C" | "M" | "E" | "B";
 
-/** 菜单实体 */
+/**
+ * 菜单列表项
+ */
 export interface MenuItem {
   children?: MenuItem[];
   component?: string;
   createTime?: Date;
   externalUrl?: string;
   icon?: string;
-  id?: string;
+  /** 菜单ID，列表数据由后端返回，必填 */
+  id: string;
   name?: string;
   parentId?: string;
   perm?: string;
@@ -104,7 +119,9 @@ export interface MenuItem {
   type?: MenuType;
 }
 
-/** 菜单表单类型 */
+/**
+ * 菜单表单类型
+ */
 export interface MenuForm {
   /** 菜单ID(新增不填) */
   id?: string;

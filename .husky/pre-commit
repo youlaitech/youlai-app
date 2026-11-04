@@ -1,2 +1,2 @@
-echo "Running pre-commit hook..."
-pnpm run lint:lint-staged
+#!/usr/bin/env sh
+pnpm exec lint-staged

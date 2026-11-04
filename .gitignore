@@ -11,6 +11,7 @@ node_modules
 .pnpm-store
 .DS_Store
 dist
+unpackage
 *.local
 .history
 
@@ -36,8 +37,6 @@ deploy.mjs
 
 launch.json
 .hbuilderx
-pnpm-lock.yaml
-
 
 .vscode
 .claude/

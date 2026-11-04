@@ -282,7 +282,9 @@ const handleSendVerificationCode = async (contactType: string) => {
   }
 };
 
-// 提交当前弹窗对应的表单：三个表单各自校验，成功后就地关闭弹窗
+/**
+ * 提交当前弹窗对应的表单：三个表单各自校验，成功后就地关闭弹窗
+ */
 async function handleSecuritySubmit() {
   try {
     if (popup.type === SecurityAction.PASSWORD) {

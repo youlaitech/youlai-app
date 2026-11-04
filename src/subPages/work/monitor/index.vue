@@ -8,6 +8,6 @@ definePage({
   style: { navigationBarTitleText: "应用监控" },
   layout: "blank",
 });
-// SpringBoot Admin 监控地址，生产环境在 .env.production 配置 VITE_APP_MONITOR_URL
+// SpringBoot Admin 监控地址，可用 VITE_APP_MONITOR_URL 覆盖
 const monitorUrl = import.meta.env.VITE_APP_MONITOR_URL || "http://localhost:9090/wallboard";
 </script>

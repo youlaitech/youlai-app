@@ -4,7 +4,7 @@ import { ensureAuthenticated } from "@/utils/auth";
  * 扫码登录 PC 端
  *
  * 调起相机扫描 PC 端登录二维码，只检查扫码结果非空；票据有效性与用户身份
- * 由扫码确认页调用服务端校验，本方法不完成登录。
+ * 由扫码确认页调用服务端校验，本方法不完成登录
  */
 export function useScanLogin() {
   const toast = useToast();
@@ -13,7 +13,7 @@ export function useScanLogin() {
    * 调起相机扫码并进入确认页
    *
    * 未登录先跳登录页；当前环境无扫码能力时给出可读提示；
-   * 用户取消扫码静默结束，其余失败按原因提示。
+   * 用户取消扫码静默结束，其余失败按原因提示
    */
   const scanForLogin = async () => {
     if (!ensureAuthenticated()) return;
@@ -42,7 +42,9 @@ export function useScanLogin() {
   return { scanForLogin };
 }
 
-// 当前环境能否调起相机：H5 没有原生扫码能力
+/**
+ * 当前环境能否调起相机：H5 没有原生扫码能力
+ */
 function canScanCode(): boolean {
   let supported = typeof uni.scanCode === "function";
   // #ifdef H5
@@ -51,7 +53,9 @@ function canScanCode(): boolean {
   return supported;
 }
 
-// 扫码失败提示文案：返回 null 表示用户主动取消，不做提示
+/**
+ * 扫码失败提示文案：返回 null 表示用户主动取消，不做提示
+ */
 function getScanErrorMessage(error: unknown): string | null {
   const errMsg = String((error as { errMsg?: string } | undefined)?.errMsg || "").toLowerCase();
   if (errMsg.includes("cancel")) return null;

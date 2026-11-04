@@ -17,18 +17,18 @@ export function isValidMobile(mobile: string): boolean {
 /**
  * 登录短信验证码发送
  *
- * 含发送锁与 60 秒倒计时：请求返回前阻止重复点击，倒计时在发送成功后才启动。
+ * 含发送锁与 60 秒倒计时：请求返回前阻止重复点击，倒计时在发送成功后才启动
  */
 export function useSmsLoginCode() {
   const toast = useToast();
   const { remainingSeconds, start, stop } = useCountdown(60);
-  /** 发送中标志，请求返回前阻止重复点击 */
+  // 发送中标志，请求返回前阻止重复点击
   const isSending = ref(false);
 
   /**
    * 发送验证码
    *
-   * 手机号格式与重复发送在这里拦下，接口失败提示也由这里统一处理。
+   * 手机号格式与重复发送在这里拦下，接口失败提示也由这里统一处理
    *
    * @param mobile - 接收验证码的手机号
    * @param fallback - 接口无错误信息时的兜底提示
@@ -57,7 +57,7 @@ export function useSmsLoginCode() {
   /**
    * 重置倒计时
    *
-   * 关闭弹窗等场景调用，让下次打开可以立即重新发送。
+   * 关闭弹窗等场景调用，让下次打开可以立即重新发送
    */
   function resetCountdown() {
     stop();

@@ -2,7 +2,7 @@ import { useThemeStore, themeColorOptions } from "@/store/modules/theme";
 import { storeToRefs } from "pinia";
 
 /**
- * 提供响应式主题状态、主题选项及设置方法。
+ * 提供响应式主题状态、主题选项及设置方法
  */
 export function useTheme() {
   const store = useThemeStore();

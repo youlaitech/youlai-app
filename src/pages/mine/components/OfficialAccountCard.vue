@@ -19,7 +19,9 @@
 </template>
 
 <script lang="ts" setup>
-/** open：请求进入公众号介绍页，目标地址由父级决定 */
+/**
+ * open：请求进入公众号介绍页，目标地址由父级决定
+ */
 const emit = defineEmits<{
   open: [];
 }>();
@@ -130,11 +132,11 @@ const emit = defineEmits<{
   display: -webkit-box;
   margin-top: 10rpx;
   overflow: hidden;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   font-size: 24rpx;
   line-height: 1.55;
   color: var(--color-text-secondary);
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 </style>

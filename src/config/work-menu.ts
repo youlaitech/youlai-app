@@ -1,5 +1,3 @@
-/** 工作台菜单配置 */
-
 import { PERM } from "@/constants/permissions";
 
 export interface WorkMenuItem {
@@ -16,6 +14,9 @@ export interface WorkMenuGroup {
   children: WorkMenuItem[];
 }
 
+/**
+ * 工作台入口分组，按权限过滤后展示
+ */
 export const workMenuGroups: WorkMenuGroup[] = [
   {
     title: "系统管理",

@@ -9,7 +9,7 @@
       background,
     }"
   >
-    <view class="app-navbar__content" :style="{ height: contentHeightPx + 'px' }">
+    <view class="app-navbar__content" :style="{ height: resolvedContentHeightPx + 'px' }">
       <view class="app-navbar__left" :style="{ width: leftSlotWidth + 'px' }">
         <view v-if="showBack" class="app-navbar__back" @click="handleBack">
           <wd-icon :name="backIcon" :size="backIconSize" :color="iconColor" />
@@ -86,7 +86,7 @@ const emit = defineEmits<{
 const navbar = useNavbarMetrics({ contentHeightPx: props.contentHeightPx });
 
 const statusBarHeight = computed(() => navbar.statusBarHeight.value);
-const contentHeightPx = computed(() => navbar.contentHeightPx.value);
+const resolvedContentHeightPx = computed(() => navbar.contentHeightPx.value);
 const totalHeightPx = computed(() => navbar.totalHeightPx.value);
 
 const capsuleSpaceWidth = computed(() => {
@@ -203,9 +203,9 @@ export default {
 
 .app-navbar__title {
   overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 32rpx;
   color: var(--color-text);
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

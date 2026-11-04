@@ -10,10 +10,10 @@
 
 declare global {
   /**
-   * 微信小程序全局对象。
+   * 微信小程序全局对象
    *
    * 条件编译内的 `wx` 在微信端运行时存在，但 vue-tsc 仍会解析源码，
-   * 因此这里提供最小声明，避免页面直接报未定义。
+   * 因此这里提供最小声明，避免页面直接报未定义
    */
   const wx: {
     request(options: UniApp.RequestOptions): void;

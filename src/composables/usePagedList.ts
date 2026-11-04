@@ -2,12 +2,12 @@ import { ref, type Ref } from "vue";
 import { onPullDownRefresh, onReachBottom } from "@dcloudio/uni-app";
 
 /**
- * 管理分页加载、下拉刷新与失败重试。
- * 过期响应不回填；下拉刷新失败时保留现有列表。
+ * 管理分页加载、下拉刷新与失败重试
+ * 过期响应不回填；下拉刷新失败时保留现有列表
  */
 export function usePagedList<T, Q extends { pageNum: number; pageSize: number }>(
   fetcher: (query: Q) => Promise<{ list: T[]; total: number }>,
-  queryParams: Q
+  queryParams: Q,
 ) {
   const total = ref(0);
   const items = ref<T[]>([]) as Ref<T[]>;
@@ -28,7 +28,7 @@ export function usePagedList<T, Q extends { pageNum: number; pageSize: number }>
   }
 
   /**
-   * 加载指定页，丢弃过期响应。
+   * 加载指定页，丢弃过期响应
    *
    * @param append 是否追加到现有列表
    * @param keepOnFail 替换加载失败时是否保留现有列表
@@ -55,7 +55,7 @@ export function usePagedList<T, Q extends { pageNum: number; pageSize: number }>
   }
 
   /**
-   * 返回第一页并重新加载列表。
+   * 返回第一页并重新加载列表
    */
   async function reload(): Promise<void> {
     loadedPages = 0;
@@ -63,7 +63,7 @@ export function usePagedList<T, Q extends { pageNum: number; pageSize: number }>
   }
 
   /**
-   * 按原页码与追加方式重试最近一次请求。
+   * 按原页码与追加方式重试最近一次请求
    */
   function retry(): void {
     if (!lastAttempt) return;

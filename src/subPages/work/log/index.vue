@@ -116,24 +116,31 @@ const {
   retry,
 } = usePagedList(LogAPI.getPage, queryParams);
 
-const logDetail = ref<LogItem>({});
+// 详情未加载时字段为空，展示层按可选字段读取
+const logDetail = ref<Partial<LogItem>>({});
 const detailDialog = reactive({ visible: false });
 
 // 搜索触发
 const handleSearch = () => loadLogList();
 
-// 加载列表（回到第一页）
+/**
+ * 加载列表（回到第一页）
+ */
 function loadLogList() {
   reload();
 }
 
-// 打开详情弹窗
+/**
+ * 打开详情弹窗
+ */
 function openLogDetail(item: LogItem) {
   logDetail.value = item;
   detailDialog.visible = true;
 }
 
-// 关闭详情弹窗
+/**
+ * 关闭详情弹窗
+ */
 function closeLogDetail() {
   detailDialog.visible = false;
 }

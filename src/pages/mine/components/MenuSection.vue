@@ -19,9 +19,7 @@
 
 <script lang="ts" setup>
 /**
- * 设置菜单项
- *
- * 只描述展示所需字段，跳转目标与动作由调用方的配置补充。
+ * 设置菜单项的展示数据
  */
 export interface SettingsMenuItem {
   /** 稳定标识，用于分发，不用展示文案 */
@@ -33,7 +31,7 @@ export interface SettingsMenuItem {
   value?: string;
 }
 
-// 语义色映射：tone 决定图标底色变体与图标颜色
+// 按菜单语义选择图标颜色
 const iconColors: Record<SettingsMenuItem["tone"], string> = {
   primary: "var(--color-primary)",
   warning: "var(--color-warning)",
@@ -48,9 +46,7 @@ defineProps<{
 }>();
 
 /**
- * select：上报被点击项
- *
- * 载荷是菜单项 id 而不是标题，展示文案可能重复，不能作为标识。
+ * 按菜单项 ID 上报选择事件
  */
 const emit = defineEmits<{
   select: [id: string];

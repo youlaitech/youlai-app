@@ -10,7 +10,7 @@ import { getErrorMessage } from "@/utils/error";
 /**
  * 操作菜单命令
  *
- * id 是分发身份，label 只用于展示，两者不共用。
+ * id 是分发身份，label 只用于展示，两者不共用
  */
 export interface ActionSheetCommand {
   id: string;
@@ -32,7 +32,7 @@ let commands: ActionSheetCommand[] = [];
 /**
  * 展示操作菜单
  *
- * 列表为空说明当前账号没有可用操作，提示后不再弹出空菜单。
+ * 列表为空说明当前账号没有可用操作，提示后不再弹出空菜单
  *
  * @param list - 按当前账号权限拼装的操作命令
  */
@@ -47,7 +47,9 @@ function open(list: ActionSheetCommand[]) {
   visible.value = true;
 }
 
-// 组件回传的是选项索引，按索引取回命令，不按展示文案反查；执行失败在此统一提示
+/**
+ * 按选项索引执行对应操作
+ */
 function handleSelect({ index }: { index: number }) {
   const command = commands[index];
   if (!command) return;
@@ -57,5 +59,8 @@ function handleSelect({ index }: { index: number }) {
   });
 }
 
+/**
+ * 暴露给父组件：open 打开面板，visible 控制显示状态
+ */
 defineExpose({ open, visible });
 </script>

@@ -188,12 +188,16 @@ const rules = toFormSchema({
 // 搜索触发
 const handleSearch = () => loadRoleList();
 
-// 加载列表（回到第一页）
+/**
+ * 加载列表（回到第一页）
+ */
 function loadRoleList() {
   reload();
 }
 
-// 打开弹窗（新增/编辑）
+/**
+ * 打开弹窗（新增/编辑）
+ */
 async function openRoleDialog(id?: number) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
@@ -205,7 +209,9 @@ async function openRoleDialog(id?: number) {
   }
 }
 
-// 提交表单
+/**
+ * 提交表单
+ */
 function submitRoleForm() {
   formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
@@ -223,14 +229,18 @@ function submitRoleForm() {
   });
 }
 
-// 关闭弹窗
+/**
+ * 关闭弹窗
+ */
 function closeRoleDialog() {
   dialog.visible = false;
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
 }
 
-// 更多操作
+/**
+ * 更多操作
+ */
 function openRoleActions(item: RoleItem) {
   const commands: ActionSheetCommand[] = [];
 
@@ -265,7 +275,9 @@ function openRoleActions(item: RoleItem) {
   actionSheetRef.value?.open(commands);
 }
 
-// 跳转分配权限页
+/**
+ * 跳转分配权限页
+ */
 function navigateToAssignPerm(id: number) {
   uni.navigateTo({
     url: "/subPages/work/role/assign-perm/index?id=" + id,

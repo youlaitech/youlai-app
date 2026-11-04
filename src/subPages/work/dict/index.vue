@@ -93,28 +93,24 @@
 <script lang="ts" setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { toFormSchema, type WdFormRef } from "@/utils/form-schema";
-import { useToast } from "@wot-ui/ui";
 import ActionSheet, { type ActionSheetCommand } from "@/subPages/work/components/ActionSheet.vue";
 import { useConfirmAction } from "@/composables/useConfirmAction";
+import { useFormDialog } from "@/composables/useFormDialog";
 import { usePagedList } from "@/composables/usePagedList";
 import DictAPI, { type DictTypeForm, type DictTypeQuery, type DictTypeItem } from "@/api/dict";
 import { hasPermission } from "@/utils/permission";
 import { PERM } from "@/constants/permissions";
-import { getErrorMessage } from "@/utils/error";
 
 definePage({
   name: "dict",
   style: { navigationBarTitleText: "字典管理", enablePullDownRefresh: true },
 });
 
-const toast = useToast();
 const { confirmAction } = useConfirmAction();
 const actionSheetRef = ref<InstanceType<typeof ActionSheet>>();
 const formRef = ref<WdFormRef>();
-const isSubmitting = ref(false);
 
 const queryParams = reactive<DictTypeQuery>({ pageNum: 1, pageSize: 10, keywords: "" });
-const dialog = reactive({ visible: false });
 
 // 分页加载（触底加载 + 下拉刷新统一由 usePagedList 维护）
 const {
@@ -135,6 +131,22 @@ const initialFormData: DictTypeForm = {
 
 const formData = reactive<DictTypeForm>({ ...initialFormData });
 
+const {
+  dialog,
+  isSubmitting,
+  open: openDictDialog,
+  submit: submitDictForm,
+  close: closeDictDialog,
+} = useFormDialog({
+  formRef,
+  formData,
+  initialFormData,
+  loadDetail: (id) => DictAPI.getFormData(id),
+  create: (data) => DictAPI.create(data),
+  update: (id, data) => DictAPI.update(id, data),
+  onSubmitted: loadDictTypeList,
+});
+
 const rules = toFormSchema({
   name: [{ required: true, message: "请输入字典名称" }],
   dictCode: [{ required: true, message: "请输入字典编码" }],
@@ -142,57 +154,23 @@ const rules = toFormSchema({
 
 const handleSearch = () => loadDictTypeList();
 
-// 加载列表（回到第一页）
+/**
+ * 加载列表（回到第一页）
+ */
 function loadDictTypeList() {
   reload();
 }
 
-// 跳转字典数据页
+/**
+ * 跳转字典数据页
+ */
 function navigateToDictItem(item: DictTypeItem) {
   if (!item.dictCode) return;
   uni.navigateTo({
     url: `/subPages/work/dict/item/index?dictCode=${item.dictCode}&title=${encodeURIComponent(
-      `【${item.name}】字典数据`
+      `【${item.name}】字典数据`,
     )}`,
   });
-}
-
-async function openDictDialog(id?: string) {
-  formRef.value?.reset();
-  Object.assign(formData, initialFormData);
-  dialog.visible = true;
-  if (id) {
-    formData.id = id;
-    const data = await DictAPI.getFormData(id);
-    Object.assign(formData, data, { id });
-  }
-}
-
-function submitDictForm() {
-  formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
-    if (!valid) return;
-    isSubmitting.value = true;
-    const id = formData.id;
-    const action = id ? DictAPI.update(id, formData) : DictAPI.create(formData);
-    action
-      .then(() => {
-        toast.success("操作成功");
-        closeDictDialog();
-        loadDictTypeList();
-      })
-      .catch((error) => {
-        toast.error(getErrorMessage(error, "保存失败"));
-      })
-      .finally(() => {
-        isSubmitting.value = false;
-      });
-  });
-}
-
-function closeDictDialog() {
-  dialog.visible = false;
-  formRef.value?.reset();
-  Object.assign(formData, initialFormData);
 }
 
 function openDictActions(item: DictTypeItem) {

@@ -93,7 +93,9 @@ const loadUserProfile = async () => {
   userProfile.value = await UserAPI.getProfile();
 };
 
-// 头像选择
+/**
+ * 头像选择
+ */
 function handleAvatarUpload() {
   uni.chooseImage({
     count: 1,
@@ -147,7 +149,9 @@ const openProfilePopup = () => {
   userProfileForm.gender = userProfile.value?.gender;
 };
 
-// 提交表单
+/**
+ * 提交表单
+ */
 function handleSubmit() {
   userProfileFormRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (valid) {
@@ -178,13 +182,17 @@ onBeforeUnmount(() => {
   document.removeEventListener("touchmove", handleTouchMove);
   // #endif
 });
-// 禁用浏览器双指缩放，使头像裁剪时双指缩放能够起作用
+/**
+ * 禁用浏览器双指缩放，使头像裁剪时双指缩放能够起作用
+ */
 function handleTouchStart(event: TouchEvent) {
   if (event.touches.length > 1) {
     event.preventDefault();
   }
 }
-// 禁用浏览器下拉刷新，使头像裁剪时能够移动图片
+/**
+ * 禁用浏览器下拉刷新，使头像裁剪时能够移动图片
+ */
 function handleTouchMove(event: TouchEvent) {
   event.preventDefault();
 }

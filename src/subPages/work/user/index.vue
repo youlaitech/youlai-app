@@ -270,7 +270,7 @@ const showCreateTimePicker = ref(false);
 const createTimeRange = ref<number[]>([]);
 const formatDay = (ts: number) => dayjs(ts).format("YYYY-MM-DD");
 const createTimeLabel = computed(() =>
-  createTimeRange.value.length === 2 ? createTimeRange.value.map(formatDay).join(" ~ ") : ""
+  createTimeRange.value.length === 2 ? createTimeRange.value.map(formatDay).join(" ~ ") : "",
 );
 
 const initialFormData: UserForm = {
@@ -354,11 +354,15 @@ const {
   retry,
 } = usePagedList(UserAPI.getPage, queryParams);
 
-// 加载列表（回到第一页）
+/**
+ * 加载列表（回到第一页）
+ */
 function loadUserList() {
   reload();
 }
-// 应用筛选并刷新
+/**
+ * 应用筛选并刷新
+ */
 function applyUserFilter() {
   if (createTimeRange.value.length === 2) {
     queryParams.createTime = createTimeRange.value.map(formatDay).join(",");
@@ -368,7 +372,9 @@ function applyUserFilter() {
   closeOutside();
   loadUserList();
 }
-// 重置筛选并刷新
+/**
+ * 重置筛选并刷新
+ */
 function resetUserFilter() {
   queryParams.keywords = "";
   createTimeRange.value = [];
@@ -378,7 +384,9 @@ function resetUserFilter() {
   applyUserFilter();
 }
 
-// 打开弹窗（新增/编辑）
+/**
+ * 打开弹窗（新增/编辑）
+ */
 async function openUserDialog(user?: UserItem) {
   formRef.value?.reset();
   Object.assign(formData, initialFormData);
@@ -411,7 +419,9 @@ async function openUserDialog(user?: UserItem) {
   }
 }
 
-// 提交表单
+/**
+ * 提交表单
+ */
 function submitUserForm() {
   formRef.value?.validate().then(({ valid }: { valid: boolean }) => {
     if (!valid) return;
@@ -432,7 +442,9 @@ function submitUserForm() {
   });
 }
 
-// 关闭弹窗
+/**
+ * 关闭弹窗
+ */
 function closeUserDialog() {
   dialog.visible = false;
   formRef.value?.reset();
@@ -454,7 +466,9 @@ const resetPwdRules = toFormSchema({
   ],
 });
 
-// 更多操作
+/**
+ * 更多操作
+ */
 function openUserActions(item: UserItem) {
   const commands: ActionSheetCommand[] = [];
 
@@ -492,7 +506,9 @@ function openUserActions(item: UserItem) {
   actionSheetRef.value?.open(commands);
 }
 
-// 打开重置密码弹窗
+/**
+ * 打开重置密码弹窗
+ */
 function openResetPwdDialog(item: UserItem) {
   resetPwdForm.password = "";
   resetPwdDialog.userId = item.id;
@@ -502,7 +518,9 @@ function openResetPwdDialog(item: UserItem) {
   });
 }
 
-// 重置密码
+/**
+ * 重置密码
+ */
 async function handleResetPassword() {
   const valid = await resetPwdFormRef.value?.validate();
   if (!valid || valid.valid === false) return;
@@ -556,18 +574,18 @@ export default { options: { styleIsolation: "shared" } };
 
 .user-card__name {
   overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 32rpx;
   font-weight: 700;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .user-card__role {
   display: block;
   overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 24rpx;
   color: var(--color-text-secondary);
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -589,9 +607,9 @@ export default { options: { styleIsolation: "shared" } };
 .user-card__contact-text {
   margin-left: 8rpx;
   overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 24rpx;
   color: var(--color-text-secondary);
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

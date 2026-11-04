@@ -8,30 +8,30 @@ let unauthorizedHandler: (() => void) | null = null;
 let refreshHandler: (() => Promise<void>) | null = null;
 
 /**
- * 由启动入口注入，避免请求模块与用户 store 循环依赖。
+ * 由启动入口注入，避免请求模块与用户 store 循环依赖
  */
 export function setUnauthorizedHandler(handler: () => void): void {
   unauthorizedHandler = handler;
 }
 
 /**
- * 注册会话续期回调，避免请求模块依赖用户 store。
+ * 注册会话续期回调，避免请求模块依赖用户 store
  */
 export function setRefreshHandler(handler: () => Promise<void>): void {
   refreshHandler = handler;
 }
 
 /**
- * HTTP、业务或网络请求失败信息。
+ * HTTP、业务或网络请求失败信息
  */
 export class RequestError extends Error {
   /**
-   * 保存响应状态与业务码；网络失败的状态为 0。
+   * 保存响应状态与业务码；网络失败的状态为 0
    */
   constructor(
     message: string,
     public readonly statusCode: number,
-    public readonly code = String(statusCode)
+    public readonly code = String(statusCode),
   ) {
     super(message);
     this.name = "RequestError";
@@ -56,11 +56,11 @@ interface ApiResponse {
 }
 
 /**
- * 访问令牌过期时合并续期并重试一次；匿名接口由调用方处理错误。
+ * 访问令牌过期时合并续期并重试一次；匿名接口由调用方处理错误
  */
 async function request<TResponse = unknown, TData = unknown>(
   options: RequestOptions<TData>,
-  retried = false
+  retried = false,
 ): Promise<TResponse> {
   const revision = getAuthSessionRevision();
   const token = options.anonymous ? null : getAccessToken();
@@ -79,11 +79,11 @@ async function request<TResponse = unknown, TData = unknown>(
     if (options.anonymous) throw new RequestError(message, 401, code);
     if (!retried && token && refreshHandler) {
       try {
-        // 较早发出的请求可能晚于续期返回，此时直接使用已更新的凭证。
+        // 较早发出的请求可能晚于续期返回，此时直接使用已更新的凭证
         if (getAccessToken() === token) await refreshHandler();
       } catch (error) {
         if (revision !== getAuthSessionRevision()) throw new RequestError("登录会话已切换", 0);
-        // 网络或服务故障不清空登录态，用户可稍后重试。
+        // 网络或服务故障不清空登录态，用户可稍后重试
         if (!(error instanceof RequestError) || error.statusCode !== 401) throw error;
         expireSession();
         throw error;
@@ -102,22 +102,22 @@ async function request<TResponse = unknown, TData = unknown>(
 }
 
 /**
- * 按当前平台发送 HTTP 请求并附加访问令牌。
+ * 按当前平台发送 HTTP 请求并附加访问令牌
  */
 function send<TData>(
   options: RequestOptions<TData>,
-  token: string | null
+  token: string | null,
 ): Promise<UniApp.RequestSuccessCallbackResult> {
   const header = { ...options.header };
   if (token) header.Authorization = `Bearer ${token}`;
   if (options.anonymous) delete header.Authorization;
 
   let url: string;
-  // #ifdef MP-WEIXIN
-  url = `${import.meta.env.VITE_APP_API_URL}${options.url}`;
+  // #ifdef H5
+  url = `${import.meta.env.VITE_API_BASE}${options.url}`;
   // #endif
-  // #ifndef MP-WEIXIN
-  url = `${import.meta.env.VITE_APP_BASE_API}${options.url}`;
+  // #ifndef H5
+  url = `${import.meta.env.VITE_API_URL}${options.url}`;
   // #endif
 
   return new Promise((resolve, reject) => {
@@ -135,7 +135,7 @@ function send<TData>(
 }
 
 /**
- * 清理失效会话并合并登录页跳转。
+ * 清理失效会话并合并登录页跳转
  */
 function expireSession(): void {
   if (unauthorizedHandler) unauthorizedHandler();

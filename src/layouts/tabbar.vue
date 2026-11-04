@@ -35,7 +35,9 @@ const tabbarList = [
 // 当前激活项的页面路径
 const activePath = ref(tabbarList[0].name);
 
-// 按当前页面同步激活项：mounted 与 onShow 都要执行，切回标签时不能停留在旧值
+/**
+ * 按当前页面同步激活项：mounted 与 onShow 都要执行，切回标签时不能停留在旧值
+ */
 function syncActiveTab() {
   const pages = getCurrentPages();
   const currentPage = pages[pages.length - 1];
@@ -46,7 +48,9 @@ function syncActiveTab() {
   }
 }
 
-// 切换标签：先更新选中态再跳转，避免切换过程中高亮回弹
+/**
+ * 切换标签：先更新选中态再跳转，避免切换过程中高亮回弹
+ */
 function handleTabbarChange({ value }: { value: string }) {
   activePath.value = value;
   nextTick(() => {

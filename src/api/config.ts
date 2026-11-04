@@ -31,7 +31,7 @@ const ConfigAPI = {
     return request({
       url: `${CONFIG_BASE_URL}`,
       method: "POST",
-      data: data,
+      data,
     });
   },
 
@@ -42,7 +42,7 @@ const ConfigAPI = {
     return request({
       url: `${CONFIG_BASE_URL}/${id}`,
       method: "PUT",
-      data: data,
+      data,
     });
   },
 
@@ -80,10 +80,11 @@ export interface ConfigForm {
 }
 
 /**
- * 系统配置列表项。
+ * 系统配置列表项
  */
 export interface ConfigItem {
-  id?: number;
+  /** 配置ID，列表数据由后端返回，必填 */
+  id: number;
   configName?: string;
   configKey?: string;
   configValue?: string;

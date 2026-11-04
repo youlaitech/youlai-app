@@ -78,12 +78,16 @@ const scanResult = ref<QrCodeScanResult | null>(null);
 // 返回定时器：页面卸载时清理，避免离开后仍触发 navigateBack
 let returnTimer: ReturnType<typeof setTimeout> | null = null;
 
-// 延迟返回上一页，让结果提示有可读时间
+/**
+ * 延迟返回上一页，让结果提示有可读时间
+ */
 function scheduleReturn(delay = RETURN_DELAY_MS) {
   returnTimer = setTimeout(() => uni.navigateBack(), delay);
 }
 
-// 标记已扫码：让 PC 端立即显示「已扫码」并展示头像与昵称
+/**
+ * 标记已扫码：让 PC 端立即显示「已扫码」并展示头像与昵称
+ */
 async function markScanned(code: string) {
   try {
     scanResult.value = await AuthAPI.markQrLoginScanned(code);
@@ -94,7 +98,9 @@ async function markScanned(code: string) {
   }
 }
 
-// 确认登录：授权 PC 端用该票据换取会话，失败退回可重试状态
+/**
+ * 确认登录：授权 PC 端用该票据换取会话，失败退回可重试状态
+ */
 async function handleConfirm() {
   if (status.value !== "ready") return;
   status.value = "confirming";
@@ -109,7 +115,9 @@ async function handleConfirm() {
   }
 }
 
-// 取消登录：撤回扫码，无论接口成败都结束本次流程并返回
+/**
+ * 取消登录：撤回扫码，无论接口成败都结束本次流程并返回
+ */
 async function handleCancel() {
   if (status.value !== "ready") return;
   status.value = "cancelling";
@@ -124,7 +132,9 @@ async function handleCancel() {
   }
 }
 
-// 无效二维码时返回扫码入口重新扫描
+/**
+ * 无效二维码时返回扫码入口重新扫描
+ */
 function handleBackToScan() {
   uni.navigateBack();
 }

@@ -1,7 +1,9 @@
 import { useUserStore } from "@/store";
 import { ROLE_ROOT, PERM_ALL } from "@/constants";
 
-/** 判断当前用户是否拥有指定权限点（任一命中即可，根角色或通配权限直接放行） */
+/**
+ * 检查当前用户是否具备任一指定权限，根角色与通配权限直接通过
+ */
 export function hasPermission(perm: string | string[]): boolean {
   if (!perm) return false;
 
@@ -18,7 +20,9 @@ export function hasPermission(perm: string | string[]): boolean {
   return keys.some((key) => perms.includes(key));
 }
 
-/** 菜单入口判权：无权限码的入口视为公开，其余按当前账号权限判断 */
+/**
+ * 判断菜单权限，未配置权限码时允许显示
+ */
 export function isMenuAllowed(perm: string): boolean {
   return !perm || hasPermission(perm);
 }

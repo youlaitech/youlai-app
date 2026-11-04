@@ -164,10 +164,11 @@ export interface DictTypeForm {
 }
 
 /**
- * 字典类型列表项。
+ * 字典类型列表项
  */
 export interface DictTypeItem {
-  id?: string;
+  /** 字典类型ID，列表数据由后端返回，必填 */
+  id: string;
   name?: string;
   dictCode?: string;
   status?: number;
@@ -197,10 +198,11 @@ export interface DictItemForm {
 }
 
 /**
- * 字典数据列表项。
+ * 字典数据列表项
  */
 export interface DictItem {
-  id?: string;
+  /** 字典数据ID，列表数据由后端返回，必填 */
+  id: string;
   dictCode?: string;
   label?: string;
   value?: string;

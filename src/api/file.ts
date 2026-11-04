@@ -2,10 +2,13 @@ import { getAccessToken } from "@/utils/auth";
 import { RequestError } from "@/utils/request";
 import { ApiCode } from "@/enums/api-code-enum";
 
-// H5 使用 VITE_APP_BASE_API 作为代理路径，其他平台使用 VITE_APP_API_URL 作为请求路径
-let baseApi = import.meta.env.VITE_APP_API_URL;
+// H5 走同源请求前缀，其他平台直连接口地址
+let baseApi: string;
 // #ifdef H5
-baseApi = import.meta.env.VITE_APP_BASE_API;
+baseApi = import.meta.env.VITE_API_BASE;
+// #endif
+// #ifndef H5
+baseApi = import.meta.env.VITE_API_URL;
 // #endif
 
 const FileAPI = {
@@ -21,7 +24,7 @@ const FileAPI = {
     return new Promise((resolve, reject) => {
       uni.uploadFile({
         url: this.uploadUrl,
-        filePath: filePath,
+        filePath,
         name: "file",
         header: {
           Authorization: getAccessToken() ? `Bearer ${getAccessToken()}` : "",
@@ -39,7 +42,7 @@ const FileAPI = {
             resolve(resData.data);
           } else {
             reject(
-              new RequestError(resData.msg || "文件上传失败", response.statusCode, resData.code)
+              new RequestError(resData.msg || "文件上传失败", response.statusCode, resData.code),
             );
           }
         },
@@ -53,7 +56,9 @@ const FileAPI = {
 
 export default FileAPI;
 
-/** 文件API类型声明 */
+/**
+ * 上传文件信息
+ */
 export interface FileInfo {
   /** 文件名 */
   name: string;

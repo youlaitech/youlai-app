@@ -23,7 +23,6 @@
     "nativeTags": ["block", "component", "template", "slot"],
     // 模板类型检查在 vue-tsc 默认工程里关闭：@wot-ui/ui 内部 SFC 模板（canvas id / inputmode
     // 等原生属性写法）在严格模板模式下报错，工程无法只针对自有文件开启。
-    // 自有文件的模板检查走 tsconfig.templates.json + scripts/check-templates.mjs。
     "strictTemplates": false,
     "skipTemplateCodegen": true
   },

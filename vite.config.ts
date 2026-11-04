@@ -38,6 +38,8 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
   const UnoCss = await import("unocss/vite").then((i) => i.default);
   const env = loadEnv(mode, process.cwd());
   const isProd = mode === "production";
+  // 接口地址，开发服务器的代理转发目标
+  const proxyTarget = env.VITE_API_URL;
 
   const pkg = JSON.parse(readFileSync(resolve(process.cwd(), "package.json"), "utf-8")) as {
     version?: string;
@@ -54,15 +56,17 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
       port: +env.VITE_APP_PORT,
       open: true,
       proxy: {
-        "/api/v1/realtime/ws": {
-          target: env.VITE_PROXY_TARGET || env.VITE_APP_API_URL,
-          ws: true,
-        },
-        [env.VITE_APP_BASE_API]: {
+        [env.VITE_API_BASE]: {
           changeOrigin: true,
-          // 未配置代理目标的环境回落到接口地址
-          target: env.VITE_PROXY_TARGET || env.VITE_APP_API_URL,
-          rewrite: (path) => path.replace(new RegExp("^" + env.VITE_APP_BASE_API), ""),
+          target: proxyTarget,
+          rewrite: (path) => path.slice(env.VITE_API_BASE.length),
+        },
+        // 实时推送的 WebSocket 握手，单独代理并改写 Origin 供后端校验来源
+        "/api/v1/realtime/ws": {
+          changeOrigin: true,
+          rewriteWsOrigin: true,
+          target: proxyTarget,
+          ws: true,
         },
       },
     },
