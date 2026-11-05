@@ -1,8 +1,10 @@
 <div align="center">
 
-# <img alt="youlai-app" height="32" valign="middle" src="./public/logo.png"> youlai-app
+# <img alt="youlai-app" width="40" height="40" src="./public/logo.png" align="center"> youlai-app
 
-**基于 uni-app、Vue 3、TypeScript 和 Wot UI 的移动端跨平台应用模板**
+**uni-app 3.x + Vue 3.5 移动端跨平台应用模板**
+
+<br>
 
 [![Vue](https://img.shields.io/badge/Vue-3.5-42b883?logo=vue.js)](https://vuejs.org/)
 [![uni-app](https://img.shields.io/badge/uni--app-3.x-2b9939)](https://uniapp.dcloud.net.cn/)
@@ -10,7 +12,16 @@
 [![Wot UI](https://img.shields.io/badge/Wot%20UI-2.x-4f8cff)](https://wot-ui.cn/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE)
 
-[在线预览](https://app.youlai.tech) | [项目文档](https://www.youlai.tech/docs/app/) | [配套后端](https://www.youlai.tech/docs/server/) | [PC 管理端](https://www.youlai.tech/docs/web/)
+</div>
+
+<p align="center"><img src="./public/images/rainbow.png" alt="rainbow"></p>
+
+<div align="center">
+
+[![在线预览](https://img.shields.io/badge/在线预览-2D8CF0?style=for-the-badge\&logo=google-chrome\&logoColor=white)](https://app.youlai.tech)
+[![项目文档](https://img.shields.io/badge/项目文档-8B5CF6?style=for-the-badge\&logo=gitbook\&logoColor=white)](https://www.youlai.tech/docs/app/)
+[![配套后端](https://img.shields.io/badge/配套后端-19BE6B?style=for-the-badge)](https://www.youlai.tech/docs/server/)
+[![PC 管理端](https://img.shields.io/badge/PC%20管理端-00B4D8?style=for-the-badge)](https://www.youlai.tech/docs/web/)
 
 </div>
 
@@ -46,7 +57,7 @@
 |:-----|:-----|
 | H5 预览 | [https://app.youlai.tech](https://app.youlai.tech) |
 | 官方文档 | [https://www.youlai.tech/docs/app/](https://www.youlai.tech/docs/app/) |
-| PC 管理端 | [https://vue.youlai.tech](https://vue.youlai.tech) |
+| PC 管理端 | [https://admin.youlai.tech](https://admin.youlai.tech) |
 | Apifox 接口文档 | [https://www.apifox.cn/apidoc/shared-195e783f-4d85-4235-a038-eec696de4ea5](https://www.apifox.cn/apidoc/shared-195e783f-4d85-4235-a038-eec696de4ea5) |
 
 默认账号：`admin` / `123456`
