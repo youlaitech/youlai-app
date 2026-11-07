@@ -1,8 +1,9 @@
 {
   "name": "youlai-app",
   "version": "1.2.1",
+  "private": true,
   "engines": {
-    "node": ">=18"
+    "node": ">=22.12.0"
   },
   "scripts": {
     "dev:app": "uni -p app",
