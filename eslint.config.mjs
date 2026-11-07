@@ -47,7 +47,6 @@ export default [
         // @wot-ui/ui 的自动导入方法
         useToast: "readonly",
         useDialog: "readonly",
-        useMessage: "readonly",
         useNotify: "readonly",
       },
     },
