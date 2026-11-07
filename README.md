@@ -1,6 +1,6 @@
 <div align="center">
 
-# <img alt="youlai-app" width="40" height="40" src="./public/logo.png" align="center"> youlai-app
+# <img alt="youlai-app" width="40" height="40" src="./public/logo.png" valign="middle"> youlai-app
 
 **uni-app 3.x + Vue 3.5 移动端跨平台应用模板**
 
